@@ -15,14 +15,46 @@ project(SafetyFramework)
 
 # Project settings for output files
 set (BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
-
 set (EXECUTABLE_OUTPUT_PATH "${BUILD_ROOT}/bin")
 set (LIBRARY_OUTPUT_PATH "${BUILD_ROOT}/lib")
 
-# option to organize targets in folders
-set_property (GLOBAL PROPERTY USE_FOLDERS ON)
+set_property (GLOBAL PROPERTY USE_FOLDERS ON) # option to organize targets in folders
 
-#add_subdirectory(libs)
+# shared library support
+# MJ TODO: deal with shared libs later
+#set (IS_SHARED OFF)
+
+# Set where to look for header files
+include_directories("${PROJECT_BINARY_DIR}")
+include_directories("${SafetyFramework_SOURCE_DIR}/libs/Common")
+include_directories("${SafetyFramework_SOURCE_DIR}/libs/FDD")
+include_directories("${SafetyFramework_SOURCE_DIR}/libs/FDD/filters")
+
+# Options to use robot middleware packages
+option (SF_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)
+if (SF_HAS_CISST)
+    message("cisst support enabled")
+    # find cisst
+    set (CISST_LIBRARIES_REQUIRED cisstCommon cisstVector cisstOSAbstraction
+                                  cisstMultiTask cisstParameterTypes)
+    find_package(cisst REQUIRED ${CISST_LIBRARIES_REQUIRED})
+
+    if (cisst_FOUND_AS_REQUIRED)
+        # Modify CMake configuration to use cisst
+        include (${CISST_USE_FILE})
+        # Print out cisst information
+        message("CISST found (ver. ${CISST_VERSION}): ${CISST_BINARY_DIR}")
+        add_definitions(-DSF_HAS_CISST)
+        #
+        # TODO
+        #
+    else (cisst_FOUND_AS_REQUIRED)
+        message(FATAL_ERROR "Failed to find cisst")
+    endif (cisst_FOUND_AS_REQUIRED)
+endif (SF_HAS_CISST)
+
+# Include sub-directories
+add_subdirectory(libs)
 #add_subdirectory(plugins)
 #add_subdirectory(tools)
 add_subdirectory(examples)

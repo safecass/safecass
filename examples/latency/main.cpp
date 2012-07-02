@@ -13,8 +13,11 @@
 #include <iostream>
 #include <stdlib.h>
 
+#include "common.h"
+
 int main(int argc, char *argv[])
 {
+#if 0
     if (argc != 3) {
         std::cout << "usage: latency period duration\n";
         std::cout << "       period  : thread period in msec\n";
@@ -26,10 +29,20 @@ int main(int argc, char *argv[])
     const double duration = atof(argv[2]);
 
     std::cout << "period: " << period << ", duration: " << duration << std::endl;
+#endif
+
+    // Print information about middleware(s) available
+    SF::StrVecType info;
+    SF::GetMiddlewareInfo(info);
+    for (size_t i = 0; i < info.size(); ++i) {
+        std::cout << info[i] << std::endl;
+    }
+
+    // Create test thread
 
     // TODO: thread creation
 
-    // TODO: FDD setup (or monitor)
+    // TODO: FDD setup (or monitor), history buffer??
 
     // TODO: start experiment
 
