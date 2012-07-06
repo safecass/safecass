@@ -18,6 +18,9 @@
 namespace SF {
 
 class JSON {
+    // for unit-tests
+    friend class JSONTest;
+
 protected:
     static Json::Reader JSONReader;
     Json::Value JSONValues;
@@ -29,13 +32,12 @@ public:
     virtual bool Read(const std::string & jsonString);
     virtual bool ReadFromFile(const std::string & fileName);
 
-    virtual bool Write(std::string & jsonString) const;
+    virtual std::string Write() const;
     virtual bool WriteToFile(const std::string & fileName) const;
 
-    //virtual bool Parse(void) = 0;
-    virtual bool Parse(std::string & result);
+    Json::Value * GetRoot(void) { return &JSONValues; }
 
-    void Cleanup();
+    virtual bool Parse(void) = 0;
 };
 
 };

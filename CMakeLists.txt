@@ -30,6 +30,9 @@ include_directories("${SafetyFramework_SOURCE_DIR}/libs/Common")
 include_directories("${SafetyFramework_SOURCE_DIR}/libs/FDD")
 include_directories("${SafetyFramework_SOURCE_DIR}/libs/FDD/filters")
 
+# Options to enable unit-testing with CppTest
+option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the CppTest library" ON)
+
 # Options to use robot middleware packages
 option (SF_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)
 if (SF_HAS_CISST)
@@ -58,3 +61,7 @@ add_subdirectory(libs)
 #add_subdirectory(plugins)
 #add_subdirectory(tools)
 add_subdirectory(examples)
+if (ENABLE_UNIT_TEST)
+  message("Unit-test enabled")
+  add_subdirectory(tests)
+endif (ENABLE_UNIT_TEST)
