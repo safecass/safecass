@@ -20,6 +20,7 @@
 #endif
 
 #include "common.h"
+#include "json.h"
 
 class PeriodicTask: public mtsTaskPeriodic {
 public:
@@ -36,7 +37,6 @@ public:
     void Cleanup(void) {}
 };
 
-
 void StartUp(void);          // Start-up codes required by the middleware
 void CreatePeriodicThread(const std::string & taskName, double period);
 void InstallMonitor();       // to monitor values in real-time
@@ -44,7 +44,6 @@ void InstallFDD();           // to set up FDD pipeline for thread latency measur
 void InstallDataCollector(); // to collect data during experiment
 void RunComponents(double second);
 void CleanUp(void);
-
 
 int main(int argc, char *argv[])
 {
