@@ -19,18 +19,18 @@ namespace SF {
 
 class JSON {
 protected:
-    std::string JSONString;
-
-    Json::Value  * JSONValues;
-    Json::Reader * JSONReader;
+    static Json::Reader JSONReader;
+    Json::Value JSONValues;
 
 public:
     JSON();
     virtual ~JSON();
 
-    virtual bool ReadFromFile(const std::string & fileName);
     virtual bool Read(const std::string & jsonString);
-    virtual bool WriteToFile(const std::string & fileName);
+    virtual bool ReadFromFile(const std::string & fileName);
+
+    virtual bool Write(std::string & jsonString) const;
+    virtual bool WriteToFile(const std::string & fileName) const;
 
     //virtual bool Parse(void) = 0;
     virtual bool Parse(std::string & result);

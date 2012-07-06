@@ -18,7 +18,7 @@
 
 namespace SF {
 
-JSON::JSON(): JSONValues(0), JSONReader(0)
+JSON::JSON()
 {
 }
 
@@ -27,25 +27,9 @@ JSON::~JSON()
     Cleanup();
 }
 
-void JSON::Cleanup()
-{
-    if (JSONValues) {
-        delete JSONValues;
-        JSONValues = 0;
-    }
-
-    if (JSONReader) {
-        // FIXME: deal with this later
-        //delete JSONReader;
-        JSONReader = 0;
-    }
-
-    JSONString.clear();
-}
-
 bool JSON::ReadFromFile(const std::string & fileName)
 {
-    std::string jsonString("");
+    std::string jsonString;
 
     std::ifstream input(fileName.c_str());
     if (input.is_open()) {
@@ -64,7 +48,7 @@ bool JSON::ReadFromFile(const std::string & fileName)
     return Read(jsonString);
 }
 
-bool JSON::WriteToFile(const std::string & fileName)
+bool JSON::WriteToFile(const std::string & fileName) const
 {
     std::ofstream output(fileName.c_str());
     if (!output.is_open()) {
@@ -73,7 +57,8 @@ bool JSON::WriteToFile(const std::string & fileName)
         return false;
     }
 
-    output << JSONString;
+    Json::StyledWriter writer;
+    output << writer.write(JSONValues);
     output.close();
 
     return true;
@@ -81,15 +66,7 @@ bool JSON::WriteToFile(const std::string & fileName)
 
 bool JSON::Read(const std::string & jsonString)
 {
-    Cleanup();
-
-    JSONValues = new Json::Value;
-    JSONReader = new Json::Reader;
-
-    JSONString = jsonString;
-
-    if (!JSONReader->parse(JSONString, *JSONValues)) {
-        Cleanup();
+    if (!JSONReader.parse(jsonString, JSONValues)) {
         return false;
     }
 
@@ -98,9 +75,7 @@ bool JSON::Read(const std::string & jsonString)
 
 bool JSON::Parse(std::string & result)
 {
-    if (!JSONValues) return false;
-
-    Json::Value ret = JSONValues->get("test", "UNKNOWN");
+    Json::Value ret = JSONValues.get("test", "UNKNOWN");
 
     result = ret.asString();
 
