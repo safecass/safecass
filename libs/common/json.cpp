@@ -60,7 +60,7 @@ bool JSON::ReadFromFile(const std::string & fileName)
     return Read(jsonString);
 }
 
-std::string JSON::Write() const
+std::string JSON::GetJSON() const
 {
     std::stringstream ss;
     Json::StyledWriter writer;
@@ -78,7 +78,7 @@ bool JSON::WriteToFile(const std::string & fileName) const
         return false;
     }
 
-    output << Write();
+    output << GetJSON();
     output.close();
 
     return true;

@@ -10,6 +10,17 @@
 
 */
 
+#include "config.h"
+#include "common.h"
+#include "json.h"
+#include "monitor.h"
+
+#if ENABLE_G2LOG
+#include "g2logworker.h"
+#include "g2log.h"
+#include <iomanip>
+#endif
+
 #include <cisstCommon/cmnGetChar.h>
 #include <cisstOSAbstraction/osaSleep.h>
 #include <cisstMultiTask/mtsCollectorState.h>
@@ -18,9 +29,6 @@
 #if (CISST_OS == CISST_LINUX_XENOMAI)
 #include <sys/mman.h>
 #endif
-
-#include "common.h"
-#include "json.h"
 
 class PeriodicTask: public mtsTaskPeriodic {
 public:
@@ -37,18 +45,41 @@ public:
     void Cleanup(void) {}
 };
 
-void StartUp(void);          // Start-up codes required by the middleware
+// Start-up codes required by the middleware
+void StartUp(void);
+// Create periodic task
 void CreatePeriodicThread(const std::string & taskName, double period);
-void InstallMonitor();       // to monitor values in real-time
-void InstallFDD();           // to set up FDD pipeline for thread latency measurements
-void InstallDataCollector(); // to collect data during experiment
+// to monitor values in real-time
+bool InstallMonitor(const std::string & targetTaskName);
+// to set up FDD pipeline for thread latency measurements
+void InstallFDD();
+// to collect data during experiment
+void InstallDataCollector();
+// Start experiment by running components
 void RunComponents(double second);
+// Clean up
 void CleanUp(void);
 
 int main(int argc, char *argv[])
 {
+#if ENABLE_G2LOG
+    g2LogWorker logger(argv[0], "/tmp/");
+    g2::initializeLogging(&logger);
+    std::cout << "\n*** Log file: [" << logger.logFileName() << "]\n\n" << std::endl;
+
+    LOGF(INFO, "Hi log %d", 123);
+    LOG(INFO) << "Test SLOG INFO";
+    LOG(DEBUG) << "Test SLOG DEBUG";
+    LOG(INFO) << "one: " << 1;
+    LOG(INFO) << "two: " << 2;
+    LOG(INFO) << "one and two: " << 1 << " and ";
+
+    return 0;
+#endif
+
     StartUp();
 
+#if 0
     if (argc != 3) {
         std::cerr << "usage: latency period_in_msec duration_in_sec" << std::endl;
         return 1;
@@ -80,15 +111,23 @@ int main(int argc, char *argv[])
     ss << "thread" << (int) frequency;
     std::string taskName = ss.str();
     std::cout << taskName << std::endl;
+#endif
 
     // Create periodic thread
-    CreatePeriodicThread(taskName, period);
+    //CreatePeriodicThread(taskName, period);
 
     // Install monitor, FDD pipeline, and data collector 
     // (MJ TODO: possibly with data visualizer)
-    InstallMonitor();       // to monitor values in real-time
-    InstallFDD();           // to set up FDD pipeline for thread latency measurements
-    InstallDataCollector(); // to collect data during experiment
+    if (!InstallMonitor("taskName")) {
+        std::cerr << "Failed to install monitor for task \"";// << taskName << "\"" << std::endl;
+        return 1;
+    }
+
+    return 1;
+
+#if 0
+    InstallFDD();
+    InstallDataCollector();
 
     // Start experiment
     RunComponents(duration);
@@ -98,6 +137,7 @@ int main(int argc, char *argv[])
 
     // Cleanup local component manager
     CleanUp();
+#endif
 
     return 0;
 }
@@ -144,14 +184,45 @@ void CreatePeriodicThread(const std::string & taskName, double period)
     componentManager->WaitForStateAll(mtsComponentState::READY);
 }
 
-void InstallMonitor(void)
+bool InstallMonitor(const std::string & targetTaskName)
 {
-    // TODO
+    SF::Monitor::TargetIDType targetId;
+    targetId.ProcessName = mtsComponentManager::GetInstance()->GetProcessName();
+    targetId.ComponentName = targetTaskName;
+
+    // Generate JSON file to create new monitor instance
+    const std::string newMonitorJSON = 
+        SF::Monitor::GetMonitorJSON("Period Monitor",
+                                    SF::Fault::COMPONENT_THREAD_SCHEDULING_LATENCY,
+                                    //SF::Monitor::OUTPUT_STREAM,
+                                    SF::Monitor::OUTPUT_EVENT,
+                                    SF::Monitor::MONITOR_ON,
+                                    targetId);
+
+    // TODO: now, so what???? continue here........
+
+    return true;
 }
 
 void InstallFDD(void)
 {
-    // TODO
+    // Any filter or FDD pipeline requires a monitor to be installed first.
+    // This allows application developers to probe raw signal values for data collection or
+    // visualization purpose or inputs to a filter or FDD pipeline.
+
+    /* Sampe JSON file to specify filter and FDD pipeline in cisst
+    {
+        // Filter name
+        "Name" : "
+        // Monitor configuration (e.g., which filter to use, filter config params)
+        "Config" : { "FilterName" : "Dual-threshold",
+                     "FilterArgs" : {
+                        "Threshold-low" : 0.01, // msec, (can be converted from % specification)
+                        "Threshold-high" : 0.05 // msec, (can be converted from % specification)
+                     }
+                   }
+    }
+    */
 }
 
 void InstallDataCollector(void)

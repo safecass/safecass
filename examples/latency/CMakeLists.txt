@@ -10,6 +10,11 @@
 project(latency)
 
 set (REQUIRED_SF_LIBS SFLib ${JSONCPP_LIBRARIES})
+if (ENABLE_G2LOG)
+    set (REQUIRED_SF_LIBS ${REQUIRED_SF_LIBS} ${G2LOG_LIBRARIES})
+endif (ENABLE_G2LOG)
+
+set (INCLUDE_DIR ${SF_LIB_INCLUDE_DIR})
 
 if (SF_HAS_CISST)
     set (REQUIRED_CISST_LIBS cisstCommon cisstVector cisstOSAbstraction cisstMultiTask)
@@ -18,7 +23,8 @@ if (SF_HAS_CISST)
     find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES} QUIET)
 
     if (cisst_FOUND_AS_REQUIRED)
-        include_directories (${cisst_INCLUDE_DIR} ${JSONCPP_INCLUDE_DIR})
+        set (INCLUDE_DIR ${INCLUDE_DIR} ${cisst_INCLUDE_DIR})
+        include_directories (${INCLUDE_DIR})
         add_executable (latency main_cisst.cpp)
         cisst_target_link_libraries(latency ${REQUIRED_CISST_LIBS})
         target_link_libraries (latency ${REQUIRED_SF_LIBS})

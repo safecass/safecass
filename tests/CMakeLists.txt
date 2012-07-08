@@ -9,6 +9,9 @@
 
 project (tests)
 
+set (REQUIRED_SF_LIBS SFLib ${JSONCPP_LIBRARIES} 
+                            ${CPPTEST_LIBRARY})
+
 # path to common files
 set (COMMON_FILES_PATH "${CMAKE_SOURCE_DIR}/common")
 
@@ -21,14 +24,13 @@ elseif (CPPTEST_FOUND)
   message (FATAL_ERROR "JSONCPP not found")
 endif (CPPTEST_FOUND)
 
-configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h)
 include_directories(${CMAKE_BINARY_DIR})
 
 add_executable (tests main.cpp 
                       # unit-test files
                       testJson.h testJson.cpp)
 
-target_link_libraries (tests SFLib ${CPPTEST_LIBRARY} ${JSONCPP_LIBRARIES})
+target_link_libraries (tests ${REQUIRED_SF_LIBS})
                                     
 include_directories(${COMMON_FILES_PATH} ${CPPTEST_INCLUDE_DIR})
 

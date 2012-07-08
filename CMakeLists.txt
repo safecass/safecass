@@ -32,6 +32,8 @@ include_directories("${SafetyFramework_SOURCE_DIR}/libs/FDD/filters")
 
 # Options to enable unit-testing with CppTest
 option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the CppTest library" ON)
+# Options to use g2log
+option (ENABLE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
 
 # Options to use robot middleware packages
 option (SF_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)

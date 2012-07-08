@@ -1,0 +1,2 @@
+QT + web integration:
+    http://qt.nokia.com/products/library/qtwebkit/

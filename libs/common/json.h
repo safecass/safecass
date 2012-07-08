@@ -31,11 +31,11 @@ public:
 
     virtual bool Read(const std::string & jsonString);
     virtual bool ReadFromFile(const std::string & fileName);
-
-    virtual std::string Write() const;
     virtual bool WriteToFile(const std::string & fileName) const;
 
-    Json::Value * GetRoot(void) { return &JSONValues; }
+    virtual std::string GetJSON() const;
+
+    Json::Value & GetRoot(void) { return JSONValues; }
 
     virtual bool Parse(void) = 0;
 };

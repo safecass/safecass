@@ -70,17 +70,17 @@ void SFTests::TestJSONRead(void)
 
     TEST_ASSERT(test.Read(sample));
 
-    std::string encoding = test.GetRoot()->get("encoding", "ERROR" ).asString();
+    std::string encoding = test.GetRoot().get("encoding", "ERROR" ).asString();
     TEST_ASSERT(encoding.compare("UTF-8") == 0);
 
     int i = 0;
-    const Json::Value plugins = (*test.GetRoot())["plug-ins"];
+    const Json::Value plugins = test.GetRoot()["plug-ins"];
     TEST_ASSERT(plugins[i++].asString().compare(VALUE_PLUGIN1) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(VALUE_PLUGIN2) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(VALUE_PLUGIN3) == 0);
 
-    TEST_ASSERT((*test.GetRoot())["indent"].get("length", 0).asUInt() == VALUE_LENGTH);
-    TEST_ASSERT((*test.GetRoot())["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
+    TEST_ASSERT(test.GetRoot()["indent"].get("length", 0).asUInt() == VALUE_LENGTH);
+    TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
 }
 
 void SFTests::TestJSONReadFromFile(void)
@@ -88,17 +88,17 @@ void SFTests::TestJSONReadFromFile(void)
     JSONTest test;
     TEST_ASSERT(test.ReadFromFile(SF_SOURCE_ROOT_DIR"/tests/sample.json"));
 
-    std::string encoding = test.GetRoot()->get("encoding", "ERROR" ).asString();
+    std::string encoding = test.GetRoot().get("encoding", "ERROR" ).asString();
     TEST_ASSERT(encoding.compare("UTF-8") == 0);
 
     int i = 0;
-    const Json::Value plugins = (*test.GetRoot())["plug-ins"];
+    const Json::Value plugins = test.GetRoot()["plug-ins"];
     TEST_ASSERT(plugins[i++].asString().compare(VALUE_PLUGIN1) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(VALUE_PLUGIN2) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(VALUE_PLUGIN3) == 0);
 
-    TEST_ASSERT((*test.GetRoot())["indent"].get("length", 0).asUInt() == VALUE_LENGTH);
-    TEST_ASSERT((*test.GetRoot())["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
+    TEST_ASSERT(test.GetRoot()["indent"].get("length", 0).asUInt() == VALUE_LENGTH);
+    TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
 }
 
 void SFTests::TestJSONWrite(void)
@@ -113,25 +113,25 @@ void SFTests::TestJSONWrite(void)
     const int newLength           = 100;
     const bool newUseSpace        = false;
 
-    (*test.GetRoot())["encoding"] = newEncoding;
+    test.GetRoot()["encoding"] = newEncoding;
     int i = 0;
-    (*test.GetRoot())["plug-ins"][i++] = newPlugin1;
-    (*test.GetRoot())["plug-ins"][i++] = newPlugin2;
-    (*test.GetRoot())["plug-ins"][i++] = newPlugin3;
-    (*test.GetRoot())["indent"]["length"] = newLength;
-    (*test.GetRoot())["indent"]["use_space"] = newUseSpace;
+    test.GetRoot()["plug-ins"][i++] = newPlugin1;
+    test.GetRoot()["plug-ins"][i++] = newPlugin2;
+    test.GetRoot()["plug-ins"][i++] = newPlugin3;
+    test.GetRoot()["indent"]["length"] = newLength;
+    test.GetRoot()["indent"]["use_space"] = newUseSpace;
 
-    std::string encoding = test.GetRoot()->get("encoding", "ERROR" ).asString();
+    std::string encoding = test.GetRoot().get("encoding", "ERROR" ).asString();
     TEST_ASSERT(encoding.compare(newEncoding) == 0);
 
     i = 0;
-    const Json::Value plugins = (*test.GetRoot())["plug-ins"];
+    const Json::Value plugins = test.GetRoot()["plug-ins"];
     TEST_ASSERT(plugins[i++].asString().compare(newPlugin1) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(newPlugin2) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(newPlugin3) == 0);
 
-    TEST_ASSERT((*test.GetRoot())["indent"].get("length", 0).asUInt() == newLength);
-    TEST_ASSERT((*test.GetRoot())["indent"].get("use_space", false).asBool() == newUseSpace);
+    TEST_ASSERT(test.GetRoot()["indent"].get("length", 0).asUInt() == newLength);
+    TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == newUseSpace);
 }
 
 void SFTests::TestJSONWriteToFile(void)
@@ -146,13 +146,13 @@ void SFTests::TestJSONWriteToFile(void)
     const int newLength           = 100;
     const bool newUseSpace        = false;
 
-    (*test.GetRoot())["encoding"] = newEncoding;
+    test.GetRoot()["encoding"] = newEncoding;
     int i = 0;
-    (*test.GetRoot())["plug-ins"][i++] = newPlugin1;
-    (*test.GetRoot())["plug-ins"][i++] = newPlugin2;
-    (*test.GetRoot())["plug-ins"][i++] = newPlugin3;
-    (*test.GetRoot())["indent"]["length"] = newLength;
-    (*test.GetRoot())["indent"]["use_space"] = newUseSpace;
+    test.GetRoot()["plug-ins"][i++] = newPlugin1;
+    test.GetRoot()["plug-ins"][i++] = newPlugin2;
+    test.GetRoot()["plug-ins"][i++] = newPlugin3;
+    test.GetRoot()["indent"]["length"] = newLength;
+    test.GetRoot()["indent"]["use_space"] = newUseSpace;
 
     std::string newFileName(SF_BINARY_ROOT_DIR);
     newFileName += "/output.json";
@@ -160,16 +160,16 @@ void SFTests::TestJSONWriteToFile(void)
 
     TEST_ASSERT(test.ReadFromFile(newFileName));
 
-    std::string encoding = test.GetRoot()->get("encoding", "ERROR" ).asString();
+    std::string encoding = test.GetRoot().get("encoding", "ERROR" ).asString();
     TEST_ASSERT(encoding.compare(newEncoding) == 0);
 
     i = 0;
-    const Json::Value plugins = (*test.GetRoot())["plug-ins"];
+    const Json::Value plugins = test.GetRoot()["plug-ins"];
     TEST_ASSERT(plugins[i++].asString().compare(newPlugin1) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(newPlugin2) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(newPlugin3) == 0);
 
-    TEST_ASSERT((*test.GetRoot())["indent"].get("length", 0).asUInt() == newLength);
-    TEST_ASSERT((*test.GetRoot())["indent"].get("use_space", false).asBool() == newUseSpace);
+    TEST_ASSERT(test.GetRoot()["indent"].get("length", 0).asUInt() == newLength);
+    TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == newUseSpace);
 }
 

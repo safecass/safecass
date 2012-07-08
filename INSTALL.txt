@@ -1,0 +1,29 @@
+===== g2log =====
+
+On MAC:
+    - g2log/src/crashhandler_unix.cpp: MAC => include <sys/ucontext.h> instead of <ucontext.h>
+    - g2log/CMakeLists.txt: comment out "set(PLATFORM_LINK_LIBRIES rt)"
+
+CMAKE_CXX_FLAGS needs to include "-std=c++11" option which is not supported by cisst and thus
+conflicts with cisstCommon as follows:
+
+    /Users/MJ/project/fault/cisst/cisstCommon/cmnTypeTraits.h:421:12: error: 'isnan' was not declared in this scope
+
+    According to http://en.cppreference.com/w/cpp/numeric/math/isnan,
+    #include <cmath> would resolve this problem but there should be a way to recognize
+    c++11 support or not.  For this, refer to http://pageant.ghulbus.eu/?p=664
+
+    patch for cisst:
+    Index: cisst/cisstCommon/cmnPortability.h
+    ===================================================================
+    --- cisst/cisstCommon/cmnPortability.h  (revision 3692)
+    +++ cisst/cisstCommon/cmnPortability.h  (working copy)
+    @@ -385,7 +385,9 @@
+           extern "C" int isnan (double);
+                #endif
+              #endif
+           -  #define CMN_ISNAN(x) isnan(x)
+    +  #include <cmath>
+    +  //#define CMN_ISNAN(x) isnan(x)
+    +  #define CMN_ISNAN(x) std::isnan(x)
+     #endif
