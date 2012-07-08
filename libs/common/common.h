@@ -10,6 +10,9 @@
 
 */
 
+#ifndef _common_h
+#define _common_h
+
 #include <vector>
 #include <sstream>
 
@@ -45,3 +48,5 @@ std::string GetCISSTInfo(void);
 #endif
 
 };
+
+#endif // _common_h

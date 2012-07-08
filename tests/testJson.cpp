@@ -68,7 +68,7 @@ void SFTests::TestJSONRead(void)
     JSONTest test;
     const std::string sample(SampleJSON.str());
 
-    TEST_ASSERT(test.Read(sample));
+    TEST_ASSERT(test.Read(sample.c_str()));
 
     std::string encoding = test.GetRoot().get("encoding", "ERROR" ).asString();
     TEST_ASSERT(encoding.compare("UTF-8") == 0);
@@ -104,7 +104,7 @@ void SFTests::TestJSONReadFromFile(void)
 void SFTests::TestJSONWrite(void)
 {
     JSONTest test;
-    TEST_ASSERT(test.Read(SampleJSON.str()));
+    TEST_ASSERT(test.Read(SampleJSON.str().c_str()));
 
     const std::string newEncoding = "Korean";
     const std::string newPlugin1  = "PYTHON";
@@ -137,7 +137,7 @@ void SFTests::TestJSONWrite(void)
 void SFTests::TestJSONWriteToFile(void)
 {
     JSONTest test;
-    TEST_ASSERT(test.Read(SampleJSON.str()));
+    TEST_ASSERT(test.Read(SampleJSON.str().c_str()));
 
     const std::string newEncoding = "Korean";
     const std::string newPlugin1  = "PYTHON";

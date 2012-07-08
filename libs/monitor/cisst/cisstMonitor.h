@@ -2,7 +2,7 @@
 
   Safety Framework for Component-based Robotics
 
-  Created on: July 7, 2012
+  Created on: July 8, 2012
 
   Copyright (C) 2012 Min Yang Jung <myj@jhu.edu>
 
@@ -12,21 +12,21 @@
 
 */
 
-#ifndef _fault_h
-#define _fault_h
+#ifndef _cisstMonitor_h
+#define _cisstMonitor_h
+
+#include "monitor.h"
 
 namespace SF {
 
-class Fault {
+class cisstMonitor {
 public:
-    typedef enum {
-        COMPONENT_THREAD_SCHEDULING_LATENCY
-    } FaultType;
+    cisstMonitor();
+    virtual ~cisstMonitor();
 
-public:
-    Fault() {}
+    static bool CreateMonitor(const std::string & monitorSpecJson);
 };
 
 };
 
-#endif // _fault_h
+#endif // _cisstMonitor_h

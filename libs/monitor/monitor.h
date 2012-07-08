@@ -12,6 +12,9 @@
 
 */
 
+#ifndef _monitor_h
+#define _monitor_h
+
 #include "fault.h"
 #include <string>
 
@@ -91,3 +94,5 @@ public:
 };
 
 };
+
+#endif // _monitor_h

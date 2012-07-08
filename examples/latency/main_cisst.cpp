@@ -14,6 +14,7 @@
 #include "common.h"
 #include "json.h"
 #include "monitor.h"
+#include "cisstMonitor.h"
 
 #if ENABLE_G2LOG
 #include "g2logworker.h"
@@ -120,6 +121,7 @@ int main(int argc, char *argv[])
     // (MJ TODO: possibly with data visualizer)
     if (!InstallMonitor("taskName")) {
         std::cerr << "Failed to install monitor for task \"";// << taskName << "\"" << std::endl;
+        std::cerr << std::endl;
         return 1;
     }
 
@@ -194,12 +196,15 @@ bool InstallMonitor(const std::string & targetTaskName)
     const std::string newMonitorJSON = 
         SF::Monitor::GetMonitorJSON("Period Monitor",
                                     SF::Fault::COMPONENT_THREAD_SCHEDULING_LATENCY,
-                                    //SF::Monitor::OUTPUT_STREAM,
-                                    SF::Monitor::OUTPUT_EVENT,
+                                    SF::Monitor::OUTPUT_STREAM,
                                     SF::Monitor::MONITOR_ON,
                                     targetId);
 
-    // TODO: now, so what???? continue here........
+    // Create new monitor instance for cisst
+    if (!SF::cisstMonitor::CreateMonitor(newMonitorJSON)) {
+        std::cerr << "Failed to create new cisst monitor for task \"" << targetTaskName << "\"" << std::endl;
+        return false;
+    }
 
     return true;
 }

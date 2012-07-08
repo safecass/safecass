@@ -19,19 +19,30 @@
 
 namespace SF {
 
-Json::Reader JSON::JSONReader;
-
-JSON::JSON()
+JSON::JSON(): JSONValues(0), JSONReader(0)
 {
+    JSONValues = new Json::Value;
+    JSONReader = new Json::Reader;
 }
 
 JSON::~JSON()
 {
 }
 
-bool JSON::Read(const std::string & jsonString)
+void JSON::Cleanup(void)
 {
-    if (!JSONReader.parse(jsonString, JSONValues)) {
+    if (JSONValues) delete JSONValues;
+    if (JSONReader) delete JSONReader;
+    JSONValues = 0;
+    JSONReader = 0;
+}
+
+bool JSON::Read(const char * json)
+{
+    if (!json) return false;
+
+    if (!JSONReader->parse(json, *JSONValues)) {
+        Cleanup();
         return false;
     }
 
@@ -57,14 +68,14 @@ bool JSON::ReadFromFile(const std::string & fileName)
         return false;
     }
 
-    return Read(jsonString);
+    return Read(jsonString.c_str());
 }
 
 std::string JSON::GetJSON() const
 {
     std::stringstream ss;
     Json::StyledWriter writer;
-    ss << writer.write(JSONValues);
+    ss << writer.write(*JSONValues);
 
     return ss.str();
 }

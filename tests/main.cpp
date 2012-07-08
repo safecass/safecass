@@ -31,7 +31,7 @@ int main(int argc, char ** argv)
     Test::TextOutput output(Test::TextOutput::Verbose);
     //Test::TextOutput output(Test::TextOutput::Terse);
 
-    std::cout << tests.run(output) ? 0 : 1;
+    return (tests.run(output) ? 0 : 1);
 #else
     // html output test
     Test::HtmlOutput output;

@@ -8,18 +8,20 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 #
 
-# Project name
+#---------------------------------
+# Project Settings
+#---------------------------------
 project(SFLib)
-
-# Project settings
-#include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common")
 
 # set cmake module path
 set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-# Set group files
+# Set directories
 set (LIB_DIR ${PROJECT_SOURCE_DIR})
 
+#---------------------------------
+# Collect project files
+#---------------------------------
 # common
 set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h
                        ${LIB_DIR}/common/common.cpp
@@ -31,12 +33,23 @@ set (SF_LIB_COMMON_INCLUDE_DIR ${LIB_DIR}/common)
 set (SF_LIB_MONITOR_SRC ${LIB_DIR}/monitor/monitor.h
                         ${LIB_DIR}/monitor/monitor.cpp)
 set (SF_LIB_MONITOR_INCLUDE_DIR ${LIB_DIR}/monitor)
+# monitor plug-ins for cisst
+if (SF_HAS_CISST)
+  set (MONITOR_CISST_PLUGIN_DIR ${LIB_DIR}/monitor/cisst)
+  set (SF_LIB_MONITOR_PLUGINS_CISST ${MONITOR_CISST_PLUGIN_DIR}/cisstMonitor.h
+                                    ${MONITOR_CISST_PLUGIN_DIR}/cisstMonitor.cpp)
+
+  set (SF_LIB_MONITOR_INCLUDE_DIR ${SF_LIB_MONITOR_INCLUDE_DIR} ${MONITOR_CISST_PLUGIN_DIR})
+  set (SF_LIB_MONITOR_SRC ${SF_LIB_MONITOR_SRC} ${SF_LIB_MONITOR_PLUGINS_CISST})
+endif (SF_HAS_CISST)
 
 # FDD
 #set (SF_LIB_FDD_SRC ${LIB_DIR}/FDD/fdd.h)
 set (SF_LIB_FDD_INCLUDE_DIR ${LIB_DIR}/FDD)
 
-# Collect files and paths
+#---------------------------------
+# Set global INCLUDE and LIB
+#---------------------------------
 set (SF_LIB_SRC ${SF_LIB_COMMON_SRC} 
                 ${SF_LIB_MONITOR_SRC} 
                 ${SF_LIB_FDD_SRC})
@@ -48,6 +61,9 @@ set (SF_LIB_INCLUDE_DIR ${SF_LIB_COMMON_INCLUDE_DIR}
 configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h)
 set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${CMAKE_BINARY_DIR})
 
+#---------------------------------
+# Include 3rd-party modules
+#---------------------------------
 # Find JSON (for JSON-based data exchange)
 find_package (JSONCPP REQUIRED)
 if (JSONCPP_FOUND)

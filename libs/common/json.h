@@ -12,6 +12,9 @@
 
 */
 
+#ifndef _json_h
+#define _json_h
+
 #include <jsoncpp/json.h>
 #include <string>
 
@@ -22,22 +25,26 @@ class JSON {
     friend class JSONTest;
 
 protected:
-    static Json::Reader JSONReader;
-    Json::Value JSONValues;
+    Json::Value  * JSONValues;
+    Json::Reader * JSONReader;
+
+    void Cleanup(void);
 
 public:
     JSON();
     virtual ~JSON();
 
-    virtual bool Read(const std::string & jsonString);
+    virtual bool Read(const char * json);
     virtual bool ReadFromFile(const std::string & fileName);
     virtual bool WriteToFile(const std::string & fileName) const;
 
     virtual std::string GetJSON() const;
 
-    Json::Value & GetRoot(void) { return JSONValues; }
+    Json::Value & GetRoot(void) { return *JSONValues; }
 
-    virtual bool Parse(void) = 0;
+    //virtual bool Parse(void) = 0;
 };
 
 };
+
+#endif // _json_h
