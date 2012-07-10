@@ -4,7 +4,7 @@
 
   Created on: July 7, 2012
 
-  Copyright (C) 2012 Min Yang Jung <myj@jhu.edu>
+  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -16,25 +16,22 @@
 #define _monitor_h
 
 #include "fault.h"
+
 #include <string>
+#include <map>
 
 namespace SF {
 
-class Monitor {
-    // for unit-tests
-    //friend class JSONTest;
-
+class TargetIDBase {
 public:
-    typedef enum {
-        OUTPUT_STREAM,
-        OUTPUT_EVENT
-    } OutputType;
+    virtual const std::string GetTargetUID(void) const = 0;
+    virtual const std::string GetTargetUID(Fault::FaultType faultType) const = 0;
+};
 
-    typedef enum {
-        MONITOR_OFF,
-        MONITOR_ON
-    } StatusType;
-
+class Monitor {
+public:
+    typedef enum { OUTPUT_STREAM, OUTPUT_EVENT } OutputType;
+    typedef enum { MONITOR_OFF, MONITOR_ON } StatusType;
     typedef enum {
         CONFIG,
         EVENT,
@@ -56,39 +53,21 @@ public:
         TYPE,
     } KeyTypes;
 
-#ifdef SF_HAS_CISST
-public:
-    class cisstTargetID {
-    public:
-        std::string ProcessName;
-        std::string ComponentName;
-        std::string InterfaceProvidedName;
-        std::string InterfaceRequiredName;
-        std::string CommandName;
-        std::string FunctionName;
-        std::string EventGeneratorName;
-        std::string EventHandlerName;
-    };
-
-    typedef cisstTargetID TargetIDType;
-
-protected:
-    static const std::string GetMonitorJSON_cisst(const std::string &  name,
-                                                  Fault::FaultType     faultType,
-                                                  Monitor::OutputType  outputType,
-                                                  Monitor::StatusType  initialStatus,
-                                                  const TargetIDType & targetId);
-#endif
+    typedef std::map<std::string, std::string> MonitorMapType;
 
 public:
     Monitor();
     virtual ~Monitor();
 
-    static const std::string GetMonitorJSON(const std::string &  name,
-                                            Fault::FaultType     faultType,
-                                            Monitor::OutputType  outputType,
-                                            Monitor::StatusType  initialStatus,
-                                            const TargetIDType & targetId);
+    static bool AddMonitor(const std::string & targetUID, const std::string & monitorJson);
+
+    /*
+    virtual std::string GetMonitorJSON(const std::string &  name,
+                                       Fault::FaultType     faultType,
+                                       Monitor::OutputType  outputType,
+                                       Monitor::StatusType  initialStatus,
+                                       TargetIDBase *       targetId) = 0;
+                                       */
 
     static std::string GetKeyString(KeyTypes keyType);
 };

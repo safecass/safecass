@@ -2,7 +2,7 @@
 
   Safety Framework for Component-based Robotics
 
-  Copyright (C) 2012 Min Yang Jung <myj@jhu.edu>
+  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -31,6 +31,8 @@
 #include <sys/mman.h>
 #endif
 
+using namespace SF;
+
 class PeriodicTask: public mtsTaskPeriodic {
 public:
     PeriodicTask(const std::string & name, double period) :
@@ -46,12 +48,13 @@ public:
     void Cleanup(void) {}
 };
 
+
 // Start-up codes required by the middleware
 void StartUp(void);
 // Create periodic task
 void CreatePeriodicThread(const std::string & taskName, double period);
 // to monitor values in real-time
-bool InstallMonitor(const std::string & targetTaskName);
+bool InstallMonitor(const std::string & targetComponentName);
 // to set up FDD pipeline for thread latency measurements
 void InstallFDD();
 // to collect data during experiment
@@ -60,6 +63,7 @@ void InstallDataCollector();
 void RunComponents(double second);
 // Clean up
 void CleanUp(void);
+
 
 int main(int argc, char *argv[])
 {
@@ -87,8 +91,8 @@ int main(int argc, char *argv[])
     }
 
     // Print information about middleware(s) available
-    SF::StrVecType info;
-    SF::GetMiddlewareInfo(info);
+    StrVecType info;
+    GetMiddlewareInfo(info);
     std::cout << "Middleware(s) detected: ";
     if (info.size() == 0) {
         std::cout << "none" << std::endl;
@@ -119,7 +123,7 @@ int main(int argc, char *argv[])
 
     // Install monitor, FDD pipeline, and data collector 
     // (MJ TODO: possibly with data visualizer)
-    if (!InstallMonitor("taskName")) {
+    if (!InstallMonitor("aComponent")) {
         std::cerr << "Failed to install monitor for task \"";// << taskName << "\"" << std::endl;
         std::cerr << std::endl;
         return 1;
@@ -186,23 +190,24 @@ void CreatePeriodicThread(const std::string & taskName, double period)
     componentManager->WaitForStateAll(mtsComponentState::READY);
 }
 
-bool InstallMonitor(const std::string & targetTaskName)
+bool InstallMonitor(const std::string & targetComponentName)
 {
-    SF::Monitor::TargetIDType targetId;
+    cisstTargetID targetId;
     targetId.ProcessName = mtsComponentManager::GetInstance()->GetProcessName();
-    targetId.ComponentName = targetTaskName;
+    targetId.ComponentName = targetComponentName;
 
     // Generate JSON file to create new monitor instance
     const std::string newMonitorJSON = 
-        SF::Monitor::GetMonitorJSON("Period Monitor",
-                                    SF::Fault::COMPONENT_THREAD_SCHEDULING_LATENCY,
-                                    SF::Monitor::OUTPUT_STREAM,
-                                    SF::Monitor::MONITOR_ON,
-                                    targetId);
+        cisstMonitor::GetMonitorJSON("Period Monitor",
+                                     Fault::COMPONENT_PERIOD,
+                                     Monitor::OUTPUT_STREAM,
+                                     Monitor::MONITOR_ON,
+                                     targetId);
 
     // Create new monitor instance for cisst
-    if (!SF::cisstMonitor::CreateMonitor(newMonitorJSON)) {
-        std::cerr << "Failed to create new cisst monitor for task \"" << targetTaskName << "\"" << std::endl;
+    const std::string targetUID = targetId.GetTargetUID(Fault::COMPONENT_PERIOD);
+    if (!Monitor::AddMonitor(targetUID, newMonitorJSON)) {
+        std::cerr << "Failed to create new cisst monitor for component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
 

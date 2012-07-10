@@ -1,0 +1,8 @@
+Authors:
+
+    Min Yang Jung <myj@jhu.edu> and Peter Kazanzides <pkaz@jhu.edu>
+
+    Department of Computer Science
+    Laboratory of Computational Sensing and Robotics
+    NSF Computer Integrated Surgical Systems and Technologies
+    Johns Hopkins University
