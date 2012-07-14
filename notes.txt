@@ -1,2 +1,5 @@
 QT + web integration:
     http://qt.nokia.com/products/library/qtwebkit/
+
+ICE-3.4.2 on Mac:
+    http://www.zeroc.com/forums/patches/5647-patch-compiling-ice-clang-gcc4-7-a.html

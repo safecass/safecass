@@ -70,6 +70,13 @@ bool Monitor::AddMonitor(const std::string & targetUID, const std::string & moni
         return false;
     }
 
+    // 결정1: monitor creation 기능 자체는 cisst 안에 구현 (plug-in 개념)
+    // 결정2: monitor creation 을 위한 call 은 SF 안에 adaptor로 구현 (SF에서는 동일한
+    //        API를 호출하되 adaptor instance (cisst/ros)에서는 개별 middleware에 맞는
+    //        API를 내부적으로 호출
+    // 결정3: SF에서는 "일단" 오직 한 종류의 middleware만을 허용
+    // 결정4: adaptors will be implemented as cisst.h/.cpp under libs/monitor/adaptor folder
+
     // create new monitor with (uid, json)
     // insert new monitor to monitor list
     // embed new monitor to cisst system

@@ -33,19 +33,21 @@ set (SF_LIB_COMMON_INCLUDE_DIR ${LIB_DIR}/common)
 set (SF_LIB_MONITOR_SRC ${LIB_DIR}/monitor/monitor.h
                         ${LIB_DIR}/monitor/monitor.cpp)
 set (SF_LIB_MONITOR_INCLUDE_DIR ${LIB_DIR}/monitor)
-# monitor plug-ins for cisst
-if (SF_HAS_CISST)
-  set (MONITOR_CISST_PLUGIN_DIR ${LIB_DIR}/monitor/cisst)
-  set (SF_LIB_MONITOR_PLUGINS_CISST ${MONITOR_CISST_PLUGIN_DIR}/cisstMonitor.h
-                                    ${MONITOR_CISST_PLUGIN_DIR}/cisstMonitor.cpp)
-
-  set (SF_LIB_MONITOR_INCLUDE_DIR ${SF_LIB_MONITOR_INCLUDE_DIR} ${MONITOR_CISST_PLUGIN_DIR})
-  set (SF_LIB_MONITOR_SRC ${SF_LIB_MONITOR_SRC} ${SF_LIB_MONITOR_PLUGINS_CISST})
-endif (SF_HAS_CISST)
 
 # FDD
 #set (SF_LIB_FDD_SRC ${LIB_DIR}/FDD/fdd.h)
 set (SF_LIB_FDD_INCLUDE_DIR ${LIB_DIR}/FDD)
+
+# adapters
+set (SF_LIB_ADAPTER_BASE_DIR ${LIB_DIR}/adapters)
+if (SF_HAS_CISST)
+  set (SF_LIB_ADAPTER_DIR "${SF_LIB_ADAPTER_BASE_DIR}/cisst")
+  set (SF_LIB_ADAPTER_CISST_SRC ${SF_LIB_ADAPTER_DIR}/cisstMonitor.h
+                                ${SF_LIB_ADAPTER_DIR}/cisstMonitor.cpp)
+
+  set (SF_LIB_MONITOR_INCLUDE_DIR ${SF_LIB_MONITOR_INCLUDE_DIR} ${SF_LIB_ADAPTER_DIR})
+  set (SF_LIB_MONITOR_SRC ${SF_LIB_MONITOR_SRC} ${SF_LIB_ADAPTER_CISST_SRC})
+endif (SF_HAS_CISST)
 
 #---------------------------------
 # Set global INCLUDE and LIB

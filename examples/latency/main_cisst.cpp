@@ -82,8 +82,6 @@ int main(int argc, char *argv[])
     return 0;
 #endif
 
-    StartUp();
-
 #if 0
     if (argc != 3) {
         std::cerr << "usage: latency period_in_msec duration_in_sec" << std::endl;
