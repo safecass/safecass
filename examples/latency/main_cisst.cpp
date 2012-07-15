@@ -15,6 +15,7 @@
 #include "json.h"
 #include "monitor.h"
 #include "cisstMonitor.h"
+#include "cisstCoordinator.h"
 
 #if ENABLE_G2LOG
 #include "g2logworker.h"
@@ -65,6 +66,9 @@ void RunComponents(double second);
 void CleanUp(void);
 
 
+// Safety coordinator for this process
+Coordinator * SafetyCoordinator = 0;
+
 int main(int argc, char *argv[])
 {
 #if ENABLE_G2LOG
@@ -81,6 +85,9 @@ int main(int argc, char *argv[])
 
     return 0;
 #endif
+
+    // Initialize safety coordinator for this process
+    SafetyCoordinator = new cisstCoordinator();
 
 #if 0
     if (argc != 3) {
@@ -190,7 +197,7 @@ void CreatePeriodicThread(const std::string & taskName, double period)
 
 bool InstallMonitor(const std::string & targetComponentName)
 {
-    cisstTargetID targetId;
+    TargetIDType targetId;
     targetId.ProcessName = mtsComponentManager::GetInstance()->GetProcessName();
     targetId.ComponentName = targetComponentName;
 
@@ -202,10 +209,17 @@ bool InstallMonitor(const std::string & targetComponentName)
                                      Monitor::MONITOR_ON,
                                      targetId);
 
-    // Create new monitor instance for cisst
+#if 0
+    // Check if the target object is already being monitored
     const std::string targetUID = targetId.GetTargetUID(Fault::COMPONENT_PERIOD);
     if (!Monitor::AddMonitor(targetUID, newMonitorJSON)) {
         std::cerr << "Failed to create new cisst monitor for component \"" << targetComponentName << "\"" << std::endl;
+        return false;
+    }
+#endif
+    if (!SafetyCoordinator->AddMonitor(newMonitorJSON)) {
+        std::cerr << "Failed to create new cisst monitor for component \"" << targetComponentName << "\"" << std::endl;
+        std::cerr << "JSON: " << newMonitorJSON << std::endl;
         return false;
     }
 

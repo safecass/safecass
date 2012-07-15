@@ -14,6 +14,7 @@
 #define _common_h
 
 #include <vector>
+#include <iostream>
 #include <sstream>
 
 namespace SF {

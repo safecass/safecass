@@ -22,12 +22,15 @@ set (LIB_DIR ${PROJECT_SOURCE_DIR})
 #---------------------------------
 # Collect project files
 #---------------------------------
+set (SF_LIB_SRC ${LIB_DIR}/coordinator.h ${LIB_DIR}/coordinator.cpp)
+set (SF_LIB_INCLUDE_DIR ${LIB_DIR})
+
 # common
 set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h
                        ${LIB_DIR}/common/common.cpp
                        ${LIB_DIR}/common/json.h
                        ${LIB_DIR}/common/json.cpp)
-set (SF_LIB_COMMON_INCLUDE_DIR ${LIB_DIR}/common)
+set (SF_LIB_COMMON_INCLUDE_DIR ${LIB_DIR} ${LIB_DIR}/common)
 
 # monitor
 set (SF_LIB_MONITOR_SRC ${LIB_DIR}/monitor/monitor.h
@@ -43,7 +46,9 @@ set (SF_LIB_ADAPTER_BASE_DIR ${LIB_DIR}/adapters)
 if (SF_HAS_CISST)
   set (SF_LIB_ADAPTER_DIR "${SF_LIB_ADAPTER_BASE_DIR}/cisst")
   set (SF_LIB_ADAPTER_CISST_SRC ${SF_LIB_ADAPTER_DIR}/cisstMonitor.h
-                                ${SF_LIB_ADAPTER_DIR}/cisstMonitor.cpp)
+                                ${SF_LIB_ADAPTER_DIR}/cisstMonitor.cpp
+                                ${SF_LIB_ADAPTER_DIR}/cisstCoordinator.h
+                                ${SF_LIB_ADAPTER_DIR}/cisstCoordinator.cpp)
 
   set (SF_LIB_MONITOR_INCLUDE_DIR ${SF_LIB_MONITOR_INCLUDE_DIR} ${SF_LIB_ADAPTER_DIR})
   set (SF_LIB_MONITOR_SRC ${SF_LIB_MONITOR_SRC} ${SF_LIB_ADAPTER_CISST_SRC})
@@ -52,10 +57,12 @@ endif (SF_HAS_CISST)
 #---------------------------------
 # Set global INCLUDE and LIB
 #---------------------------------
-set (SF_LIB_SRC ${SF_LIB_COMMON_SRC} 
+set (SF_LIB_SRC ${SF_LIB_SRC}
+                ${SF_LIB_COMMON_SRC} 
                 ${SF_LIB_MONITOR_SRC} 
                 ${SF_LIB_FDD_SRC})
-set (SF_LIB_INCLUDE_DIR ${SF_LIB_COMMON_INCLUDE_DIR}
+set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} 
+                        ${SF_LIB_COMMON_INCLUDE_DIR}
                         ${SF_LIB_MONITOR_INCLUDE_DIR}
                         ${SF_LIB_FDD_INCLUDE_DIR})
 
