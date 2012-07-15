@@ -12,21 +12,12 @@
 
 */
 
-#ifndef _cisstCoordinator_h
-#define _cisstCoordinator_h
-
-#include "coordinator.h"
+#include "dict.h"
 
 namespace SF {
 
-class cisstCoordinator: public Coordinator {
-public:
-    cisstCoordinator();
-    ~cisstCoordinator();
+namespace Dict {
 
-    bool AddMonitor(const std::string & targetUID, const std::string & monitorJsonSpec);
-};
+}; // Dict
 
-};
-
-#endif // _cisstCoordinator_h
+}; // SF

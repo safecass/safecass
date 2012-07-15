@@ -16,16 +16,27 @@
 #define _coordinator_h
 
 #include "common.h"
+#include "monitor.h"
+
+#include <map>
 
 namespace SF {
 
 // Adapter class: almost empty but pure virtual methods
 class Coordinator {
 public:
+    typedef std::map<std::string, std::string> MonitorMapType;
+
+protected:
+    // Monitor map
+    MonitorMapType MonitorMap;
+
+public:
     Coordinator();
     virtual ~Coordinator();
 
-    virtual bool AddMonitor(const std::string & monitorJsonSpec) = 0;
+    virtual bool AddMonitor(const std::string & targetUID, 
+                            const std::string & monitorJsonSpec) = 0;
 };
 
 };

@@ -32,44 +32,13 @@ class Monitor {
 public:
     typedef enum { OUTPUT_STREAM, OUTPUT_EVENT } OutputType;
     typedef enum { MONITOR_OFF, MONITOR_ON } StatusType;
-    typedef enum {
-        CONFIG,
-        EVENT,
-        IDENTIFIER,
-        MARGIN,
-        NAME, 
-        NAME_PROCESS,
-        NAME_COMPONENT,
-        NAME_INTERFACE_PROVIDED,
-        NAME_INTERFACE_REQUIRED,
-        NAME_EVENT_GENERATOR,
-        NAME_EVENT_HANDLER,
-        OUTPUT,
-        SAMPLING_RATE,
-        STATE,
-        STREAM,
-        TARGET, 
-        THRESHOLD,
-        TYPE,
-    } KeyTypes;
 
-    typedef std::map<std::string, std::string> MonitorMapType;
+protected:
+
 
 public:
     Monitor();
     virtual ~Monitor();
-
-    static bool AddMonitor(const std::string & targetUID, const std::string & monitorJson);
-
-    /*
-    virtual std::string GetMonitorJSON(const std::string &  name,
-                                       Fault::FaultType     faultType,
-                                       Monitor::OutputType  outputType,
-                                       Monitor::StatusType  initialStatus,
-                                       TargetIDBase *       targetId) = 0;
-                                       */
-
-    static std::string GetKeyString(KeyTypes keyType);
 };
 
 };

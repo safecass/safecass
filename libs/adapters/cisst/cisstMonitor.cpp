@@ -12,12 +12,15 @@
 
 */
 
+#include "dict.h"
 #include "cisstMonitor.h"
 #include "json.h"
 
 #include <sstream>
 
 namespace SF {
+
+using namespace Dict;
 
 cisstMonitor::cisstMonitor()
 {
@@ -105,48 +108,48 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &        name,
     Json::Value root;
 
     // Monitor name
-    root[GetKeyString(NAME)] = name;
+    root[NAME] = name;
 
     // Monitor target type
     {   Json::Value _root;
         { Json::Value __root;
-          __root[GetKeyString(NAME_COMPONENT)] = faultType;
-          _root[GetKeyString(TYPE)] = __root;
+          __root[NAME_COMPONENT] = faultType;
+          _root[TYPE] = __root;
         }
 
         { Json::Value __root;
-          __root[GetKeyString(NAME_PROCESS)] = targetId.ProcessName;
-          __root[GetKeyString(NAME_COMPONENT)] = targetId.ComponentName;
-          _root[GetKeyString(IDENTIFIER)] = __root;
+          __root[NAME_PROCESS] = targetId.ProcessName;
+          __root[NAME_COMPONENT] = targetId.ComponentName;
+          _root[IDENTIFIER] = __root;
         }
-        root[GetKeyString(TARGET)] = _root;
+        root[TARGET] = _root;
     }
 
     // Monitor behaviors
     {   Json::Value _root;
-        _root[GetKeyString(TYPE)] = outputType;
+        _root[TYPE] = outputType;
         {   Json::Value __root;
             {
-                __root[GetKeyString(STATE)] = initialStatus;
+                __root[STATE] = initialStatus;
                 if (outputType == OUTPUT_STREAM) {
-                    __root[GetKeyString(SAMPLING_RATE)] = 1;
+                    __root[SAMPLING_RATE] = 1;
                 } else if (outputType == OUTPUT_EVENT) {
                     Json::Value array(Json::arrayValue);
                     array.append(0.1);
                     array.append(0.5);
                     array.append(2.5);
-                    //__root[GetKeyString(THRESHOLD)] = 3;
-                    __root[GetKeyString(THRESHOLD)] = array;
-                    __root[GetKeyString(MARGIN)] = 4;
+                    //__root[THRESHOLD] = 3;
+                    __root[THRESHOLD] = array;
+                    __root[MARGIN] = 4;
                 }
             }
-            _root[GetKeyString(CONFIG)] = __root;
+            _root[CONFIG] = __root;
         }
 
         {   Json::Value __root;
-            _root[GetKeyString(TARGET)] = __root;
+            _root[TARGET] = __root;
         }
-        root[GetKeyString(OUTPUT)] = _root;
+        root[OUTPUT] = _root;
     }
 
     std::stringstream ss;

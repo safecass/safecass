@@ -28,6 +28,8 @@ set (SF_LIB_INCLUDE_DIR ${LIB_DIR})
 # common
 set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h
                        ${LIB_DIR}/common/common.cpp
+                       ${LIB_DIR}/common/dict.h
+                       ${LIB_DIR}/common/dict.cpp
                        ${LIB_DIR}/common/json.h
                        ${LIB_DIR}/common/json.cpp)
 set (SF_LIB_COMMON_INCLUDE_DIR ${LIB_DIR} ${LIB_DIR}/common)

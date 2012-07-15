@@ -72,7 +72,7 @@ Coordinator * SafetyCoordinator = 0;
 int main(int argc, char *argv[])
 {
 #if ENABLE_G2LOG
-    g2LogWorker logger(argv[0], "/tmp/");
+    g2LogWorker logger(argv[0], "./");
     g2::initializeLogging(&logger);
     std::cout << "\n*** Log file: [" << logger.logFileName() << "]\n\n" << std::endl;
 
@@ -82,8 +82,6 @@ int main(int argc, char *argv[])
     LOG(INFO) << "one: " << 1;
     LOG(INFO) << "two: " << 2;
     LOG(INFO) << "one and two: " << 1 << " and ";
-
-    return 0;
 #endif
 
     // Initialize safety coordinator for this process
@@ -209,15 +207,9 @@ bool InstallMonitor(const std::string & targetComponentName)
                                      Monitor::MONITOR_ON,
                                      targetId);
 
-#if 0
     // Check if the target object is already being monitored
     const std::string targetUID = targetId.GetTargetUID(Fault::COMPONENT_PERIOD);
-    if (!Monitor::AddMonitor(targetUID, newMonitorJSON)) {
-        std::cerr << "Failed to create new cisst monitor for component \"" << targetComponentName << "\"" << std::endl;
-        return false;
-    }
-#endif
-    if (!SafetyCoordinator->AddMonitor(newMonitorJSON)) {
+    if (!SafetyCoordinator->AddMonitor(targetUID, newMonitorJSON)) {
         std::cerr << "Failed to create new cisst monitor for component \"" << targetComponentName << "\"" << std::endl;
         std::cerr << "JSON: " << newMonitorJSON << std::endl;
         return false;
