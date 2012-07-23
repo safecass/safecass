@@ -19,7 +19,7 @@
 
 namespace SF {
 
-class cisstCoordinator: public Coordinator {
+class SFLIB_EXPORT cisstCoordinator: public Coordinator {
 public:
     cisstCoordinator();
     ~cisstCoordinator();

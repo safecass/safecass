@@ -23,7 +23,7 @@
 namespace SF {
 
 // Adapter class: almost empty but pure virtual methods
-class Coordinator {
+class SFLIB_EXPORT Coordinator {
 public:
     typedef std::map<std::string, std::string> MonitorMapType;
 

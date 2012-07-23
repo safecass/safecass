@@ -17,6 +17,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "SFDLLDefines.h"
+
 namespace SF {
 
 typedef std::vector<std::string> StrVecType;

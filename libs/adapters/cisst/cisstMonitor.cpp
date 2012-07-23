@@ -49,7 +49,7 @@ const std::string cisstTargetID::GetTargetUID(Fault::FaultType faultType) const
     switch (faultType) {
         case Fault::COMPONENT_PERIOD: {
             ss << "<"
-               << "Component Fault "
+               << "Thread scheduling latency "
                << "[\"" << ProcessName << "\":\"" << ComponentName << "\"]"
                << ">";
             break;

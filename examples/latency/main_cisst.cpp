@@ -66,22 +66,28 @@ void RunComponents(double second);
 void CleanUp(void);
 
 
+// Local component manager
+mtsManagerLocal * ComponentManager = 0;
+// Test periodic task
+PeriodicTask * task = 0;
 // Safety coordinator for this process
 Coordinator * SafetyCoordinator = 0;
 
 int main(int argc, char *argv[])
 {
 #if ENABLE_G2LOG
+    // Logger setup
     g2LogWorker logger(argv[0], "./");
     g2::initializeLogging(&logger);
-    std::cout << "\n*** Log file: [" << logger.logFileName() << "]\n\n" << std::endl;
+    std::cout << "Log file: \"" << logger.logFileName() << "\"\n" << std::endl;
 
+    /* G2LOG macro examples: log levels: INFO, DEBUG, WARNING, FATAL
     LOGF(INFO, "Hi log %d", 123);
     LOG(INFO) << "Test SLOG INFO";
     LOG(DEBUG) << "Test SLOG DEBUG";
-    LOG(INFO) << "one: " << 1;
-    LOG(INFO) << "two: " << 2;
-    LOG(INFO) << "one and two: " << 1 << " and ";
+    LOG(WARNING) << "one and two: " << 1 << " and ";
+    LOG(FATAL) << "fatal log example.  This will cause FATAL SIGNAL to exit the program.";
+    */
 #endif
 
     // Initialize safety coordinator for this process
@@ -123,6 +129,7 @@ int main(int argc, char *argv[])
 
     // Create periodic thread
     //CreatePeriodicThread(taskName, period);
+    CreatePeriodicThread("", 0.0);
 
     // Install monitor, FDD pipeline, and data collector 
     // (MJ TODO: possibly with data visualizer)
@@ -131,6 +138,23 @@ int main(int argc, char *argv[])
         std::cerr << std::endl;
         return 1;
     }
+
+#if 0
+    // add data collection
+    mtsTask * monitor = dynamic_cast<mtsTask*>(ComponentManager->GetComponent("Monitor"));
+    mtsCollectorState * collector = new mtsCollectorState(
+        "Monitor", monitor->GetMonitoringStateTableName(), mtsCollectorBase::COLLECTOR_FILE_FORMAT_CSV);
+
+    std::string periodName = taskName;
+    periodName += "Period";
+    collector->AddSignal(periodName);
+    collector->AddSignal("Arithmetic0");
+    ComponentManager->AddComponent(collector);
+    collector->Connect();
+#endif
+
+    // Clean up resources
+    CleanUp();
 
     return 1;
 
@@ -144,11 +168,11 @@ int main(int argc, char *argv[])
     // Post-processing for statistics
     // TODO: PostProcessing();
 
-    // Cleanup local component manager
+    // Clean up resources
     CleanUp();
-#endif
 
     return 0;
+#endif
 }
 
 
@@ -166,18 +190,16 @@ void StartUp(void)
 }
 
 // Create periodic thread
-mtsManagerLocal * componentManager = 0;
-PeriodicTask * task = 0;
 void CreatePeriodicThread(const std::string & taskName, double period)
 {
     // Create periodic thread
-    componentManager = mtsComponentManager::GetInstance();
-    task = new PeriodicTask(taskName, period);
-    componentManager->AddComponent(task);
+    ComponentManager = mtsComponentManager::GetInstance();
+    //task = new PeriodicTask(taskName, period);
+    //ComponentManager->AddComponent(task);
 
 #if 0
     // add data collection
-    mtsTask * monitor = dynamic_cast<mtsTask*>(componentManager->GetComponent("Monitor"));
+    mtsTask * monitor = dynamic_cast<mtsTask*>(ComponentManager->GetComponent("Monitor"));
     mtsCollectorState * collector = new mtsCollectorState(
         "Monitor", monitor->GetMonitoringStateTableName(), mtsCollectorBase::COLLECTOR_FILE_FORMAT_CSV);
 
@@ -185,12 +207,12 @@ void CreatePeriodicThread(const std::string & taskName, double period)
     periodName += "Period";
     collector->AddSignal(periodName);
     collector->AddSignal("Arithmetic0");
-    componentManager->AddComponent(collector);
+    ComponentManager->AddComponent(collector);
     collector->Connect();
 #endif
 
-    componentManager->CreateAll();
-    componentManager->WaitForStateAll(mtsComponentState::READY);
+    ComponentManager->CreateAll();
+    ComponentManager->WaitForStateAll(mtsComponentState::READY);
 }
 
 bool InstallMonitor(const std::string & targetComponentName)
@@ -246,8 +268,8 @@ void InstallDataCollector(void)
 
 void RunComponents(double second)
 {
-    componentManager->StartAll();
-    componentManager->WaitForStateAll(mtsComponentState::ACTIVE);
+    ComponentManager->StartAll();
+    ComponentManager->WaitForStateAll(mtsComponentState::ACTIVE);
 
     double duration = second;
     //collector->StartCollection(0.0);
@@ -264,15 +286,13 @@ void RunComponents(double second)
 void CleanUp(void)
 {
     std::cout << "Quitting ..." << std::endl;
-    osaSleep(3.0 * cmn_s);
 
 #if (CISST_OS != CISST_LINUX_XENOMAI)
-    componentManager->KillAll();
-    componentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
+    ComponentManager->KillAll();
+    ComponentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
 #endif   
 
-    componentManager->Cleanup();
+    ComponentManager->Cleanup();
 
-    delete task;
-    //delete collector;
+    delete SafetyCoordinator;
 }

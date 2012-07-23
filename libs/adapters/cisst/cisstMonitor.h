@@ -19,7 +19,7 @@
 
 namespace SF {
 
-class cisstTargetID: public TargetIDBase {
+class SFLIB_EXPORT cisstTargetID: public TargetIDBase {
 public:
     std::string ProcessName;
     std::string ComponentName;
@@ -36,7 +36,7 @@ public:
 
 typedef cisstTargetID TargetIDType;
 
-class cisstMonitor: public Monitor {
+class SFLIB_EXPORT cisstMonitor: public Monitor {
 public:
     static std::string GetMonitorJSON(const std::string &        name,
                                       const Fault::FaultType     faultType,

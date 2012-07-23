@@ -15,12 +15,14 @@
 #ifndef _json_h
 #define _json_h
 
+#include "common.h"
+
 #include <jsoncpp/json.h>
 #include <string>
 
 namespace SF {
 
-class JSON {
+class SFLIB_EXPORT JSON {
     // for unit-tests
     friend class JSONTest;
 

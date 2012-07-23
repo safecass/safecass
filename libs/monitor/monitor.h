@@ -15,6 +15,7 @@
 #ifndef _monitor_h
 #define _monitor_h
 
+#include "common.h"
 #include "fault.h"
 
 #include <string>
@@ -28,7 +29,7 @@ public:
     virtual const std::string GetTargetUID(Fault::FaultType faultType) const = 0;
 };
 
-class Monitor {
+class SFLIB_EXPORT Monitor {
 public:
     typedef enum { OUTPUT_STREAM, OUTPUT_EVENT } OutputType;
     typedef enum { MONITOR_OFF, MONITOR_ON } StatusType;
