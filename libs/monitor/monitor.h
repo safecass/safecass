@@ -40,6 +40,9 @@ protected:
 public:
     Monitor();
     virtual ~Monitor();
+
+    static const std::string GetString(StatusType type);
+    static const std::string GetString(OutputType type);
 };
 
 };

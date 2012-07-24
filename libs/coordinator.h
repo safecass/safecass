@@ -35,9 +35,12 @@ public:
     Coordinator();
     virtual ~Coordinator();
 
-    /*! Create and add monitor with specific target */
-    virtual bool AddMonitor(const std::string & targetUID, 
-                            const std::string & monitorJsonSpec) = 0;
+    /*! Check if uid already exists in the monitor map */
+    bool IsDuplicateUID(const std::string & uid) const;
+
+    /*! Add target object to monitor */
+    virtual bool AddMonitorTarget(const std::string & targetUID, 
+                                  const std::string & monitorJsonSpec) = 0;
 };
 
 };

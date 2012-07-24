@@ -40,7 +40,7 @@ set (SF_LIB_MONITOR_SRC ${LIB_DIR}/monitor/monitor.h
 set (SF_LIB_MONITOR_INCLUDE_DIR ${LIB_DIR}/monitor)
 
 # FDD
-#set (SF_LIB_FDD_SRC ${LIB_DIR}/FDD/fdd.h)
+set (SF_LIB_FDD_SRC ${LIB_DIR}/FDD/fault.h ${LIB_DIR}/FDD/fault.cpp)
 set (SF_LIB_FDD_INCLUDE_DIR ${LIB_DIR}/FDD)
 
 # adapters

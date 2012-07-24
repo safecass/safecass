@@ -15,16 +15,25 @@
 #ifndef _fault_h
 #define _fault_h
 
+#include "common.h"
+
 namespace SF {
 
 class Fault {
 public:
     typedef enum {
-        COMPONENT_PERIOD // THREAD_SCHEDULING_LATENCY
+        FAULT_INVALID,
+        FAULT_COMPONENT_PERIOD,   // THREAD_SCHEDULING_LATENCY
     } FaultType;
 
 public:
-    Fault() {}
+    Fault();
+    virtual ~Fault();
+
+    /*! Return string that corresponds to fault type */
+    static const std::string GetFaultString(FaultType faultType);
+    /*! Return fault type from string */
+    static FaultType GetFault(const std::string & faultString);
 };
 
 };

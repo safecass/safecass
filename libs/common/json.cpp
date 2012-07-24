@@ -63,8 +63,6 @@ bool JSON::ReadFromFile(const std::string & fileName)
         }
         input.close();
     } else {
-        // FIXME: replace std::cout with integrated logger
-        std::cout << "Failed to open file: " << fileName << std::endl;
         return false;
     }
 
@@ -84,8 +82,6 @@ bool JSON::WriteToFile(const std::string & fileName) const
 {
     std::ofstream output(fileName.c_str());
     if (!output.is_open()) {
-        // FIXME: replace std::cout with integrated logger
-        std::cout << "Failed to create file: " << fileName << std::endl;
         return false;
     }
 

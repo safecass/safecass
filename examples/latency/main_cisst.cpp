@@ -15,7 +15,6 @@
 #include "json.h"
 #include "monitor.h"
 #include "cisstMonitor.h"
-#include "cisstCoordinator.h"
 
 #include <cisstCommon/cmnGetChar.h>
 #include <cisstOSAbstraction/osaSleep.h>
@@ -167,8 +166,8 @@ void StartUp(int argc, char *argv[])
     cmnLogger::SetMask(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
-    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
+    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
+    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
     //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
@@ -202,24 +201,23 @@ void CreatePeriodicThread(const std::string & taskName, double period)
 
 bool InstallMonitor(const std::string & targetComponentName)
 {
-    mtsManagerLocal * componentManager = mtsComponentManager::GetInstance();
-
     TargetIDType targetId;
-    targetId.ProcessName = componentManager->GetProcessName();
+    targetId.ProcessName = ComponentManager->GetProcessName();
     targetId.ComponentName = targetComponentName;
 
+    const Fault::FaultType fault = Fault::FAULT_COMPONENT_PERIOD;
     // Generate JSON file to create new monitor instance
     const std::string newMonitorJSON = 
         cisstMonitor::GetMonitorJSON("Period Monitor",
-                                     Fault::COMPONENT_PERIOD,
+                                     fault,
                                      Monitor::OUTPUT_STREAM,
                                      Monitor::MONITOR_ON,
                                      targetId);
 
     // Created monitor uid to check if the target object is already being monitored
-    const std::string targetUID = targetId.GetTargetUID(Fault::COMPONENT_PERIOD);
-    if (!componentManager->GetCoordinator().AddMonitor(targetUID, newMonitorJSON)) {
-        SFLOG_ERROR << "Failed to create new cisst monitor for component \"" << targetComponentName << "\"" << std::endl;
+    const std::string targetUID = targetId.GetTargetUID(fault);
+    if (!ComponentManager->GetCoordinator().AddMonitorTarget(targetUID, newMonitorJSON)) {
+        SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
         SFLOG_ERROR << "JSON: " << newMonitorJSON << std::endl;
         return false;
     }

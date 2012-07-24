@@ -47,9 +47,9 @@ const std::string cisstTargetID::GetTargetUID(Fault::FaultType faultType) const
     std::stringstream ss;
 
     switch (faultType) {
-        case Fault::COMPONENT_PERIOD: {
+        case Fault::FAULT_COMPONENT_PERIOD: {
             ss << "<"
-               << "Thread scheduling latency "
+               << Fault::GetFaultString(faultType)
                << "[\"" << ProcessName << "\":\"" << ComponentName << "\"]"
                << ">";
             break;
@@ -61,59 +61,35 @@ const std::string cisstTargetID::GetTargetUID(Fault::FaultType faultType) const
     return ss.str();
 }
 
-std::string cisstMonitor::GetMonitorJSON(const std::string &        name,
-                                         const Fault::FaultType     faultType,
-                                         const Monitor::OutputType  outputType,
-                                         const Monitor::StatusType  initialStatus,
-                                         const TargetIDType &       targetId)
+std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
+                                         const Fault::FaultType    faultType,
+                                         const Monitor::OutputType outputType,
+                                         const Monitor::StatusType initialStatus,
+                                         const TargetIDType &      targetId)
 {
-    /* Sample JSON file to specify Monitor instance in cisst
-    {   
-        // Monitor name
-        "Name" : "Period Monitor",
-
-        // Monitor target type
-        "Target" : {
-            "Type" : { "Component" : "Period" },
-            "Identifier" : {
-                "Process" : "LOCAL",
-                "Component" : "TargetTaskName" }
-        },
-        
-        // Monitor behaviors
-        "Output" : {
-            "Type" : "Stream" (or "Event"), // Could add active/passive concept
-            "Config" : {
-                // in case of stream
-                "SamplingRate" : 0, // -1: continuous, 0: don't sample, > 1: Hz
-                "State" : 0 } // 0: OFF, 1: ON
-                // in case of event
-                // TODO: more options can be added (exponentially weighted moving average (EWMA))
-                "Threshold" : 0.001 * 0.1, 
-                "Margin" : 0.001 * 0.05,
-                "State" : 0 } // 0: OFF, 1: ON
-            "Target" : {
-                // TODO
-                // output can be exported to centralized data collector / visualizer
-                // output can be fed into FDD pipeline(s) as input
-                }
-            }
-        }
-    }
-    */
-
     // Monitor should be installed first: It is a basically real-time "data collector"
     // used by real-time data visualizer or by filters and FDD pipelines. That is,
     // any filter or FDD pipeline requires a monitor to be installed first.
     Json::Value root;
 
     // Monitor name
+    /*
+        "Name" : "Period Monitor"
+    */
     root[NAME] = name;
 
     // Monitor target type
+    /*
+        "Target" : {
+            "Type" : { "Component" : "Period" },
+            "Identifier" : {
+                "Process" : "LOCAL",
+                "Component" : "TargetTaskName" }
+        },
+    */
     {   Json::Value _root;
         { Json::Value __root;
-          __root[NAME_COMPONENT] = faultType;
+          __root[NAME_COMPONENT] = Fault::GetFaultString(faultType);
           _root[TYPE] = __root;
         }
 
@@ -126,13 +102,33 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &        name,
     }
 
     // Monitor behaviors
+    /*
+        "Output" : {
+            "Type" : "Stream" (or "Event"), // Could add active/passive concept
+            "Config" : {
+                // in case of stream
+                "SamplingRate" : 0, // -1: continuous, 0: don't sample, > 1: Hz
+                "State" : "ON" }
+                // in case of event
+                // TODO: more options can be added (exponentially weighted moving average (EWMA))
+                "Threshold" : 0.001 * 0.1, 
+                "Margin" : 0.001 * 0.05,
+                "State" : 0 } // 0: OFF, 1: ON
+            "Target" : {
+                // TODO
+                // output can be exported to centralized data collector / visualizer
+                // output can be fed into FDD pipeline(s) as input
+                }
+            }
+        }
+    */
     {   Json::Value _root;
-        _root[TYPE] = outputType;
+        _root[TYPE] = Monitor::GetString(outputType);
         {   Json::Value __root;
             {
-                __root[STATE] = initialStatus;
+                __root[STATE] = Monitor::GetString(initialStatus);
                 if (outputType == OUTPUT_STREAM) {
-                    __root[SAMPLING_RATE] = 1;
+                    __root[SAMPLING_RATE] = 1; // MJ TEMP
                 } else if (outputType == OUTPUT_EVENT) {
                     Json::Value array(Json::arrayValue);
                     array.append(0.1);
@@ -147,6 +143,13 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &        name,
         }
 
         {   Json::Value __root;
+            {
+                // MJ TEMP: ip of IceStorm service?
+                Json::Value array(Json::arrayValue);
+                array.append("127.0.0.1");
+                array.append("10.162.34.118"); // my desktop
+                __root[PUBLISH] = array;
+            }
             _root[TARGET] = __root;
         }
         root[OUTPUT] = _root;
