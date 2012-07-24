@@ -19,13 +19,49 @@
 
 #include "SFDLLDefines.h"
 
+#if ENABLE_G2LOG
+  #include "g2logworker.h"
+  #include "g2log.h"
+  #include <iomanip>
+#else
+  #ifdef SF_HAS_CISST
+    #include <cisstCommon/cmnPortability.h>
+    #include <cisstCommon/cmnLogger.h>
+  #endif
+#endif
+
 namespace SF {
 
 typedef std::vector<std::string> StrVecType;
 
 // Returns information about middlewares available
 StrVecType GetMiddlewareInfo(void);
+
 void GetMiddlewareInfo(StrVecType & info);
+
+#ifdef SF_HAS_CISST
+std::string GetCISSTInfo(void);
+#endif
+
+// Logger macro definitions
+#if ENABLE_G2LOG
+  #define SFLOG_INFO    LOG(INFO)
+  #define SFLOG_DEBUG   LOG(DEBUG)
+  #define SFLOG_WARNING LOG(WARNING)
+  #define SFLOG_ERROR   LOG(WARNING)
+  #define SFLOG_FATAL   LOG(FATAL)
+#else
+  #ifdef SF_HAS_CISST
+    #define SFLOG_INFO    CMN_LOG_RUN_VERBOSE
+    #define SFLOG_DEBUG   CMN_LOG_RUN_DEBUG
+    #define SFLOG_WARNING CMN_LOG_RUN_WARNING
+    #define SFLOG_ERROR   CMN_LOG_RUN_ERROR
+    #define SFLOG_FATAL   CMN_LOG_INIT_ERROR
+  #endif // SF_HAS_CISST
+#endif
+};
+
+#endif // _common_h
 
 // Define which middleware is active
 #if 0
@@ -45,11 +81,3 @@ void GetMiddlewareInfo(StrVecType & info);
     #define SF_PACKAGE SF_PACKAGE_OROCOS
 #endif
 #endif
-
-#ifdef SF_HAS_CISST
-std::string GetCISSTInfo(void);
-#endif
-
-};
-
-#endif // _common_h

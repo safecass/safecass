@@ -19,12 +19,10 @@ namespace SF {
 
 cisstCoordinator::cisstCoordinator()
 {
-    std::cout << "CISST SAFETY" << std::endl;
 }
 
 cisstCoordinator::~cisstCoordinator()
 {
-    std::cout << "CISST SAFETY end" << std::endl;
 }
 
 bool cisstCoordinator::AddMonitor(const std::string & targetUID, const std::string & monitorJsonSpec)

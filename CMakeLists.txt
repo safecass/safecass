@@ -46,8 +46,7 @@ option (SF_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)
 if (SF_HAS_CISST)
     message("cisst support enabled")
     # find cisst
-    set (CISST_LIBRARIES_REQUIRED cisstCommon cisstVector cisstOSAbstraction
-                                  cisstMultiTask cisstParameterTypes)
+    set (CISST_LIBRARIES_REQUIRED cisstCommon cisstVector cisstOSAbstraction cisstMultiTask)
     find_package(cisst REQUIRED ${CISST_LIBRARIES_REQUIRED})
 
     if (cisst_FOUND_AS_REQUIRED)

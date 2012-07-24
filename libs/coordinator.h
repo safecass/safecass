@@ -35,6 +35,7 @@ public:
     Coordinator();
     virtual ~Coordinator();
 
+    /*! Create and add monitor with specific target */
     virtual bool AddMonitor(const std::string & targetUID, 
                             const std::string & monitorJsonSpec) = 0;
 };
