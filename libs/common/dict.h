@@ -24,6 +24,7 @@ namespace Dict {
 const std::string CONFIG = "Config";
 const std::string EVENT = "Event";
 const std::string IDENTIFIER = "Identifier";
+const std::string INVALID = "INVALID";
 const std::string MARGIN = "Margin";
 const std::string NAME = "Name";
 const std::string NAME_PROCESS = "Process";

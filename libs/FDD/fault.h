@@ -33,7 +33,7 @@ public:
     /*! Return string that corresponds to fault type */
     static const std::string GetFaultString(FaultType faultType);
     /*! Return fault type from string */
-    static FaultType GetFault(const std::string & faultString);
+    static FaultType GetFaultFromString(const std::string & faultString);
 };
 
 };

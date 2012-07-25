@@ -18,8 +18,6 @@ namespace SF {
 
 #define STR(faultType) std::string(#faultType)
 
-#undef DEFINE_FAULT_STRING 
-
 Fault::Fault()
 {
 }
@@ -36,7 +34,7 @@ const std::string Fault::GetFaultString(FaultType faultType)
     }
 }
 
-Fault::FaultType Fault::GetFault(const std::string & faultString)
+Fault::FaultType Fault::GetFaultFromString(const std::string & faultString)
 {
     if (faultString.compare(STR(FAULT_COMPONENT_PERIOD)) == 0) return FAULT_COMPONENT_PERIOD;
 

@@ -32,21 +32,57 @@ public:
 
     const std::string GetTargetUID(void) const;
     const std::string GetTargetUID(Fault::FaultType faultType) const;
+
+    void ToStream(std::ostream & outputStream) const;
 };
 
 typedef cisstTargetID TargetIDType;
 
+inline std::ostream & operator << (std::ostream & outputStream, const cisstTargetID & targetID) {
+    targetID.ToStream(outputStream);
+    return outputStream;
+}
+
 class SFLIB_EXPORT cisstMonitor: public Monitor {
+protected:
+    Fault::FaultType    FaultType;
+    TargetIDType        TargetID;
+    Monitor::StatusType Status;
+    Monitor::OutputType OutputType;
+    int                 SamplingRate;
+    StrVecType          AddressesToPublish;
+
 public:
+    cisstMonitor();
+    virtual ~cisstMonitor();
+
     static std::string GetMonitorJSON(const std::string &        name,
                                       const Fault::FaultType     faultType,
                                       const Monitor::OutputType  outputType,
                                       const Monitor::StatusType  initialStatus,
                                       const TargetIDType &       targetID);
-public:
-    cisstMonitor();
-    virtual ~cisstMonitor();
+
+    bool IsActive(void) const;
+    bool IsStream(void) const;
+    bool IsEvent(void) const;
+
+    TargetIDType &   GetTargetID(void);
+    Fault::FaultType GetFaultType(void) const;
+
+    void SetFaultType(const Fault::FaultType faultType);
+    void SetTargetId(const TargetIDType & targetID);
+    void SetStatus(const Monitor::StatusType status);
+    void SetOutputType(const Monitor::OutputType outputType);
+    void SetSamplingRate(int samplingRate);
+    void SetAddressesToPublish(const StrVecType & addresses);
+
+    void ToStream(std::ostream & outputStream) const;
 };
+
+inline std::ostream & operator << (std::ostream & outputStream, const cisstMonitor & monitor) {
+    monitor.ToStream(outputStream);
+    return outputStream;
+}
 
 };
 

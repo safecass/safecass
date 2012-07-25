@@ -31,8 +31,8 @@ public:
 
 class SFLIB_EXPORT Monitor {
 public:
-    typedef enum { OUTPUT_STREAM, OUTPUT_EVENT } OutputType;
-    typedef enum { MONITOR_OFF, MONITOR_ON } StatusType;
+    typedef enum { OUTPUT_INVALID, OUTPUT_STREAM, OUTPUT_EVENT } OutputType;
+    typedef enum { MONITOR_INVALID, MONITOR_OFF, MONITOR_ON } StatusType;
 
 protected:
 
@@ -41,8 +41,11 @@ public:
     Monitor();
     virtual ~Monitor();
 
-    static const std::string GetString(StatusType type);
-    static const std::string GetString(OutputType type);
+    static const std::string GetStatusString(StatusType type);
+    static StatusType GetStatusFromString(const std::string & str);
+
+    static const std::string GetOutputString(OutputType output);
+    static OutputType GetOutputFromString(const std::string & str);
 };
 
 };

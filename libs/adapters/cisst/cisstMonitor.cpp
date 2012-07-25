@@ -22,14 +22,9 @@ namespace SF {
 
 using namespace Dict;
 
-cisstMonitor::cisstMonitor()
-{
-}
-
-cisstMonitor::~cisstMonitor()
-{
-}
-
+//-----------------------------------------------
+// cisstTargetID
+//-----------------------------------------------
 const std::string cisstTargetID::GetTargetUID(void) const
 {
     std::stringstream ss;
@@ -61,6 +56,29 @@ const std::string cisstTargetID::GetTargetUID(Fault::FaultType faultType) const
     return ss.str();
 }
 
+void cisstTargetID::ToStream(std::ostream & outputStream) const
+{
+    outputStream << "Process: " << ProcessName << ", "
+                 << "Component: " << ComponentName << ", "
+                 << "InterfaceProvided: " << InterfaceProvidedName << ", "
+                 << "InterfaceRequired: " << InterfaceRequiredName << ", "
+                 << "Command: " << CommandName << ", "
+                 << "Function: " << FunctionName << ", "
+                 << "EventGenerator: " << EventGeneratorName << ", "
+                 << "EventHandler: " << EventHandlerName;
+}
+
+//-----------------------------------------------
+// cisstMonitor
+//-----------------------------------------------
+cisstMonitor::cisstMonitor(): Status(MONITOR_OFF), OutputType(OUTPUT_EVENT)
+{
+}
+
+cisstMonitor::~cisstMonitor()
+{
+}
+
 std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
                                          const Fault::FaultType    faultType,
                                          const Monitor::OutputType outputType,
@@ -81,17 +99,21 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
     // Monitor target type
     /*
         "Target" : {
-            "Type" : { "Component" : "Period" },
+            //"Type" : { "Component" : "Period" },
+            "Type" : "FAULT_COMPONENT_PERIOD",
             "Identifier" : {
                 "Process" : "LOCAL",
                 "Component" : "TargetTaskName" }
         },
     */
     {   Json::Value _root;
+        /*
         { Json::Value __root;
           __root[NAME_COMPONENT] = Fault::GetFaultString(faultType);
           _root[TYPE] = __root;
         }
+        */
+        _root[TYPE] = Fault::GetFaultString(faultType);
 
         { Json::Value __root;
           __root[NAME_PROCESS] = targetId.ProcessName;
@@ -123,10 +145,10 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
         }
     */
     {   Json::Value _root;
-        _root[TYPE] = Monitor::GetString(outputType);
+        _root[TYPE] = Monitor::GetOutputString(outputType);
         {   Json::Value __root;
             {
-                __root[STATE] = Monitor::GetString(initialStatus);
+                __root[STATE] = Monitor::GetStatusString(initialStatus);
                 if (outputType == OUTPUT_STREAM) {
                     __root[SAMPLING_RATE] = 1; // MJ TEMP
                 } else if (outputType == OUTPUT_EVENT) {
@@ -159,6 +181,75 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
     ss << root;
 
     return ss.str();
+}
+
+bool cisstMonitor::IsActive(void) const
+{
+    return (Status == Monitor::MONITOR_ON);
+}
+
+bool cisstMonitor::IsStream(void) const
+{
+    return (OutputType == OUTPUT_STREAM);
+}
+
+bool cisstMonitor::IsEvent(void) const
+{
+    return (OutputType == OUTPUT_EVENT);
+}
+
+TargetIDType & cisstMonitor::GetTargetID(void)
+{
+    return TargetID;
+}
+
+void cisstMonitor::SetFaultType(const Fault::FaultType faultType)
+{
+    FaultType = faultType;
+}
+
+void cisstMonitor::SetStatus(const Monitor::StatusType status)
+{
+    Status = status;
+}
+
+void cisstMonitor::SetOutputType(const Monitor::OutputType outputType)
+{
+    OutputType = outputType;
+}
+
+void cisstMonitor::SetTargetId(const TargetIDType & targetID)
+{
+    TargetID = targetID;
+}
+
+void cisstMonitor::SetSamplingRate(int samplingRate)
+{
+    SamplingRate = samplingRate;
+}
+
+void cisstMonitor::SetAddressesToPublish(const StrVecType & addresses)
+{
+    AddressesToPublish = addresses;
+}
+
+void cisstMonitor::ToStream(std::ostream & outputStream) const
+{
+    outputStream << "Fault type: " << Fault::GetFaultString(FaultType) << ", "
+                 << "TargetID: " << TargetID << ", "
+                 << "Status: " << Monitor::GetStatusString(Status) << ", "
+                 << "OutputType: " << Monitor::GetOutputString(OutputType) << ", "
+                 << "SamplingRate: " << SamplingRate << ", "
+                 << "Addresses: ";
+    if (AddressesToPublish.empty()) {
+        outputStream << "(NONE)";
+    } else {
+        outputStream << "[ ";
+        for (size_t i = 0; i < AddressesToPublish.size(); ++i) {
+            outputStream << AddressesToPublish[i] << " ";
+        }
+        outputStream << "]";
+    }
 }
 
 };
