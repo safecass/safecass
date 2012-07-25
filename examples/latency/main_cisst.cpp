@@ -66,27 +66,12 @@ PeriodicTask * task = 0;
 
 int main(int argc, char *argv[])
 {
-    StartUp(argc, argv);
-
-#if 0
     if (argc != 3) {
         std::cerr << "usage: latency period_in_msec duration_in_sec" << std::endl;
         return 1;
     }
 
-    // Print information about middleware(s) available
-    StrVecType info;
-    GetMiddlewareInfo(info);
-    std::cout << "Middleware(s) detected: ";
-    if (info.size() == 0) {
-        std::cout << "none" << std::endl;
-    } else {
-        std::cout << std::endl;
-        for (size_t i = 0; i < info.size(); ++i) {
-            std::cout << "[" << (i+1) << "] " << info[i] << std::endl;
-        }
-    }
-    std::cout << std::endl;
+    StartUp(argc, argv);
 
     double period = atof(argv[1]) * cmn_ms;
     double frequency = (1.0 / period);
@@ -100,15 +85,14 @@ int main(int argc, char *argv[])
     ss << "thread" << (int) frequency;
     std::string taskName = ss.str();
     std::cout << taskName << std::endl;
-#endif
 
     // Create periodic thread
-    //CreatePeriodicThread(taskName, period);
-    CreatePeriodicThread("", 0.0);
+    CreatePeriodicThread(taskName, period);
+    //CreatePeriodicThread("", 0.0);
 
     // Install monitor, FDD pipeline, and data collector 
     // (MJ TODO: possibly with data visualizer)
-    if (!InstallMonitor("aComponent")) {
+    if (!InstallMonitor(taskName)) {
         SFLOG_ERROR << "Failed to install monitor for task \"";// << taskName << "\"" << std::endl;
         return 1;
     }
@@ -172,14 +156,28 @@ void StartUp(int argc, char *argv[])
     
     // Get instance of the cisst Component Manager
     ComponentManager = mtsComponentManager::GetInstance();
+
+    // Print information about middleware(s) available
+    StrVecType info;
+    GetMiddlewareInfo(info);
+    std::cout << "Middleware(s) detected: ";
+    if (info.size() == 0) {
+        std::cout << "none" << std::endl;
+    } else {
+        std::cout << std::endl;
+        for (size_t i = 0; i < info.size(); ++i) {
+            std::cout << "[" << (i+1) << "] " << info[i] << std::endl;
+        }
+    }
+    std::cout << std::endl;
 }
 
 // Create periodic thread
 void CreatePeriodicThread(const std::string & taskName, double period)
 {
     // Create periodic thread
-    //task = new PeriodicTask(taskName, period);
-    //ComponentManager->AddComponent(task);
+    task = new PeriodicTask(taskName, period);
+    ComponentManager->AddComponent(task);
 
 #if 0
     // add data collection
