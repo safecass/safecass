@@ -21,6 +21,7 @@ namespace SF {
 
 class Fault {
 public:
+    // [SFUPDATE]
     typedef enum {
         FAULT_INVALID,
         FAULT_COMPONENT_PERIOD,   // THREAD_SCHEDULING_LATENCY

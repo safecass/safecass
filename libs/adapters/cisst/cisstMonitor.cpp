@@ -198,6 +198,11 @@ bool cisstMonitor::IsEvent(void) const
     return (OutputType == OUTPUT_EVENT);
 }
 
+Fault::FaultType cisstMonitor::GetFaultType(void) const
+{
+    return FaultType;
+}
+
 TargetIDType & cisstMonitor::GetTargetID(void)
 {
     return TargetID;

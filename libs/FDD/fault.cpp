@@ -30,6 +30,7 @@ const std::string Fault::GetFaultString(FaultType faultType)
 {
     switch (faultType) {
         case FAULT_COMPONENT_PERIOD: return STR(FAULT_COMPONENT_PERIOD); break;
+        // [SFUPDATE]
         default:                     return STR(FAULT_INVALID);
     }
 }
@@ -37,6 +38,7 @@ const std::string Fault::GetFaultString(FaultType faultType)
 Fault::FaultType Fault::GetFaultFromString(const std::string & faultString)
 {
     if (faultString.compare(STR(FAULT_COMPONENT_PERIOD)) == 0) return FAULT_COMPONENT_PERIOD;
+    // [SFUPDATE]
 
     return FAULT_INVALID;
 }
