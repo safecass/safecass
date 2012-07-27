@@ -25,11 +25,11 @@ namespace SF {
 // Adapter class: almost empty but pure virtual methods
 class SFLIB_EXPORT Coordinator {
 public:
-    typedef std::map<std::string, std::string> MonitorMapType;
+    typedef std::map<std::string, std::string> MonitorTargetMapType;
 
 protected:
     // Monitor map
-    MonitorMapType MonitorMap;
+    MonitorTargetMapType MonitorTargetMap;
 
 public:
     Coordinator();
@@ -38,9 +38,12 @@ public:
     /*! Check if uid already exists in the monitor map */
     bool IsDuplicateUID(const std::string & uid) const;
 
-    /*! Add target object to monitor */
+    /*! Install monitoring target object */
     virtual bool AddMonitorTarget(const std::string & targetUID, 
                                   const std::string & monitorJsonSpec) = 0;
+
+    /*! Deploy all monitors and FDDs that are installed so far */
+    virtual bool DeployMonitorsAndFDDs(void) = 0;
 };
 
 };

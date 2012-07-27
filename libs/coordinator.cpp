@@ -26,7 +26,7 @@ Coordinator::~Coordinator()
 
 bool Coordinator::IsDuplicateUID(const std::string & uid) const
 {
-    return (MonitorMap.find(uid) != MonitorMap.end());
+    return (MonitorTargetMap.find(uid) != MonitorTargetMap.end());
 }
 
 };

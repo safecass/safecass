@@ -93,7 +93,14 @@ int main(int argc, char *argv[])
     // Install monitor, FDD pipeline, and data collector 
     // (MJ TODO: possibly with data visualizer)
     if (!InstallMonitor(taskName)) {
-        SFLOG_ERROR << "Failed to install monitor for task \"";// << taskName << "\"" << std::endl;
+        SFLOG_ERROR << "Failed to install monitor for task \"" << taskName << "\"" << std::endl;
+        return 1;
+    }
+    //InstallFDD();
+    //InstallDataCollector();
+    
+    if (!ComponentManager->GetCoordinator().DeployMonitorsAndFDDs()) {
+        SFLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
         return 1;
     }
 
@@ -111,17 +118,6 @@ int main(int argc, char *argv[])
     collector->Connect();
 #endif
 
-    RunComponents(duration);
-
-    // Clean up resources
-    CleanUp();
-
-    return 1;
-
-#if 0
-    InstallFDD();
-    InstallDataCollector();
-
     // Start experiment
     RunComponents(duration);
 
@@ -132,7 +128,6 @@ int main(int argc, char *argv[])
     CleanUp();
 
     return 0;
-#endif
 }
 
 
@@ -224,6 +219,10 @@ bool InstallMonitor(const std::string & targetComponentName)
         SFLOG_ERROR << "JSON: " << newMonitorJSON << std::endl;
         return false;
     }
+
+    //
+    // TODO: Add another monitoring target
+    //
 
     return true;
 }
