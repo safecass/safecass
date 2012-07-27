@@ -21,6 +21,17 @@ namespace SF {
 
 class Fault {
 public:
+    /*
+    typedef enum { 
+        LAYER_SYSTEM, 
+        LAYER_PROCESS, 
+        LAYER_COMPONENT, 
+        LAYER_INTERFACE, 
+        //LAYER_EXECUTION,
+        LAYER_INVALID
+    } LayerType;
+    */
+
     // [SFUPDATE]
     typedef enum {
         FAULT_INVALID,

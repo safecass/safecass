@@ -111,6 +111,8 @@ int main(int argc, char *argv[])
     collector->Connect();
 #endif
 
+    RunComponents(duration);
+
     // Clean up resources
     CleanUp();
 
@@ -177,7 +179,10 @@ void CreatePeriodicThread(const std::string & taskName, double period)
 {
     // Create periodic thread
     task = new PeriodicTask(taskName, period);
-    ComponentManager->AddComponent(task);
+    if (!ComponentManager->AddComponent(task)) {
+        SFLOG_ERROR << "Failed to add component \"" << taskName << "\"" << std::endl;
+        return;
+    }
 
 #if 0
     // add data collection
@@ -260,7 +265,7 @@ void RunComponents(double second)
     std::cout << std::endl;
     while (duration-- > 0) {
         osaSleep(1.0);
-        //std::cout << "." << std::flush;
+        std::cout << "." << std::flush;
     }
 
     //collector->StopCollection(0.0);
