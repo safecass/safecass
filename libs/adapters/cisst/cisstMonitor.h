@@ -49,7 +49,7 @@ protected:
     TargetIDType        TargetID;
     Monitor::StatusType Status;
     Monitor::OutputType OutputType;
-    int                 SamplingRate;
+    SamplingRateType    SamplingRate;
     StrVecType          AddressesToPublish;
 
 public:
@@ -59,6 +59,7 @@ public:
     static std::string GetMonitorJSON(const std::string &        name,
                                       const Fault::FaultType     faultType,
                                       const Monitor::OutputType  outputType,
+                                      const SamplingRateType     samplingRate,
                                       const Monitor::StatusType  initialStatus,
                                       const TargetIDType &       targetID);
 
@@ -66,14 +67,19 @@ public:
     bool IsStream(void) const;
     bool IsEvent(void) const;
 
-    TargetIDType &   GetTargetID(void);
-    Fault::FaultType GetFaultType(void) const;
+    Fault::FaultType    GetFaultType(void) const;
+    TargetIDType &      GetTargetID(void);
+    Monitor::StatusType GetStatus(void) const;
+    Monitor::OutputType SetOutputType(void) const;
+    SamplingRateType    GetSamplingRate(void) const;
+    SamplingPeriodType  GetSamplingPeriod(void) const;
+    StrVecType          GetAddressesToPublish(void) const;
 
     void SetFaultType(const Fault::FaultType faultType);
     void SetTargetId(const TargetIDType & targetID);
     void SetStatus(const Monitor::StatusType status);
     void SetOutputType(const Monitor::OutputType outputType);
-    void SetSamplingRate(int samplingRate);
+    void SetSamplingRate(const SamplingRateType samplingRate);
     void SetAddressesToPublish(const StrVecType & addresses);
 
     void ToStream(std::ostream & outputStream) const;

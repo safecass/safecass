@@ -34,6 +34,9 @@ namespace SF {
 
 typedef std::vector<std::string> StrVecType;
 
+typedef unsigned int SamplingRateType;   // f (Hz)
+typedef double       SamplingPeriodType; // T (=1/f)
+
 // Returns information about middlewares available
 StrVecType GetMiddlewareInfo(void);
 

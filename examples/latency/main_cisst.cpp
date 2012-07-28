@@ -209,6 +209,7 @@ bool InstallMonitor(const std::string & targetComponentName)
         cisstMonitor::GetMonitorJSON("Period Monitor",
                                      fault,
                                      Monitor::OUTPUT_STREAM,
+                                     2, // Hz
                                      Monitor::MONITOR_ON,
                                      targetId);
 
@@ -264,7 +265,6 @@ void RunComponents(double second)
     std::cout << std::endl;
     while (duration-- > 0) {
         osaSleep(1.0);
-        std::cout << "." << std::flush;
     }
 
     //collector->StopCollection(0.0);

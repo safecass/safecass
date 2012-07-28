@@ -82,6 +82,7 @@ cisstMonitor::~cisstMonitor()
 std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
                                          const Fault::FaultType    faultType,
                                          const Monitor::OutputType outputType,
+                                         const SamplingRateType    samplingRate,
                                          const Monitor::StatusType initialStatus,
                                          const TargetIDType &      targetId)
 {
@@ -150,7 +151,7 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
             {
                 __root[STATE] = Monitor::GetStatusString(initialStatus);
                 if (outputType == OUTPUT_STREAM) {
-                    __root[SAMPLING_RATE] = 1; // MJ TEMP
+                    __root[SAMPLING_RATE] = samplingRate;
                 } else if (outputType == OUTPUT_EVENT) {
                     Json::Value array(Json::arrayValue);
                     array.append(0.1);
@@ -208,6 +209,31 @@ TargetIDType & cisstMonitor::GetTargetID(void)
     return TargetID;
 }
 
+Monitor::StatusType cisstMonitor::GetStatus(void) const
+{
+    return Status;
+}
+
+Monitor::OutputType cisstMonitor::SetOutputType(void) const
+{
+    return OutputType;
+}
+
+SamplingRateType cisstMonitor::GetSamplingRate(void) const
+{
+    return SamplingRate;
+}
+
+SamplingPeriodType cisstMonitor::GetSamplingPeriod(void) const
+{
+    return (1.0 / (SamplingPeriodType) SamplingRate);
+}
+
+StrVecType cisstMonitor::GetAddressesToPublish(void) const
+{
+    return AddressesToPublish;
+}
+
 void cisstMonitor::SetFaultType(const Fault::FaultType faultType)
 {
     FaultType = faultType;
@@ -228,7 +254,7 @@ void cisstMonitor::SetTargetId(const TargetIDType & targetID)
     TargetID = targetID;
 }
 
-void cisstMonitor::SetSamplingRate(int samplingRate)
+void cisstMonitor::SetSamplingRate(const SamplingRateType samplingRate)
 {
     SamplingRate = samplingRate;
 }
@@ -241,7 +267,7 @@ void cisstMonitor::SetAddressesToPublish(const StrVecType & addresses)
 void cisstMonitor::ToStream(std::ostream & outputStream) const
 {
     outputStream << "Fault type: " << Fault::GetFaultString(FaultType) << ", "
-                 << "TargetID: " << TargetID << ", "
+                 << "TargetID: [ " << TargetID << " ], "
                  << "Status: " << Monitor::GetStatusString(Status) << ", "
                  << "OutputType: " << Monitor::GetOutputString(OutputType) << ", "
                  << "SamplingRate: " << SamplingRate << ", "
