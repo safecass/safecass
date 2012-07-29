@@ -66,7 +66,7 @@ endif (SF_HAS_CISST)
 # Include sub-directories
 add_subdirectory(libs)
 #add_subdirectory(plugins)
-#add_subdirectory(tools)
+add_subdirectory(tools)
 add_subdirectory(examples)
 if (ENABLE_UNIT_TEST)
   message("Unit-test enabled")

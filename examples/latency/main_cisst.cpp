@@ -209,7 +209,7 @@ bool InstallMonitor(const std::string & targetComponentName)
         cisstMonitor::GetMonitorJSON("Period Monitor",
                                      fault,
                                      Monitor::OUTPUT_STREAM,
-                                     2, // Hz
+                                     5, // Hz
                                      Monitor::MONITOR_ON,
                                      targetId);
 
