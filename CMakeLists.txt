@@ -20,10 +20,6 @@ set (LIBRARY_OUTPUT_PATH "${BUILD_ROOT}/lib")
 
 set_property (GLOBAL PROPERTY USE_FOLDERS ON) # option to organize targets in folders
 
-# shared library support
-# MJ TODO: deal with shared libs later
-#set (IS_SHARED OFF)
-
 # Set where to look for header files
 include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${SafetyFramework_SOURCE_DIR}/libs/Common")
@@ -65,7 +61,7 @@ endif (SF_HAS_CISST)
 
 # Include sub-directories
 add_subdirectory(libs)
-#add_subdirectory(plugins)
+#add_subdirectory(programs)
 add_subdirectory(tools)
 add_subdirectory(examples)
 if (ENABLE_UNIT_TEST)

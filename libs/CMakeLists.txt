@@ -56,17 +56,54 @@ if (SF_HAS_CISST)
   set (SF_LIB_MONITOR_SRC ${SF_LIB_MONITOR_SRC} ${SF_LIB_ADAPTER_CISST_SRC})
 endif (SF_HAS_CISST)
 
+# communicator for message exchange (publish-subscribe)
+# Find ZeroC Ice
+find_package(Ice REQUIRED)
+set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/communicator/publisher.h
+                             ${LIB_DIR}/communicator/publisher.cpp
+                             ${LIB_DIR}/communicator/subscriber.h
+                             ${LIB_DIR}/communicator/subscriber.cpp)
+set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${LIB_DIR}/communicator)
+# slice integration
+set (SLICE_FILES monitor)
+set (SLICE_INCLUDE_DIR ${ZEROC_SLICE_INCLUDE_DIR})
+foreach (slice_file ${SLICE_FILES})
+    set (GENERATED_CPP_FILE "${BUILD_ROOT}/libs/${slice_file}.cpp")
+    set (GENERATED_H_FILE "${BUILD_ROOT}/libs/${slice_file}.h")
+    add_custom_command (
+        OUTPUT ${GENERATED_CPP_FILE} ${GENERATED_H_FILE} 
+               ${BUILD_ROOT}/include/${slice_file}.h
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        # first run slice2cpp
+        COMMAND ${ZEROC_SLICE2CPP}
+        ARGS -I ${SLICE_INCLUDE_DIR} ${LIB_DIR}/communicator/${slice_file}.ice
+        # then create a directory to copy the header file
+        COMMAND ${CMAKE_COMMAND}
+        ARGS -E make_directory ${BUILD_ROOT}/include
+        # and finally copy the header file
+        COMMAND ${CMAKE_COMMAND}
+        ARGS -E copy_if_different ${GENERATED_H_FILE} ${BUILD_ROOT}/include
+        COMMENT "Compiling ${slice_file}.ice")
+    include_directories (${BUILD_ROOT})
+    set (GENERATED_SOURCE_FILES ${GENERATED_CPP_FILE})
+endforeach (slice_file ${SLICE_FILES})
+
+set (SF_LIB_COMMUNICATOR_SRC ${SF_LIB_COMMUNICATOR_SRC} ${GENERATED_SOURCE_FILES})
+set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${SF_LIB_COMMUNICATOR_INCLUDE_DIR} ${BUILD_ROOT}/include)
+
 #---------------------------------
 # Set global INCLUDE and LIB
 #---------------------------------
 set (SF_LIB_SRC ${SF_LIB_SRC}
                 ${SF_LIB_COMMON_SRC} 
                 ${SF_LIB_MONITOR_SRC} 
-                ${SF_LIB_FDD_SRC})
+                ${SF_LIB_FDD_SRC}
+                ${SF_LIB_COMMUNICATOR_SRC})
 set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} 
                         ${SF_LIB_COMMON_INCLUDE_DIR}
                         ${SF_LIB_MONITOR_INCLUDE_DIR}
-                        ${SF_LIB_FDD_INCLUDE_DIR})
+                        ${SF_LIB_FDD_INCLUDE_DIR}
+                        ${SF_LIB_COMMUNICATOR_INCLUDE_DIR})
 
 # Set project-wide paths
 configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h)
