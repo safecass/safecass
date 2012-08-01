@@ -59,13 +59,15 @@ endif (SF_HAS_CISST)
 # communicator for message exchange (publish-subscribe)
 # Find ZeroC Ice
 find_package(Ice REQUIRED)
-set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/communicator/publisher.h
+set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/communicator/baseIce.h
+                             ${LIB_DIR}/communicator/baseIce.cpp
+                             ${LIB_DIR}/communicator/publisher.h
                              ${LIB_DIR}/communicator/publisher.cpp
                              ${LIB_DIR}/communicator/subscriber.h
                              ${LIB_DIR}/communicator/subscriber.cpp)
 set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${LIB_DIR}/communicator)
 # slice integration
-set (SLICE_FILES monitor)
+set (SLICE_FILES monitorFDD)
 set (SLICE_INCLUDE_DIR ${ZEROC_SLICE_INCLUDE_DIR})
 foreach (slice_file ${SLICE_FILES})
     set (GENERATED_CPP_FILE "${BUILD_ROOT}/libs/${slice_file}.cpp")
@@ -90,6 +92,7 @@ endforeach (slice_file ${SLICE_FILES})
 
 set (SF_LIB_COMMUNICATOR_SRC ${SF_LIB_COMMUNICATOR_SRC} ${GENERATED_SOURCE_FILES})
 set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${SF_LIB_COMMUNICATOR_INCLUDE_DIR} ${BUILD_ROOT}/include)
+set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} ${ZEROC_ICE_LIBRARIES})
 
 #---------------------------------
 # Set global INCLUDE and LIB
@@ -140,3 +143,17 @@ include_directories (${SF_LIB_INCLUDE_DIR})
 add_library(SFLib ${LIB_TYPE} ${SF_LIB_SRC})
 target_link_libraries(SFLib ${SF_LIB_DEPENDENCY_LIBS})
 
+if (SF_HAS_CISST AND NOT ENABLE_G2LOG)
+  set (REQUIRED_CISST_LIBS cisstCommon)
+
+  # find cisst and make sure the required libraries have been compiled
+  find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES} QUIET)
+
+  if (cisst_FOUND_AS_REQUIRED)
+    set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${cisst_INCLUDE_DIR} PARENT_SCOPE)
+    include_directories (${SF_LIB_INCLUDE_DIR})
+    cisst_target_link_libraries(SFLib ${REQUIRED_CISST_LIBS})
+  else (cisst_FOUND_AS_REQUIRED)
+    cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
+  endif (cisst_FOUND_AS_REQUIRED)
+endif (SF_HAS_CISST AND NOT ENABLE_G2LOG)

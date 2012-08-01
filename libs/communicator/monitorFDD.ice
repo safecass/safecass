@@ -18,7 +18,7 @@
 module SF
 {
 
-interface Monitor
+interface MonitorFDD
 {
     void Event(string e);
 };

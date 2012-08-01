@@ -15,16 +15,17 @@
 #ifndef _publisher_h
 #define _publisher_h
 
-#include "common.h"
-#include "monitor.h"
+#include "baseIce.h"
 
 namespace SF {
 
 // Adapter class: almost empty but pure virtual methods
-class SFLIB_EXPORT Publisher {
+class SFLIB_EXPORT Publisher: public BaseIce {
 public:
-    Publisher();
+    Publisher(const std::string & propertyFileName);
     virtual ~Publisher();
+
+    void Run(void);
 };
 
 };

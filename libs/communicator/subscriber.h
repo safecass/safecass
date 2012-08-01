@@ -15,16 +15,17 @@
 #ifndef _subscriber_h
 #define _subscriber_h
 
-#include "common.h"
-#include "monitor.h"
+#include "baseIce.h"
 
 namespace SF {
 
 // Adapter class: almost empty but pure virtual methods
-class SFLIB_EXPORT Subscriber {
+class SFLIB_EXPORT Subscriber: public BaseIce {
 public:
-    Subscriber();
+    Subscriber(const std::string & propertyFileName);
     virtual ~Subscriber();
+
+    void Run(void);
 };
 
 };

@@ -32,7 +32,7 @@ find_library(G2LOG_LIBRARY_AUX NAMES lib_activeobject
              DOC "Path to g2log auxiliary library (lib_activeobject)")
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(G2LOG DEFAULT_MSG G2LOG_LIBRARY G2LOG_INCLUDE_DIR)
+find_package_handle_standard_args(G2LOG DEFAULT_MSG G2LOG_INCLUDE_DIR)
 
 if(G2LOG_FOUND)
   set(G2LOG_LIBRARIES ${G2LOG_LIBRARY_CORE} ${G2LOG_LIBRARY_AUX} PARENT_SCOPE)

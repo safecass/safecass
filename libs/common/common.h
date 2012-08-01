@@ -60,6 +60,12 @@ std::string GetCISSTInfo(void);
     #define SFLOG_WARNING CMN_LOG_RUN_WARNING
     #define SFLOG_ERROR   CMN_LOG_RUN_ERROR
     #define SFLOG_FATAL   CMN_LOG_INIT_ERROR
+  #else
+    #define SFLOG_INFO    std::cout << "INFO   : "
+    #define SFLOG_DEBUG   std::cout << "DEBUG  : "
+    #define SFLOG_WARNING std::cout << "WARNING: "
+    #define SFLOG_ERROR   std::cout << "ERROR  : "
+    #define SFLOG_FATAL   std::cout << "FATAL  : "
   #endif // SF_HAS_CISST
 #endif
 };
