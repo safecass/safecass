@@ -61,7 +61,7 @@ endif (SF_HAS_CISST)
 
 # Include sub-directories
 add_subdirectory(libs)
-#add_subdirectory(programs)
+add_subdirectory(programs)
 add_subdirectory(tools)
 add_subdirectory(examples)
 if (ENABLE_UNIT_TEST)
