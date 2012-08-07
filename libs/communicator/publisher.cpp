@@ -74,26 +74,36 @@ void Publisher::Startup(void)
     // Get the topic's publisher object, and create a Clock proxy with
     // the mode specified as an argument of this application.
     Ice::ObjectPrx Publisher = topic->getPublisher();
-    MonitorFDD = MonitorFDDPrx::uncheckedCast(Publisher);
+    MonitorSamples = MonitorSamplesPrx::uncheckedCast(Publisher);
 
     BaseType::Startup();
 }
 
-void Publisher::Run(void)
-{
-    BaseType::Run();
-
+#define PUBLISH_BEGIN\
+    BaseType::Run();\
     try {
-        // smmy
-        MonitorFDD->Event(IceUtil::Time::now().toDateTime());
-        //IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
-    }
-    catch(const Ice::CommunicatorDestroyedException & e) {
-        SFLOG_ERROR << "Error in publishing events: " << e.what() << std::endl;
-    }
-
+#define PUBLISH_END\
+    }\
+    catch(const Ice::CommunicatorDestroyedException & e) {\
+        SFLOG_ERROR << "Error in publishing events: " << e.what() << std::endl;\
+    }\
     BaseType::Stop();
+
+void Publisher::Publish(const std::string & processName, const std::string & componentName, double period)
+{
+    PUBLISH_BEGIN;
+
+    ComponentIdType componentId;
+    componentId.ProcessName = processName;
+    componentId.ComponentName = componentName;
+
+    MonitorSamples->PeriodSample(componentId, period);
+    //MonitorSamples->Event(IceUtil::Time::now().toDateTime());
+    //IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+
+    PUBLISH_END;
 }
+
 
 void Publisher::Stop(void)
 {

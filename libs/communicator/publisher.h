@@ -17,7 +17,7 @@
 
 #include "baseIce.h"
 
-#include <monitorFDD.h>
+#include <monitorSamples.h>
 
 namespace SF {
 
@@ -30,7 +30,7 @@ protected:
     static unsigned int Id;
 
     /*! IceStorm publisher proxy */
-    MonitorFDDPrx MonitorFDD;
+    MonitorSamplesPrx MonitorSamples;
 
     /*! Initialization */
     void Init(void);
@@ -41,7 +41,8 @@ public:
     virtual ~Publisher();
 
     void Startup(void);
-    void Run(void);
+    void Run(void) {}
+    void Publish(const std::string & processName, const std::string & componentName, double period);
     void Stop(void);
 
     static const std::string GetDefaultConfigFilePath(void);

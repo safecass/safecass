@@ -67,27 +67,31 @@ set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/communicator/baseIce.h
                              ${LIB_DIR}/communicator/subscriber.cpp)
 set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${LIB_DIR}/communicator)
 # slice integration
-set (SLICE_FILES monitorFDD)
+set (SLICE_FILES communicator monitorSamples)
 set (SLICE_INCLUDE_DIR ${ZEROC_SLICE_INCLUDE_DIR})
 foreach (slice_file ${SLICE_FILES})
     set (GENERATED_CPP_FILE "${BUILD_ROOT}/libs/${slice_file}.cpp")
     set (GENERATED_H_FILE "${BUILD_ROOT}/libs/${slice_file}.h")
+    set (SLICE_SRC_DIR  ${LIB_DIR}/communicator/slice)
+    set (SLICE_SRC_FILE ${SLICE_SRC_DIR}/${slice_file}.ice)
     add_custom_command (
         OUTPUT ${GENERATED_CPP_FILE} ${GENERATED_H_FILE} 
                ${BUILD_ROOT}/include/${slice_file}.h
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         # first run slice2cpp
         COMMAND ${ZEROC_SLICE2CPP}
-        ARGS -I ${SLICE_INCLUDE_DIR} ${LIB_DIR}/communicator/${slice_file}.ice
+        ARGS -I ${SLICE_INCLUDE_DIR} -I ${SLICE_SRC_DIR} ${SLICE_SRC_FILE}
         # then create a directory to copy the header file
         COMMAND ${CMAKE_COMMAND}
         ARGS -E make_directory ${BUILD_ROOT}/include
         # and finally copy the header file
         COMMAND ${CMAKE_COMMAND}
         ARGS -E copy_if_different ${GENERATED_H_FILE} ${BUILD_ROOT}/include
-        COMMENT "Compiling ${slice_file}.ice")
+        COMMENT "Compiling ${slice_file}.ice"
+        MAIN_DEPENDENCY ${SLICE_SRC_FILE})
     include_directories (${BUILD_ROOT})
-    set (GENERATED_SOURCE_FILES ${GENERATED_CPP_FILE})
+    set (GENERATED_HEADER_FILES ${GENERATED_HEADER_FILES} ${BUILD_ROOT}/include/${slice_file}.h)
+    set (GENERATED_SOURCE_FILES ${GENERATED_SOURCE_FILES} ${GENERATED_CPP_FILE})
 endforeach (slice_file ${SLICE_FILES})
 
 set (SF_LIB_COMMUNICATOR_SRC ${SF_LIB_COMMUNICATOR_SRC} ${GENERATED_SOURCE_FILES})

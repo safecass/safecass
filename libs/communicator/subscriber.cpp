@@ -22,10 +22,14 @@ namespace SF {
 // Subscriber id (unique within a process)
 unsigned int Subscriber::Id = 0;
 
-class MonitorFDDI: public MonitorFDD {
+class MonitorSamplesI: public MonitorSamples {
 public:
-    virtual void Event(const std::string & event, const Ice::Current&) {
-        std::cout << "\nMonitorFDDI: " << event << std::endl;
+    virtual void PeriodSample(const SF::ComponentIdType & componentId, 
+                              Ice::Double period, const Ice::Current &)
+    {
+        // smmy
+        std::cout << "SUBSCRIBER received: [ " << componentId.ProcessName << " : "
+                  << componentId.ComponentName << " ] => " << period;
     }
 };
 
@@ -79,7 +83,7 @@ void Subscriber::Startup(void)
         }   
     }   
 
-    //Ice::ObjectAdapterPtr adapter = IceCommunicator->createObjectAdapter("MonitorFDD.Subscriber");
+    //Ice::ObjectAdapterPtr adapter = IceCommunicator->createObjectAdapter("MonitorSamples.Subscriber");
     Ice::ObjectAdapterPtr adapter = IceCommunicator->createObjectAdapter("Clock.Subscriber");
 
     //
@@ -96,7 +100,7 @@ void Subscriber::Startup(void)
     {
         subId.name = IceUtil::generateUUID();
     }
-    SubscriberObj = adapter->add(new MonitorFDDI, subId);
+    SubscriberObj = adapter->add(new MonitorSamplesI, subId);
 
     IceStorm::QoS qos;
     if(!retryCount.empty())

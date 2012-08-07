@@ -71,7 +71,7 @@ void BaseIce::StateChange(CommunicatorStateType state)
 {
     if (State == state) return;
 
-    // smmy
+#if 0
     std::cout << "STATE CHANGE: FROM ";
     switch (State) {
     case INIT: std::cout << "INIT"; break;
@@ -87,6 +87,7 @@ void BaseIce::StateChange(CommunicatorStateType state)
     case STOP: std::cout << "STOP"; break;
     }
     std::cout << "\n";
+#endif
 
     Mutex.lock();
     State = state;

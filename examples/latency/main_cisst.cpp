@@ -86,11 +86,10 @@ int main(int argc, char *argv[])
     std::string taskName = ss.str();
     std::cout << taskName << std::endl;
 
-    // Create periodic thread
+    // Create two test components with periodic threads and install monitors and FDD
+    // pipelines for them
     CreatePeriodicThread(taskName, period);
-    //CreatePeriodicThread("", 0.0);
 
-    // Install monitor, FDD pipeline, and data collector 
     // (MJ TODO: possibly with data visualizer)
     if (!InstallMonitor(taskName)) {
         SFLOG_ERROR << "Failed to install monitor for task \"" << taskName << "\"" << std::endl;

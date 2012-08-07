@@ -97,13 +97,13 @@ public:
     BaseIce(const std::string & propertyFileName);
     virtual ~BaseIce();
 
-    /*! Prepare publishing information to topic */
+    /*! Prepare publish/subscribe via Ice network */
     virtual void Startup(void);
 
-    /*! Start publishing information to topic */
+    /*! Start publish/subscribe topic */
     virtual void Run(void) = 0;
 
-    /*! Stop publishing information to topic */
+    /*! Stop publish/subscribe topic */
     virtual void Stop(void);
 };
 

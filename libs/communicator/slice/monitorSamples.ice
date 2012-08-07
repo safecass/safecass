@@ -12,17 +12,19 @@
 
  */
 
-#ifndef _INTERFACE_ICE
-#define _INTERFACE_ICE
+#ifndef _MONITOR_ICE
+#define _MONITOR_ICE
+
+#include <communicator.ice>
 
 module SF
 {
 
-interface MonitorFDD
+interface MonitorSamples
 {
-    void Event(string e);
+    void PeriodSample(ComponentIdType componentId, double period);
 };
 
 };
 
-#endif // _INTERFACE_ICE
+#endif // _MONITOR_ICE
