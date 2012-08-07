@@ -13,28 +13,44 @@
 */
 
 #include "publisher.h"
-
-#include <monitorFDD.h>
+#include "config.h"
 
 namespace SF {
+
+// Publisher id (unique within a process)
+unsigned int Publisher::Id = 0;
+
+Publisher::Publisher()
+    : BaseIce(GetDefaultConfigFilePath())
+{
+    Init();
+}
 
 Publisher::Publisher(const std::string & propertyFileName)
     : BaseIce(propertyFileName)
 {
+    Init();
 }
 
 Publisher::~Publisher()
 {
 }
 
-void Publisher::Run(void)
+void Publisher::Init(void)
+{
+    ++Id;
+    BaseType::Init();
+
+    SFLOG_INFO << "Publisher " << Id << " created with config file: " << this->IcePropertyFileName << std::endl;
+}
+
+void Publisher::Startup(void)
 {
     this->IceInitialize();
 
     IceStorm::TopicManagerPrx manager = 
         IceStorm::TopicManagerPrx::checkedCast(this->IceCommunicator->propertyToProxy("TopicManager.Proxy"));
-    if(!manager)
-    {
+    if (!manager) {
         SFLOG_ERROR << "PUBLISHER: invalid proxy" << std::endl;
         return;
     }
@@ -57,26 +73,39 @@ void Publisher::Run(void)
 
     // Get the topic's publisher object, and create a Clock proxy with
     // the mode specified as an argument of this application.
-    //
-    Ice::ObjectPrx publisher = topic->getPublisher();
+    Ice::ObjectPrx Publisher = topic->getPublisher();
+    MonitorFDD = MonitorFDDPrx::uncheckedCast(Publisher);
 
-    MonitorFDDPrx monitorFDD = MonitorFDDPrx::uncheckedCast(publisher);
+    BaseType::Startup();
+}
 
-    SFLOG_INFO << "publishing tick events. Press ^C to terminate the application." << std::endl;
-    try
-    {
-        while(true)
-        {
-            monitorFDD->Event(IceUtil::Time::now().toDateTime());
-            IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
-        }
+void Publisher::Run(void)
+{
+    BaseType::Run();
+
+    try {
+        // smmy
+        MonitorFDD->Event(IceUtil::Time::now().toDateTime());
+        //IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
     }
-    catch(const Ice::CommunicatorDestroyedException&)
-    {
-        // Ignore
+    catch(const Ice::CommunicatorDestroyedException & e) {
+        SFLOG_ERROR << "Error in publishing events: " << e.what() << std::endl;
     }
 
-    SFLOG_DEBUG << "FINISHED" << std::endl;
+    BaseType::Stop();
+}
+
+void Publisher::Stop(void)
+{
+    BaseType::Stop();
+}
+
+const std::string Publisher::GetDefaultConfigFilePath(void)
+{
+    std::string path(SF_COMMUNICATOR_CONFIG_DIR);
+    path += "/config.pub";
+
+    return path;
 }
 
 };

@@ -17,15 +17,34 @@
 
 #include "baseIce.h"
 
+#include <monitorFDD.h>
+
 namespace SF {
 
-// Adapter class: almost empty but pure virtual methods
 class SFLIB_EXPORT Publisher: public BaseIce {
+protected:
+    /*! typedef for base class */
+    typedef BaseIce BaseType;
+
+    /*! Publisher id (unique within a process) */
+    static unsigned int Id;
+
+    /*! IceStorm publisher proxy */
+    MonitorFDDPrx MonitorFDD;
+
+    /*! Initialization */
+    void Init(void);
+
 public:
+    Publisher();
     Publisher(const std::string & propertyFileName);
     virtual ~Publisher();
 
+    void Startup(void);
     void Run(void);
+    void Stop(void);
+
+    static const std::string GetDefaultConfigFilePath(void);
 };
 
 };

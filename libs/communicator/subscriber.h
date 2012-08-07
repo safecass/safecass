@@ -17,15 +17,35 @@
 
 #include "baseIce.h"
 
+#include <monitorFDD.h>
+
 namespace SF {
 
 // Adapter class: almost empty but pure virtual methods
 class SFLIB_EXPORT Subscriber: public BaseIce {
+protected:
+    /*! typedef for base class */
+    typedef BaseIce BaseType;
+
+    /*! Subscriber id (unique within a process) */
+    static unsigned int Id;
+
+    /*! Initialization */
+    void Init(void);
+
+    IceStorm::TopicPrx Topic;
+    Ice::ObjectPrx     SubscriberObj;
+
 public:
+    Subscriber();
     Subscriber(const std::string & propertyFileName);
     virtual ~Subscriber();
 
+    void Startup(void);
     void Run(void);
+    void Stop(void);
+
+    static const std::string GetDefaultConfigFilePath(void);
 };
 
 };

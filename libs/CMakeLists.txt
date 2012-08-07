@@ -23,7 +23,7 @@ set (LIB_DIR ${PROJECT_SOURCE_DIR})
 # Collect project files
 #---------------------------------
 set (SF_LIB_SRC ${LIB_DIR}/coordinator.h ${LIB_DIR}/coordinator.cpp)
-set (SF_LIB_INCLUDE_DIR ${LIB_DIR})
+set (SF_LIB_INCLUDE_DIR ${LIB_DIR} ${BUILD_ROOT})
 
 # common
 set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h

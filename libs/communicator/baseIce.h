@@ -18,6 +18,7 @@
 #include "common.h"
 //#include "monitor.h"
 #include <IceUtil/IceUtil.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 
@@ -26,7 +27,13 @@ namespace SF {
 // Base class for Ice proxies
 class SFLIB_EXPORT BaseIce
 {
+public:
+    typedef enum { INIT, STARTUP, RUNNING, STOP } CommunicatorStateType;
+
 protected:
+    //
+    // Resources and methods for Ice proxy
+    //
     /*! Name of property file that configures proxy settings. */
 	std::string IcePropertyFileName;
 
@@ -64,9 +71,40 @@ protected:
     }
     */
 
+    //
+    // Resources and methods for communicator
+    //
+private:
+    /*! Current state */
+    CommunicatorStateType State;
+
+    /*! Mutex for state change */
+    IceUtil::Mutex Mutex;
+
+protected:
+    /*! Change or update current state */
+    void StateChange(CommunicatorStateType state);
+
+    /*! Initialization */
+    virtual void Init(void);
+    
+    bool IsInitialized(void) const;
+    bool IsStartup(void) const;
+    bool IsRunning(void) const;
+    bool IsStopped(void) const;
+
 public:
     BaseIce(const std::string & propertyFileName);
     virtual ~BaseIce();
+
+    /*! Prepare publishing information to topic */
+    virtual void Startup(void);
+
+    /*! Start publishing information to topic */
+    virtual void Run(void) = 0;
+
+    /*! Stop publishing information to topic */
+    virtual void Stop(void);
 };
 
 

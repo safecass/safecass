@@ -16,12 +16,14 @@
 
 */
 
-#ifndef _JSON_TEST_CONFIG_H
-#define _JSON_TEST_CONFIG_H
+#ifndef _COMMON_CONFIG_H
+#define _COMMON_CONFIG_H
 
 #define SF_SOURCE_ROOT_DIR "@CMAKE_SOURCE_DIR@"
 #define SF_BINARY_ROOT_DIR "@CMAKE_BINARY_DIR@"
 
+#define SF_COMMUNICATOR_CONFIG_DIR "@CMAKE_SOURCE_DIR@/libs/communicator"
+
 #cmakedefine01 ENABLE_G2LOG
 
-#endif //_JSON_TEST_CONFIG_H
+#endif // _COMMON_CONFIG_H

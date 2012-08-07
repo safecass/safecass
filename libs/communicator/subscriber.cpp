@@ -13,11 +13,14 @@
 */
 
 #include "subscriber.h"
+#include "config.h"
 
 #include <Ice/Application.h>
-#include <monitorFDD.h>
 
 namespace SF {
+
+// Subscriber id (unique within a process)
+unsigned int Subscriber::Id = 0;
 
 class MonitorFDDI: public MonitorFDD {
 public:
@@ -26,23 +29,37 @@ public:
     }
 };
 
-Subscriber::Subscriber(const std::string & propertyFileName)
-    : BaseIce(propertyFileName)
+Subscriber::Subscriber()
+    : BaseIce(GetDefaultConfigFilePath())
 {
+    Init();
+}
+
+Subscriber::Subscriber(const std::string & propertyFileName)
+: BaseIce(propertyFileName)
+{
+    Init();
 }
 
 Subscriber::~Subscriber()
 {
 }
 
-void Subscriber::Run(void)
+void Subscriber::Init(void)
+{
+    ++Id;
+    BaseType::Init();
+
+    SFLOG_INFO << "Subscriber " << Id << " created with config file: " << this->IcePropertyFileName << std::endl;
+}
+
+void Subscriber::Startup(void)
 {
     this->IceInitialize();
 
     IceStorm::TopicManagerPrx manager = 
         IceStorm::TopicManagerPrx::checkedCast(this->IceCommunicator->propertyToProxy("TopicManager.Proxy"));
-    if(!manager)
-    {
+    if (!manager) {
         SFLOG_ERROR << "SUBSCRIBER: invalid proxy" << std::endl;
         return;
     }
@@ -50,20 +67,14 @@ void Subscriber::Run(void)
     const std::string topicName("event");
 
     // Retrieve the topic.
-    IceStorm::TopicPrx topic;
-    try 
-    {   
-        topic = manager->retrieve(topicName);
+    try {   
+        Topic = manager->retrieve(topicName);
     }   
-    catch(const IceStorm::NoSuchTopic&)
-    {   
-        try 
-        {   
-            topic = manager->create(topicName);
-        }   
-        catch(const IceStorm::TopicExists&)
-        {   
-            std::cout << "SUBSCRIBER: temporary failure. try again." << std::endl;
+    catch(const IceStorm::NoSuchTopic&) {   
+        try {   
+            Topic = manager->create(topicName);
+        } catch(const IceStorm::TopicExists&) {   
+            SFLOG_ERROR << "SUBSCRIBER: temporary failure. try again." << std::endl;
             return;
         }   
     }   
@@ -85,7 +96,7 @@ void Subscriber::Run(void)
     {
         subId.name = IceUtil::generateUUID();
     }
-    Ice::ObjectPrx subscriber = adapter->add(new MonitorFDDI, subId);
+    SubscriberObj = adapter->add(new MonitorFDDI, subId);
 
     IceStorm::QoS qos;
     if(!retryCount.empty())
@@ -94,31 +105,54 @@ void Subscriber::Run(void)
     }
 
     // set up the proxy
-    subscriber = subscriber->ice_datagram();
+    SubscriberObj = SubscriberObj->ice_datagram();
 
     try
     {
-        topic->subscribeAndGetPublisher(qos, subscriber);
+        Topic->subscribeAndGetPublisher(qos, SubscriberObj);
     }
     catch(const IceStorm::AlreadySubscribed&)
     {
-        // If we're manually setting the subscriber id ignore.
+        // If we're manually setting the Subscriber id ignore.
         if(id.empty())
         {
             throw;
         }
-        std::cout << "reactivating persistent subscriber" << std::endl;
+        SFLOG_ERROR << "reactivating persistent subscriber" << std::endl;
     }
     adapter->activate();
 
-    // http://www.zeroc.com/forums/help-center/2062-how-send-last-message-before-server-terminates-ice-application-class.html
+    BaseType::Startup();
+}
+
+void Subscriber::Run(void)
+{
+    BaseType::Run();
+
     Ice::Application::shutdownOnInterrupt();
     IceCommunicator->waitForShutdown();
 
-    topic->unsubscribe(subscriber);
+    Topic->unsubscribe(SubscriberObj);
 
+    SFLOG_INFO << "Unsubscribed from topic" << std::endl;
+    
+    BaseType::Stop();
+}
 
-    SFLOG_DEBUG << "FINISHED" << std::endl;
+void Subscriber::Stop(void)
+{
+    // Terminating subscriber needs to call shutdown() on the Ice communicator
+    IceCommunicator->shutdown();
+
+    BaseType::Stop();
+}
+
+const std::string Subscriber::GetDefaultConfigFilePath(void)
+{
+    std::string path(SF_COMMUNICATOR_CONFIG_DIR);
+    path += "/config.sub";
+
+    return path;
 }
 
 };
