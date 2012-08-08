@@ -17,7 +17,7 @@
 
 #include "baseIce.h"
 
-#include <monitorSamples.h>
+#include <messages.h>
 
 namespace SF {
 
@@ -30,6 +30,9 @@ protected:
     /*! Subscriber id (unique within a process) */
     static unsigned int Id;
 
+    /*! Topic name to which this subscriber subscribes */
+    const std::string TopicName;
+
     /*! Initialization */
     void Init(void);
 
@@ -37,8 +40,8 @@ protected:
     Ice::ObjectPrx     SubscriberObj;
 
 public:
-    Subscriber();
-    Subscriber(const std::string & propertyFileName);
+    Subscriber(const std::string & topicName);
+    Subscriber(const std::string & topicName, const std::string & propertyFileName);
     virtual ~Subscriber();
 
     void Startup(void);

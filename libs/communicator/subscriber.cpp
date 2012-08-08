@@ -14,6 +14,7 @@
 
 #include "subscriber.h"
 #include "config.h"
+#include "dict.h"
 
 #include <Ice/Application.h>
 
@@ -22,25 +23,32 @@ namespace SF {
 // Subscriber id (unique within a process)
 unsigned int Subscriber::Id = 0;
 
+#define SUBSCRIBER_INFO "Subscriber " << Id << " (\"" << TopicName << "\"): "
+
 class MonitorSamplesI: public MonitorSamples {
 public:
-    virtual void PeriodSample(const SF::ComponentIdType & componentId, 
-                              Ice::Double period, const Ice::Current &)
+    virtual void CollectSample(const std::string & json, const Ice::Current &)
     {
-        // smmy
-        std::cout << "SUBSCRIBER received: [ " << componentId.ProcessName << " : "
-                  << componentId.ComponentName << " ] => " << period << std::endl << std::flush;
+        std::cout << "Subscriber MONITOR received: " << json << std::endl;
     }
 };
 
-Subscriber::Subscriber()
-    : BaseIce(GetDefaultConfigFilePath())
+class SupervisorControlsI: public SupervisorControls {
+public:
+    virtual void ControlCommand(const std::string & json, const Ice::Current &)
+    {
+        std::cout << "Subscriber SUPERVISOR received: " << json << std::endl;
+    }
+};
+
+Subscriber::Subscriber(const std::string & topicName)
+    : BaseIce(GetDefaultConfigFilePath()), TopicName(topicName)
 {
     Init();
 }
 
-Subscriber::Subscriber(const std::string & propertyFileName)
-: BaseIce(propertyFileName)
+Subscriber::Subscriber(const std::string & topicName, const std::string & propertyFileName)
+    : BaseIce(propertyFileName), TopicName(topicName)
 {
     Init();
 }
@@ -54,7 +62,8 @@ void Subscriber::Init(void)
     ++Id;
     BaseType::Init();
 
-    SFLOG_INFO << "Subscriber " << Id << " created with config file: " << this->IcePropertyFileName << std::endl;
+    SFLOG_INFO << SUBSCRIBER_INFO << "Created with config file: " << this->IcePropertyFileName << std::endl;
+    SFLOG_INFO << SUBSCRIBER_INFO << "Created with topic name: " << TopicName << std::endl;
 }
 
 void Subscriber::Startup(void)
@@ -64,21 +73,19 @@ void Subscriber::Startup(void)
     IceStorm::TopicManagerPrx manager = 
         IceStorm::TopicManagerPrx::checkedCast(this->IceCommunicator->propertyToProxy("TopicManager.Proxy"));
     if (!manager) {
-        SFLOG_ERROR << "SUBSCRIBER: invalid proxy" << std::endl;
+        SFLOG_ERROR << SUBSCRIBER_INFO << "Invalid proxy" << std::endl;
         return;
     }
 
-    const std::string topicName("event");
-
     // Retrieve the topic.
     try {   
-        Topic = manager->retrieve(topicName);
+        Topic = manager->retrieve(TopicName);
     }   
     catch(const IceStorm::NoSuchTopic&) {   
         try {   
-            Topic = manager->create(topicName);
+            Topic = manager->create(TopicName);
         } catch(const IceStorm::TopicExists&) {   
-            SFLOG_ERROR << "SUBSCRIBER: temporary failure. try again." << std::endl;
+            SFLOG_ERROR << SUBSCRIBER_INFO << "Temporary failure. try again." << std::endl;
             return;
         }   
     }   
@@ -96,11 +103,15 @@ void Subscriber::Startup(void)
     std::string id, retryCount;
     Ice::Identity subId;
     subId.name = id;
-    if(subId.name.empty())
-    {
+    if(subId.name.empty()) {
         subId.name = IceUtil::generateUUID();
     }
-    SubscriberObj = adapter->add(new MonitorSamplesI, subId);
+    // [SFUPDATE]
+    if (TopicName.compare(Dict::TopicNames::Monitor) == 0) {
+        SubscriberObj = adapter->add(new MonitorSamplesI, subId);
+    } else if (TopicName.compare(Dict::TopicNames::Supervisor) == 0) {
+        SubscriberObj = adapter->add(new SupervisorControlsI, subId);
+    }
 
     IceStorm::QoS qos;
     if(!retryCount.empty())
@@ -111,18 +122,14 @@ void Subscriber::Startup(void)
     // set up the proxy
     SubscriberObj = SubscriberObj->ice_datagram();
 
-    try
-    {
+    try {
         Topic->subscribeAndGetPublisher(qos, SubscriberObj);
-    }
-    catch(const IceStorm::AlreadySubscribed&)
-    {
+    } catch(const IceStorm::AlreadySubscribed&) {
         // If we're manually setting the Subscriber id ignore.
-        if(id.empty())
-        {
+        if(id.empty()) {
             throw;
         }
-        SFLOG_ERROR << "reactivating persistent subscriber" << std::endl;
+        SFLOG_ERROR << SUBSCRIBER_INFO << "Reactivating persistent subscriber" << std::endl;
     }
     adapter->activate();
 
@@ -138,7 +145,7 @@ void Subscriber::Run(void)
 
     Topic->unsubscribe(SubscriberObj);
 
-    SFLOG_INFO << "Unsubscribed from topic" << std::endl;
+    SFLOG_INFO << SUBSCRIBER_INFO << "Unsubscribed from topic" << std::endl;
     
     BaseType::Stop();
 }

@@ -56,17 +56,14 @@ public:
     cisstMonitor();
     virtual ~cisstMonitor();
 
-    static std::string GetMonitorJSON(const std::string &        name,
-                                      const Fault::FaultType     faultType,
-                                      const Monitor::OutputType  outputType,
-                                      const SamplingRateType     samplingRate,
-                                      const Monitor::StatusType  initialStatus,
-                                      const TargetIDType &       targetID);
+    cisstMonitor & operator=(const cisstMonitor & rhs);
 
+    /*! Queries to ask monitoring type */
     bool IsActive(void) const;
     bool IsStream(void) const;
     bool IsEvent(void) const;
 
+    /*! Getters */
     Fault::FaultType    GetFaultType(void) const;
     TargetIDType &      GetTargetID(void);
     Monitor::StatusType GetStatus(void) const;
@@ -75,6 +72,19 @@ public:
     SamplingPeriodType  GetSamplingPeriod(void) const;
     StrVecType          GetAddressesToPublish(void) const;
 
+    std::string GetMonitorJSON(void) const;
+    static std::string GetMonitorJSON(const std::string &        name,
+                                      const Fault::FaultType     faultType,
+                                      const Monitor::OutputType  outputType,
+                                      const SamplingRateType     samplingRate,
+                                      const Monitor::StatusType  initialStatus,
+                                      const TargetIDType &       targetID);
+
+    /*! Getters to publish collected (monitored) data via SF */
+    // [SFUPDATE]
+    std::string GetJSON(double sample) const;
+
+    /*! Setters */
     void SetFaultType(const Fault::FaultType faultType);
     void SetTargetId(const TargetIDType & targetID);
     void SetStatus(const Monitor::StatusType status);

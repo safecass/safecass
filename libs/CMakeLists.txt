@@ -73,7 +73,7 @@ set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/communicator/baseIce.h
                              ${LIB_DIR}/communicator/subscriber.cpp)
 set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${LIB_DIR}/communicator)
 # slice integration
-set (SLICE_FILES communicator monitorSamples)
+set (SLICE_FILES communicator messages)
 set (SLICE_INCLUDE_DIR ${ZEROC_SLICE_INCLUDE_DIR})
 foreach (slice_file ${SLICE_FILES})
     set (GENERATED_CPP_FILE "${BUILD_ROOT}/libs/${slice_file}.cpp")

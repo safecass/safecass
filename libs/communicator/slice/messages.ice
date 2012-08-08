@@ -15,14 +15,19 @@
 #ifndef _MONITOR_ICE
 #define _MONITOR_ICE
 
-#include <communicator.ice>
+//#include <communicator.ice>
 
 module SF
 {
 
 interface MonitorSamples
 {
-    void PeriodSample(ComponentIdType componentId, double period);
+    void CollectSample(string json);
+};
+
+interface SupervisorControls 
+{
+    void ControlCommand(string json);
 };
 
 };

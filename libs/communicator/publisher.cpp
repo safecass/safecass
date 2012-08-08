@@ -20,14 +20,16 @@ namespace SF {
 // Publisher id (unique within a process)
 unsigned int Publisher::Id = 0;
 
-Publisher::Publisher()
-    : BaseIce(GetDefaultConfigFilePath())
+#define PUBLISHER_INFO "Publisher " << Id << " (\"" << TopicName << "\"): "
+
+Publisher::Publisher(const std::string & topicName)
+    : BaseIce(GetDefaultConfigFilePath()), TopicName(topicName)
 {
     Init();
 }
 
-Publisher::Publisher(const std::string & propertyFileName)
-    : BaseIce(propertyFileName)
+Publisher::Publisher(const std::string & topicName, const std::string & propertyFileName)
+    : BaseIce(propertyFileName), TopicName(topicName)
 {
     Init();
 }
@@ -41,7 +43,8 @@ void Publisher::Init(void)
     ++Id;
     BaseType::Init();
 
-    SFLOG_INFO << "Publisher " << Id << " created with config file: " << this->IcePropertyFileName << std::endl;
+    SFLOG_INFO << PUBLISHER_INFO << "Created with config file: " << this->IcePropertyFileName << std::endl;
+    SFLOG_INFO << PUBLISHER_INFO << "Created with topic name: " << TopicName << std::endl;
 }
 
 void Publisher::Startup(void)
@@ -51,13 +54,13 @@ void Publisher::Startup(void)
     IceStorm::TopicManagerPrx manager = 
         IceStorm::TopicManagerPrx::checkedCast(this->IceCommunicator->propertyToProxy("TopicManager.Proxy"));
     if (!manager) {
-        SFLOG_ERROR << "PUBLISHER: invalid proxy" << std::endl;
+        SFLOG_ERROR << PUBLISHER_INFO << "Invalid proxy" << std::endl;
         return;
     }
 
     // Retrieve the topic.
     IceStorm::TopicPrx topic;
-    const std::string topicName = "event";
+    const std::string topicName = TopicName;
     try {   
         topic = manager->retrieve(topicName);
     } 
@@ -66,7 +69,7 @@ void Publisher::Startup(void)
             topic = manager->create(topicName);
         } 
         catch(const IceStorm::TopicExists&) {   
-            SFLOG_ERROR << "PUBLISHER: temporary failure. try again." << std::endl;
+            SFLOG_ERROR << PUBLISHER_INFO << "Temporary failure. try again." << std::endl;
             return;
         }   
     }   
@@ -85,19 +88,15 @@ void Publisher::Startup(void)
 #define PUBLISH_END\
     }\
     catch(const Ice::CommunicatorDestroyedException & e) {\
-        SFLOG_ERROR << "Error in publishing events: " << e.what() << std::endl;\
+        SFLOG_ERROR << PUBLISHER_INFO << "Error in publishing events: " << e.what() << std::endl;\
     }\
     BaseType::Stop();
 
-void Publisher::Publish(const std::string & processName, const std::string & componentName, double period)
+void Publisher::Publish(const std::string & json)
 {
     PUBLISH_BEGIN;
 
-    ComponentIdType componentId;
-    componentId.ProcessName = processName;
-    componentId.ComponentName = componentName;
-
-    MonitorSamples->PeriodSample(componentId, period);
+    MonitorSamples->CollectSample(json);
     //MonitorSamples->Event(IceUtil::Time::now().toDateTime());
     //IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 

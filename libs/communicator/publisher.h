@@ -17,7 +17,7 @@
 
 #include "baseIce.h"
 
-#include <monitorSamples.h>
+#include <messages.h>
 
 namespace SF {
 
@@ -29,6 +29,9 @@ protected:
     /*! Publisher id (unique within a process) */
     static unsigned int Id;
 
+    /*! Topic name to which this publisher publishes */
+    const std::string TopicName;
+
     /*! IceStorm publisher proxy */
     MonitorSamplesPrx MonitorSamples;
 
@@ -36,13 +39,13 @@ protected:
     void Init(void);
 
 public:
-    Publisher();
-    Publisher(const std::string & propertyFileName);
+    Publisher(const std::string & topicName);
+    Publisher(const std::string & topicName, const std::string & propertyFileName);
     virtual ~Publisher();
 
     void Startup(void);
     void Run(void) {}
-    void Publish(const std::string & processName, const std::string & componentName, double period);
+    void Publish(const std::string & json);
     void Stop(void);
 
     static const std::string GetDefaultConfigFilePath(void);

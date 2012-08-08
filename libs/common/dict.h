@@ -37,6 +37,7 @@ const std::string ON = "On";
 const std::string OFF = "Off";
 const std::string OUTPUT = "Output";
 const std::string PUBLISH = "Publish";
+const std::string SAMPLE = "Sample";
 const std::string SAMPLING_RATE = "SamplingRate";
 const std::string STATE = "State";
 const std::string STREAM = "Stream";
@@ -44,6 +45,14 @@ const std::string SUBSCRIBE = "Subscribe";
 const std::string TARGET = "Target";
 const std::string THRESHOLD = "Threshold";
 const std::string TYPE = "Type";
+
+namespace TopicNames {
+    // For monitoring
+    const std::string Monitor = "Monitor";
+
+    // For supervisory control and fault management
+    const std::string Supervisor = "Supervisor";
+};
 
 };
 

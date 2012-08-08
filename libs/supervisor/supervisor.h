@@ -24,6 +24,8 @@ class SFLIB_EXPORT Supervisor {
 public:
     Supervisor();
     virtual ~Supervisor();
+
+    static const std::string GetSupervisorName(void);
 };
 
 };

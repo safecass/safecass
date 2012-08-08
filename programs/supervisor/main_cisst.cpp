@@ -19,6 +19,7 @@
 #include "publisher.h"
 #include "subscriber.h"
 
+#include <cisstCommon/cmnGetChar.h>
 #include <cisstOSAbstraction/osaSleep.h>
 #include <cisstMultiTask/mtsManagerLocal.h>
 #include <cisstMultiTask/mtsSafetySupervisor.h>
@@ -62,6 +63,10 @@ int main(int argc, char *argv[])
     //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
     //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
     
+    // Don't install coordinator for this process because the supervisor is running
+    // in this process.  This should be called BEFORE mtsManagerLocal::GetInstance().
+    mtsManagerLocal::SkipCoordinatorInstallation();
+
     // Get instance of the cisst Component Manager
     mtsManagerLocal * componentManager = mtsManagerLocal::GetInstance();
     SFLOG_INFO << "Publisher configuration file: " << configPub << std::endl;
@@ -82,14 +87,30 @@ int main(int argc, char *argv[])
         }
     }
     ss << std::endl;
-
     SFLOG_INFO << ss.str();
 
+    // Create supervisor instance
     mtsSafetySupervisor * supervisor = new mtsSafetySupervisor;
-    
-    std::cout << "-------------------- subscriber start" << std::endl; 
-    osaSleep(3.0);
-    std::cout << "-------------------- subscriber end" << std::endl; 
+    componentManager->AddComponent(supervisor);
+
+    componentManager->CreateAll();
+    componentManager->WaitForStateAll(mtsComponentState::READY);
+
+    componentManager->StartAll();
+    componentManager->WaitForStateAll(mtsComponentState::ACTIVE);
+
+    int in;
+    while (true) {
+        in = cmnGetChar();
+        if (in == 'q') break;
+        osaSleep(100 * cmn_ms);
+    }
+
+    componentManager->KillAll();
+    componentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
+
+    componentManager->Cleanup();
+
     delete supervisor;
 
     return 0;

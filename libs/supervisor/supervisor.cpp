@@ -24,4 +24,8 @@ Supervisor::~Supervisor()
 {
 }
 
+const std::string Supervisor::GetSupervisorName(void) {
+    return std::string("Safety Framework Supervisor");
+}
+
 };

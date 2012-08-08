@@ -79,6 +79,77 @@ cisstMonitor::~cisstMonitor()
 {
 }
 
+#define COPY(_field) this->_field = rhs._field;
+cisstMonitor & cisstMonitor::operator=(const cisstMonitor & rhs)
+{
+    COPY(FaultType);
+    COPY(TargetID);
+    COPY(Status);
+    COPY(OutputType);
+    COPY(SamplingRate);
+    this->AddressesToPublish.insert(AddressesToPublish.begin(),
+        rhs.AddressesToPublish.begin(), rhs.AddressesToPublish.end());
+}
+#undef COPY
+
+std::string cisstMonitor::GetMonitorJSON(void) const
+{
+    Json::Value root;
+
+    root[NAME] = "cisstMonitor"; // MJ TODO: FIXME later
+
+    // Monitor target type
+    {   Json::Value _root;
+        _root[TYPE] = Fault::GetFaultString(FaultType);
+
+        { Json::Value __root;
+          __root[NAME_PROCESS] = TargetID.ProcessName;
+          __root[NAME_COMPONENT] = TargetID.ComponentName;
+          _root[IDENTIFIER] = __root;
+        }
+        root[TARGET] = _root;
+    }
+
+    // Monitor behaviors
+    {   Json::Value _root;
+        _root[TYPE] = Monitor::GetOutputString(OutputType);
+        {   Json::Value __root;
+            {
+                __root[STATE] = Monitor::GetStatusString(Status);
+                if (OutputType == OUTPUT_STREAM) {
+                    __root[SAMPLING_RATE] = SamplingRate;
+                } else if (OutputType == OUTPUT_EVENT) {
+                    Json::Value array(Json::arrayValue);
+                    array.append(0.1); // MJ TEMP: FIXME later
+                    array.append(0.5); // MJ TEMP: FIXME later
+                    array.append(2.5); // MJ TEMP: FIXME later
+                    //__root[THRESHOLD] = 3;
+                    __root[THRESHOLD] = array;
+                    __root[MARGIN] = 4; // MJ TEMP: FIXME later
+                }
+            }
+            _root[CONFIG] = __root;
+        }
+
+        {   Json::Value __root;
+            {
+                // MJ TEMP: ip of IceStorm service?
+                Json::Value array(Json::arrayValue);
+                for (size_t i = 0; i < AddressesToPublish.size(); ++i)
+                    array.append(AddressesToPublish[i]);
+                __root[PUBLISH] = array;
+            }
+            _root[TARGET] = __root;
+        }
+        root[OUTPUT] = _root;
+    }
+
+    std::stringstream ss;
+    ss << root;
+
+    return ss.str();
+}
+
 std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
                                          const Fault::FaultType    faultType,
                                          const Monitor::OutputType outputType,
@@ -154,12 +225,12 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
                     __root[SAMPLING_RATE] = samplingRate;
                 } else if (outputType == OUTPUT_EVENT) {
                     Json::Value array(Json::arrayValue);
-                    array.append(0.1);
-                    array.append(0.5);
-                    array.append(2.5);
+                    array.append(0.1); // MJ TEMP: FIXME later
+                    array.append(0.5); // MJ TEMP: FIXME later
+                    array.append(2.5); // MJ TEMP: FIXME later
                     //__root[THRESHOLD] = 3;
                     __root[THRESHOLD] = array;
-                    __root[MARGIN] = 4;
+                    __root[MARGIN] = 4; // MJ TEMP: FIXME later
                 }
             }
             _root[CONFIG] = __root;
@@ -169,8 +240,8 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
             {
                 // MJ TEMP: ip of IceStorm service?
                 Json::Value array(Json::arrayValue);
-                array.append("127.0.0.1");
-                array.append("10.162.34.118"); // my desktop
+                array.append("127.0.0.1"); // MJ TEMP: FIXME later
+                array.append("10.162.34.118"); // MJ TEMP: FIXME later
                 __root[PUBLISH] = array;
             }
             _root[TARGET] = __root;
@@ -183,6 +254,28 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
 
     return ss.str();
 }
+
+std::string cisstMonitor::GetJSON(double sample) const
+{
+    Json::Value root;
+
+    Json::Value _root;
+    _root[TYPE] = Fault::GetFaultString(FaultType);
+
+    { Json::Value __root;
+        __root[NAME_PROCESS] = TargetID.ProcessName;
+        __root[NAME_COMPONENT] = TargetID.ComponentName;
+        _root[IDENTIFIER] = __root;
+    }
+    root[TARGET] = _root;
+
+    root[SAMPLE] = sample;
+
+    std::stringstream ss;
+    ss << root;
+
+    return ss.str();
+} 
 
 bool cisstMonitor::IsActive(void) const
 {
