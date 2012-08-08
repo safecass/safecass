@@ -25,7 +25,7 @@ interface MonitorSamples
     void CollectSample(string json);
 };
 
-interface SupervisorControls 
+interface SupervisorControls
 {
     void ControlCommand(string json);
 };

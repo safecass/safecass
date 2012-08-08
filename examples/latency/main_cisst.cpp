@@ -98,8 +98,13 @@ int main(int argc, char *argv[])
     //InstallFDD();
     //InstallDataCollector();
     
-    if (!ComponentManager->GetCoordinator().DeployMonitorsAndFDDs()) {
-        SFLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
+    if (ComponentManager->GetCoordinator()) {
+        if (!ComponentManager->GetCoordinator()->DeployMonitorsAndFDDs()) {
+            SFLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
+            return 1;
+        }
+    } else {
+        SFLOG_ERROR  << "Failed to get coordinator in this process";
         return 1;
     }
 
@@ -214,9 +219,14 @@ bool InstallMonitor(const std::string & targetComponentName)
 
     // Created monitor uid to check if the target object is already being monitored
     const std::string targetUID = targetId.GetTargetUID(fault);
-    if (!ComponentManager->GetCoordinator().AddMonitorTarget(targetUID, newMonitorJSON)) {
-        SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-        SFLOG_ERROR << "JSON: " << newMonitorJSON << std::endl;
+    if (ComponentManager->GetCoordinator()) {
+        if (!ComponentManager->GetCoordinator()->AddMonitorTarget(targetUID, newMonitorJSON)) {
+            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
+            SFLOG_ERROR << "JSON: " << newMonitorJSON << std::endl;
+            return false;
+        }
+    } else {
+        SFLOG_ERROR  << "Failed to get coordinator in this process";
         return false;
     }
 

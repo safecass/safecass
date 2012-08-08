@@ -14,6 +14,7 @@
 
 #include "publisher.h"
 #include "config.h"
+#include "dict.h"
 
 namespace SF {
 
@@ -77,7 +78,11 @@ void Publisher::Startup(void)
     // Get the topic's publisher object, and create a Clock proxy with
     // the mode specified as an argument of this application.
     Ice::ObjectPrx Publisher = topic->getPublisher();
-    MonitorSamples = MonitorSamplesPrx::uncheckedCast(Publisher);
+    if (TopicName.compare(Dict::TopicNames::Monitor) == 0) {
+        MonitorSamples = MonitorSamplesPrx::uncheckedCast(Publisher);
+    } else if (TopicName.compare(Dict::TopicNames::Supervisor) == 0) {
+        SupervisorControls = SupervisorControlsPrx::uncheckedCast(Publisher);
+    }
 
     BaseType::Startup();
 }
@@ -96,7 +101,12 @@ void Publisher::Publish(const std::string & json)
 {
     PUBLISH_BEGIN;
 
-    MonitorSamples->CollectSample(json);
+    if (TopicName.compare(Dict::TopicNames::Monitor) == 0) {
+        MonitorSamples->CollectSample(json);
+    } else if (TopicName.compare(Dict::TopicNames::Supervisor) == 0) {
+        SupervisorControls->ControlCommand(json);
+    }
+
     //MonitorSamples->Event(IceUtil::Time::now().toDateTime());
     //IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 

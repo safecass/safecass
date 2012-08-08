@@ -34,6 +34,7 @@ protected:
 
     /*! IceStorm publisher proxy */
     MonitorSamplesPrx MonitorSamples;
+    SupervisorControlsPrx SupervisorControls;
 
     /*! Initialization */
     void Init(void);
