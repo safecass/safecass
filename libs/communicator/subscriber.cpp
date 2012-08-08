@@ -29,7 +29,7 @@ public:
     {
         // smmy
         std::cout << "SUBSCRIBER received: [ " << componentId.ProcessName << " : "
-                  << componentId.ComponentName << " ] => " << period;
+                  << componentId.ComponentName << " ] => " << period << std::endl << std::flush;
     }
 };
 

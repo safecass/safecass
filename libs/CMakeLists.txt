@@ -22,7 +22,6 @@ set (LIB_DIR ${PROJECT_SOURCE_DIR})
 #---------------------------------
 # Collect project files
 #---------------------------------
-set (SF_LIB_SRC ${LIB_DIR}/coordinator.h ${LIB_DIR}/coordinator.cpp)
 set (SF_LIB_INCLUDE_DIR ${LIB_DIR} ${BUILD_ROOT})
 
 # common
@@ -33,6 +32,13 @@ set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h
                        ${LIB_DIR}/common/json.h
                        ${LIB_DIR}/common/json.cpp)
 set (SF_LIB_COMMON_INCLUDE_DIR ${LIB_DIR} ${LIB_DIR}/common)
+
+# supervisor
+set (SF_LIB_SUPERVISOR_SRC ${LIB_DIR}/supervisor/coordinator.h
+                           ${LIB_DIR}/supervisor/coordinator.cpp
+                           ${LIB_DIR}/supervisor/supervisor.h
+                           ${LIB_DIR}/supervisor/supervisor.cpp)
+set (SF_LIB_SUPERVISOR_INCLUDE_DIR ${LIB_DIR} ${LIB_DIR}/supervisor)
 
 # monitor
 set (SF_LIB_MONITOR_SRC ${LIB_DIR}/monitor/monitor.h
@@ -101,13 +107,14 @@ set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} ${ZEROC_ICE_LIBRARIES})
 #---------------------------------
 # Set global INCLUDE and LIB
 #---------------------------------
-set (SF_LIB_SRC ${SF_LIB_SRC}
-                ${SF_LIB_COMMON_SRC} 
+set (SF_LIB_SRC ${SF_LIB_COMMON_SRC} 
+                ${SF_LIB_SUPERVISOR_SRC}
                 ${SF_LIB_MONITOR_SRC} 
                 ${SF_LIB_FDD_SRC}
                 ${SF_LIB_COMMUNICATOR_SRC})
 set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} 
                         ${SF_LIB_COMMON_INCLUDE_DIR}
+                        ${SF_LIB_SUPERVISOR_INCLUDE_DIR}
                         ${SF_LIB_MONITOR_INCLUDE_DIR}
                         ${SF_LIB_FDD_INCLUDE_DIR}
                         ${SF_LIB_COMMUNICATOR_INCLUDE_DIR})

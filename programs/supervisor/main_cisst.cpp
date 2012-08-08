@@ -19,11 +19,13 @@
 #include "publisher.h"
 #include "subscriber.h"
 
+#include <cisstOSAbstraction/osaSleep.h>
+#include <cisstMultiTask/mtsManagerLocal.h>
+#include <cisstMultiTask/mtsSafetySupervisor.h>
+
 using namespace SF;
 
 /* TODO
- * 1. remove all cisst-dependencies
- * 2. implement "BRAIN" of SF => Supervisor class => add it to libs
  * 3. add subscriber to Supervisor to listen to a topic for monitor (i.e., period sample)
  * 4. integrate d3 backend for real-time visualization and data collection
  * 5. add publisher to Supervisor to publish supervisory control data
@@ -44,8 +46,26 @@ int main(int argc, char *argv[])
         std::cerr << "USAGE: supervisor [publisher config file] [subscriber config file]" << std::endl;
         return 1;
     }
-    SFLOG_INFO << "Publisher  config file: " << configPub << std::endl;
-    SFLOG_INFO << "Subscriber config file: " << configSub << std::endl;
+
+#if ENABLE_G2LOG
+    // Logger setup
+    g2LogWorker logger(argv[0], "./");
+    g2::initializeLogging(&logger);
+    std::cout << "Log file: \"" << logger.logFileName() << "\"\n" << std::endl;
+#endif
+
+    // cisst logger setup
+    cmnLogger::SetMask(CMN_LOG_ALLOW_ALL);
+    cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
+    cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
+    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
+    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
+    //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
+    
+    // Get instance of the cisst Component Manager
+    mtsManagerLocal * componentManager = mtsManagerLocal::GetInstance();
+    SFLOG_INFO << "Publisher configuration file: " << configPub << std::endl;
+    SFLOG_INFO << "Subscriber configuration file: " << configSub << std::endl;
 
     // Print information about middleware(s) available
     StrVecType info;
@@ -64,7 +84,14 @@ int main(int argc, char *argv[])
     ss << std::endl;
 
     SFLOG_INFO << ss.str();
+
+    mtsSafetySupervisor * supervisor = new mtsSafetySupervisor;
     
+    std::cout << "-------------------- subscriber start" << std::endl; 
+    osaSleep(3.0);
+    std::cout << "-------------------- subscriber end" << std::endl; 
+    delete supervisor;
+
     return 0;
 }
 
