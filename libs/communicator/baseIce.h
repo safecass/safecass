@@ -136,6 +136,17 @@ public:
     }
 };
 
+/*! Callback class to pass data for subscriber.  When a subscriber receives an event
+    notification, an event payload is delievered to the cisst framework via this 
+    callback class.  The cisst plug-ins for the safety framework -- specifically
+    mtsSafetySupervisor and mtsMonitorComponent -- should provide callback handler
+    classes which derive from this class. */
+class SFCallback {
+public:
+    SFCallback() {}
+
+    virtual void Callback(const std::string & json) = 0;
+};
 
 };
 

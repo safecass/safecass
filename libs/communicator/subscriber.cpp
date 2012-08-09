@@ -26,23 +26,28 @@ unsigned int Subscriber::Id = 0;
 #define SUBSCRIBER_INFO "Subscriber " << Id << " (\"" << TopicName << "\"): "
 
 class MonitorSamplesI: public MonitorSamples {
+protected:
+    SFCallback * CallbackInstance;
 public:
-    virtual void CollectSample(const std::string & json, const Ice::Current &)
-    {
-        std::cout << "Subscriber MONITOR received: " << json << std::endl;
+    MonitorSamplesI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
+    void CollectSample(const std::string & json, const Ice::Current &) {
+        CallbackInstance->Callback(json);
     }
 };
 
 class SupervisorControlsI: public SupervisorControls {
+protected:
+    SFCallback * CallbackInstance;
 public:
-    virtual void ControlCommand(const std::string & json, const Ice::Current &)
-    {
-        std::cout << "Subscriber SUPERVISOR received: " << json << std::endl;
+    SupervisorControlsI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
+    void ControlCommand(const std::string & json, const Ice::Current &) {
+        CallbackInstance->Callback(json);
     }
 };
 
-Subscriber::Subscriber(const std::string & topicName)
-    : BaseIce(GetDefaultConfigFilePath()), TopicName(topicName)
+Subscriber::Subscriber(const std::string & topicName, SFCallback * callbackInstance)
+    : BaseIce(GetDefaultConfigFilePath()), 
+      TopicName(topicName), CallbackInstance(callbackInstance)
 {
     Init();
 }
@@ -108,9 +113,9 @@ void Subscriber::Startup(void)
     }
     // [SFUPDATE]
     if (TopicName.compare(Dict::TopicNames::Monitor) == 0) {
-        SubscriberObj = adapter->add(new MonitorSamplesI, subId);
+        SubscriberObj = adapter->add(new MonitorSamplesI(CallbackInstance), subId);
     } else if (TopicName.compare(Dict::TopicNames::Supervisor) == 0) {
-        SubscriberObj = adapter->add(new SupervisorControlsI, subId);
+        SubscriberObj = adapter->add(new SupervisorControlsI(CallbackInstance), subId);
     }
 
     IceStorm::QoS qos;

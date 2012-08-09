@@ -39,8 +39,10 @@ protected:
     IceStorm::TopicPrx Topic;
     Ice::ObjectPrx     SubscriberObj;
 
+    SFCallback * CallbackInstance;
+
 public:
-    Subscriber(const std::string & topicName);
+    Subscriber(const std::string & topicName, SFCallback * callbackInstance);
     Subscriber(const std::string & topicName, const std::string & propertyFileName);
     virtual ~Subscriber();
 
