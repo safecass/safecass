@@ -156,6 +156,7 @@ void StartUp(int argc, char *argv[])
     //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
+    mtsComponentManager::InstallSafetyCoordinator();
     ComponentManager = mtsComponentManager::GetInstance();
 
     // Print information about middleware(s) available

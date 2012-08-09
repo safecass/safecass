@@ -59,6 +59,12 @@ if (SF_HAS_CISST)
     endif (cisst_FOUND_AS_REQUIRED)
 endif (SF_HAS_CISST)
 
+# Options to use Qt Framework
+option (SF_HAS_QT "Enable visualization framework based on Qt.  Requires Qt" ON)
+if (SF_HAS_QT)
+    message("Visualization framework enabled")
+endif (SF_HAS_QT)
+
 # Include sub-directories
 add_subdirectory(libs)
 add_subdirectory(programs)

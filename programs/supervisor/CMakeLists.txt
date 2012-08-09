@@ -33,3 +33,7 @@ if (SF_HAS_CISST)
         cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
     endif (cisst_FOUND_AS_REQUIRED)
 endif (SF_HAS_CISST)
+
+if (SF_HAS_QT)
+    add_subdirectory(Qt)
+endif (SF_HAS_QT)

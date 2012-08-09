@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     
     // Don't install coordinator for this process because the supervisor is running
     // in this process.  This should be called BEFORE mtsManagerLocal::GetInstance().
-    mtsManagerLocal::SkipCoordinatorInstallation();
+    //mtsManagerLocal::SkipCoordinatorInstallation();
 
     // Get instance of the cisst Component Manager
     mtsManagerLocal * componentManager = mtsManagerLocal::GetInstance();
