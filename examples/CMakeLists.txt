@@ -9,3 +9,4 @@
 #
 
 add_subdirectory(latency)
+add_subdirectory(period)

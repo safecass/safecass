@@ -27,3 +27,45 @@ conflicts with cisstCommon as follows:
     +  //#define CMN_ISNAN(x) isnan(x)
     +  #define CMN_ISNAN(x) std::isnan(x)
      #endif
+
+
+Cubism:
+    WebSocket support: For compatibly tests I use 
+    http://www.tavendo.de/autobahn/testsuite.html
+    and
+    http://websocket.org/echo.html
+
+Cube:
+    https://github.com/square/cube/wiki/Collector
+
+MongoDB
+MongoHub
+
+How to run visualization framework (Cube/Cubism):
+    1) Run MongoDB:
+        # cd /Users/MJ/project/tools/mongodb-osx-x86_64-2.0.7 
+        # mongodb-osx-x86_64-2.0.7$ bin/mongod --dbpath data/db (make -p data/db)
+    2) MongoHub or console-based Mongo
+        - Create cube_development database
+    3) Install Cube:
+        # cd ~/project/tools/
+        # npm install cube (requires node js from http://nodejs.org)
+    3) Run Cube:
+        A) Collector:
+        # cd /Users/MJ/project/tools/node_modules/cube
+        # node bin/collector (<-- check bin/collector-config.js)
+        B) Evaluator:
+        # cd /Users/MJ/project/tools/node_modules/cube
+        # node bin/evaluator (<-- check bin/evaluator-config.js)
+    4) Generate test data (random)
+        # cd /Users/MJ/project/tools/node_modules/cube/examples/random-emitter
+        - edit random-config.js to configure parameters
+        # node random-emitter.js
+        - Data set can be viewed using mongo console-based tool
+            # cd /Users/MJ/project/tools/mongodb-osx-x86_64-2.0.7/bin
+            # ./mongo
+            > show dbs
+            > use cube_development
+            > db.random_events.find()
+    5) Run HTML Cubism Demo:
+        # open file:///Users/MJ/project/tools/node_modules/cube/static/random/index.html?step=1e4
