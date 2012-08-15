@@ -28,12 +28,18 @@ foreach (ICEBOX_SRC_FILE ${ICEBOX_SRC_FILES})
 endforeach (ICEBOX_SRC_FILE)
 
 #
-# MongoDB
+# Visualization back-end framework: MongoDB and Cube
 #
-# copy files from [SRC]/tools/scripts to [BUILD]/bin
-set (MONGODB_BASE_DIR "${SafetyFramework_SOURCE_DIR}/tools/scripts")
-set (MONGODB_SRC_FILES "createMongoDB.js"
-                       "runDBCube.sh")
+# copy files from [SRC]/tools/cube to [BUILD]/bin
+set (MONGODB_BASE_DIR "${SafetyFramework_SOURCE_DIR}/tools/cube")
+set (MONGODB_SRC_FILES # MongoDB
+                       "createMongoDB.js"
+                       "runDBCube.sh"
+                       # cube collector and its configuration
+                       "collector-config.js" "collector.js"
+                       # cube evaluator and its configuration
+                       "evaluator-config.js" "evaluator.js"
+                       )
 
 foreach (MONGODB_SRC_FILE ${MONGODB_SRC_FILES})
     # MJ: Don't create db here: it should be created by runDBCube.sh
