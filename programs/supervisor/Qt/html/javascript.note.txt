@@ -1,0 +1,51 @@
+Associative arrays in JS:
+    http://www.steinbit.org/words/programming/associative-arrays-in-javascript
+
+Creating an associative array and filling it with some data:
+
+var container = {};
+container["someKey"] = 3;
+container["someOtherKey"] = someObject;
+container["anotherKey"] = "Some text";
+ 
+// ... or equivalently
+var container = {
+      someKey: 3,
+                 someOtherKey: someObject,
+                   anotherKey: "Some text"
+};
+Accessing elements in the associative array:
+
+var someValue = container["someKey"];
+container["otherKey"] = someValue;
+ 
+// ... or equivalently
+var someValue = container.someKey;
+container.otherKey = someValue;
+Iterating through all the elements in the associative array:
+
+for (var key in container) {
+       // hasOwnProperty() checks that attribute is from non-inherited prototype
+       if (container.hasOwnProperty(key)) {
+                 var element = container[key];
+                    }
+}
+Deleting a key in the associative array:
+
+delete container["someKey"];
+ 
+// ... or equivalently
+delete container.someKey;
+ 
+// Notice: Don't assign null to the deleted key as
+// this will re-create the key!
+Checking if a key exists in the associative array:
+
+if (container["someKey"] === undefined) {
+       // Key does not exist
+}
+ 
+// ... or equivalently
+if (container.someKey === undefined) {
+       // Key does not exist
+}
