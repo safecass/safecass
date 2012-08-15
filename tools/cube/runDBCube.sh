@@ -11,8 +11,11 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 #
 
-# MJ TEMP: bash script example:
-#   http://tldp.org/LDP/abs/html/sha-bang.html
+# MJ TEMP: 
+#   bash script example:
+#       http://tldp.org/LDP/abs/html/sha-bang.html
+#   MongoDB scripting:
+#       http://www.mongodb.org/display/DOCS/Scripting+the+shell
 
 #
 # bash script to launch the visualization framework which consists of

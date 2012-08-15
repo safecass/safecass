@@ -13,8 +13,8 @@ set (TARGET_DIR "${BUILD_ROOT}/bin")
 #
 # IceBox
 #
-# copy files from [SRC]/tools/launchIceBox to [BUILD]/bin
-set (ICEBOX_BASE_DIR "${SafetyFramework_SOURCE_DIR}/tools/launchIceBox")
+# copy files from [SRC]/tools/IceBox to [BUILD]/bin
+set (ICEBOX_BASE_DIR "${SafetyFramework_SOURCE_DIR}/tools/IceBox")
 set (ICEBOX_SRC_FILES "config.icebox"
                       "config.service" 
                       "launchIceBox.sh")
