@@ -52,7 +52,7 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
             Json::Value _data;
             _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
             _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
-            _data["period_expected"] = 0.5; // MJ TODO: FIXME: this should be provided by monitor component
+            _data["period_expected"] = 0.1; // MJ TODO: FIXME: this should be provided by monitor component
             _data["period_actual"] = sample.get(SAMPLE, 0.0).asDouble();
             entry["data"] = _data;
         }

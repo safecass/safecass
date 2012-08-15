@@ -105,8 +105,9 @@ int main(int argc, char *argv[])
     periods.push_back(50);
     periods.push_back(100);
     periods.push_back(200);
-#endif
     periods.push_back(500);
+#endif
+    periods.push_back(100);
 
     std::string componentName;
     std::stringstream ss;
@@ -196,7 +197,7 @@ bool InstallMonitor(const std::string & targetComponentName)
                                      fault,
                                      //Monitor::OUTPUT_EVENT,
                                      Monitor::OUTPUT_STREAM,
-                                     5, // Hz
+                                     10, // Hz
                                      Monitor::MONITOR_ON,
                                      targetId);
 
