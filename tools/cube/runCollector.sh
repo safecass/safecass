@@ -16,4 +16,4 @@
 #
 NODE_BINARY_DIR=/usr/local/bin
 echo "Running Cube collector... Press Ctrl+C to quit"
-$"NODE_BINARY_DIR"/node collector
+"$NODE_BINARY_DIR"/node collector

@@ -16,4 +16,4 @@
 #
 NODE_BINARY_DIR=/usr/local/bin
 echo "Running Cube evaluator... Press Ctrl+C to quit"
-$"NODE_BINARY_DIR"/node evaluator
+"$NODE_BINARY_DIR"/node evaluator
