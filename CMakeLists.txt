@@ -26,18 +26,19 @@ include_directories("${SafetyFramework_SOURCE_DIR}/libs/Common")
 include_directories("${SafetyFramework_SOURCE_DIR}/libs/FDD")
 include_directories("${SafetyFramework_SOURCE_DIR}/libs/FDD/filters")
 
-# Options to enable unit-testing with CppTest
+# Option to enable unit-testing with CppTest
 option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the CppTest library" ON)
-# Options to use g2log
+# Option to use g2log
 option (ENABLE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
-# Options to build shared library
+# Option to build shared library
 option (BUILD_SHARED_LIBS "Build shared libraries" OFF)
-set (LIB_TYPE STATIC)
 if (BUILD_SHARED_LIBS)
     set (LIB_TYPE SHARED)
+elseif (BUILD_SHARED_LIBS)
+    set (LIB_TYPE STATIC)
 endif (BUILD_SHARED_LIBS)
 
-# Options to use robot middleware packages
+# Option to use robot middleware packages
 option (SF_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)
 if (SF_HAS_CISST)
     message("cisst support enabled")
@@ -59,11 +60,11 @@ if (SF_HAS_CISST)
     endif (cisst_FOUND_AS_REQUIRED)
 endif (SF_HAS_CISST)
 
-# Options to use Qt Framework
-option (SF_HAS_QT "Enable visualization framework based on Qt.  Requires Qt" ON)
-if (SF_HAS_QT)
+# Options to enable visualizataion framework using Qt and D3/cubism
+option (ENABLE_VIS_FRAMEWORK "Enable visualization framework.  Requires Qt and D3/cubism" ON)
+if (ENABLE_VIS_FRAMEWORK)
     message("Visualization framework enabled")
-endif (SF_HAS_QT)
+endif (ENABLE_VIS_FRAMEWORK)
 
 # Include sub-directories
 add_subdirectory(libs)

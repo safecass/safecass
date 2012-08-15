@@ -34,6 +34,6 @@ if (SF_HAS_CISST)
     endif (cisst_FOUND_AS_REQUIRED)
 endif (SF_HAS_CISST)
 
-if (SF_HAS_QT)
+if (ENABLE_VIS_FRAMEWORK)
     add_subdirectory(Qt)
-endif (SF_HAS_QT)
+endif (ENABLE_VIS_FRAMEWORK)

@@ -72,4 +72,4 @@ IceStorm.Flush.Timeout=2000
 # This property defines the home directory of the Freeze 
 # database environment for the IceStorm service.
 #
-Freeze.DbEnv.IceStorm.DbHome=db
+Freeze.DbEnv.IceStorm.DbHome=db/Freeze

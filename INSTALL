@@ -44,7 +44,7 @@ MongoHub
 How to run visualization framework (Cube/Cubism):
     1) Run MongoDB:
         # cd /Users/MJ/project/tools/mongodb-osx-x86_64-2.0.7 
-        # mongodb-osx-x86_64-2.0.7$ bin/mongod --dbpath data/db (make -p data/db)
+        # mongodb-osx-x86_64-2.0.7$ bin/mongod --dbpath data/db (mkdir -p data/db)
     2) MongoHub or console-based Mongo
         - Create cube_development database
     3) Install Cube:

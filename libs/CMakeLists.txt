@@ -72,6 +72,19 @@ set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/communicator/baseIce.h
                              ${LIB_DIR}/communicator/subscriber.h
                              ${LIB_DIR}/communicator/subscriber.cpp)
 set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${LIB_DIR}/communicator)
+# Add Curl wrapper if visualization is enabled
+if (ENABLE_VIS_FRAMEWORK)
+    find_package(CURL REQUIRED)
+    set (SF_LIB_COMMUNICATOR_SRC ${SF_LIB_COMMUNICATOR_SRC}
+                                 ${LIB_DIR}/db/MongoDB.h
+                                 ${LIB_DIR}/db/MongoDB.cpp
+                                 ${LIB_DIR}/communicator/curlWrapper.h
+                                 ${LIB_DIR}/communicator/curlWrapper.cpp)
+    set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${SF_LIB_COMMUNICATOR_INCLUDE_DIR}
+                                 ${LIB_DIR}/db
+                                 ${LIB_DIR}/communicator)
+endif (ENABLE_VIS_FRAMEWORK)
+
 # slice integration
 set (SLICE_FILES communicator messages)
 set (SLICE_INCLUDE_DIR ${ZEROC_SLICE_INCLUDE_DIR})
@@ -147,6 +160,17 @@ if (ENABLE_G2LOG)
     message (FATAL_ERROR "g2log not found")
   endif (G2LOG_FOUND)
 endif (ENABLE_G2LOG)
+
+# Find CURL (for http commnunication)
+if (ENABLE_VIS_FRAMEWORK)
+  if (CURL_FOUND)
+    message ("CURL found")
+    set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
+    set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} ${CURL_LIBRARIES})
+  else (CURL_FOUND)
+    message (FATAL_ERROR "CURL not found")
+  endif (CURL_FOUND)
+endif (ENABLE_VIS_FRAMEWORK)
 
 set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} PARENT_SCOPE)
 include_directories (${SF_LIB_INCLUDE_DIR})

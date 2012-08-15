@@ -32,21 +32,33 @@
 
 namespace SF {
 
+//--------------------------------------------------
+//  Common type definitions
+//--------------------------------------------------
 typedef std::vector<std::string> StrVecType;
 
 typedef unsigned int SamplingRateType;   // f (Hz)
 typedef double       SamplingPeriodType; // T (=1/f)
 
-// Returns information about middlewares available
+//--------------------------------------------------
+//  Utilities
+//--------------------------------------------------
+/*! Returns information about middlewares available */
 StrVecType GetMiddlewareInfo(void);
-
 void GetMiddlewareInfo(StrVecType & info);
 
+/*! Get information about cisst detected */
 #ifdef SF_HAS_CISST
 std::string GetCISSTInfo(void);
 #endif
 
-// Logger macro definitions
+/*! Get current UTC time */
+std::string GetCurrentUTCTimeString(void);
+
+//--------------------------------------------------
+//  Common macro definitions
+//--------------------------------------------------
+// Logger macros
 #if ENABLE_G2LOG
   #define SFLOG_INFO    LOG(INFO)
   #define SFLOG_DEBUG   LOG(DEBUG)
