@@ -14,6 +14,10 @@
 #
 # bash script to run Cube evaluator
 #
-NODE_BINARY_DIR=/usr/local/bin
+#NODE_BINARY_DIR=/usr/local/bin
+CUBE_NODE_MODULE_DIR=/Users/MJ/project/tools/node_modules/cube
+
+#export NODE_PATH=$CUBE_NODE_MODULE_DIR
+
 echo "Running Cube evaluator... Press Ctrl+C to quit"
-"$NODE_BINARY_DIR"/node evaluator
+node "$CUBE_NODE_MODULE_DIR"/bin/evaluator

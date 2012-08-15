@@ -35,6 +35,8 @@ set (MONGODB_BASE_DIR "${SafetyFramework_SOURCE_DIR}/tools/cube")
 set (MONGODB_SRC_FILES # MongoDB
                        "createMongoDB.js"
                        "runDBCube.sh"
+                       "runCollector.sh"
+                       "runEvaluator.sh"
                        # cube collector and its configuration
                        "collector-config.js" "collector.js"
                        # cube evaluator and its configuration

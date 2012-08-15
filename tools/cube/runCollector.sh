@@ -14,6 +14,10 @@
 #
 # bash script to run Cube collector
 #
-NODE_BINARY_DIR=/usr/local/bin
+#NODE_BINARY_DIR=/usr/local/bin
+CUBE_NODE_MODULE_DIR=/Users/MJ/project/tools/node_modules/cube
+
+#export NODE_PATH=$CUBE_NODE_MODULE_DIR
+
 echo "Running Cube collector... Press Ctrl+C to quit"
-"$NODE_BINARY_DIR"/node collector
+node "$CUBE_NODE_MODULE_DIR"/bin/collector
