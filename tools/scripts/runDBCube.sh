@@ -25,20 +25,20 @@
 # Check if db/MongoDB/ folder exists. If not, create one.
 MONGDB_BINARY_DIR=/Users/MJ/project/tools/mongodb-osx-x86_64-2.0.7/bin
 if [ ! -d "db/MongoDB" ]; then
+    set -m
     echo "Creating database for MongoDB/Cube ..."
     mkdir -p db/MongoDB
-    # Run MongoDB daemon as background process
-    "$MONGDB_BINARY_DIR"/mongod --dbpath db/MongoDB
+    "$MONGDB_BINARY_DIR"/mongod --dbpath db/MongoDB &
+    sleep 2
     # Create and initialize MongoDB
     "$MONGDB_BINARY_DIR"/mongo < createMongoDB.js
-fi
-if [ -d "db/MongoDB" ]; then
+    echo "Running MongoDB... Press Ctrl+C to quit"
+    fg %1
+else
     echo "MongoDB folder detected"
-    # Run MongoDB daemon as background process
+    echo "Running MongoDB... Press Ctrl+C to quit"
     "$MONGDB_BINARY_DIR"/mongod --dbpath db/MongoDB
 fi
-
-echo "Running MongoDB... Press Ctrl+C to quit"
 
 # mongo --host="the.server.ip:port" dbname script.js
 # mongo < script.js

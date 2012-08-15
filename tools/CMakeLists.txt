@@ -36,8 +36,9 @@ set (MONGODB_SRC_FILES "createMongoDB.js"
                        "runDBCube.sh")
 
 foreach (MONGODB_SRC_FILE ${MONGODB_SRC_FILES})
+    # MJ: Don't create db here: it should be created by runDBCube.sh
     # create MongoDB folder for MongoDB
-    file (MAKE_DIRECTORY "${TARGET_DIR}/db/MongoDB")
+    #file (MAKE_DIRECTORY "${TARGET_DIR}/db/MongoDB")
     # copy scripts to bin folder
     file (COPY ${MONGODB_BASE_DIR}/${MONGODB_SRC_FILE} 
                DESTINATION ${TARGET_DIR})
