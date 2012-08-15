@@ -18,16 +18,12 @@
 #       http://www.mongodb.org/display/DOCS/Scripting+the+shell
 
 #
-# bash script to launch the visualization framework which consists of
-#   
-#   1) DB backend (MongoDB)
-#   2) Cube collector
-#   3) Cube evaluator
-
-# Launch MongoDB
+# bash script to launch DB backend (MongoDB)
+#
 # Check if db/MongoDB/ folder exists. If not, create one.
 MONGDB_BINARY_DIR=/Users/MJ/project/tools/mongodb-osx-x86_64-2.0.7/bin
 if [ ! -d "db/MongoDB" ]; then
+    # If this is the first time to run MongoDB, it should be initialized.
     set -m
     echo "Creating database for MongoDB/Cube ..."
     mkdir -p db/MongoDB
@@ -38,6 +34,8 @@ if [ ! -d "db/MongoDB" ]; then
     echo "Running MongoDB... Press Ctrl+C to quit"
     fg %1
 else
+    # If the db for the safety framework is already created, just execute 
+    # mongodb server.
     echo "MongoDB folder detected"
     echo "Running MongoDB... Press Ctrl+C to quit"
     "$MONGDB_BINARY_DIR"/mongod --dbpath db/MongoDB
@@ -62,3 +60,17 @@ fi
 #        total += (obj.hits || 0);
 #   }
 #   print(total);
+
+#
+# 2) Launch Cube Evaluator 
+#
+NODE_BINARY_DIR=/usr/local/bin
+$"NODE_BINARY_DIR"/node evaluator &
+echo "Running Cube evaluator in the background... Press Ctrl+C to quit"
+
+#
+# 3) Launch Cube Collector
+#
+NODE_BINARY_DIR=/usr/local/bin
+$"NODE_BINARY_DIR"/node collector &
+echo "Running Cube collector in the background... Press Ctrl+C to quit"
