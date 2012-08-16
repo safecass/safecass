@@ -44,7 +44,7 @@ const std::string cisstTargetID::GetTargetUID(Fault::FaultType faultType) const
     switch (faultType) {
         case Fault::FAULT_COMPONENT_PERIOD: {
             ss << "<"
-               << Fault::GetFaultString(faultType)
+               << Fault::GetFaultTypeString(faultType)
                << "[\"" << ProcessName << "\":\"" << ComponentName << "\"]"
                << ">";
             break;
@@ -100,7 +100,7 @@ std::string cisstMonitor::GetMonitorJSON(void) const
 
     // Monitor target type
     {   Json::Value _root;
-        _root[TYPE] = Fault::GetFaultString(FaultType);
+        _root[TYPE] = Fault::GetFaultTypeString(FaultType);
 
         { Json::Value __root;
           __root[NAME_PROCESS] = TargetID.ProcessName;
@@ -181,11 +181,11 @@ std::string cisstMonitor::GetMonitorJSON(const std::string &       name,
     {   Json::Value _root;
         /*
         { Json::Value __root;
-          __root[NAME_COMPONENT] = Fault::GetFaultString(faultType);
+          __root[NAME_COMPONENT] = Fault::GetFaultTypeString(faultType);
           _root[TYPE] = __root;
         }
         */
-        _root[TYPE] = Fault::GetFaultString(faultType);
+        _root[TYPE] = Fault::GetFaultTypeString(faultType);
 
         { Json::Value __root;
           __root[NAME_PROCESS] = targetId.ProcessName;
@@ -260,7 +260,7 @@ std::string cisstMonitor::GetJSON(double sample) const
     Json::Value root;
 
     Json::Value _root;
-    _root[TYPE] = Fault::GetFaultString(FaultType);
+    _root[TYPE] = Fault::GetFaultTypeString(FaultType);
 
     { Json::Value __root;
         __root[NAME_PROCESS] = TargetID.ProcessName;
@@ -359,7 +359,7 @@ void cisstMonitor::SetAddressesToPublish(const StrVecType & addresses)
 
 void cisstMonitor::ToStream(std::ostream & outputStream) const
 {
-    outputStream << "Fault type: " << Fault::GetFaultString(FaultType) << ", "
+    outputStream << "Fault type: " << Fault::GetFaultTypeString(FaultType) << ", "
                  << "TargetID: [ " << TargetID << " ], "
                  << "Status: " << Monitor::GetStatusString(Status) << ", "
                  << "OutputType: " << Monitor::GetOutputString(OutputType) << ", "

@@ -44,9 +44,9 @@ public:
     virtual ~Fault();
 
     /*! Return string that corresponds to fault type */
-    static const std::string GetFaultString(FaultType faultType);
+    static const std::string GetFaultTypeString(FaultType faultType);
     /*! Return fault type from string */
-    static FaultType GetFaultFromString(const std::string & faultString);
+    static FaultType GetFaultTypeFromString(const std::string & faultString);
 };
 
 };

@@ -22,6 +22,12 @@
     <height>500</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <family>Trebuchet MS</family>
+    <pointsize>14</pointsize>
+   </font>
+  </property>
   <property name="styleSheet">
    <string notr="true"> QDockWidget {
      border: 1px solid lightgray;
@@ -85,7 +91,7 @@
         <item row="3" column="0">
          <widget class="QPushButton" name="pushButton">
           <property name="text">
-           <string>PushButton</string>
+           <string>Generate Test Event</string>
           </property>
          </widget>
         </item>

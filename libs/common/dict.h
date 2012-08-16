@@ -54,8 +54,13 @@ namespace TopicNames {
     const std::string Supervisor = "Supervisor";
 };
 
+namespace FaultNames {
+    // Used fault event generation and propagation across the system and SF.
+    const std::string FaultEvent = "FaultEvent";
 };
 
-};
+}; // SF::Dict
+
+}; // SF
 
 #endif // _dict_h

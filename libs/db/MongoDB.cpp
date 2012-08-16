@@ -44,7 +44,7 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
 
     // Get fault type
     const std::string faultTypeString = sample[TARGET].get(TYPE, "n/a").asString();
-    Fault::FaultType faultType = Fault::GetFaultFromString(faultTypeString);
+    Fault::FaultType faultType = Fault::GetFaultTypeFromString(faultTypeString);
 
     // Monitor data sample
     switch (faultType) {
