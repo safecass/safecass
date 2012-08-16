@@ -30,8 +30,8 @@ Monitor::~Monitor()
 
 const std::string Monitor::GetStatusString(StatusType type)
 {
-    if (type == MONITOR_OFF) return Dict::OFF;
-    else if (type == MONITOR_ON) return Dict::ON;
+    if (type == MONITOR_OFF) return OFF;
+    else if (type == MONITOR_ON) return ON;
 
     return Dict::INVALID;
 }

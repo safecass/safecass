@@ -17,46 +17,50 @@
 
 #include "common.h"
 
+#define DEFINE_KEYWORD(_key) const std::string _key = #_key;
+
 namespace SF {
 
 namespace Dict {
 
-const std::string CONFIG = "Config";
-const std::string EVENT = "Event";
-const std::string IDENTIFIER = "Identifier";
-const std::string INVALID = "INVALID";
-const std::string MARGIN = "Margin";
-const std::string NAME = "Name";
-const std::string NAME_PROCESS = "Process";
-const std::string NAME_COMPONENT = "Component";
-const std::string NAME_INTERFACE_PROVIDED = "InterfaceProvided";
-const std::string NAME_INTERFACE_REQUIRED = "InterfaceRequired";
-const std::string NAME_EVENT_GENERATOR = "EventGenerator";
-const std::string NAME_EVENT_HANDLER = "EventHandler";
-const std::string ON = "On";
-const std::string OFF = "Off";
-const std::string OUTPUT = "Output";
-const std::string PUBLISH = "Publish";
-const std::string SAMPLE = "Sample";
-const std::string SAMPLING_RATE = "SamplingRate";
-const std::string STATE = "State";
-const std::string STREAM = "Stream";
-const std::string SUBSCRIBE = "Subscribe";
-const std::string TARGET = "Target";
-const std::string THRESHOLD = "Threshold";
-const std::string TYPE = "Type";
+    DEFINE_KEYWORD(EVENT);
+    DEFINE_KEYWORD(INVALID);
+    DEFINE_KEYWORD(ON);
+    DEFINE_KEYWORD(OFF);
+    DEFINE_KEYWORD(STREAM);
+
+namespace Json {
+    DEFINE_KEYWORD(CONFIG);
+    DEFINE_KEYWORD(IDENTIFIER);
+    DEFINE_KEYWORD(MARGIN);
+    DEFINE_KEYWORD(NAME);
+    DEFINE_KEYWORD(NAME_PROCESS);
+    DEFINE_KEYWORD(NAME_COMPONENT);
+    DEFINE_KEYWORD(NAME_INTERFACE_PROVIDED);
+    DEFINE_KEYWORD(NAME_INTERFACE_REQUIRED);
+    DEFINE_KEYWORD(NAME_EVENT_GENERATOR);
+    DEFINE_KEYWORD(NAME_EVENT_HANDLER);
+    DEFINE_KEYWORD(OUTPUT);
+    DEFINE_KEYWORD(PUBLISH);
+    DEFINE_KEYWORD(SAMPLE);
+    DEFINE_KEYWORD(SAMPLING_RATE);
+    DEFINE_KEYWORD(STATE);
+    DEFINE_KEYWORD(SUBSCRIBE);
+    DEFINE_KEYWORD(TARGET);
+    DEFINE_KEYWORD(THRESHOLD);
+    DEFINE_KEYWORD(TYPE);
+};
 
 namespace TopicNames {
     // For monitoring
-    const std::string Monitor = "Monitor";
-
+    DEFINE_KEYWORD(Monitor);
     // For supervisory control and fault management
-    const std::string Supervisor = "Supervisor";
+    DEFINE_KEYWORD(Supervisor);
 };
 
 namespace FaultNames {
     // Used fault event generation and propagation across the system and SF.
-    const std::string FaultEvent = "FaultEvent";
+    DEFINE_KEYWORD(FaultEvent);
 };
 
 }; // SF::Dict

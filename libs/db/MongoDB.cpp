@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-using namespace SF::Dict;
+using namespace SF::Dict::Json;
 
 namespace SF {
 

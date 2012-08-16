@@ -20,7 +20,7 @@
 
 namespace SF {
 
-using namespace Dict;
+using namespace Dict::Json;
 
 //-----------------------------------------------
 // cisstTargetID
