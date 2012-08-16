@@ -60,17 +60,3 @@ fi
 #        total += (obj.hits || 0);
 #   }
 #   print(total);
-
-#
-# 2) Launch Cube Evaluator 
-#
-NODE_BINARY_DIR=/usr/local/bin
-$"NODE_BINARY_DIR"/node evaluator &
-echo "Running Cube evaluator in the background... Press Ctrl+C to quit"
-
-#
-# 3) Launch Cube Collector
-#
-NODE_BINARY_DIR=/usr/local/bin
-$"NODE_BINARY_DIR"/node collector &
-echo "Running Cube collector in the background... Press Ctrl+C to quit"
