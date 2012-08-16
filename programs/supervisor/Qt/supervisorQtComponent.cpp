@@ -27,7 +27,7 @@ supervisorQtComponent::supervisorQtComponent(const std::string & componentName):
     //QUrl startURL = QUrl("http://www.google.com");
     //QUrl startURL = QUrl("http://square.github.com/cubism");
     QUrl startURL = QUrl("file:///Users/MJ/project/tools/cubism/demo/index.html");
-    supervisorWidget.webView->setUrl(startURL);
+    supervisorWidget.webViewMonitor->setUrl(startURL);
 
     MainWindow.setCentralWidget(&CentralWidget);
     MainWindow.setWindowTitle(QString::fromStdString(componentName));

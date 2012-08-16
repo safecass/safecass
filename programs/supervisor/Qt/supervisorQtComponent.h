@@ -26,7 +26,7 @@ protected:
 #endif
 
     Ui::supervisorQtWidget supervisorWidget;
-    QWidget CentralWidget;
+    QDockWidget CentralWidget;
     QMainWindow MainWindow;
 
 #if 0
