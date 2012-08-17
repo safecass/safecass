@@ -55,7 +55,7 @@ public:
 // Create periodic task
 bool CreatePeriodicThread(const std::string & componentName, double period);
 // to monitor values in real-time
-bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency);
+bool InstallMonitor(const std::string & targetComponentName, unsigned int T);
 
 // Local component manager
 mtsManagerLocal * ComponentManager = 0;
@@ -78,8 +78,8 @@ int main(int argc, char *argv[])
     cmnLogger::SetMask(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
-    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
+    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
+    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
     //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
@@ -100,35 +100,35 @@ int main(int argc, char *argv[])
     }
     std::cout << std::endl;
 
-    // Create five test components with different periods
-    std::vector<unsigned int> periods; // in msec
+    // Create five test components with different T
+    std::vector<unsigned int> T; // Hz
 #if 0
-    periods.push_back(1);
-    periods.push_back(2);
-    periods.push_back(5);
-    periods.push_back(10);
-    periods.push_back(20);
-    periods.push_back(50);
-    periods.push_back(100);
-    periods.push_back(200);
-    periods.push_back(500);
+    T.push_back(1);
+    T.push_back(2);
+    T.push_back(5);
+    T.push_back(10);
+    T.push_back(20);
+    T.push_back(50);
+    T.push_back(100);
+    T.push_back(200);
+    T.push_back(500);
 #endif
-    periods.push_back(100);
+    T.push_back(100);
 
     std::string componentName;
     std::stringstream ss;
-    for (size_t i = 0; i < periods.size(); ++i) {
+    for (size_t i = 0; i < T.size(); ++i) {
         ss.str("");
-        ss << "Component" << periods[i];
+        ss << "Component" << T[i];
         componentName = ss.str();
 
         // Create periodic task
-        if (!CreatePeriodicThread(componentName, (double) periods[i] * cmn_ms)) {
+        if (!CreatePeriodicThread(componentName, (double) T[i] * cmn_ms)) {
             SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
             return 1;
         }
         // Install monitor 
-        if (!InstallMonitor(componentName, (unsigned int) (1.0 / periods[i]))) {
+        if (!InstallMonitor(componentName, T[i])) {
             SFLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
             return 1;
         }
@@ -188,7 +188,7 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
     return true;
 }
 
-bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency)
+bool InstallMonitor(const std::string & targetComponentName, unsigned int T)
 {
     if (!ComponentManager->GetCoordinator()) {
         SFLOG_ERROR  << "Failed to get coordinator in this process";
@@ -208,7 +208,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
                                    targetId,
                                    Monitor::STATE_ON,
                                    Monitor::OUTPUT_STREAM,
-                                   frequency);
+                                   T);
         // MJ TODO: Run system for a few minutes, collect experimental data,
         // and determine variance of period with upper/lower limits and thresholds.
         if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
@@ -226,7 +226,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
                                    targetId,
                                    Monitor::STATE_ON,
                                    Monitor::OUTPUT_STREAM,
-                                   frequency);
+                                   T);
 
         if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
             SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;

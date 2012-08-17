@@ -16,7 +16,7 @@
 
 #include "json.h"
 #include "dict.h"
-#include "fault.h"
+#include "monitor.h"
 
 #include <iostream>
 
@@ -42,13 +42,13 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
     // MJ TODO: this timestamp should be set by mtsMonitorComponent when collecting samples
     entry["time"] = GetCurrentUTCTimeString();
 
-    // Get fault type
-    const std::string faultTypeString = sample[TARGET].get(TYPE, "n/a").asString();
-    Fault::FaultType faultType = Fault::GetFaultTypeFromString(faultTypeString);
+    // Get monitor type
+    const std::string targetTypeString = sample[TARGET].get(TYPE, "n/a").asString();
+    Monitor::TargetType targetType = Monitor::GetTargetTypeFromString(targetTypeString);
 
     // Monitor data sample
-    switch (faultType) {
-        case Fault::FAULT_COMPONENT_PERIOD: {   
+    switch (targetType) {
+        case Monitor::TARGET_THREAD_PERIOD: {   
             Json::Value _data;
             _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
             _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
@@ -58,10 +58,13 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
         }
         break;
 
-        case Fault::FAULT_INVALID:
+        case Monitor::TARGET_THREAD_DUTYCYCLE: {
+            // MJ TODO
+        }                                       
+
         default:
             CMN_LOG_RUN_ERROR << "Failed to convert topic message to MongoDB entry due to invalid fault type string: "
-                << "\"" << faultTypeString << "\"" << std::endl;
+                << "\"" << targetTypeString << "\"" << std::endl;
     }
 
     std::stringstream ss;
