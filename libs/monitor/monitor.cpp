@@ -28,6 +28,9 @@ Monitor::Monitor()
       Target(TARGET_INVALID), TargetID(0), State(STATE_INVALID),
       Output(OUTPUT_INVALID), SamplingRate(0), LastSamplingTick(0)
 {
+    Samples.Period = 0.0;
+    Samples.ExecTimeUser = 0.0;
+    Samples.ExecTimeTotal = 0.0;
 }
 
 Monitor::~Monitor()

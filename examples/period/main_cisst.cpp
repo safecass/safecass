@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     T.push_back(200);
     T.push_back(500);
 #endif
-    T.push_back(100);
+    T.push_back(2);
 
     std::string componentName;
     std::stringstream ss;
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
         componentName = ss.str();
 
         // Create periodic task
-        if (!CreatePeriodicThread(componentName, (double) T[i] * cmn_ms)) {
+        if (!CreatePeriodicThread(componentName, 1.0 / (double)T[i])) {
             SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
             return 1;
         }
@@ -203,6 +203,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int T)
     cisstMonitor * monitor;
 
     // Install monitor for timing fault - period
+#if 0
     {
         monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
                                    targetId,
@@ -219,8 +220,10 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int T)
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
                    << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
     }
+#endif
 
     // Install monitor for timing fault - overrun
+#if 1
     {
         monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE,
                                    targetId,
@@ -236,6 +239,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int T)
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
                    << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
     }
+#endif
 
     return true;
 }

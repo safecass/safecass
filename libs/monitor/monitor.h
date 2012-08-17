@@ -96,7 +96,8 @@ public:
     /*! Placeholders for samples */
     struct {
         double Period;
-        double ExecTime;
+        double ExecTimeUser;
+        double ExecTimeTotal;
     } Samples;
 
     /*! Assignment operator overloading */

@@ -38,7 +38,6 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
     // Generate Json for MongoDB entry
     Json::Value entry;
 
-    entry["type"] = "monitor_period"; // MJ TODO: FIXME later
     // MJ TODO: this timestamp should be set by mtsMonitorComponent when collecting samples
     entry["time"] = GetCurrentUTCTimeString();
 
@@ -49,6 +48,9 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
     // Monitor data sample
     switch (targetType) {
         case Monitor::TARGET_THREAD_PERIOD: {   
+            // entry type
+            entry["type"] = "monitor_period";
+            // measurement data
             Json::Value _data;
             _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
             _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
@@ -59,8 +61,18 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
         break;
 
         case Monitor::TARGET_THREAD_DUTYCYCLE: {
-            // MJ TODO
-        }                                       
+            // entry type
+            entry["type"] = "monitor_exectime";
+            // measurement data
+            Json::Value _data;
+            _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
+            _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
+            _data["exec_time"] = sample.get(SAMPLE, 0.0).asDouble();
+            entry["data"] = _data;
+        }
+        break;
+
+        // [SFUPDATE]
 
         default:
             CMN_LOG_RUN_ERROR << "Failed to convert topic message to MongoDB entry due to invalid fault type string: "

@@ -170,13 +170,15 @@ const std::string cisstMonitor::GetJsonForPublishingPeriod(double sample) const
     return ss.str();
 } 
 
-const std::string cisstMonitor::GetJsonForPublishingDutyCycle(double dutyCycle) const
+const std::string cisstMonitor::GetJsonForPublishingDutyCycleUser(double dutyCycle) const
 {
     ::Json::Value root;
     cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
 
     ::Json::Value _root;
-    _root[TYPE] = Monitor::GetTargetTypeString(Target);
+    std::stringstream ss;
+    ss << Monitor::GetTargetTypeString(Target) << "_USER";
+    _root[TYPE] = ss.str();
 
     { ::Json::Value __root;
         __root[NAME_PROCESS] = targetID->ProcessName;
@@ -186,7 +188,31 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycle(double dutyCycle) 
     root[TARGET] = _root;
     root[SAMPLE] = dutyCycle;
 
+    ss.str("");
+    ss << root;
+
+    return ss.str();
+}
+
+const std::string cisstMonitor::GetJsonForPublishingDutyCycleTotal(double dutyCycle) const
+{
+    ::Json::Value root;
+    cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
+
+    ::Json::Value _root;
     std::stringstream ss;
+    ss << Monitor::GetTargetTypeString(Target) << "_TOTAL";
+    _root[TYPE] = ss.str();
+
+    { ::Json::Value __root;
+        __root[NAME_PROCESS] = targetID->ProcessName;
+        __root[NAME_COMPONENT] = targetID->ComponentName;
+        _root[IDENTIFIER] = __root;
+    }
+    root[TARGET] = _root;
+    root[SAMPLE] = dutyCycle;
+
+    ss.str("");
     ss << root;
 
     return ss.str();

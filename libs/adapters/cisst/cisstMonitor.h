@@ -59,7 +59,8 @@ public:
     //
     /*! Getters to publish collected (monitored) data via SF */
     const std::string GetJsonForPublishingPeriod(double sample) const;
-    const std::string GetJsonForPublishingDutyCycle(double dutyCycle) const;
+    const std::string GetJsonForPublishingDutyCycleUser(double dutyCycle) const;
+    const std::string GetJsonForPublishingDutyCycleTotal(double dutyCycle) const;
 
     void ToStream(std::ostream & outputStream) const;
 };
