@@ -52,9 +52,14 @@ public:
 
     const std::string GetMonitorJSON(void) const;
 
-    // smmy
+    /*! Returns cisstTargetID instance */
+
+    //
+    // Publish monitored data in Json
+    //
     /*! Getters to publish collected (monitored) data via SF */
-    std::string GetJSON(double sample) const;
+    const std::string GetJsonForPublishingPeriod(double sample) const;
+    const std::string GetJsonForPublishingDutyCycle(double dutyCycle) const;
 
     void ToStream(std::ostream & outputStream) const;
 };

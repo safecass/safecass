@@ -85,7 +85,7 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
     ::Json::Value root;
     cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
 
-    root[NAME] = this->GetTargetUID();
+    root[NAME] = this->GetUIDAsString();
 
     // Monitor target type
     {   ::Json::Value _root;
@@ -148,9 +148,7 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
     return ss.str();
 }
 
-// smmy
-// MJ: this should be fixed!!!! (e.g., GetDBEntryInJson)
-std::string cisstMonitor::GetJSON(double sample) const
+const std::string cisstMonitor::GetJsonForPublishingPeriod(double sample) const
 {
     ::Json::Value root;
     cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
@@ -164,7 +162,6 @@ std::string cisstMonitor::GetJSON(double sample) const
         _root[IDENTIFIER] = __root;
     }
     root[TARGET] = _root;
-
     root[SAMPLE] = sample;
 
     std::stringstream ss;
@@ -172,6 +169,28 @@ std::string cisstMonitor::GetJSON(double sample) const
 
     return ss.str();
 } 
+
+const std::string cisstMonitor::GetJsonForPublishingDutyCycle(double dutyCycle) const
+{
+    ::Json::Value root;
+    cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
+
+    ::Json::Value _root;
+    _root[TYPE] = Monitor::GetTargetTypeString(Target);
+
+    { ::Json::Value __root;
+        __root[NAME_PROCESS] = targetID->ProcessName;
+        __root[NAME_COMPONENT] = targetID->ComponentName;
+        _root[IDENTIFIER] = __root;
+    }
+    root[TARGET] = _root;
+    root[SAMPLE] = dutyCycle;
+
+    std::stringstream ss;
+    ss << root;
+
+    return ss.str();
+}
 
 void cisstMonitor::ToStream(std::ostream & outputStream) const
 {

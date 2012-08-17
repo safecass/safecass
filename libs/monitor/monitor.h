@@ -29,6 +29,10 @@ public:
 
 class SFLIB_EXPORT Monitor {
 public:
+    /*! Typedef of numerical representation of unique id of monitor targets */
+    typedef unsigned int UIDType;
+    enum { INVALID_UID = 0 };
+
     /*! Typedef for monitor target (what to monitor) */
     typedef enum {
         TARGET_INVALID          = 0,
@@ -57,6 +61,9 @@ public:
     } OutputType;
 
 protected:
+    /*! Numerical representation of unique id */
+    UIDType UID;
+
     /*! Monitoring target */
     TargetType Target;
 
@@ -79,15 +86,37 @@ protected:
     // MJ TEMP: don't use this field for now
     //StrVecType AddressesToPublish;
 
+    /*! Timestamp of last sampled data */
+    double LastSamplingTick;
+
 public:
     Monitor();
     virtual ~Monitor();
 
+    /*! Placeholders for samples */
+    struct {
+        double Period;
+        double ExecTime;
+    } Samples;
+
     /*! Assignment operator overloading */
     //Monitor & operator=(const Monitor & rhs);
 
-    /*! Returns unique id of monitoring target */
-    const std::string GetTargetUID(void) const;
+    /*! Returns numeric unique id (unique within process) */
+
+    /*! Returns string representation of unique id of monitoring target.
+        Used to check duplicate monitoring target with the same monitoring
+        target type. */
+    const std::string GetUIDAsString(void) const;
+
+    /*! Returns numerical representation of unique id of monitoring target */
+    UIDType GetUIDAsNumber(void) const;
+
+    /*! Check if it is necessary to sample new data */
+    bool IsSamplingNecessary(double currentTick) const;
+
+    /*! Update last sampling timestamp */
+    inline void UpdateLastSamplingTick(double tick) { LastSamplingTick = tick; }
 
     //
     //  Getters
@@ -96,21 +125,21 @@ public:
     inline bool IsStream(void) const { return (Output == OUTPUT_STREAM); }
     inline bool IsEvent(void) const  { return (Output == OUTPUT_EVENT); }
 
-    TargetType         GetTargetType(void) const     { return Target; }
-    TargetIDBase *     GetTargetID(void) const       { return TargetID; }
-    StateType          GetState(void) const          { return State; }
-    OutputType         GetOutputType(void) const     { return Output; }
-    SamplingRateType   GetSamplingRate(void) const   { return SamplingRate; }
-    SamplingPeriodType GetSamplingPeriod(void) const { return (1.0 / (SamplingPeriodType) SamplingRate); }
+    inline TargetType         GetTargetType(void) const     { return Target; }
+    inline TargetIDBase *     GetTargetID(void) const       { return TargetID; }
+    inline StateType          GetState(void) const          { return State; }
+    inline OutputType         GetOutputType(void) const     { return Output; }
+    inline SamplingRateType   GetSamplingRate(void) const   { return SamplingRate; }
+    inline SamplingPeriodType GetSamplingPeriod(void) const { return (1.0 / (SamplingPeriodType) SamplingRate); }
 
     //
     //  Setters
     //
-    void SetTargetType(const TargetType target)       { Target = target; }
-    void SetTargetId(TargetIDBase * targetId)         { TargetID = targetId; }
-    void SetState(const StateType state)              { State = state; }
-    void SetOutputType(const OutputType output)       { Output = output; }
-    void SetSamplingRate(const SamplingRateType rate) { SamplingRate = rate; }
+    inline void SetTargetType(const TargetType target)       { Target = target; }
+    inline void SetTargetID(TargetIDBase * targetId)         { TargetID = targetId; }
+    inline void SetState(const StateType state)              { State = state; }
+    inline void SetOutputType(const OutputType output)       { Output = output; }
+    inline void SetSamplingRate(const SamplingRateType rate) { SamplingRate = rate; }
 
     //
     //  Misc. Getters

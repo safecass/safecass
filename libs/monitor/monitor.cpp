@@ -18,11 +18,15 @@
 
 namespace SF {
 
+// unique id within process
+Monitor::UIDType UIDCounter = 0;
+
 using namespace Dict;
 
 Monitor::Monitor() 
-    : Target(TARGET_INVALID), TargetID(0), State(STATE_INVALID),
-      Output(OUTPUT_INVALID), SamplingRate(0)
+    : UID(++UIDCounter), // UID=0 means invalid monitor target
+      Target(TARGET_INVALID), TargetID(0), State(STATE_INVALID),
+      Output(OUTPUT_INVALID), SamplingRate(0), LastSamplingTick(0)
 {
 }
 
@@ -46,7 +50,7 @@ Monitor & Monitor::operator=(const Monitor & rhs)
 #undef COPY
 #endif
 
-const std::string Monitor::GetTargetUID(void) const
+const std::string Monitor::GetUIDAsString(void) const
 {
     if (!TargetID) {
         return "N/A";
@@ -57,6 +61,23 @@ const std::string Monitor::GetTargetUID(void) const
     ss << "-" << GetTargetTypeString(Target);
 
     return ss.str();
+}
+
+Monitor::UIDType Monitor::GetUIDAsNumber(void) const
+{
+    if (!TargetID) {
+        return INVALID_UID;
+    }
+
+    return UID;
+}
+
+bool Monitor::IsSamplingNecessary(double currentTick) const
+{
+    if (LastSamplingTick + GetSamplingPeriod() < currentTick)
+        return true;
+
+    return false;
 }
 
 //-----------------------------------------------
