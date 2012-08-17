@@ -31,11 +31,16 @@ class SFLIB_EXPORT Monitor {
 public:
     /*! Typedef for monitor target (what to monitor) */
     typedef enum {
-        TARGET_INVALID,
-        TARGET_THREAD_PERIOD,    // Measure period of periodic task (see FAULT_COMPONENT_PERIOD)
-        TARGET_THREAD_DUTYCYCLE, // Measure duty cycle of periodic task (see FAULT_COMPONENT_OVERRUN)
+        TARGET_INVALID          = 0,
+        // Measure period of periodic task (see FAULT_COMPONENT_PERIOD)
+        TARGET_THREAD_PERIOD    = 1,
+        // Measure duty cycle of periodic task (see FAULT_COMPONENT_OVERRUN)
+        TARGET_THREAD_DUTYCYCLE = 2
         // [SFUPDATE]
     } TargetType;
+
+    /*! Typedef for set of monitor targets */
+    typedef unsigned int TargetSetType;
 
     /*! Typedef for monitor state */
     typedef enum {

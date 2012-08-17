@@ -41,10 +41,12 @@ public:
         ProcessQueuedCommands();
         ProcessQueuedEvents();
         std::cout << "." << std::flush;
+        /*
         static int count = 0;
         if (count++ % 10 == 0) {
             this->GenerateFaultEvent(std::string("MY FAULT EVENT"));
         }
+        */
     }
     void Cleanup(void) {}
 };
@@ -215,7 +217,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
             return false;
         }
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << targetId << " ]" << std::endl;
+                   << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
     }
 
     // Install monitor for timing fault - overrun
@@ -232,7 +234,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
             return false;
         }
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << targetId << " ]" << std::endl;
+                   << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
     }
 
     return true;

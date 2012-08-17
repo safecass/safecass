@@ -32,16 +32,16 @@ const std::string cisstTargetID::GetTargetID(void) const
 {
     std::stringstream ss;
     if (!ProcessName.empty())
-        ss << "\"" << ProcessName << "\"";
+        ss << ProcessName;
     if (!ComponentName.empty())
-        ss << ":\"" << ComponentName << "\"";
+        ss << ":" << ComponentName;
     if (!InterfaceProvidedName.empty() || !CommandName.empty() || !EventGeneratorName.empty()) {
-        ss << ":[P]\"" << InterfaceProvidedName << "\":\"" << CommandName << "\", "
-            << "\"" << EventGeneratorName << "\"";
+        ss << ":[P]" << InterfaceProvidedName << ":" << CommandName << ":"
+            << EventGeneratorName;
     }
     if (!InterfaceRequiredName.empty() || !FunctionName.empty() || !EventHandlerName.empty()) {
-        ss << ":[R]\"" << InterfaceRequiredName << "\":\"" << FunctionName << "\", "
-            << "\"" << EventHandlerName << "\"";
+        ss << ":[R]" << InterfaceRequiredName << ":" << FunctionName << ":"
+            << EventHandlerName;
     }
 
     return ss.str();
