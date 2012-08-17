@@ -29,7 +29,8 @@ Fault::~Fault()
 const std::string Fault::GetFaultTypeString(FaultType faultType)
 {
     switch (faultType) {
-        case FAULT_COMPONENT_PERIOD: return STR(FAULT_COMPONENT_PERIOD); break;
+        case FAULT_COMPONENT_PERIOD:  return STR(FAULT_COMPONENT_PERIOD); break;
+        case FAULT_COMPONENT_OVERRUN: return STR(FAULT_COMPONENT_OVERRUN); break;
         // [SFUPDATE]
         default:                     return STR(FAULT_INVALID);
     }
@@ -38,6 +39,7 @@ const std::string Fault::GetFaultTypeString(FaultType faultType)
 Fault::FaultType Fault::GetFaultTypeFromString(const std::string & faultString)
 {
     if (faultString.compare(STR(FAULT_COMPONENT_PERIOD)) == 0) return FAULT_COMPONENT_PERIOD;
+    if (faultString.compare(STR(FAULT_COMPONENT_OVERRUN)) == 0) return FAULT_COMPONENT_OVERRUN;
     // [SFUPDATE]
 
     return FAULT_INVALID;

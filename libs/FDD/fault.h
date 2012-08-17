@@ -36,7 +36,7 @@ public:
     typedef enum {
         FAULT_INVALID,
         FAULT_COMPONENT_PERIOD,   // Timing fault: OS thread scheduling latency
-        FAULT_COMPONENT_OVERRUN,  // Timing fault: thread overrun
+        FAULT_COMPONENT_OVERRUN   // Timing fault: thread overrun
     } FaultType;
 
 public:

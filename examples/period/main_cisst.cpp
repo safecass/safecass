@@ -53,7 +53,7 @@ public:
 // Create periodic task
 bool CreatePeriodicThread(const std::string & componentName, double period);
 // to monitor values in real-time
-bool InstallMonitor(const std::string & targetComponentName, double period);
+bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency);
 
 // Local component manager
 mtsManagerLocal * ComponentManager = 0;
@@ -76,8 +76,8 @@ int main(int argc, char *argv[])
     cmnLogger::SetMask(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
-    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
+    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
+    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
     //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
             return 1;
         }
         // Install monitor 
-        if (!InstallMonitor(componentName, periods[i])) {
+        if (!InstallMonitor(componentName, (unsigned int) (1.0 / periods[i]))) {
             SFLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
             return 1;
         }
@@ -186,62 +186,53 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
     return true;
 }
 
-bool InstallMonitor(const std::string & targetComponentName, double period)
+bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency)
 {
-    if (ComponentManager->GetCoordinator()) {
+    if (!ComponentManager->GetCoordinator()) {
         SFLOG_ERROR  << "Failed to get coordinator in this process";
         return false;
     }
 
     // Define target
-    TargetIDType targetId;
-    targetId.ProcessName = ComponentManager->GetProcessName();
-    targetId.ComponentName = targetComponentName;
+    cisstTargetID * targetId = new cisstTargetID;
+    targetId->ProcessName = ComponentManager->GetProcessName();
+    targetId->ComponentName = targetComponentName;
 
-    //const Fault::FaultType fault = Fault::FAULT_COMPONENT_OVERRUN;
-    Fault::FaultType fault;
-    std::string newMonitorJSON, targetUID;
+    cisstMonitor * monitor;
 
     // Install monitor for timing fault - period
     {
+        monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
+                                   targetId,
+                                   Monitor::STATE_ON,
+                                   Monitor::OUTPUT_STREAM,
+                                   frequency);
         // MJ TODO: Run system for a few minutes, collect experimental data,
         // and determine variance of period with upper/lower limits and thresholds.
-        fault = Fault::FAULT_COMPONENT_PERIOD;
-        newMonitorJSON = cisstMonitor::GetMonitorJSON("TimingFaultPeriod",
-                                                      fault,
-                                                      Monitor::OUTPUT_STREAM,
-                                                      1.0 / period, // Hz
-                                                      Monitor::MONITOR_ON,
-                                                      targetId);
-
-        // Created monitor uid to check if the target object is already being monitored
-        targetUID = targetId.GetTargetUID(fault);
-        if (!ComponentManager->GetCoordinator()->AddMonitorTarget(targetUID, newMonitorJSON)) {
+        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
             SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << newMonitorJSON << std::endl;
+            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
             return false;
         }
-        SFLOG_INFO << "Successfully installed monitor [ " << newMonitorJSON << " ] to [ " << targetId << " ]" << std::endl;
+        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
+                   << " ] to [ " << targetId << " ]" << std::endl;
     }
 
     // Install monitor for timing fault - overrun
     {
-        fault = Fault::FAULT_COMPONENT_OVERRUN;
-        newMonitorJSON = cisstMonitor::GetMonitorJSON("TimingFaultOverrun",
-                                                      fault,
-                                                      Monitor::OUTPUT_EVENT,
-                                                      0, // event-type monitoring doesn't need sampling rate.
-                                                      Monitor::MONITOR_ON,
-                                                      targetId);
+        monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE,
+                                   targetId,
+                                   Monitor::STATE_ON,
+                                   Monitor::OUTPUT_STREAM,
+                                   frequency);
 
-        // Created monitor uid to check if the target object is already being monitored
-        targetUID = targetId.GetTargetUID(fault);
-        if (!ComponentManager->GetCoordinator()->AddMonitorTarget(targetUID, newMonitorJSON)) {
+        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
             SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << newMonitorJSON << std::endl;
+            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
             return false;
         }
-        SFLOG_INFO << "Successfully installed monitor [ " << newMonitorJSON << " ] to [ " << targetId << " ]" << std::endl;
+        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
+                   << " ] to [ " << targetId << " ]" << std::endl;
     }
 
     return true;

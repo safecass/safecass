@@ -39,8 +39,7 @@ public:
     bool IsDuplicateUID(const std::string & uid) const;
 
     /*! Install monitoring target object */
-    virtual bool AddMonitorTarget(const std::string & targetUID, 
-                                  const std::string & monitorJsonSpec) = 0;
+    virtual bool AddMonitor(Monitor * monitor) = 0;
 
     /*! Deploy all monitors and FDDs that are installed so far */
     virtual bool DeployMonitorsAndFDDs(void) = 0;

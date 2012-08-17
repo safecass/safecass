@@ -48,7 +48,7 @@ void StartUp(int argc, char *argv[]);
 // Create periodic task
 void CreatePeriodicThread(const std::string & taskName, double period);
 // to monitor values in real-time
-bool InstallMonitor(const std::string & targetComponentName);
+bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency);
 // to set up FDD pipeline for thread latency measurements
 void InstallFDD();
 // to collect data during experiment
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     CreatePeriodicThread(taskName, period);
 
     // (MJ TODO: possibly with data visualizer)
-    if (!InstallMonitor(taskName)) {
+    if (!InstallMonitor(taskName, (unsigned int) frequency)) {
         SFLOG_ERROR << "Failed to install monitor for task \"" << taskName << "\"" << std::endl;
         return 1;
     }
@@ -202,38 +202,28 @@ void CreatePeriodicThread(const std::string & taskName, double period)
     ComponentManager->WaitForStateAll(mtsComponentState::READY);
 }
 
-bool InstallMonitor(const std::string & targetComponentName)
+bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency)
 {
-    TargetIDType targetId;
-    targetId.ProcessName = ComponentManager->GetProcessName();
-    targetId.ComponentName = targetComponentName;
-
-    const Fault::FaultType fault = Fault::FAULT_COMPONENT_PERIOD;
-    // Generate JSON file to create new monitor instance
-    const std::string newMonitorJSON = 
-        cisstMonitor::GetMonitorJSON("Period Monitor",
-                                     fault,
-                                     Monitor::OUTPUT_STREAM,
-                                     5, // Hz
-                                     Monitor::MONITOR_ON,
-                                     targetId);
-
-    // Created monitor uid to check if the target object is already being monitored
-    const std::string targetUID = targetId.GetTargetUID(fault);
-    if (ComponentManager->GetCoordinator()) {
-        if (!ComponentManager->GetCoordinator()->AddMonitorTarget(targetUID, newMonitorJSON)) {
-            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << newMonitorJSON << std::endl;
-            return false;
-        }
-    } else {
-        SFLOG_ERROR  << "Failed to get coordinator in this process";
+    if (!ComponentManager->GetCoordinator()) {
+        SFLOG_ERROR  << "No safety coordinator found in this process" << std::endl;
         return false;
     }
 
-    //
-    // TODO: Add another monitoring target
-    //
+    cisstTargetID * targetId = new cisstTargetID;
+    targetId->ProcessName = ComponentManager->GetProcessName();
+    targetId->ComponentName = targetComponentName;
+
+    cisstMonitor * monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
+                                              targetId,
+                                              Monitor::STATE_ON,
+                                              Monitor::OUTPUT_STREAM,
+                                              frequency);
+
+    if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
+        SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
+        SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
+        return false;
+    }
 
     return true;
 }

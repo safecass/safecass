@@ -20,44 +20,103 @@ namespace SF {
 
 using namespace Dict;
 
-Monitor::Monitor()
+Monitor::Monitor() 
+    : Target(TARGET_INVALID), TargetID(0), State(STATE_INVALID),
+      Output(OUTPUT_INVALID), SamplingRate(0)
 {
 }
 
 Monitor::~Monitor()
 {
+    if (TargetID) {
+        delete TargetID;
+    }
 }
 
-const std::string Monitor::GetStatusString(StatusType type)
+#if 0
+#define COPY(_field) this->_field = rhs._field;
+Monitor & Monitor::operator=(const Monitor & rhs)
 {
-    if (type == MONITOR_OFF) return OFF;
-    else if (type == MONITOR_ON) return ON;
-
-    return Dict::INVALID;
+    COPY(Target);
+    COPY(TargetID);
+    COPY(State);
+    COPY(Output);
+    COPY(SamplingRate);
 }
+#undef COPY
+#endif
 
-Monitor::StatusType Monitor::GetStatusFromString(const std::string & str)
+const std::string Monitor::GetTargetUID(void) const
 {
-    if (str.compare(Dict::OFF) == 0) return MONITOR_OFF;
-    else if (str.compare(Dict::ON) == 0) return MONITOR_ON;
+    if (!TargetID) {
+        return "N/A";
+    }
 
-    return MONITOR_INVALID;
+    std::stringstream ss;
+    ss << TargetID->GetTargetID();
+    ss << "-" << GetTargetTypeString(Target);
+
+    return ss.str();
 }
 
-const std::string Monitor::GetOutputString(OutputType type)
+//-----------------------------------------------
+// Misc. Getters
+//-----------------------------------------------
+const std::string Monitor::GetTargetTypeString(const TargetType type)
+{
+    if (type == TARGET_THREAD_PERIOD) return "THREAD_PERIOD";
+    if (type == TARGET_THREAD_DUTYCYCLE) return "THREAD_DUTYCYCLE";
+
+    return INVALID;
+}
+
+Monitor::TargetType Monitor::GetTargetTypeFromString(const std::string & str)
+{
+    if (str.compare("THREAD_PERIOD") == 0) return TARGET_THREAD_PERIOD;
+    if (str.compare("THREAD_DUTYCYCLE") == 0) return TARGET_THREAD_DUTYCYCLE;
+
+    return TARGET_INVALID;
+}
+
+const std::string Monitor::GetStateTypeString(const StateType type)
+{
+    if (type == STATE_OFF) return OFF;
+    if (type == STATE_ON) return ON;
+
+    return INVALID;
+}
+
+Monitor::StateType Monitor::GetStateTypeFromString(const std::string & str)
+{
+    if (str.compare(Dict::OFF) == 0) return STATE_OFF;
+    if (str.compare(Dict::ON) == 0) return STATE_ON;
+
+    return STATE_INVALID;
+}
+
+const std::string Monitor::GetOutputTypeString(OutputType type)
 {
     if (type == OUTPUT_STREAM) return Dict::STREAM;
-    else if (type == OUTPUT_EVENT) return Dict::EVENT;
+    if (type == OUTPUT_EVENT) return Dict::EVENT;
     
-    return Dict::INVALID;
+    return INVALID;
 }
 
-Monitor::OutputType Monitor::GetOutputFromString(const std::string & str)
+Monitor::OutputType Monitor::GetOutputTypeFromString(const std::string & str)
 {
     if (str.compare(Dict::STREAM) == 0) return OUTPUT_STREAM;
-    else if (str.compare(Dict::EVENT) == 0) return OUTPUT_EVENT;
+    if (str.compare(Dict::EVENT) == 0) return OUTPUT_EVENT;
 
     return OUTPUT_INVALID;
+}
+
+void Monitor::ToStream(std::ostream & outputStream) const
+{
+    outputStream << "Target type: " << GetTargetTypeString(Target) << ", "
+                 << "TargetID: " << TargetID << ", "
+                 << "State: " << GetStateTypeString(State) << ", "
+                 << "OutputType: " << GetOutputTypeString(Output) << ", "
+                 << "SamplingRate: " << SamplingRate << ", ";
 }
 
 };
