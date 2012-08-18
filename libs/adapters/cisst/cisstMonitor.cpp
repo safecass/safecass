@@ -155,6 +155,7 @@ const std::string cisstMonitor::GetJsonForPublishingPeriod(double sample) const
 
     ::Json::Value _root;
     _root[TYPE] = Monitor::GetTargetTypeString(Target);
+    _root[PERIOD_EXPECTED] = GetSamplingPeriod();
 
     { ::Json::Value __root;
         __root[NAME_PROCESS] = targetID->ProcessName;
@@ -176,9 +177,8 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycleUser(double dutyCyc
     cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
 
     ::Json::Value _root;
-    std::stringstream ss;
-    ss << Monitor::GetTargetTypeString(Target) << "_USER";
-    _root[TYPE] = ss.str();
+    _root[TYPE] = Monitor::GetTargetTypeString(Target);
+    _root[PERIOD_EXPECTED] = GetSamplingPeriod();
 
     { ::Json::Value __root;
         __root[NAME_PROCESS] = targetID->ProcessName;
@@ -188,7 +188,7 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycleUser(double dutyCyc
     root[TARGET] = _root;
     root[SAMPLE] = dutyCycle;
 
-    ss.str("");
+    std::stringstream ss;
     ss << root;
 
     return ss.str();
@@ -200,9 +200,8 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycleTotal(double dutyCy
     cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
 
     ::Json::Value _root;
-    std::stringstream ss;
-    ss << Monitor::GetTargetTypeString(Target) << "_TOTAL";
-    _root[TYPE] = ss.str();
+    _root[TYPE] = Monitor::GetTargetTypeString(Target);
+    _root[PERIOD_EXPECTED] = GetSamplingPeriod();
 
     { ::Json::Value __root;
         __root[NAME_PROCESS] = targetID->ProcessName;
@@ -212,7 +211,7 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycleTotal(double dutyCy
     root[TARGET] = _root;
     root[SAMPLE] = dutyCycle;
 
-    ss.str("");
+    std::stringstream ss;
     ss << root;
 
     return ss.str();

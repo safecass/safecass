@@ -40,13 +40,16 @@ public:
     void Run(void) {
         ProcessQueuedCommands();
         ProcessQueuedEvents();
-        std::cout << "." << std::flush;
+        //std::cout << "." << std::flush;
         /*
         static int count = 0;
         if (count++ % 10 == 0) {
             this->GenerateFaultEvent(std::string("MY FAULT EVENT"));
         }
         */
+        static double T = (1.0 / this->Period) * 60.0 * 30.0;
+        static int i = 0;
+        osaSleep(this->Period * (0.8 * sin(2 * cmnPI * ((double) ++i / T))));
     }
     void Cleanup(void) {}
 };
@@ -101,34 +104,34 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     // Create five test components with different T
-    std::vector<unsigned int> T; // Hz
+    std::vector<unsigned int> f; // Hz
 #if 0
-    T.push_back(1);
-    T.push_back(2);
-    T.push_back(5);
-    T.push_back(10);
-    T.push_back(20);
-    T.push_back(50);
-    T.push_back(100);
-    T.push_back(200);
-    T.push_back(500);
+    f.push_back(1);
+    f.push_back(2);
+    f.push_back(5);
+    f.push_back(10);
+    f.push_back(20);
+    f.push_back(50);
+    f.push_back(100);
+    f.push_back(200);
+    f.push_back(500);
 #endif
-    T.push_back(2);
+    f.push_back(100);
 
     std::string componentName;
     std::stringstream ss;
-    for (size_t i = 0; i < T.size(); ++i) {
+    for (size_t i = 0; i < f.size(); ++i) {
         ss.str("");
-        ss << "Component" << T[i];
+        ss << "Component" << f[i];
         componentName = ss.str();
 
         // Create periodic task
-        if (!CreatePeriodicThread(componentName, 1.0 / (double)T[i])) {
+        if (!CreatePeriodicThread(componentName, 1.0 / (double)f[i])) {
             SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
             return 1;
         }
         // Install monitor 
-        if (!InstallMonitor(componentName, T[i])) {
+        if (!InstallMonitor(componentName, f[i])) {
             SFLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
             return 1;
         }
@@ -188,7 +191,7 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
     return true;
 }
 
-bool InstallMonitor(const std::string & targetComponentName, unsigned int T)
+bool InstallMonitor(const std::string & targetComponentName, unsigned int f)
 {
     if (!ComponentManager->GetCoordinator()) {
         SFLOG_ERROR  << "Failed to get coordinator in this process";
@@ -209,7 +212,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int T)
                                    targetId,
                                    Monitor::STATE_ON,
                                    Monitor::OUTPUT_STREAM,
-                                   T);
+                                   f);
         // MJ TODO: Run system for a few minutes, collect experimental data,
         // and determine variance of period with upper/lower limits and thresholds.
         if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
@@ -223,13 +226,13 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int T)
 #endif
 
     // Install monitor for execution time (user)
-#if 0
+#if 1
     {
         monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_USER,
                                    targetId,
                                    Monitor::STATE_ON,
                                    Monitor::OUTPUT_STREAM,
-                                   T);
+                                   f);
 
         if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
             SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
@@ -246,7 +249,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int T)
                                    targetId,
                                    Monitor::STATE_ON,
                                    Monitor::OUTPUT_STREAM,
-                                   T);
+                                   f);
 
         if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
             SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;

@@ -50,10 +50,14 @@ horizon.height(60);
 
 // Reference: https://github.com/square/cube/wiki/Queries#wiki-event
 var metrics = [
-  cube.metric("min(monitor_period(period_actual - period_expected))"),
-  cube.metric("max(monitor_period(period_actual - period_expected))"),
-  cube.metric("median(monitor_period(period_actual - period_expected))"),
-  cube.metric("sum(monitor_period(period_actual - period_expected))").divide(cube.metric("sum(monitor_period)"))
+  cube.metric("min(period(actual - nominal))"),
+  cube.metric("max(period(actual - nominal))"),
+  cube.metric("sum(period(actual - nominal)) / sum(period)"),
+  cube.metric("sum(exectime_user(exectime)) / sum(exectime_user)"),
+  cube.metric("sum(exectime_user(exectime_ratio)) / sum(exectime_user)"),
+  cube.metric("sum(exectime_total(exectime)) / sum(exectime_total)"),
+  cube.metric("sum(exectime_total(exectime_ratio)) / sum(exectime_total)")
+  //cube.metric("sum(exectime_total(exec_time)) - sum(exectime_user(exec_time))").divide(cube.metric("sum(exectime_total)"))
 ];
 
 // Add top and bottom axes to display the time.
