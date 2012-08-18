@@ -60,9 +60,9 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
         }
         break;
 
-        case Monitor::TARGET_THREAD_DUTYCYCLE: {
+        case Monitor::TARGET_THREAD_DUTYCYCLE_USER: {
             // entry type
-            entry["type"] = "monitor_exectime";
+            entry["type"] = "monitor_exectime_user";
             // measurement data
             Json::Value _data;
             _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
@@ -72,6 +72,17 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
         }
         break;
 
+        case Monitor::TARGET_THREAD_DUTYCYCLE_TOTAL: {
+            // entry type
+            entry["type"] = "monitor_exectime_total";
+            // measurement data
+            Json::Value _data;
+            _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
+            _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
+            _data["exec_time"] = sample.get(SAMPLE, 0.0).asDouble();
+            entry["data"] = _data;
+        }
+        break;
         // [SFUPDATE]
 
         default:

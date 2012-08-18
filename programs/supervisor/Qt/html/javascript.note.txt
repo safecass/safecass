@@ -1,3 +1,7 @@
+Node.js & Websocket example/tutorial:
+    http://martinsikora.com/nodejs-and-websocket-simple-chat-tutorial
+
+
 Associative arrays in JS:
     http://www.steinbit.org/words/programming/associative-arrays-in-javascript
 

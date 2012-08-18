@@ -35,11 +35,12 @@ public:
 
     /*! Typedef for monitor target (what to monitor) */
     typedef enum {
-        TARGET_INVALID          = 0,
+        TARGET_INVALID,
         // Measure period of periodic task (see FAULT_COMPONENT_PERIOD)
-        TARGET_THREAD_PERIOD    = 1,
+        TARGET_THREAD_PERIOD,
         // Measure duty cycle of periodic task (see FAULT_COMPONENT_OVERRUN)
-        TARGET_THREAD_DUTYCYCLE = 2
+        TARGET_THREAD_DUTYCYCLE_USER,
+        TARGET_THREAD_DUTYCYCLE_TOTAL
         // [SFUPDATE]
     } TargetType;
 

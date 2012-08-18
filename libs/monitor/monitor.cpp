@@ -89,7 +89,8 @@ bool Monitor::IsSamplingNecessary(double currentTick) const
 const std::string Monitor::GetTargetTypeString(const TargetType type)
 {
     if (type == TARGET_THREAD_PERIOD) return "THREAD_PERIOD";
-    if (type == TARGET_THREAD_DUTYCYCLE) return "THREAD_DUTYCYCLE";
+    if (type == TARGET_THREAD_DUTYCYCLE_USER) return "THREAD_DUTYCYCLE_USER";
+    if (type == TARGET_THREAD_DUTYCYCLE_TOTAL) return "THREAD_DUTYCYCLE_TOTAL";
 
     return INVALID;
 }
@@ -97,7 +98,8 @@ const std::string Monitor::GetTargetTypeString(const TargetType type)
 Monitor::TargetType Monitor::GetTargetTypeFromString(const std::string & str)
 {
     if (str.compare("THREAD_PERIOD") == 0) return TARGET_THREAD_PERIOD;
-    if (str.compare("THREAD_DUTYCYCLE") == 0) return TARGET_THREAD_DUTYCYCLE;
+    if (str.compare("THREAD_DUTYCYCLE_USER") == 0) return TARGET_THREAD_DUTYCYCLE_USER;
+    if (str.compare("THREAD_DUTYCYCLE_TOTAL") == 0) return TARGET_THREAD_DUTYCYCLE_TOTAL;
 
     return TARGET_INVALID;
 }

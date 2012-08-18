@@ -203,7 +203,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int T)
     cisstMonitor * monitor;
 
     // Install monitor for timing fault - period
-#if 0
+#if 1
     {
         monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
                                    targetId,
@@ -222,10 +222,27 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int T)
     }
 #endif
 
-    // Install monitor for timing fault - overrun
-#if 1
+    // Install monitor for execution time (user)
+#if 0
     {
-        monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE,
+        monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_USER,
+                                   targetId,
+                                   Monitor::STATE_ON,
+                                   Monitor::OUTPUT_STREAM,
+                                   T);
+
+        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
+            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
+            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
+            return false;
+        }
+        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
+                   << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
+    }
+
+    // Install monitor for execution time (total)
+    {
+        monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_TOTAL,
                                    targetId,
                                    Monitor::STATE_ON,
                                    Monitor::OUTPUT_STREAM,
