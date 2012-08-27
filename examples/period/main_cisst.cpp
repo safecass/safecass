@@ -47,7 +47,7 @@ public:
             this->GenerateFaultEvent(std::string("MY FAULT EVENT"));
         }
         */
-        static double T = (1.0 / this->Period) * 60.0 * 30.0;
+        static double T = (1.0 / this->Period) * 60.0 * 60.0;
         static int i = 0;
         osaSleep(this->Period * (0.8 * sin(2 * cmnPI * ((double) ++i / T))));
     }
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     f.push_back(200);
     f.push_back(500);
 #endif
-    f.push_back(100);
+    f.push_back(10);
 
     std::string componentName;
     std::stringstream ss;
