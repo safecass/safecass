@@ -1,6 +1,7 @@
 #include "supervisorQtComponent.h"
 #include <cisstMultiTask/mtsInterfaceRequired.h>
 
+#include "config.h"
 #include <QUrl>
 
 CMN_IMPLEMENT_SERVICES(supervisorQtComponent);
@@ -23,10 +24,9 @@ supervisorQtComponent::supervisorQtComponent(const std::string & componentName):
 
     supervisorWidget.setupUi(&CentralWidget);
 
-    //QUrl startURL = QUrl("qrc:/voronoi.html");
-    //QUrl startURL = QUrl("http://www.google.com");
-    //QUrl startURL = QUrl("http://square.github.com/cubism");
-    QUrl startURL = QUrl("file:///Users/MJ/project/tools/cubism/demo/index.html");
+    std::stringstream url;
+    url << "file://" << SF_SOURCE_ROOT_DIR << "/programs/supervisor/Qt/html/cubism/period.html";
+    QUrl startURL = QUrl(url.str().c_str());
     supervisorWidget.webViewMonitor->setUrl(startURL);
 
     MainWindow.setCentralWidget(&CentralWidget);
