@@ -1,0 +1,113 @@
+<html>
+<head>
+<script type="text/javascript" src="RGraph.common.core.js" ></script>
+<script type="text/javascript" src="RGraph.line.js" ></script>
+</head>
+
+<body>
+<canvas id="cvs" width="1000" height="300">[No canvas support]</canvas>
+
+<div style="float: right">
+        <canvas id="cvs" width="1000" height="300">[No canvas support]</canvas><br />
+        <span style="margin-left: 25px">
+            Number of updates: <span id="num_updates">0</span>
+        </span>
+      </div>
+
+<script>
+    d1  = [];
+    l   = 0; // The letter 'L' - NOT a one
+
+    // Pre-pad the arrays with 1000 null values
+    for (var i=0; i<1000; ++i) {
+        d1.push(null);
+    }
+
+    var socket = new WebSocket("ws://localhost:1081/1.0/event/get");
+
+    socket.onopen = function() {
+      socket.send(JSON.stringify({
+        "expression": "period(actual)",
+        "start": "2012-08-30T17:44:00"
+      }));
+    };
+
+    var sample = 0;
+    socket.onmessage = function(message) {
+      var json = JSON.parse(message.data);
+      sample = json.data.actual;
+      //console.log(sample);
+      drawGraph();
+    };
+
+    function getGraph(id, d1)
+    {
+        // After creating the chart, store it on the global window object
+        if (!window.__rgraph_line__) {
+            window.__rgraph_line__ = new RGraph.Line(id, d1);
+            window.__rgraph_line__.Set('chart.xticks', 30);
+            window.__rgraph_line__.Set('chart.background.barcolor1', 'white');
+            window.__rgraph_line__.Set('chart.background.barcolor2', 'white');
+            window.__rgraph_line__.Set('chart.title.xaxis', 'Time >>>');
+            window.__rgraph_line__.Set('chart.title.yaxis', 'Bandwidth (MB/s)');
+            window.__rgraph_line__.Set('chart.title.vpos', 0.5);
+            window.__rgraph_line__.Set('chart.title', 'Bandwidth used');
+            window.__rgraph_line__.Set('chart.title.yaxis.pos', 0.5);
+            window.__rgraph_line__.Set('chart.title.xaxis.pos', 0.5);
+            window.__rgraph_line__.Set('chart.colors', ['black']);
+            window.__rgraph_line__.Set('chart.linewidth',0.5);
+            //obj.Set('chart.ylabels.inside', true);
+            window.__rgraph_line__.Set('chart.yaxispos', 'right');
+            window.__rgraph_line__.Set('chart.ymax', 0.15);
+            window.__rgraph_line__.Set('chart.filled', true);
+            
+            var grad = window.__rgraph_line__.context.createLinearGradient(0,0,0,1000);
+            grad.addColorStop(0, '#efefef');
+            grad.addColorStop(0.9, 'rgba(0,0,0,0)');
+
+            window.__rgraph_line__.Set('chart.fillstyle', [grad]);
+        }
+
+        return window.__rgraph_line__;
+    }
+
+    function drawGraph ()
+    {
+        document.getElementById("num_updates").innerHTML = parseInt(document.getElementById("num_updates").innerHTML) + 1;
+
+        RGraph.Clear(document.getElementById("cvs"));
+        
+        var graph = getGraph('cvs', d1);
+        graph.Draw();
+
+        // Add some data to the data arrays
+        /*
+        var r1 = RGraph.random(
+                               RGraph.is_null(d1[d1.length - 1]) ? 26 : d1[d1.length - 1] - 2,
+                               RGraph.is_null(d1[d1.length - 1]) ? 24 : d1[d1.length - 1] + 2
+                              );
+       r1 = Math.max(r1, 0);
+       r1 = Math.min(r1, 50);
+
+        d1.push(r1);
+        */
+        d1.push(sample);
+        
+        if (d1.length > 1000) {
+            d1 = RGraph.array_shift(d1);
+        }
+
+        if (document.all && RGraph.isIE8()) {
+            alert('[MSIE] Sorry, Internet Explorer 8 is not fast enough to support animated charts');
+        } else {
+            window.__rgraph_line__.original_data[0] = d1;
+            //setTimeout(drawGraph, 500);
+        }
+    }
+
+    drawGraph();
+
+</script>
+
+</body>
+</html>
