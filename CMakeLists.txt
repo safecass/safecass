@@ -22,9 +22,9 @@ set_property (GLOBAL PROPERTY USE_FOLDERS ON) # option to organize targets in fo
 
 # Set where to look for header files
 include_directories("${PROJECT_BINARY_DIR}")
-include_directories("${SafetyFramework_SOURCE_DIR}/libs/Common")
-include_directories("${SafetyFramework_SOURCE_DIR}/libs/FDD")
-include_directories("${SafetyFramework_SOURCE_DIR}/libs/FDD/filters")
+include_directories("${SafetyFramework_SOURCE_DIR}/libs/common")
+include_directories("${SafetyFramework_SOURCE_DIR}/libs/fdd")
+include_directories("${SafetyFramework_SOURCE_DIR}/libs/fdd/filters")
 
 # Option to enable unit-testing with CppTest
 option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the CppTest library" ON)

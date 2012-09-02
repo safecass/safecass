@@ -10,3 +10,4 @@
 
 add_subdirectory(latency)
 add_subdirectory(period)
+add_subdirectory(event)
