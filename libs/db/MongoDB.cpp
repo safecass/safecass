@@ -29,7 +29,7 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
     // Parse source Json
     SF::JSON json;
     if (!json.Read(topic.c_str())) {
-        CMN_LOG_RUN_ERROR << "Failed to parse json from topic message: " << topic << std::endl;
+        SFLOG_ERROR << "Failed to parse json from topic message: " << topic << std::endl;
         return "";
     }
 
@@ -97,7 +97,7 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
         // [SFUPDATE]
 
         default:
-            CMN_LOG_RUN_ERROR << "Failed to convert topic message to MongoDB entry due to invalid fault type string: "
+            SFLOG_ERROR << "Failed to convert topic message to MongoDB entry due to invalid fault type string: "
                 << "\"" << targetTypeString << "\"" << std::endl;
     }
 

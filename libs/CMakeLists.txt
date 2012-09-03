@@ -46,7 +46,9 @@ set (SF_LIB_MONITOR_SRC ${LIB_DIR}/monitor/monitor.h
 set (SF_LIB_MONITOR_INCLUDE_DIR ${LIB_DIR}/monitor)
 
 # FDD
-set (SF_LIB_FDD_SRC ${LIB_DIR}/fdd/fault.h ${LIB_DIR}/fdd/fault.cpp)
+set (SF_LIB_FDD_SRC ${LIB_DIR}/fdd/fault.h ${LIB_DIR}/fdd/fault.cpp
+                    ${LIB_DIR}/fdd/signal.h ${LIB_DIR}/fdd/signal.cpp
+                    ${LIB_DIR}/fdd/filterBase.h ${LIB_DIR}/fdd/filterBase.cpp)
 set (SF_LIB_FDD_INCLUDE_DIR ${LIB_DIR}/fdd)
 
 # adapters

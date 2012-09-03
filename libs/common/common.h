@@ -80,6 +80,22 @@ std::string GetCurrentUTCTimeString(void);
     #define SFLOG_FATAL   std::cout << "FATAL  : "
   #endif // SF_HAS_CISST
 #endif
+
+// Assertion macro
+#if ENABLE_G2LOG
+  /* G2LOG CHECK macro usage examples:
+     (from http://www.codeproject.com/Articles/288827/g2log-An-efficient-asynchronous-logger-using-Cplus#TOC_design_by_contract)
+
+     CHECK(1 != 2);
+     CHECK(1 > 2) << "CHECK(false) will trigger a FATAL message, put it on log, then exit";
+
+     const std::string arg = "CHECKF";
+     CHECKF(1 > 2, "This is a test to see if %s works", arg.c_str());
+  */
+  #define SFASSERT CHECK
+#else
+  #define SFASSERT CMN_ASSERT
+#endif
 };
 
 #endif // _common_h
