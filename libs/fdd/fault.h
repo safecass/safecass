@@ -19,7 +19,7 @@
 
 namespace SF {
 
-class Fault {
+class SFLIB_EXPORT Fault {
 public:
     /*
     typedef enum { 

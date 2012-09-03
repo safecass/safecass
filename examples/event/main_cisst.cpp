@@ -187,11 +187,23 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
 
 bool InstallFilter(const std::string & targetComponentName, unsigned int f)
 {
-    if (!ComponentManager->GetCoordinator()) {
+    SF::Coordinator * Coordinator = ComponentManager->GetCoordinator();
+    if (!Coordinator) {
         SFLOG_ERROR  << "Failed to get coordinator in this process";
         return false;
     }
 
+    // Create two thresholding filters
+    SF::FilterThreshold * thresholdFilter = new FilterThreshold(15.0, 0.0, 1.0);
+    // Install filter to the target component [Active monitoring]
+    Coordinator->AddFilter("targetComponentName", thresholdFilter, ACTIVE);
+    // Install filter to the monitoring component [Passive monitoring]
+    Coordinator->AddFilter("targetComponentName", thresholdFilter, PASSIVE);
+
+    // Install the filter to 
+
+
+    /*
     // Define target
     cisstTargetID * targetId = new cisstTargetID;
     targetId->ProcessName = ComponentManager->GetProcessName();
@@ -216,6 +228,7 @@ bool InstallFilter(const std::string & targetComponentName, unsigned int f)
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
                    << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
     }
+    */
 
     return true;
 }

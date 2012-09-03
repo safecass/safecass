@@ -14,7 +14,7 @@
 
 #include "filterBase.h"
 
-using namespace SF;
+namespace SF {
 
 FilterBase::FilterIdType FilterBase::FilterUID = 0;
 
@@ -26,20 +26,18 @@ const std::string InvalidSignalName = "INVALID_SIGNAL";
 //-------------------------------------------------- 
 FilterBase::FilterBase(void)
     : UID(InvalidFilterUID),
-      Type(FilterBase::INVALID),
+      Category(FilterBase::INVALID),
       Name("NONAME"), 
-      Enabled(false),
-      HistoryBuffer(0)
+      Enabled(false)
 {}
 
-FilterBase::FilterBase(FilterType type, const std::string & name)
+FilterBase::FilterBase(FilterCategory category, const std::string & name)
     : UID(FilterUID++),
-      Type(type),
+      Category(category),
       Name(name), 
       // MJ: if filter is enabled when constructed, the first few inputs and outputs could
       // be corrupted.
-      Enabled(false),
-      HistoryBuffer(0)
+      Enabled(false)
 {
 }
 
@@ -80,7 +78,7 @@ bool FilterBase::AddOutputSignal(const std::string & name, SignalElement::Signal
 
     SignalElement * newSignal = new SignalElement(type, name);
     OutputSignals.push_back(newSignal);
-    SFLOG_DEBUG << "AddInputSignal: Successfully added output signal \"" << name << "\" to filter \"" << this->Name << "\"" << std::endl;
+    SFLOG_DEBUG << "AddOutputSignal: Successfully added output signal \"" << name << "\" to filter \"" << this->Name << "\"" << std::endl;
 
     return true;
 }
@@ -138,3 +136,5 @@ SignalElement * FilterBase::GetInputSignalElement(size_t index) const
 
     return InputSignals[index];
 }
+
+};

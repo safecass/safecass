@@ -23,13 +23,21 @@
 
 namespace SF {
 
-// MJ TEMP
-class mtsStateTable;
-
-class FilterBase
+class SFLIB_EXPORT FilterBase
 {
 public:
-    /*! Typedef for filter types */
+    /*! Typedef for filtering type.
+        ACTIVE:  filter is processed by the target component and thus the execution time of 
+                 the target component is consumed.
+                 - Pros: Fastest and guaranteed detection of an event
+                 - Cons: Run-time overhead to execute FDD pipelines and generate and propagate events
+        PASSIVE: filter is processed by the monitoring component which does not require the 
+                 execution time of the target component.
+                 - Pros: No run-time performance impact on the target component
+                 - Cons: Delay in detecting an event (currently, monitoring component is periodic task) */
+    typedef enum { ACTIVE, PASSIVE } FilteringType;
+
+    /*! Typedef for filter categories */
     typedef enum {
         INVALID,        // invalid filter is not processed
         FEATURE,        // raw measurement processed 
@@ -37,7 +45,7 @@ public:
         SYMPTOM,        // feature vectors processed
         SYMPTOM_VECTOR, // collection of symptoms
         FAULT_DETECTOR  // fault detector
-    } FilterType;
+    } FilterCategory;
 
     /*! Input signal element.  A filter may need more than one signal to run 
         its filtering algorithm and this class represents a signal. */
@@ -47,9 +55,6 @@ public:
 
     /*! Typedef for filter id */
     typedef int FilterIdType;
-
-    /*! Typedef for history buffer */
-    typedef mtsStateTable HistoryBufferType;
 
 private:
     /*! ID of this filter which allows multiple filters of the same type to be 
@@ -62,15 +67,13 @@ protected:
 
     /*! UID of this filter */
     const FilterIdType UID;
-    /*! Type of this filter */
-    const FilterType Type;
+    /*! Category of this filter */
+    const FilterCategory Category;
     /*! Name of this filter */
     const std::string Name;
 
     /*! State of this filter (enabled or disabled) */
     bool Enabled;
-    /*! Instance of history buffer that this filter runs with */
-    HistoryBufferType * HistoryBuffer;
 
     /*! Input signals that this filter uses */
     SignalElementsType InputSignals;
@@ -89,7 +92,7 @@ protected:
 protected:
     FilterBase(void);
 public:
-    FilterBase(FilterType type, const std::string & name);
+    FilterBase(FilterCategory category, const std::string & name);
     virtual ~FilterBase();
 
 #if 0 // MJ: future improvements
@@ -112,8 +115,8 @@ public:
     inline FilterIdType GetFilterUID(void) const {
         return UID;
     }
-    inline FilterType GetFilterType(void) const {
-        return Type;
+    inline FilterCategory GetFilterCategory(void) const {
+        return Category;
     }
     inline const std::string & GetFilterName(void) const {
         return Name;
@@ -142,10 +145,6 @@ public:
 
     SignalElement * GetInputSignalElement(size_t index) const;
     SignalElement * GetOutputSignalElement(size_t index) const;
-
-    inline void SetHistoryBufferInstance(HistoryBufferType * historyBufferInstance) {
-        HistoryBuffer = historyBufferInstance;
-    }
 
     /*! Returns human readable outputs (for debugging purpose) */
     virtual std::string ToString(void) const  {
