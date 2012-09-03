@@ -19,6 +19,7 @@
 #include "json.h"
 #include "monitor.h"
 #include "cisstMonitor.h"
+#include "threshold.h"
 
 #include <cisstCommon/cmnGetChar.h>
 #include <cisstVector/vctFixedSizeVector.h>
@@ -40,21 +41,26 @@ public:
     typedef vctFixedSizeVector<double, 6> SensorReadingType;
 
 protected:
+    double Threshold;
     double Tic;
     SensorReadingType SensorReading;
+    double ForceY;
 
 public:
     SensorReadingTask(const std::string & name, double period) : mtsTaskPeriodic(name, period, false, 5000)
     {
-        StateTable.AddData(SensorReading, "SensorReading");
+        StateTable.AddData(SensorReading, "SensorReadings");
+        StateTable.AddData(ForceY, "ForceY");
 
+        /*
         mtsInterfaceProvided * provided = AddInterfaceProvided("provided");
         if (!provided) cmnThrow(std::string("failed to create provided interface"));
-        provided->AddCommandReadState(StateTable, SensorReading, "GetSensorReading");
+        provided->AddCommandReadState(StateTable, SensorReading, "GetSensorReadings");
         //provided->AddCommandReadState(StateTableMonitor, SensorReading, "GetSensorReading");
+        */
 
-        SensorReading(2) = 10.0;
         Tic = osaGetTime();
+        Threshold = 10.0;
     }
     ~SensorReadingTask() {}
 
@@ -64,15 +70,21 @@ public:
         ProcessQueuedCommands();
         ProcessQueuedEvents();
         
-        // Generate random number
-        SensorReading(2) = 10.0;
+        // Update sensor readings
+        SensorReading(1) = Threshold;
         if (rand() % 100 > 97) { // 2% possibility
             // This causes thresholding filter to detect an event and filter output
             // becomes pre-defined "high" value.
-            SensorReading(2) += SensorReading(2) * 0.2;
-            std::cout << "[" << osaGetTime() - Tic << "] Sensor reading threshold exceeds: "
-                << SensorReading(2) - 10.0 << std::endl;
+            SensorReading(1) += SensorReading(1) * 0.2;
         }
+
+        // Update filter input and check if sensor reading exceeds threshold
+        ForceY = SensorReading(1);
+        if (ForceY - Threshold > 0.0) {
+            std::cout << "[" << osaGetTime() - Tic << "] Sensor reading threshold exceeds: "
+                << SensorReading(1) - Threshold << std::endl;
+        }
+
     }
     void Cleanup(void) {}
 };
@@ -143,7 +155,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     
-    // Make sure coordinator is active
+    // Activate all the monitors and filters installed
     if (ComponentManager->GetCoordinator()) {
         if (!ComponentManager->GetCoordinator()->DeployMonitorsAndFDDs()) {
             SFLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
@@ -200,51 +212,37 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
 
 bool InstallFilter(const std::string & targetComponentName)
 {
-    SF::Coordinator * Coordinator = ComponentManager->GetCoordinator();
-    if (!Coordinator) {
+    mtsSafetyCoordinator * coordinator =
+        dynamic_cast<mtsSafetyCoordinator*>(ComponentManager->GetCoordinator());
+    if (!coordinator) {
         SFLOG_ERROR  << "Failed to get coordinator in this process";
         return false;
     }
 
-#if 0
     // Create two thresholding filters
-    SF::FilterThreshold * thresholdFilter = 
-        new FilterThreshold(SF::FilterBase::FEATURE,
+    SF::FilterThreshold * filter = 
+        new FilterThreshold(SF::FilterBase::FEATURE, // filter category
+                            "ForceY", // name of input signal
+                            10.0,     // threshold
+                            0.0,      // output 0 (input is below threshold)
+                            1.0);     // output 1 (input exceeds threshold)
+
     // Install filter to the target component [Active monitoring]
-    Coordinator->AddFilter("targetComponentName", thresholdFilter, ACTIVE);
-    // Install filter to the monitoring component [Passive monitoring]
-    Coordinator->AddFilter("targetComponentName", thresholdFilter, PASSIVE);
-#endif
-
-    // Install the filter to 
-
-
-    /*
-    // Define target
-    cisstTargetID * targetId = new cisstTargetID;
-    targetId->ProcessName = ComponentManager->GetProcessName();
-    targetId->ComponentName = targetComponentName;
-
-    cisstMonitor * monitor;
-
-    // Install monitor for timing fault - period
+    if (!coordinator->AddFilter(targetComponentName, filter, SF::FilterBase::ACTIVE))
     {
-        monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
-                                   targetId,
-                                   Monitor::STATE_ON,
-                                   Monitor::OUTPUT_STREAM,
-                                   f);
-        // MJ TODO: Run system for a few minutes, collect experimental data,
-        // and determine variance of period with upper/lower limits and thresholds.
-        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
-            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
-            return false;
-        }
-        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
+        SFLOG_ERROR << "Failed to add ACTIVE filter \"" << filter->GetFilterName() << "\""
+            << " to target component \"" << targetComponentName << "\"" << std::endl;
+        return false;
     }
-    */
+    // Install filter to the monitoring component [Passive monitoring]
+    if (!coordinator->AddFilter(targetComponentName, filter, SF::FilterBase::PASSIVE))
+    {
+        SFLOG_ERROR << "Failed to add PASSIVE filter \"" << filter->GetFilterName() << "\""
+            << " to target component \"" << targetComponentName << "\"" << std::endl;
+        return false;
+    }
+
+    SFLOG_INFO << "Successfully installed filter: \"" << filter->GetFilterName() << "\"" << std::endl;
 
     return true;
 }

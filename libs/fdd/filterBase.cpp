@@ -16,9 +16,9 @@
 
 namespace SF {
 
-FilterBase::FilterIdType FilterBase::FilterUID = 0;
+FilterBase::FilterIDType FilterBase::FilterUID = 0;
 
-const FilterBase::FilterIdType InvalidFilterUID = -1;
+const FilterBase::FilterIDType InvalidFilterUID = -1;
 const std::string InvalidSignalName = "INVALID_SIGNAL";
 
 //-------------------------------------------------- 

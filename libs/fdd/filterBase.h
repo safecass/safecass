@@ -53,19 +53,19 @@ public:
     //typedef std::vector<std::string> SignalNamesType;
 
     /*! Typedef for filter id */
-    typedef int FilterIdType;
+    typedef int FilterIDType;
 
 private:
     /*! ID of this filter which allows multiple filters of the same type to be 
         used in the same state table. */
-    static FilterIdType FilterUID;
+    static FilterIDType FilterUID;
 
 protected:
     /*! Typedef of base class for derived classes */
     typedef FilterBase BaseType;
 
     /*! UID of this filter */
-    const FilterIdType UID;
+    const FilterIDType UID;
     /*! Category of this filter */
     const FilterCategory Category;
     /*! Name of this filter */
@@ -111,7 +111,7 @@ public:
     //-------------------------------------------------- 
     //  Getters and Setters
     //-------------------------------------------------- 
-    inline FilterIdType GetFilterUID(void) const {
+    inline FilterIDType GetFilterUID(void) const {
         return UID;
     }
     inline FilterCategory GetFilterCategory(void) const {
