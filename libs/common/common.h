@@ -41,11 +41,6 @@ typedef std::vector<std::string> StrVecType;
 typedef unsigned int SamplingRateType;   // f (Hz)
 typedef double       SamplingPeriodType; // T (=1/f)
 
-// timestamp representations
-#ifdef SF_HAS_CISST
-typedef double TimestampType;
-#endif
-
 //--------------------------------------------------
 //  Utilities
 //--------------------------------------------------

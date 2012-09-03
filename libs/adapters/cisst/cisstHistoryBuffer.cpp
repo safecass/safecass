@@ -24,7 +24,7 @@ cisstHistoryBuffer::cisstHistoryBuffer(mtsStateTable * stateTable)
 
 void cisstHistoryBuffer::GetNewValueScalar(SignalElement::HistoryBufferIndexType index,
                                            SignalElement::ScalarType & value,
-                                           TimestampType & timestamp)
+                                           SignalElement::TimestampType & timestamp)
 {
     CMN_ASSERT(StateTable); // MJ TEMP
     value = StateTable->GetNewValueScalar(index, timestamp);
@@ -32,7 +32,7 @@ void cisstHistoryBuffer::GetNewValueScalar(SignalElement::HistoryBufferIndexType
 
 void cisstHistoryBuffer::GetNewValueVector(SignalElement::HistoryBufferIndexType index,
                                            SignalElement::VectorType & value,
-                                           TimestampType & timestamp)
+                                           SignalElement::TimestampType & timestamp)
 {
     CMN_ASSERT(StateTable); // MJ TEMP
     value = StateTable->GetNewValueVector(index, timestamp);

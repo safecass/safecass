@@ -32,6 +32,9 @@ public:
     /*! Typedef for signal type */
     typedef enum { SCALAR, VECTOR } SignalType;
 
+    /*! Typedef for timestamp representations */
+    typedef double TimestampType;
+
     /*! Typedef for id of the history buffer that maintains the history of this signal */
     typedef std::string HistoryBufferIDType;
 

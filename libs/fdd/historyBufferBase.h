@@ -28,10 +28,10 @@ public:
     /*! Fetch latest value from history buffer */
     virtual bool GetNewValueScalar(SignalElement::HistoryBufferIndexType index,
                                    SignalElement::ScalarType & value,
-                                   TimestampType & timestamp) = 0;
+                                   SignalElement::TimestampType & timestamp) = 0;
     virtual bool GetNewValueVector(SignalElement::HistoryBufferIndexType index,
                                    SignalElement::VectorType & value,
-                                   TimestampType & timestamp) = 0;
+                                   SignalElement::TimestampType & timestamp) = 0;
 };
 
 };

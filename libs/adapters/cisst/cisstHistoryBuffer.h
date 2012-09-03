@@ -32,12 +32,12 @@ public:
     /*! Fetch latest scalar-type value from history buffer */
     bool GetNewValueScalar(SignalElement::HistoryBufferIndexType index,
                            SignalElement::ScalarType & value,
-                           TimestampType & timestamp);
+                           SignalElement::TimestampType & timestamp);
 
     /*! Fetch latest vector-type value from history buffer */
     bool GetNewValueVector(SignalElement::HistoryBufferIndexType index,
                            SignalElement::VectorType & value,
-                           TimestampType & timestamp);
+                           SignalElement::TimestampType & timestamp);
 };
 
 };

@@ -12,6 +12,8 @@
 
 */
 
+#include <time.h> // for srand(time(NULL))
+
 #include "config.h"
 #include "common.h"
 #include "json.h"
@@ -19,31 +21,58 @@
 #include "cisstMonitor.h"
 
 #include <cisstCommon/cmnGetChar.h>
+#include <cisstVector/vctFixedSizeVector.h>
+#include <cisstOSAbstraction/osaGetTime.h>
 #include <cisstOSAbstraction/osaSleep.h>
 #include <cisstMultiTask/mtsTaskPeriodic.h>
 #include <cisstMultiTask/mtsTaskManager.h>
+#include <cisstMultiTask/mtsInterfaceProvided.h>
 #if (CISST_OS == CISST_LINUX_XENOMAI)
 #include <sys/mman.h>
 #endif
 
 using namespace SF;
 
-class PeriodicTask: public mtsTaskPeriodic {
+// Example task that simulates sensor wrapper
+class SensorReadingTask: public mtsTaskPeriodic {
 public:
-    PeriodicTask(const std::string & name, double period) :
-        mtsTaskPeriodic(name, period, false, 5000) {}
-    ~PeriodicTask() {}
+    // Typedef for sensor readings
+    typedef vctFixedSizeVector<double, 6> SensorReadingType;
+
+protected:
+    double Tic;
+    SensorReadingType SensorReading;
+
+public:
+    SensorReadingTask(const std::string & name, double period) : mtsTaskPeriodic(name, period, false, 5000)
+    {
+        StateTable.AddData(SensorReading, "SensorReading");
+
+        mtsInterfaceProvided * provided = AddInterfaceProvided("provided");
+        if (!provided) cmnThrow(std::string("failed to create provided interface"));
+        provided->AddCommandReadState(StateTable, SensorReading, "GetSensorReading");
+        //provided->AddCommandReadState(StateTableMonitor, SensorReading, "GetSensorReading");
+
+        SensorReading(2) = 10.0;
+        Tic = osaGetTime();
+    }
+    ~SensorReadingTask() {}
 
     void Configure(const std::string & CMN_UNUSED(filename) = "") {}
     void Startup(void) {}
     void Run(void) {
         ProcessQueuedCommands();
         ProcessQueuedEvents();
-        /*
-        static double T = (1.0 / this->Period) * 60.0 * 60.0;
-        static int i = 0;
-        osaSleep(this->Period * (0.8 * sin(2 * cmnPI * ((double) ++i / T))));
-        */
+        
+        // Generate random number
+        SensorReading(2) = 10.0;
+        if (rand() % 100 > 97) { // 2% possibility
+            // This causes thresholding filter to detect an event and filter output
+            // becomes pre-defined "high" value.
+            SensorReading(2) += SensorReading(2) * 0.2;
+            std::cout << "[" << osaGetTime() - Tic << "] Sensor reading threshold exceeds: "
+                << SensorReading(2) - 10.0 << std::endl;
+        }
     }
     void Cleanup(void) {}
 };
@@ -52,15 +81,17 @@ public:
 // Create periodic task
 bool CreatePeriodicThread(const std::string & componentName, double period);
 // to monitor values in real-time
-bool InstallFilter(const std::string & targetComponentName, unsigned int T);
+bool InstallFilter(const std::string & targetComponentName);
 
 // Local component manager
 mtsManagerLocal * ComponentManager = 0;
 // Test periodic task
-PeriodicTask * task = 0;
+SensorReadingTask * task = 0;
 
 int main(int argc, char *argv[])
 {
+    srand(time(NULL));
+
 #if (CISST_OS == CISST_LINUX_XENOMAI)
     mlockall(MCL_CURRENT|MCL_FUTURE);
 #endif
@@ -97,40 +128,22 @@ int main(int argc, char *argv[])
     }
     std::cout << std::endl;
 
-    // Create five test components with different T
-    std::vector<unsigned int> f; // Hz
-#if 0
-    f.push_back(1);
-    f.push_back(2);
-    f.push_back(5);
-    f.push_back(10);
-    f.push_back(20);
-    f.push_back(50);
-    f.push_back(100);
-    f.push_back(200);
-    f.push_back(500);
-#endif
-    f.push_back(10);
+    // Create simulated sensor reading component
+    std::string componentName("sensorWrapper");
 
-    std::string componentName;
-    std::stringstream ss;
-    for (size_t i = 0; i < f.size(); ++i) {
-        ss.str("");
-        ss << "Component" << f[i];
-        componentName = ss.str();
+    // Create periodic task
+    if (!CreatePeriodicThread(componentName, 10 * cmn_ms)) {
+        SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
+        return 1;
+    }
 
-        // Create periodic task
-        if (!CreatePeriodicThread(componentName, 1.0 / (double)f[i])) {
-            SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
-            return 1;
-        }
-        // Install monitor 
-        if (!InstallFilter(componentName, f[i])) {
-            SFLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
-            return 1;
-        }
+    // Install filters
+    if (!InstallFilter(componentName)) {
+        SFLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
+        return 1;
     }
     
+    // Make sure coordinator is active
     if (ComponentManager->GetCoordinator()) {
         if (!ComponentManager->GetCoordinator()->DeployMonitorsAndFDDs()) {
             SFLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
@@ -176,7 +189,7 @@ int main(int argc, char *argv[])
 bool CreatePeriodicThread(const std::string & componentName, double period)
 {
     // Create periodic thread
-    task = new PeriodicTask(componentName, period);
+    task = new SensorReadingTask(componentName, period);
     if (!ComponentManager->AddComponent(task)) {
         SFLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
         return false;
@@ -185,7 +198,7 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
     return true;
 }
 
-bool InstallFilter(const std::string & targetComponentName, unsigned int f)
+bool InstallFilter(const std::string & targetComponentName)
 {
     SF::Coordinator * Coordinator = ComponentManager->GetCoordinator();
     if (!Coordinator) {
@@ -193,12 +206,15 @@ bool InstallFilter(const std::string & targetComponentName, unsigned int f)
         return false;
     }
 
+#if 0
     // Create two thresholding filters
-    SF::FilterThreshold * thresholdFilter = new FilterThreshold(15.0, 0.0, 1.0);
+    SF::FilterThreshold * thresholdFilter = 
+        new FilterThreshold(SF::FilterBase::FEATURE,
     // Install filter to the target component [Active monitoring]
     Coordinator->AddFilter("targetComponentName", thresholdFilter, ACTIVE);
     // Install filter to the monitoring component [Passive monitoring]
     Coordinator->AddFilter("targetComponentName", thresholdFilter, PASSIVE);
+#endif
 
     // Install the filter to 
 

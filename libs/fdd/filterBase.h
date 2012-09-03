@@ -18,7 +18,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "common.h"
 #include "signal.h"
 
 namespace SF {
