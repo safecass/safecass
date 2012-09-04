@@ -16,28 +16,111 @@
 
 namespace SF {
 
-const std::string NameOfThresholdFilter = "Threshold";
+const std::string FilterThreshold::Name = "Threshold";
 
-FilterThreshold::FilterThreshold(BaseType::FilterCategory category, 
-                                 const std::string & inputName,
-                                 SignalElement::ScalarType threshold,
-                                 SignalElement::ScalarType output0,
-                                 SignalElement::ScalarType output1)
-    : FilterBase(category, NameOfThresholdFilter),
-      Threshold(threshold), Output0(output0), Output1(output1)
+FilterThreshold::FilterThreshold(BaseType::FilterCategory      category, 
+                                 const std::string &           targetComponentName,
+                                 SF::FilterBase::FilteringType monitoringType,
+                                 // below are filter-specific arguments
+                                 const std::string &           inputSignalName,
+                                 SignalElement::ScalarType     threshold,
+                                 SignalElement::ScalarType     output0,
+                                 SignalElement::ScalarType     output1)
+    : FilterBase(FilterThreshold::Name, category, targetComponentName, monitoringType),
+      NameOfInputSignal(inputSignalName),
+      Threshold(threshold),
+      Output0(output0),
+      Output1(output1)
 {
     // Define inputs
-    SFASSERT(this->AddInputSignal(inputName, SignalElement::SCALAR));
+    SFASSERT(this->AddInputSignal(NameOfInputSignal,
+                                  SignalElement::SCALAR,
+                                  monitoringType));
 
     // Define outputs
-    std::stringstream ss;
-    ss << NameOfThresholdFilter << ":" << inputName << ":" << this->UID;
-    SFASSERT(this->AddOutputSignal(ss.str(), SignalElement::SCALAR));
+    const std::string outputSignalName(
+        this->GenerateOutputSignalName(inputSignalName,
+                                       FilterThreshold::Name,
+                                       this->UID,
+                                       0));
+    SFASSERT(this->AddOutputSignal(outputSignalName,
+                                   SignalElement::SCALAR,
+                                   monitoringType));
 }
 
 FilterThreshold::~FilterThreshold()
 {
 }
+
+#if 0
+const std::string FilterThreshold::GenerateJSON(void) const
+{
+    ::Json::Value root;
+    cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
+
+    root[NAME] = this->GetUIDAsString();
+
+    // Monitor target type
+    {   ::Json::Value _root;
+        _root[TYPE] = Monitor::GetTargetTypeString(Target);
+
+        { ::Json::Value __root;
+          __root[NAME_PROCESS]                = targetID->ProcessName;
+          __root[NAME_COMPONENT]              = targetID->ComponentName;
+          __root[NAME_INTERFACE_PROVIDED]     = targetID->InterfaceProvidedName;
+          __root[NAME_INTERFACE_REQUIRED]     = targetID->InterfaceRequiredName;
+          __root[cisst::NAME_COMMAND]         = targetID->CommandName;
+          __root[cisst::NAME_FUNCTION]        = targetID->FunctionName;
+          __root[cisst::NAME_EVENT_GENERATOR] = targetID->EventGeneratorName;
+          __root[cisst::NAME_EVENT_HANDLER]   = targetID->EventHandlerName;
+          _root[IDENTIFIER] = __root;
+        }
+        root[TARGET] = _root;
+    }
+
+    // Monitor behaviors
+    {   ::Json::Value _root;
+        _root[TYPE] = Monitor::GetOutputTypeString(Output);
+        {   ::Json::Value __root;
+            {
+                __root[STATE] = Monitor::GetStateTypeString(this->State);
+                if (Output == OUTPUT_STREAM) {
+                    __root[SAMPLING_RATE] = SamplingRate;
+                } else if (Output == OUTPUT_EVENT) {
+#if 0 // MJ TEMP: not yet decided how to use these fields
+                    ::Json::Value array(::Json::arrayValue);
+                    array.append(0.1);
+                    array.append(0.5);
+                    array.append(2.5);
+                    //__root[THRESHOLD] = 3;
+                    __root[THRESHOLD] = array;
+                    __root[MARGIN] = 4;
+#endif
+                }
+            }
+            _root[CONFIG] = __root;
+        }
+
+#if 0 // MJ: where to publish is determined by Ice configuration files
+        {   ::Json::Value __root;
+            {
+                ::Json::Value array(::Json::arrayValue);
+                for (size_t i = 0; i < AddressesToPublish.size(); ++i)
+                    array.append(AddressesToPublish[i]);
+                __root[PUBLISH] = array;
+            }
+            _root[TARGET] = __root;
+        }
+        root[OUTPUT] = _root;
+#endif
+    }
+
+    std::stringstream ss;
+    ss << root;
+
+    return ss.str();
+}
+#endif
 
 void FilterThreshold::DoFiltering(bool debug)
 {

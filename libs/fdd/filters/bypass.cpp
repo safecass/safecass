@@ -19,6 +19,7 @@
 */
 
 #include "bypass.h"
+#include "historyBufferBase.h"
 
 namespace SF {
 
@@ -26,8 +27,9 @@ const std::string NameOfBypassFilter = "Bypass";
 
 FilterBypass::FilterBypass(BaseType::FilterCategory  category, 
                            const std::string &       inputName,
-                           SignalElement::SignalType inputType)
-    : FilterBase(category, NameOfBypassFilter),
+                           SignalElement::SignalType inputType,
+                           HistoryBufferBase * historyBuffer)
+    : FilterBase(NameOfBypassFilter, category, historyBuffer),
       InputType(inputType)
 {
     // Define inputs
@@ -35,7 +37,7 @@ FilterBypass::FilterBypass(BaseType::FilterCategory  category,
 
     // Define outputs
     std::stringstream ss;
-    ss << NameOfBypassFilter << ":" << inputName << ":" << this->UID;
+    ss << inputName << ":" << NameOfBypassFilter << "[" << this->UID << "]";
     this->AddOutputSignal(ss.str(), inputType);
 }
 

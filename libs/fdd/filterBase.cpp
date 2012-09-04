@@ -26,18 +26,27 @@ const std::string InvalidSignalName = "INVALID_SIGNAL";
 //-------------------------------------------------- 
 FilterBase::FilterBase(void)
     : UID(InvalidFilterUID),
-      Category(FilterBase::INVALID),
-      Name("NONAME"), 
-      Enabled(false)
+      Name("NONAME"),
+      Category(INVALID),
+      NameOfTargetComponent("NONAME"), 
+      Type(ACTIVE),
+      Enabled(false),
+      HistoryBuffer(0)
 {}
 
-FilterBase::FilterBase(FilterCategory category, const std::string & name)
+FilterBase::FilterBase(const std::string & filterName,
+                       FilterCategory      filterCategory,
+                       const std::string & targetComponentName,
+                       FilteringType       monitoringType)
     : UID(FilterUID++),
-      Category(category),
-      Name(name), 
+      Name(filterName),
+      Category(filterCategory),
+      NameOfTargetComponent(targetComponentName), 
+      Type(monitoringType),
       // MJ: if filter is enabled when constructed, the first few inputs and outputs could
       // be corrupted.
-      Enabled(false)
+      Enabled(false),
+      HistoryBuffer(0)
 {
 }
 
@@ -51,36 +60,53 @@ FilterBase::~FilterBase()
     }
 }
 
-bool FilterBase::AddInputSignal(const std::string & name, SignalElement::SignalType type)
+bool FilterBase::AddInputSignal(const std::string &       signalName, 
+                                SignalElement::SignalType signalType, 
+                                FilterBase::FilteringType filteringType)
 {
     for (size_t i = 0; i < InputSignals.size(); ++i) {
-        if (InputSignals[i]->GetName().compare(name) == 0) {
-            SFLOG_ERROR << "AddInputSignal: failed to add input signal (duplicate name): \"" << name << "\"" << std::endl;
+        if (InputSignals[i]->GetName().compare(signalName) == 0) {
+            SFLOG_ERROR << "AddInputSignal: failed to add input signal (duplicate name): \"" << signalName << "\"" << std::endl;
             return false;
         }
     }
 
-    SignalElement * newSignal = new SignalElement(type, name);
+    SignalElement * newSignal = new SignalElement(signalName, signalType, (filteringType == ACTIVE));
     InputSignals.push_back(newSignal);
-    SFLOG_DEBUG << "AddInputSignal: Successfully added input signal \"" << name << "\" to filter \"" << this->Name << "\"" << std::endl;
+
+    SFLOG_DEBUG << "AddInputSignal: Successfully added input signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
 
     return true;
 }
 
-bool FilterBase::AddOutputSignal(const std::string & name, SignalElement::SignalType type)
+bool FilterBase::AddOutputSignal(const std::string &      signalName, 
+                                SignalElement::SignalType signalType, 
+                                FilterBase::FilteringType filteringType)
 {
     for (size_t i = 0; i < OutputSignals.size(); ++i) {
-        if (OutputSignals[i]->GetName().compare(name) == 0) {
-            SFLOG_ERROR << "AddOutputSignal: failed to add output signal (duplicate name): \"" << name << "\"" << std::endl;
+        if (OutputSignals[i]->GetName().compare(signalName) == 0) {
+            SFLOG_ERROR << "AddOutputSignal: failed to add output signal (duplicate name): \"" << signalName << "\"" << std::endl;
             return false;
         }
     }
 
-    SignalElement * newSignal = new SignalElement(type, name);
+    SignalElement * newSignal = new SignalElement(signalName, signalType, (filteringType == ACTIVE));
     OutputSignals.push_back(newSignal);
-    SFLOG_DEBUG << "AddOutputSignal: Successfully added output signal \"" << name << "\" to filter \"" << this->Name << "\"" << std::endl;
+
+    SFLOG_DEBUG << "AddOutputSignal: Successfully added output signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
 
     return true;
+}
+
+std::string FilterBase::GenerateOutputSignalName(const std::string & prefix,
+                                                 const std::string & root1,
+                                                 const FilterIDType  root2,
+                                                 size_t              suffix) const
+{
+    std::stringstream ss;
+    ss << prefix << ":" << root1 << ":" << root2 << ":" << suffix;
+
+    return ss.str();
 }
 
 std::string FilterBase::GetInputSignalName(size_t index) const

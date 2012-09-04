@@ -53,6 +53,13 @@ protected:
     /*! Type of signal */
     SignalType Type;
 
+    /*! Type of filtering */
+    bool ActiveFiltering;
+
+    /*! Instance of history buffer that this filter runs on.  Should be dynamically
+        allocated as middleware-specific plug-in (i.e., history buffer accessor adapter) */
+    HistoryBufferBase * HistoryBuffer;
+
     /*! Id of the history buffer that this signal is registered to */
     //HistoryBufferIDType HistoryBufferID;
 
@@ -68,10 +75,6 @@ protected:
     /*! Timestamp of the last sample fetched */
     TimestampType TimeLastSampleFetched;
 
-    /*! Instance of history buffer that this filter runs on.  Should be dynamically
-        allocated as middleware-specific plug-in (i.e., history buffer accessor adapter) */
-    HistoryBufferBase * HistoryBuffer;
-
     /*! Initialize internal variables */
     void Init(void);
 
@@ -80,8 +83,11 @@ public:
     //  Constructors
     //-------------------------------------------------- 
     SignalElement();
-    //SignalElement(HistoryBufferIDType historyBufferId, SignalType type, const std::string & name = "NONAME");
-    SignalElement(SignalType type, const std::string & name = "NONAME");
+    //SignalElement(HistoryBufferBase * HistoryBuffer, SignalType type, 
+    //              const std::string & name = "NONAME");
+    SignalElement(const std::string &       signalName, 
+                  SignalElement::SignalType signalType, 
+                  bool                      activeFiltering);
 
     /*! Fetch latest scalar-type value from history buffer */
     bool FetchNewValueScalar(void);
@@ -96,13 +102,6 @@ public:
 
     /*! Returns the type of this filter */
     inline SignalType GetSignalType(void) const { return Type; }
-
-    /*! Returns the id of the history buffer that this signal is registered to */
-    //inline HistoryBufferIDType GetHistoryBufferID(void) const { return HistoryBufferID; }
-    /*! Sets the history buffer instance */
-    inline void SetHistoryBufferInstance(HistoryBufferBase * historyBufferInstance) {
-        HistoryBuffer = historyBufferInstance;
-    }
 
     /*! Returns the index of signal in the history buffer */
     inline HistoryBufferIndexType GetHistoryBufferIndex(void) const { return HistoryBufferIndex; }

@@ -52,7 +52,7 @@ set (SF_LIB_FDD_SRC # faults
                     ${LIB_DIR}/fdd/signal.h ${LIB_DIR}/fdd/signal.cpp
                     ${LIB_DIR}/fdd/filterBase.h ${LIB_DIR}/fdd/filterBase.cpp
                     # filters
-                    ${LIB_DIR}/fdd/filters/bypass.h ${LIB_DIR}/fdd/filters/bypass.cpp
+                    #${LIB_DIR}/fdd/filters/bypass.h ${LIB_DIR}/fdd/filters/bypass.cpp
                     ${LIB_DIR}/fdd/filters/threshold.h ${LIB_DIR}/fdd/filters/threshold.cpp)
 set (SF_LIB_FDD_INCLUDE_DIR ${LIB_DIR}/fdd {$LIB_DIR}/fdd/filters)
 
@@ -62,11 +62,12 @@ if (SF_HAS_CISST)
   set (SF_LIB_ADAPTER_DIR "${SF_LIB_ADAPTER_BASE_DIR}/cisst")
   set (SF_LIB_ADAPTER_CISST_SRC ${SF_LIB_ADAPTER_DIR}/cisstMonitor.h
                                 ${SF_LIB_ADAPTER_DIR}/cisstMonitor.cpp)
-                                #${SF_LIB_ADAPTER_DIR}/cisstCoordinator.h
-                                #${SF_LIB_ADAPTER_DIR}/cisstCoordinator.cpp)
+                            #${SF_LIB_ADAPTER_DIR}/cisstHistoryBuffer.h
+                            #${SF_LIB_ADAPTER_DIR}/cisstHistoryBuffer.cpp)
 
   set (SF_LIB_MONITOR_INCLUDE_DIR ${SF_LIB_MONITOR_INCLUDE_DIR} ${SF_LIB_ADAPTER_DIR})
   set (SF_LIB_MONITOR_SRC ${SF_LIB_MONITOR_SRC} ${SF_LIB_ADAPTER_CISST_SRC})
+  set (SF_LIB_FDD_SRC ${SF_LIB_FDD_SRC} ${SF_LIB_ADAPTER_CISST_SRC})
 endif (SF_HAS_CISST)
 
 # communicator for message exchange (publish-subscribe)

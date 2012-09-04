@@ -72,17 +72,17 @@ public:
         
         // Update sensor readings
         SensorReading(1) = Threshold;
-        if (rand() % 100 > 97) { // 2% possibility
+        if (rand() % 100 > 90) { // 10% possibility
             // This causes thresholding filter to detect an event and filter output
             // becomes pre-defined "high" value.
-            SensorReading(1) += SensorReading(1) * 0.2;
+            SensorReading(1) += SensorReading(1) * 0.1 + (double)(rand() % 10) * 0.1;
         }
 
         // Update filter input and check if sensor reading exceeds threshold
         ForceY = SensorReading(1);
         if (ForceY - Threshold > 0.0) {
             std::cout << "[" << osaGetTime() - Tic << "] Sensor reading threshold exceeds: "
-                << SensorReading(1) - Threshold << std::endl;
+                << ForceY - Threshold << std::endl;
         }
 
     }
@@ -92,7 +92,9 @@ public:
 
 // Create periodic task
 bool CreatePeriodicThread(const std::string & componentName, double period);
-// to monitor values in real-time
+// Install monitors to monitor quantities in real-time
+//bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency);
+// Install filters
 bool InstallFilter(const std::string & targetComponentName);
 
 // Local component manager
@@ -118,8 +120,8 @@ int main(int argc, char *argv[])
     cmnLogger::SetMask(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
-    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
+    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
+    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
     //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
@@ -144,7 +146,7 @@ int main(int argc, char *argv[])
     std::string componentName("sensorWrapper");
 
     // Create periodic task
-    if (!CreatePeriodicThread(componentName, 10 * cmn_ms)) {
+    if (!CreatePeriodicThread(componentName, 100 * cmn_ms)) {
         SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
         return 1;
     }
@@ -210,39 +212,89 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
     return true;
 }
 
+#if 0
+bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency)
+{
+    if (!ComponentManager->GetCoordinator()) {
+        SFLOG_ERROR  << "Failed to get coordinator in this process";
+        return false;
+    }
+
+    // Define target
+    cisstTargetID * targetId = new cisstTargetID;
+    targetId->ProcessName = ComponentManager->GetProcessName();
+    targetId->ComponentName = targetComponentName;
+
+    cisstMonitor * monitor;
+
+    // Install monitor for timing fault - period
+    {
+        monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
+                                   targetId,
+                                   Monitor::STATE_ON,
+                                   Monitor::OUTPUT_STREAM,
+                                   f);
+        // MJ TODO: Run system for a few minutes, collect experimental data,
+        // and determine variance of period with upper/lower limits and thresholds.
+        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
+            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
+            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
+            return false;
+        }
+        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
+                   << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
+    }
+
+    return true;
+}
+#endif
+
 bool InstallFilter(const std::string & targetComponentName)
 {
-    mtsSafetyCoordinator * coordinator =
-        dynamic_cast<mtsSafetyCoordinator*>(ComponentManager->GetCoordinator());
+    mtsSafetyCoordinator * coordinator = ComponentManager->GetCoordinator();
     if (!coordinator) {
         SFLOG_ERROR  << "Failed to get coordinator in this process";
         return false;
     }
 
     // Create two thresholding filters
-    SF::FilterThreshold * filter = 
-        new FilterThreshold(SF::FilterBase::FEATURE, // filter category
-                            "ForceY", // name of input signal
+    SF::FilterThreshold * filterThresholdActive = 
+        new FilterThreshold(// Common arguments
+                            SF::FilterBase::FEATURE, // filter category
+                            targetComponentName,     // name of target component
+                            SF::FilterBase::ACTIVE,  // monitoring type
+                            // Arguments specific to this filter
+                            "ForceY",                // name of input signal
                             10.0,     // threshold
                             0.0,      // output 0 (input is below threshold)
                             1.0);     // output 1 (input exceeds threshold)
 
-    // Install filter to the target component [Active monitoring]
-    if (!coordinator->AddFilter(targetComponentName, filter, SF::FilterBase::ACTIVE))
-    {
-        SFLOG_ERROR << "Failed to add ACTIVE filter \"" << filter->GetFilterName() << "\""
-            << " to target component \"" << targetComponentName << "\"" << std::endl;
-        return false;
-    }
-    // Install filter to the monitoring component [Passive monitoring]
-    if (!coordinator->AddFilter(targetComponentName, filter, SF::FilterBase::PASSIVE))
-    {
-        SFLOG_ERROR << "Failed to add PASSIVE filter \"" << filter->GetFilterName() << "\""
-            << " to target component \"" << targetComponentName << "\"" << std::endl;
-        return false;
-    }
+    SF::FilterThreshold * filterThresholdPassive = 
+        new FilterThreshold(// Common arguments
+                            SF::FilterBase::FEATURE, // filter category
+                            targetComponentName,     // name of target component
+                            SF::FilterBase::ACTIVE,  // monitoring type
+                            // Arguments specific to this filter
+                            filterThresholdActive->GetNameOfInputSignal(),
+                            filterThresholdActive->GetThreshold(),
+                            filterThresholdActive->GetOutput0(),
+                            filterThresholdActive->GetOutput1());
 
-    SFLOG_INFO << "Successfully installed filter: \"" << filter->GetFilterName() << "\"" << std::endl;
+    // Install filter to the target component [Active monitoring]
+    if (!coordinator->AddFilter(filterThresholdActive)) {
+        SFLOG_ERROR << "Failed to add ACTIVE filter \"" << filterThresholdActive->GetFilterName() << "\""
+            << " to target component \"" << targetComponentName << "\"" << std::endl;
+        return false;
+    }
+    SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdActive->GetFilterName() << "\"" << std::endl;
+
+    // Install filter to the monitoring component [Passive monitoring]
+    if (!coordinator->AddFilter(filterThresholdPassive)) {
+        SFLOG_ERROR << "Failed to add PASSIVE filter \"" << filterThresholdPassive->GetFilterName() << "\""
+            << " to target component \"" << targetComponentName << "\"" << std::endl;
+        return false;
+    }
+    SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdPassive->GetFilterName() << "\"" << std::endl;
 
     return true;
 }

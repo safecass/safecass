@@ -15,7 +15,7 @@
 #ifndef _cisstHistoryBufferBase_h
 #define _cisstHistoryBufferBase_h
 
-#include "historyBufferBase.h"
+
 #include <cisstMultiTask/mtsStateTable.h>
 
 namespace SF {
@@ -30,12 +30,12 @@ public:
     virtual ~cisstHistoryBuffer() {}
 
     /*! Fetch latest scalar-type value from history buffer */
-    bool GetNewValueScalar(SignalElement::HistoryBufferIndexType index,
+    void GetNewValueScalar(SignalElement::HistoryBufferIndexType index,
                            SignalElement::ScalarType & value,
                            SignalElement::TimestampType & timestamp);
 
     /*! Fetch latest vector-type value from history buffer */
-    bool GetNewValueVector(SignalElement::HistoryBufferIndexType index,
+    void GetNewValueVector(SignalElement::HistoryBufferIndexType index,
                            SignalElement::VectorType & value,
                            SignalElement::TimestampType & timestamp);
 };

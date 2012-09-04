@@ -13,6 +13,9 @@
 */
 
 #include "cisstHistoryBuffer.h"
+#include "signal.h"
+
+#include <cisstMultiTask/mtsStateTable.h>
 
 namespace SF {
 
@@ -35,7 +38,7 @@ void cisstHistoryBuffer::GetNewValueVector(SignalElement::HistoryBufferIndexType
                                            SignalElement::TimestampType & timestamp)
 {
     CMN_ASSERT(StateTable); // MJ TEMP
-    value = StateTable->GetNewValueVector(index, timestamp);
+    StateTable->GetNewValueVector(index, value, timestamp);
 }
 
 };

@@ -20,13 +20,23 @@ namespace SF {
 const SignalElement::HistoryBufferIndexType SignalElement::INVALID_HISTORY_BUFFER_INDEX = -1;
 
 SignalElement::SignalElement()
-    : Name("NONAME"), Type(SCALAR), HistoryBufferIndex(INVALID_HISTORY_BUFFER_INDEX)
+    : Name("NONAME"),
+      Type(SCALAR),
+      ActiveFiltering(true),
+      HistoryBuffer(0),
+      HistoryBufferIndex(INVALID_HISTORY_BUFFER_INDEX)
 {
     Init();
 }
 
-SignalElement::SignalElement(SignalType type, const std::string & name)
-    : Name(name), Type(type), HistoryBufferIndex(INVALID_HISTORY_BUFFER_INDEX)
+SignalElement::SignalElement(const std::string &       signalName, 
+                             SignalElement::SignalType signalType, 
+                             bool                      activeFiltering)
+    : Name(signalName),
+      Type(signalType),
+      ActiveFiltering(activeFiltering),
+      HistoryBuffer(0),
+      HistoryBufferIndex(INVALID_HISTORY_BUFFER_INDEX)
 {
     Init();
 }

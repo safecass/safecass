@@ -36,26 +36,43 @@ protected:
     // Filter should be created with explicit arguments
     FilterThreshold();
 
+    //--------------------------------------------------
+    //  Collection of filter-specific parameters
+    //--------------------------------------------------
+    /*! Name of input signal */
+    std::string NameOfInputSignal;
     /*! Threshold */
     SignalElement::ScalarType Threshold;
-    /*! Output when input exceeds threshold specified */
-    SignalElement::ScalarType Output0;
     /*! Output when input does not exceed threshold specified */
+    SignalElement::ScalarType Output0;
+    /*! Output when input exceeds threshold specified */
     SignalElement::ScalarType Output1;
 
 public:
-    FilterThreshold(BaseType::FilterCategory category, 
-                    const std::string & inputName,
-                    SignalElement::ScalarType threshold,
-                    SignalElement::ScalarType output0,
-                    SignalElement::ScalarType output1);
+    FilterThreshold(BaseType::FilterCategory      category, 
+                    const std::string &           targetComponentName,
+                    SF::FilterBase::FilteringType monitoringType,
+                    // below are filter-specific arguments
+                    const std::string &           inputSignalName,
+                    SignalElement::ScalarType     threshold,
+                    SignalElement::ScalarType     output0,
+                    SignalElement::ScalarType     output1);
     ~FilterThreshold();
 
     /*! Implements thresholding algorithm */
     void DoFiltering(bool debug);
 
+    /*! Getters */
+    inline const std::string & GetNameOfInputSignal(void) const { return NameOfInputSignal; }
+    inline SignalElement::ScalarType GetThreshold(void) const { return Threshold; }
+    inline SignalElement::ScalarType GetOutput0(void) const { return Output0; }
+    inline SignalElement::ScalarType GetOutput1(void) const { return Output1; }
+
     /*! Returns human readable representation of this filter */
     void ToStream(std::ostream & outputStream) const;
+
+    /*! Name of this filter */
+    static const std::string Name;
 };
 
 };

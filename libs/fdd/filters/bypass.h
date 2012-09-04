@@ -39,7 +39,8 @@ protected:
 public:
     FilterBypass(BaseType::FilterCategory  category, 
                  const std::string &       inputName,
-                 SignalElement::SignalType inputType);
+                 SignalElement::SignalType inputType,
+                 HistoryBufferBase * historyBuffer);
     ~FilterBypass();
 
     /*! Implements bypass algorithm */

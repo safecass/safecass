@@ -26,10 +26,10 @@ public:
     virtual ~HistoryBufferBase() {}
 
     /*! Fetch latest value from history buffer */
-    virtual bool GetNewValueScalar(SignalElement::HistoryBufferIndexType index,
+    virtual void GetNewValueScalar(SignalElement::HistoryBufferIndexType index,
                                    SignalElement::ScalarType & value,
                                    SignalElement::TimestampType & timestamp) = 0;
-    virtual bool GetNewValueVector(SignalElement::HistoryBufferIndexType index,
+    virtual void GetNewValueVector(SignalElement::HistoryBufferIndexType index,
                                    SignalElement::VectorType & value,
                                    SignalElement::TimestampType & timestamp) = 0;
 };
