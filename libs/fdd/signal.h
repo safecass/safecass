@@ -83,11 +83,10 @@ public:
     //  Constructors
     //-------------------------------------------------- 
     SignalElement();
-    //SignalElement(HistoryBufferBase * HistoryBuffer, SignalType type, 
-    //              const std::string & name = "NONAME");
     SignalElement(const std::string &       signalName, 
                   SignalElement::SignalType signalType, 
                   bool                      activeFiltering);
+    ~SignalElement();
 
     /*! Fetch latest scalar-type value from history buffer */
     bool FetchNewValueScalar(void);
@@ -97,12 +96,14 @@ public:
     //-------------------------------------------------- 
     //  Getters and Setters
     //-------------------------------------------------- 
-    /*! Returns the name of this filter */
+    /*! Returns the name of this signal */
     inline const std::string & GetName(void) const { return Name; }
 
-    /*! Returns the type of this filter */
+    /*! Returns the type of this signal */
     inline SignalType GetSignalType(void) const { return Type; }
 
+    /*! Sets history buffer instance.  Should be called before activating filter (or signal) */
+    inline void SetHistoryBufferInstance(HistoryBufferBase * buffer) { HistoryBuffer = buffer; }
     /*! Returns the index of signal in the history buffer */
     inline HistoryBufferIndexType GetHistoryBufferIndex(void) const { return HistoryBufferIndex; }
     /*! Sets the index of signal in the history buffer */

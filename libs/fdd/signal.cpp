@@ -41,6 +41,12 @@ SignalElement::SignalElement(const std::string &       signalName,
     Init();
 }
 
+SignalElement::~SignalElement()
+{
+    // Each signal element has an instance of a derived class of HistoryBufferBase which 
+    // is created dynamically and thus should be clean up here.
+}
+
 void SignalElement::Init(void)
 {
     PlaceholderScalar = 0.0;
