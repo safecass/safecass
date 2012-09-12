@@ -9,7 +9,7 @@
  * */
 
 #if defined (_WIN32) 
-  #if defined(SFLIB_EXPORTS)
+  #if defined(SFLib_EXPORTS)
     #define SFLIB_EXPORT __declspec(dllexport)
   #else
     #define SFLIB_EXPORT __declspec(dllimport)
