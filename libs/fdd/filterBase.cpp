@@ -30,8 +30,10 @@ FilterBase::FilterBase(void)
       Category(INVALID),
       NameOfTargetComponent("NONAME"), 
       Type(ACTIVE),
+      LastFilterOfPipeline(false),
       Enabled(false),
-      HistoryBuffer(0)
+      //HistoryBuffer(0),
+      EventPublisher(0)
 {}
 
 FilterBase::FilterBase(const std::string & filterName,
@@ -43,10 +45,12 @@ FilterBase::FilterBase(const std::string & filterName,
       Category(filterCategory),
       NameOfTargetComponent(targetComponentName), 
       Type(monitoringType),
+      LastFilterOfPipeline(false),
       // MJ: if filter is enabled when constructed, the first few inputs and outputs could
       // be corrupted.
       Enabled(false),
-      HistoryBuffer(0)
+      //HistoryBuffer(0),
+      EventPublisher(0)
 {
 }
 
@@ -61,8 +65,7 @@ FilterBase::~FilterBase()
 }
 
 bool FilterBase::AddInputSignal(const std::string &       signalName, 
-                                SignalElement::SignalType signalType, 
-                                FilterBase::FilteringType filteringType)
+                                SignalElement::SignalType signalType)
 {
     for (size_t i = 0; i < InputSignals.size(); ++i) {
         if (InputSignals[i]->GetName().compare(signalName) == 0) {
@@ -71,7 +74,7 @@ bool FilterBase::AddInputSignal(const std::string &       signalName,
         }
     }
 
-    SignalElement * newSignal = new SignalElement(signalName, signalType, (filteringType == ACTIVE));
+    SignalElement * newSignal = new SignalElement(signalName, signalType);
     InputSignals.push_back(newSignal);
 
     SFLOG_DEBUG << "AddInputSignal: Successfully added input signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
@@ -80,8 +83,7 @@ bool FilterBase::AddInputSignal(const std::string &       signalName,
 }
 
 bool FilterBase::AddOutputSignal(const std::string &      signalName, 
-                                SignalElement::SignalType signalType, 
-                                FilterBase::FilteringType filteringType)
+                                SignalElement::SignalType signalType)
 {
     for (size_t i = 0; i < OutputSignals.size(); ++i) {
         if (OutputSignals[i]->GetName().compare(signalName) == 0) {
@@ -90,7 +92,7 @@ bool FilterBase::AddOutputSignal(const std::string &      signalName,
         }
     }
 
-    SignalElement * newSignal = new SignalElement(signalName, signalType, (filteringType == ACTIVE));
+    SignalElement * newSignal = new SignalElement(signalName, signalType);
     OutputSignals.push_back(newSignal);
 
     SFLOG_DEBUG << "AddOutputSignal: Successfully added output signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
@@ -161,6 +163,50 @@ SignalElement * FilterBase::GetInputSignalElement(size_t index) const
     if (index >= InputSignals.size()) return 0;
 
     return InputSignals[index];
+}
+
+
+void FilterBase::SetEventPublisherInstance(EventPublisherBase * publisher)
+{
+    if (!publisher) return;
+    if (EventPublisher)
+        delete EventPublisher;
+
+    EventPublisher = publisher;
+}
+
+void FilterBase::ToStream(std::ostream & outputStream) const
+{
+    outputStream << "[" << UID << "] "
+                 << "Name: \"" << Name << "\", "
+                 << "Category: ";
+    switch (Category) {
+    case INVALID:        outputStream << "INVALID"; break; 
+    case FEATURE:        outputStream << "FEATURE"; break; 
+    case FEATURE_VECTOR: outputStream << "FEATURE_VECTOR"; break; 
+    case SYMPTOM:        outputStream << "SYMPTOM"; break; 
+    case SYMPTOM_VECTOR: outputStream << "SYMPTOM_VECTOR"; break; 
+    case FAULT_DETECTOR: outputStream << "FAULT_DETECTOR"; break; 
+    default:             CMN_ASSERT(false);
+    }
+    outputStream << ", ";
+    outputStream << "Target component: \"" << NameOfTargetComponent << "\", "
+                 << "Filtering type: " << (Type == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
+                 << "State: " << (Enabled ? "ENABLED" : "DISABLED");
+    if (LastFilterOfPipeline)
+        outputStream << ", Event publisher: " << (EventPublisher ? "Avaiable" : "Unavailable");
+    outputStream << std::endl;
+
+    // Input signals
+    outputStream << "----- Input Signals:" << std::endl;
+    for (size_t i = 0; i < InputSignals.size(); ++i) {
+        outputStream << "[" << i << "] " << (*InputSignals[i]) << std::endl;
+    }
+    // Output signals
+    outputStream << "----- Output Signals:" << std::endl;
+    for (size_t i = 0; i < OutputSignals.size(); ++i) {
+        outputStream << "[" << i << "] " << (*OutputSignals[i]) << std::endl;
+    }
 }
 
 };

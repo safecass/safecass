@@ -22,7 +22,6 @@ const SignalElement::HistoryBufferIndexType SignalElement::INVALID_HISTORY_BUFFE
 SignalElement::SignalElement()
     : Name("NONAME"),
       Type(SCALAR),
-      ActiveFiltering(true),
       HistoryBuffer(0),
       HistoryBufferIndex(INVALID_HISTORY_BUFFER_INDEX)
 {
@@ -30,11 +29,9 @@ SignalElement::SignalElement()
 }
 
 SignalElement::SignalElement(const std::string &       signalName, 
-                             SignalElement::SignalType signalType, 
-                             bool                      activeFiltering)
+                             SignalElement::SignalType signalType)
     : Name(signalName),
       Type(signalType),
-      ActiveFiltering(activeFiltering),
       HistoryBuffer(0),
       HistoryBufferIndex(INVALID_HISTORY_BUFFER_INDEX)
 {
@@ -58,6 +55,15 @@ void SignalElement::Init(void)
 #else
         0; // different middlewares may use different types to represent timestamp
 #endif
+}
+
+void SignalElement::SetHistoryBufferInstance(HistoryBufferBase * buffer)
+{
+    if (!buffer) return;
+    if (HistoryBuffer)
+        delete HistoryBuffer;
+
+    HistoryBuffer = buffer;
 }
 
 bool SignalElement::FetchNewValueScalar(void)
@@ -86,6 +92,23 @@ bool SignalElement::FetchNewValueVector(void)
     HistoryBuffer->GetNewValueScalar(HistoryBufferIndex, PlaceholderScalar, TimeLastSampleFetched);
 
     return true;
+}
+
+void SignalElement::ToStream(std::ostream & outputStream) const
+{
+    outputStream << "\"" << Name << "\", "
+                 << "Type: " << (Type == SCALAR ? "SCALAR" : "VECTOR") << ", "
+                 << "History buffer: " << (HistoryBuffer == 0 ? "Unavailable" : "Available") << ", "
+                 << "History buffer index: " << HistoryBufferIndex << ", ";
+    if (Type == SCALAR) {
+        outputStream << "Value: " << PlaceholderScalar << ", ";
+    } else {
+        outputStream << "Values: ";
+        for (size_t i = 0; i < PlaceholderVector.size(); ++i) {
+             outputStream << PlaceholderVector[i] << ", ";
+        }
+    }
+    outputStream << "Timestamp: " << TimeLastSampleFetched;
 }
 
 };

@@ -40,7 +40,9 @@ public:
         TARGET_THREAD_PERIOD,
         // Measure duty cycle of periodic task (see FAULT_COMPONENT_OVERRUN)
         TARGET_THREAD_DUTYCYCLE_USER,
-        TARGET_THREAD_DUTYCYCLE_TOTAL
+        TARGET_THREAD_DUTYCYCLE_TOTAL,
+        // Filter output to publish events or faults
+        TARGET_FILTER_EVENT
         // [SFUPDATE]
     } TargetType;
 

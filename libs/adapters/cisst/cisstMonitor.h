@@ -47,7 +47,8 @@ public:
                  cisstTargetID *           targetID,
                  const Monitor::StateType  state,
                  const Monitor::OutputType output,
-                 const SamplingRateType    samplingRate);
+                 // zero sampling rate for event-type monitoring
+                 const SamplingRateType    samplingRate = 0);
     virtual ~cisstMonitor();
 
     const std::string GetMonitorJSON(void) const;

@@ -53,9 +53,6 @@ protected:
     /*! Type of signal */
     SignalType Type;
 
-    /*! Type of filtering */
-    bool ActiveFiltering;
-
     /*! Instance of history buffer that this filter runs on.  Should be dynamically
         allocated as middleware-specific plug-in (i.e., history buffer accessor adapter) */
     HistoryBufferBase * HistoryBuffer;
@@ -84,8 +81,7 @@ public:
     //-------------------------------------------------- 
     SignalElement();
     SignalElement(const std::string &       signalName, 
-                  SignalElement::SignalType signalType, 
-                  bool                      activeFiltering);
+                  SignalElement::SignalType signalType);
     ~SignalElement();
 
     /*! Fetch latest scalar-type value from history buffer */
@@ -103,7 +99,7 @@ public:
     inline SignalType GetSignalType(void) const { return Type; }
 
     /*! Sets history buffer instance.  Should be called before activating filter (or signal) */
-    inline void SetHistoryBufferInstance(HistoryBufferBase * buffer) { HistoryBuffer = buffer; }
+    void SetHistoryBufferInstance(HistoryBufferBase * buffer);
     /*! Returns the index of signal in the history buffer */
     inline HistoryBufferIndexType GetHistoryBufferIndex(void) const { return HistoryBufferIndex; }
     /*! Sets the index of signal in the history buffer */
@@ -117,10 +113,27 @@ public:
     /*! Returns placeholders */
     ScalarType GetPlaceholderScalar(void) const { return PlaceholderScalar; }
     VectorType & GetPlaceholderVector(void) { return PlaceholderVector; }
+    /*! Returns pointers of placeholders */
+    ScalarType * GetPlaceholderScalarPointer(void) { return &PlaceholderScalar; }
+    VectorType * GetPlaceholderVectorPointer(void) { return &PlaceholderVector; }
     /*! Sets placeholders */
     void SetPlaceholderScalar(ScalarType value) { PlaceholderScalar = value; }
     void SetPlaceholderVector(VectorType value) { PlaceholderVector = value; }
+
+    /*! Returns human readable outputs */
+    virtual std::string ToString(void) const  {
+        std::stringstream ss;
+        ToStream(ss);
+        return ss.str();
+    };
+    void ToStream(std::ostream & outputStream) const;
 };
+
+inline std::ostream & operator << (std::ostream & outputStream, const SignalElement & signal)
+{
+    signal.ToStream(outputStream);
+    return outputStream;
+}
 
 };
 

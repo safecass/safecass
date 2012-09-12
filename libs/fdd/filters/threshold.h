@@ -43,6 +43,8 @@ protected:
     std::string NameOfInputSignal;
     /*! Threshold */
     SignalElement::ScalarType Threshold;
+    /*! Threshold margin */
+    SignalElement::ScalarType Margin;
     /*! Output when input does not exceed threshold specified */
     SignalElement::ScalarType Output0;
     /*! Output when input exceeds threshold specified */
@@ -55,6 +57,7 @@ public:
                     // below are filter-specific arguments
                     const std::string &           inputSignalName,
                     SignalElement::ScalarType     threshold,
+                    SignalElement::ScalarType     margin,
                     SignalElement::ScalarType     output0,
                     SignalElement::ScalarType     output1);
     ~FilterThreshold();
@@ -65,6 +68,7 @@ public:
     /*! Getters */
     inline const std::string & GetNameOfInputSignal(void) const { return NameOfInputSignal; }
     inline SignalElement::ScalarType GetThreshold(void) const { return Threshold; }
+    inline SignalElement::ScalarType GetMargin(void) const { return Margin; }
     inline SignalElement::ScalarType GetOutput0(void) const { return Output0; }
     inline SignalElement::ScalarType GetOutput1(void) const { return Output1; }
 

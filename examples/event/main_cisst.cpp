@@ -72,18 +72,27 @@ public:
         
         // Update sensor readings
         SensorReading(1) = Threshold;
-        if (rand() % 100 > 90) { // 10% possibility
-            // This causes thresholding filter to detect an event and filter output
-            // becomes pre-defined "high" value.
+
+        // Inject fault event at 10% probability
+        // USER CODES USUALLY DO NOT INCLUDE THIS PART {
+        if (rand() % 100 > 90) {
             SensorReading(1) += SensorReading(1) * 0.1 + (double)(rand() % 10) * 0.1;
         }
+        // }
 
-        // Update filter input and check if sensor reading exceeds threshold
+        // Update filter input and 
         ForceY = SensorReading(1);
+
+        // User codes end here but FDD internally runs FDD pipelines which generate 
+        // fault events, if any.
+
+        // Manual check to confirm if fault events from FDD are correct.
+        // USER CODES USUALLY DO NOT INCLUDE THIS PART {
         if (ForceY - Threshold > 0.0) {
             std::cout << "[" << osaGetTime() - Tic << "] Sensor reading threshold exceeds: "
                 << ForceY - Threshold << std::endl;
         }
+        // }
 
     }
     void Cleanup(void) {}
@@ -120,8 +129,8 @@ int main(int argc, char *argv[])
     cmnLogger::SetMask(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
-    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
+    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
+    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
     //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
@@ -264,21 +273,28 @@ bool InstallFilter(const std::string & targetComponentName)
                             targetComponentName,     // name of target component
                             SF::FilterBase::ACTIVE,  // monitoring type
                             // Arguments specific to this filter
-                            "ForceY",                // name of input signal
+                            "ForceY", // name of input signal
                             10.0,     // threshold
+                            0.5,      // margin
                             0.0,      // output 0 (input is below threshold)
                             1.0);     // output 1 (input exceeds threshold)
 
+#if 0
     SF::FilterThreshold * filterThresholdPassive = 
         new FilterThreshold(// Common arguments
                             SF::FilterBase::FEATURE, // filter category
                             targetComponentName,     // name of target component
-                            SF::FilterBase::ACTIVE,  // monitoring type
+                            SF::FilterBase::PASSIVE,  // monitoring type
                             // Arguments specific to this filter
                             filterThresholdActive->GetNameOfInputSignal(),
                             filterThresholdActive->GetThreshold(),
+                            filterThresholdActive->GetMargin(),
                             filterThresholdActive->GetOutput0(),
                             filterThresholdActive->GetOutput1());
+#endif
+
+    // Declare the filter as the last filter of FDD pipeline.
+    filterThresholdActive->DeclareLastFilterOfPipeline();
 
     // Install filter to the target component [Active monitoring]
     if (!coordinator->AddFilter(filterThresholdActive)) {
@@ -288,6 +304,12 @@ bool InstallFilter(const std::string & targetComponentName)
     }
     SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdActive->GetFilterName() << "\"" << std::endl;
 
+    std::cout << *filterThresholdActive << std::endl;
+#if 0
+    std::cout << *filterThresholdPassive << std::endl;
+#endif
+    
+    /*
     // Install filter to the monitoring component [Passive monitoring]
     if (!coordinator->AddFilter(filterThresholdPassive)) {
         SFLOG_ERROR << "Failed to add PASSIVE filter \"" << filterThresholdPassive->GetFilterName() << "\""
@@ -295,6 +317,7 @@ bool InstallFilter(const std::string & targetComponentName)
         return false;
     }
     SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdPassive->GetFilterName() << "\"" << std::endl;
+    */
 
     return true;
 }

@@ -91,6 +91,7 @@ const std::string Monitor::GetTargetTypeString(const TargetType type)
     if (type == TARGET_THREAD_PERIOD) return "THREAD_PERIOD";
     if (type == TARGET_THREAD_DUTYCYCLE_USER) return "THREAD_DUTYCYCLE_USER";
     if (type == TARGET_THREAD_DUTYCYCLE_TOTAL) return "THREAD_DUTYCYCLE_TOTAL";
+    if (type == TARGET_FILTER_EVENT) return "FILTER_EVENT";
 
     return INVALID;
 }
@@ -100,6 +101,7 @@ Monitor::TargetType Monitor::GetTargetTypeFromString(const std::string & str)
     if (str.compare("THREAD_PERIOD") == 0) return TARGET_THREAD_PERIOD;
     if (str.compare("THREAD_DUTYCYCLE_USER") == 0) return TARGET_THREAD_DUTYCYCLE_USER;
     if (str.compare("THREAD_DUTYCYCLE_TOTAL") == 0) return TARGET_THREAD_DUTYCYCLE_TOTAL;
+    if (str.compare("FILTER_EVENT") == 0) return TARGET_FILTER_EVENT;
 
     return TARGET_INVALID;
 }
