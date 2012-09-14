@@ -32,8 +32,8 @@ FilterBase::FilterBase(void)
       Type(ACTIVE),
       LastFilterOfPipeline(false),
       Enabled(false),
-      //HistoryBuffer(0),
-      EventPublisher(0)
+      EventPublisher(0),
+      EventLocation(0)
 {}
 
 FilterBase::FilterBase(const std::string & filterName,
@@ -49,8 +49,8 @@ FilterBase::FilterBase(const std::string & filterName,
       // MJ: if filter is enabled when constructed, the first few inputs and outputs could
       // be corrupted.
       Enabled(false),
-      //HistoryBuffer(0),
-      EventPublisher(0)
+      EventPublisher(0),
+      EventLocation(0)
 {
 }
 
@@ -62,6 +62,9 @@ FilterBase::~FilterBase()
     for (size_t i = 0; i < OutputSignals.size(); ++i) {
         delete OutputSignals[i];
     }
+
+    if (EventPublisher) delete EventPublisher;
+    if (EventLocation) delete EventLocation;
 }
 
 bool FilterBase::AddInputSignal(const std::string &       signalName, 
@@ -175,6 +178,15 @@ void FilterBase::SetEventPublisherInstance(EventPublisherBase * publisher)
     EventPublisher = publisher;
 }
 
+void FilterBase::SetEventLocationInstance(EventLocationBase * location)
+{
+    if (!location) return;
+    if (EventLocation)
+        delete EventLocation;
+
+    EventLocation = location;
+}
+
 void FilterBase::ToStream(std::ostream & outputStream) const
 {
     outputStream << "[" << UID << "] "
@@ -195,7 +207,7 @@ void FilterBase::ToStream(std::ostream & outputStream) const
                  << "State: " << (Enabled ? "ENABLED" : "DISABLED");
     if (LastFilterOfPipeline)
         outputStream << ", Event publisher: " << (EventPublisher ? "Avaiable" : "Unavailable");
-    outputStream << std::endl;
+    outputStream << ", Event location: " << (EventLocation ? "Available" : "Unavailable") << std::endl;
 
     // Input signals
     outputStream << "----- Input Signals:" << std::endl;

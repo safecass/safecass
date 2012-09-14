@@ -16,16 +16,9 @@
 #define _monitor_h
 
 #include "common.h"
-
-//#include <string>
-//#include <map>
+#include "eventLocationBase.h"
 
 namespace SF {
-
-class TargetIDBase {
-public:
-    virtual const std::string GetTargetID(void) const = 0;
-};
 
 class SFLIB_EXPORT Monitor {
 public:
@@ -70,11 +63,11 @@ protected:
     /*! Monitoring target */
     TargetType Target;
 
-    /*! Target information (declared as pointer to support middleware-specific classes
-        which derive from SF::TargetIDBase).  An instance of TargetIDBase needs to be 
-        created outside of this class but should be cleaned up by this class, i.e.,
-        the instance should not be deleted outside of this class. */
-    TargetIDBase * TargetID;
+    /*! Target location (declared as pointer to support middleware-specific classes
+        which derive from SF::EventLocationBase).  An instance of EventLocationBase 
+        needs to be created outside of this class and it will be cleaned up by this 
+        class, i.e., the instance should not be deleted outside of this class. */
+    EventLocationBase * LocationID;
 
     /*! Monitoring state */
     StateType State;
@@ -130,7 +123,7 @@ public:
     inline bool IsEvent(void) const  { return (Output == OUTPUT_EVENT); }
 
     inline TargetType         GetTargetType(void) const     { return Target; }
-    inline TargetIDBase *     GetTargetID(void) const       { return TargetID; }
+    inline EventLocationBase *GetLocationID(void) const     { return LocationID; }
     inline StateType          GetState(void) const          { return State; }
     inline OutputType         GetOutputType(void) const     { return Output; }
     inline SamplingRateType   GetSamplingRate(void) const   { return SamplingRate; }
@@ -140,7 +133,7 @@ public:
     //  Setters
     //
     inline void SetTargetType(const TargetType target)       { Target = target; }
-    inline void SetTargetID(TargetIDBase * targetId)         { TargetID = targetId; }
+    inline void SetLocationID(EventLocationBase * locationId){ LocationID = locationId; }
     inline void SetState(const StateType state)              { State = state; }
     inline void SetOutputType(const OutputType output)       { Output = output; }
     inline void SetSamplingRate(const SamplingRateType rate) { SamplingRate = rate; }

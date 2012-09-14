@@ -25,52 +25,15 @@ namespace SF {
 using namespace Dict;
 using namespace Dict::Json;
 
-//-----------------------------------------------
-// cisstTargetID
-//-----------------------------------------------
-const std::string cisstTargetID::GetTargetID(void) const
-{
-    std::stringstream ss;
-    if (!ProcessName.empty())
-        ss << ProcessName;
-    if (!ComponentName.empty())
-        ss << ":" << ComponentName;
-    if (!InterfaceProvidedName.empty() || !CommandName.empty() || !EventGeneratorName.empty()) {
-        ss << ":[P]" << InterfaceProvidedName << ":" << CommandName << ":"
-            << EventGeneratorName;
-    }
-    if (!InterfaceRequiredName.empty() || !FunctionName.empty() || !EventHandlerName.empty()) {
-        ss << ":[R]" << InterfaceRequiredName << ":" << FunctionName << ":"
-            << EventHandlerName;
-    }
-
-    return ss.str();
-}
-
-void cisstTargetID::ToStream(std::ostream & outputStream) const
-{
-    outputStream << "Process: " << ProcessName << ", "
-                 << "Component: " << ComponentName << ", "
-                 << "InterfaceProvided: " << InterfaceProvidedName << ", "
-                 << "InterfaceRequired: " << InterfaceRequiredName << ", "
-                 << "Command: " << CommandName << ", "
-                 << "Function: " << FunctionName << ", "
-                 << "EventGenerator: " << EventGeneratorName << ", "
-                 << "EventHandler: " << EventHandlerName;
-}
-
-//-----------------------------------------------
-// cisstMonitor
-//-----------------------------------------------
 cisstMonitor::cisstMonitor(const Monitor::TargetType target,
-                           cisstTargetID *           targetID,
+                           cisstEventLocation *      locationID,
                            const Monitor::StateType  state,
                            const Monitor::OutputType output,
                            const SamplingRateType    samplingRate)
     : Monitor()
 {
     this->Target = target;
-    this->TargetID = targetID;
+    this->LocationID = locationID;
     this->State = state;
     this->Output = output;
     this->SamplingRate = samplingRate;
@@ -83,7 +46,7 @@ cisstMonitor::~cisstMonitor()
 const std::string cisstMonitor::GetMonitorJSON(void) const
 {
     ::Json::Value root;
-    cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
+    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(LocationID);
 
     root[NAME] = this->GetUIDAsString();
 
@@ -92,14 +55,14 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
         _root[TYPE] = Monitor::GetTargetTypeString(Target);
 
         { ::Json::Value __root;
-          __root[NAME_PROCESS]                = targetID->ProcessName;
-          __root[NAME_COMPONENT]              = targetID->ComponentName;
-          __root[NAME_INTERFACE_PROVIDED]     = targetID->InterfaceProvidedName;
-          __root[NAME_INTERFACE_REQUIRED]     = targetID->InterfaceRequiredName;
-          __root[cisst::NAME_COMMAND]         = targetID->CommandName;
-          __root[cisst::NAME_FUNCTION]        = targetID->FunctionName;
-          __root[cisst::NAME_EVENT_GENERATOR] = targetID->EventGeneratorName;
-          __root[cisst::NAME_EVENT_HANDLER]   = targetID->EventHandlerName;
+          __root[NAME_PROCESS]                = locationID->GetProcessName();
+          __root[NAME_COMPONENT]              = locationID->GetComponentName();
+          __root[NAME_INTERFACE_PROVIDED]     = locationID->GetInterfaceProvidedName();
+          __root[NAME_INTERFACE_REQUIRED]     = locationID->GetInterfaceRequiredName();
+          __root[cisst::NAME_COMMAND]         = locationID->GetCommandName();
+          __root[cisst::NAME_FUNCTION]        = locationID->GetFunctionName();
+          __root[cisst::NAME_EVENT_GENERATOR] = locationID->GetEventGeneratorName();
+          __root[cisst::NAME_EVENT_HANDLER]   = locationID->GetEventHandlerName();
           _root[IDENTIFIER] = __root;
         }
         root[TARGET] = _root;
@@ -151,15 +114,15 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
 const std::string cisstMonitor::GetJsonForPublishingPeriod(double sample) const
 {
     ::Json::Value root;
-    cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
+    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(LocationID);
 
     ::Json::Value _root;
     _root[TYPE] = Monitor::GetTargetTypeString(Target);
     _root[PERIOD_EXPECTED] = GetSamplingPeriod();
 
     { ::Json::Value __root;
-        __root[NAME_PROCESS] = targetID->ProcessName;
-        __root[NAME_COMPONENT] = targetID->ComponentName;
+        __root[NAME_PROCESS] = locationID->GetProcessName();
+        __root[NAME_COMPONENT] = locationID->GetComponentName();
         _root[IDENTIFIER] = __root;
     }
     root[TARGET] = _root;
@@ -174,15 +137,15 @@ const std::string cisstMonitor::GetJsonForPublishingPeriod(double sample) const
 const std::string cisstMonitor::GetJsonForPublishingDutyCycleUser(double dutyCycle) const
 {
     ::Json::Value root;
-    cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
+    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(LocationID);
 
     ::Json::Value _root;
     _root[TYPE] = Monitor::GetTargetTypeString(Target);
     _root[PERIOD_EXPECTED] = GetSamplingPeriod();
 
     { ::Json::Value __root;
-        __root[NAME_PROCESS] = targetID->ProcessName;
-        __root[NAME_COMPONENT] = targetID->ComponentName;
+        __root[NAME_PROCESS] = locationID->GetProcessName();
+        __root[NAME_COMPONENT] = locationID->GetComponentName();
         _root[IDENTIFIER] = __root;
     }
     root[TARGET] = _root;
@@ -197,15 +160,16 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycleUser(double dutyCyc
 const std::string cisstMonitor::GetJsonForPublishingDutyCycleTotal(double dutyCycle) const
 {
     ::Json::Value root;
-    cisstTargetID * targetID = dynamic_cast<cisstTargetID*>(TargetID);
+    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(LocationID)
+        ;
 
     ::Json::Value _root;
     _root[TYPE] = Monitor::GetTargetTypeString(Target);
     _root[PERIOD_EXPECTED] = GetSamplingPeriod();
 
     { ::Json::Value __root;
-        __root[NAME_PROCESS] = targetID->ProcessName;
-        __root[NAME_COMPONENT] = targetID->ComponentName;
+        __root[NAME_PROCESS] = locationID->GetProcessName();
+        __root[NAME_COMPONENT] = locationID->GetComponentName();
         _root[IDENTIFIER] = __root;
     }
     root[TARGET] = _root;

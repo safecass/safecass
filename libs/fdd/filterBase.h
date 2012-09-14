@@ -194,6 +194,8 @@ public:
 
     /*! Sets event publisher instance.  Should be called before activating filter (or signal) */
     void SetEventPublisherInstance(EventPublisherBase * publisher);
+    /*! Sets event location instance.  Should be called before activating filter */
+    void SetEventLocationInstance(EventLocationBase * location);
 
     /*! Returns human readable outputs (for debugging purpose) */
     virtual std::string ToString(void) const  {

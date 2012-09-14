@@ -41,6 +41,8 @@ public:
     DEFINE_ACCESSORS(InterfaceProvidedName);
     DEFINE_ACCESSORS(InterfaceRequiredName);
 #undef DEFINE_ACCESSORS
+
+    virtual const std::string GetLocationID(void) const = 0;
 };
 
 };

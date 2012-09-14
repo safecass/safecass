@@ -17,6 +17,7 @@
 #include "json.h"
 #include "monitor.h"
 #include "cisstMonitor.h"
+#include "cisstEventLocation.h"
 
 #include <cisstCommon/cmnGetChar.h>
 #include <cisstOSAbstraction/osaSleep.h>
@@ -199,9 +200,9 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
     }
 
     // Define target
-    cisstTargetID * targetId = new cisstTargetID;
-    targetId->ProcessName = ComponentManager->GetProcessName();
-    targetId->ComponentName = targetComponentName;
+    cisstEventLocation * locationID = new cisstEventLocation;
+    locationID->SetProcessName(ComponentManager->GetProcessName());
+    locationID->SetComponentName(targetComponentName);
 
     cisstMonitor * monitor;
 
@@ -209,7 +210,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
 #if 1
     {
         monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
-                                   targetId,
+                                   locationID,
                                    Monitor::STATE_ON,
                                    Monitor::OUTPUT_STREAM,
                                    frequency);
@@ -221,7 +222,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
             return false;
         }
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
+                   << " ] to [ " << locationID->GetLocationID() << " ]" << std::endl;
     }
 #endif
 
@@ -229,7 +230,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
 #if 1
     {
         monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_USER,
-                                   targetId,
+                                   locationID,
                                    Monitor::STATE_ON,
                                    Monitor::OUTPUT_STREAM,
                                    frequency);
@@ -240,13 +241,13 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
             return false;
         }
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
+                   << " ] to [ " << locationID->GetLocationID() << " ]" << std::endl;
     }
 
     // Install monitor for execution time (total)
     {
         monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_TOTAL,
-                                   targetId,
+                                   locationID,
                                    Monitor::STATE_ON,
                                    Monitor::OUTPUT_STREAM,
                                    frequency);
@@ -257,7 +258,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
             return false;
         }
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
+                   << " ] to [ " << locationID->GetLocationID() << " ]" << std::endl;
     }
 #endif
 

@@ -13,8 +13,11 @@
 */
 
 #include "threshold.h"
+#include "dict.h"
 
 namespace SF {
+
+using namespace SF::Dict;
 
 const std::string FilterThreshold::Name = "Threshold";
 
@@ -91,6 +94,11 @@ void FilterThreshold::DoFiltering(bool debug)
 
 const std::string FilterThreshold::GenerateFDIJSON(void) const
 {
+    if (!EventLocation) {
+        SFLOG_ERROR << "GenerateFDIJSON: No event location instance available" << std::endl;
+        return "ERROR: no event location available";
+    }
+
     /*
         FDI JSON Specification: 
 
@@ -117,6 +125,74 @@ const std::string FilterThreshold::GenerateFDIJSON(void) const
             "severity" : 1.3
         }
      */
+
+#if 0
+    ::Json::Value root;
+
+    root[NAME] = this->GetUIDAsString();
+
+    // Monitor target type
+    {   ::Json::Value _root;
+        _root[TYPE] = Monitor::GetTargetTypeString(Target);
+
+        { ::Json::Value __root;
+          __root[NAME_PROCESS]                = EventLocation->GetProcessName();
+          /*
+          __root[NAME_COMPONENT]              = targetID->ComponentName;
+          __root[NAME_INTERFACE_PROVIDED]     = targetID->InterfaceProvidedName;
+          __root[NAME_INTERFACE_REQUIRED]     = targetID->InterfaceRequiredName;
+          __root[cisst::NAME_COMMAND]         = targetID->CommandName;
+          __root[cisst::NAME_FUNCTION]        = targetID->FunctionName;
+          __root[cisst::NAME_EVENT_GENERATOR] = targetID->EventGeneratorName;
+          __root[cisst::NAME_EVENT_HANDLER]   = targetID->EventHandlerName;
+          */
+          _root[IDENTIFIER] = __root;
+        }
+        root[TARGET] = _root;
+    }
+
+    // Monitor behaviors
+    {   ::Json::Value _root;
+        _root[TYPE] = Monitor::GetOutputTypeString(Output);
+        {   ::Json::Value __root;
+            {
+                __root[STATE] = Monitor::GetStateTypeString(this->State);
+                if (Output == OUTPUT_STREAM) {
+                    __root[SAMPLING_RATE] = SamplingRate;
+                } else if (Output == OUTPUT_EVENT) {
+#if 0 // MJ TEMP: not yet decided how to use these fields
+                    ::Json::Value array(::Json::arrayValue);
+                    array.append(0.1);
+                    array.append(0.5);
+                    array.append(2.5);
+                    //__root[THRESHOLD] = 3;
+                    __root[THRESHOLD] = array;
+                    __root[MARGIN] = 4;
+#endif
+                }
+            }
+            _root[CONFIG] = __root;
+        }
+
+#if 0 // MJ: where to publish is determined by Ice configuration files
+        {   ::Json::Value __root;
+            {
+                ::Json::Value array(::Json::arrayValue);
+                for (size_t i = 0; i < AddressesToPublish.size(); ++i)
+                    array.append(AddressesToPublish[i]);
+                __root[PUBLISH] = array;
+            }
+            _root[TARGET] = __root;
+        }
+        root[OUTPUT] = _root;
+#endif
+    }
+#endif
+
+    std::stringstream ss;
+    //ss << root;
+
+    return ss.str();
 }
 
 void FilterThreshold::ToStream(std::ostream & outputStream) const

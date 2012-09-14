@@ -209,12 +209,12 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
         return false;
     }
 
-    cisstTargetID * targetId = new cisstTargetID;
-    targetId->ProcessName = ComponentManager->GetProcessName();
-    targetId->ComponentName = targetComponentName;
+    cisstEventLocation * locationID = new cisstEventLocation;
+    locationID->SetProcessName(ComponentManager->GetProcessName());
+    locationID->SetComponentName(targetComponentName);
 
     cisstMonitor * monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
-                                              targetId,
+                                              locationID,
                                               Monitor::STATE_ON,
                                               Monitor::OUTPUT_STREAM,
                                               frequency);

@@ -221,43 +221,6 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
     return true;
 }
 
-#if 0
-bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency)
-{
-    if (!ComponentManager->GetCoordinator()) {
-        SFLOG_ERROR  << "Failed to get coordinator in this process";
-        return false;
-    }
-
-    // Define target
-    cisstTargetID * targetId = new cisstTargetID;
-    targetId->ProcessName = ComponentManager->GetProcessName();
-    targetId->ComponentName = targetComponentName;
-
-    cisstMonitor * monitor;
-
-    // Install monitor for timing fault - period
-    {
-        monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
-                                   targetId,
-                                   Monitor::STATE_ON,
-                                   Monitor::OUTPUT_STREAM,
-                                   f);
-        // MJ TODO: Run system for a few minutes, collect experimental data,
-        // and determine variance of period with upper/lower limits and thresholds.
-        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
-            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
-            return false;
-        }
-        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << targetId->GetTargetID() << " ]" << std::endl;
-    }
-
-    return true;
-}
-#endif
-
 bool InstallFilter(const std::string & targetComponentName)
 {
     mtsSafetyCoordinator * coordinator = ComponentManager->GetCoordinator();

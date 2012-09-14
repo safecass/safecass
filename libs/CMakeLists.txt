@@ -61,7 +61,9 @@ set (SF_LIB_ADAPTER_BASE_DIR ${LIB_DIR}/adapters)
 if (SF_HAS_CISST)
   set (SF_LIB_ADAPTER_DIR "${SF_LIB_ADAPTER_BASE_DIR}/cisst")
   set (SF_LIB_ADAPTER_CISST_SRC ${SF_LIB_ADAPTER_DIR}/cisstMonitor.h
-                                ${SF_LIB_ADAPTER_DIR}/cisstMonitor.cpp)
+                                ${SF_LIB_ADAPTER_DIR}/cisstMonitor.cpp
+                                ${SF_LIB_ADAPTER_DIR}/cisstEventLocation.h
+                                ${SF_LIB_ADAPTER_DIR}/cisstEventLocation.cpp)
 
   set (SF_LIB_MONITOR_INCLUDE_DIR ${SF_LIB_MONITOR_INCLUDE_DIR} ${SF_LIB_ADAPTER_DIR})
   set (SF_LIB_MONITOR_SRC ${SF_LIB_MONITOR_SRC} ${SF_LIB_ADAPTER_CISST_SRC})

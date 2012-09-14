@@ -17,34 +17,14 @@
 
 #include "monitor.h"
 #include "cisstDic.h"
+#include "cisstEventLocation.h"
 
 namespace SF {
-
-class SFLIB_EXPORT cisstTargetID: public TargetIDBase {
-public:
-    std::string ProcessName;
-    std::string ComponentName;
-    std::string InterfaceProvidedName;
-    std::string InterfaceRequiredName;
-    std::string CommandName;
-    std::string FunctionName;
-    std::string EventGeneratorName;
-    std::string EventHandlerName;
-
-    const std::string GetTargetID(void) const;
-
-    void ToStream(std::ostream & outputStream) const;
-};
-
-inline std::ostream & operator << (std::ostream & outputStream, const cisstTargetID & targetID) {
-    targetID.ToStream(outputStream);
-    return outputStream;
-}
 
 class SFLIB_EXPORT cisstMonitor: public Monitor {
 public:
     cisstMonitor(const Monitor::TargetType target,
-                 cisstTargetID *           targetID,
+                 cisstEventLocation *      locationID,
                  const Monitor::StateType  state,
                  const Monitor::OutputType output,
                  // zero sampling rate for event-type monitoring
@@ -53,7 +33,7 @@ public:
 
     const std::string GetMonitorJSON(void) const;
 
-    /*! Returns cisstTargetID instance */
+    /*! Returns cisstEventLocation instance */
 
     //
     // Publish monitored data in Json
