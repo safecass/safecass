@@ -65,9 +65,20 @@ void FilterThreshold::DoFiltering(bool debug)
 
     // Filtering algorithm: thresholding with margin
     if (InputSignals[0]->GetPlaceholderScalar() > Threshold + Margin) {
-        // MJ TODO: Generate event if necessary (this may need to be done only for
+        // Generate event if necessary (MJ: this may need to be done only for
         // filters of type FAULT_DETECTOR category)
         OutputSignals[0]->SetPlaceholderScalar(Output1);
+        // If this filter is the last filter of a pipeline
+        if (this->LastFilterOfPipeline) {
+            // If there is an event publisher associated with this filter and
+            // it is properly installed, publish the detected fault event to 
+            // the Safety Framework.
+            if (this->EventPublisher) {
+                this->EventPublisher->PublishEvent(GenerateFDIJSON());
+            } else {
+                SFLOG_ERROR << "FilterThreshold: No event publisher is active and thus event cannot be published" << std::endl;
+            }
+        }
     } else {
         OutputSignals[0]->SetPlaceholderScalar(Output0);
     }
@@ -76,6 +87,36 @@ void FilterThreshold::DoFiltering(bool debug)
         std::cout << this->GetFilterName() << "\t" << InputSignals[0]->GetName() << ": " 
             << InputSignals[0]->GetPlaceholderScalar() << " => " << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
     }
+}
+
+const std::string FilterThreshold::GenerateFDIJSON(void) const
+{
+    /*
+        FDI JSON Specification: 
+
+        {   // event identification
+            "type" : {
+                "fault" : "application",
+                "description" : "force sensor reading (Y) threshold exceeded"
+            },
+            // event localization
+            "localization" : {
+                "location" : {
+                    "process" : "LCM",
+                    "component" : "component_name",
+                    // below are middleware-specific
+                    "provided_interface" : "",
+                    "required_interface" : "",
+                    "command" : "",
+                    "function" : "",
+                    "event_generator" : "",
+                    "event_handler" : "" },
+                "timestamp" : 1234567890 
+            },
+            // severity
+            "severity" : 1.3
+        }
+     */
 }
 
 void FilterThreshold::ToStream(std::ostream & outputStream) const

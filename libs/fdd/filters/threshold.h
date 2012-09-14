@@ -65,6 +65,9 @@ public:
     /*! Implements thresholding algorithm */
     void DoFiltering(bool debug);
 
+    /*! Implements string representation of fault diagnosis and identification */
+    const std::string GenerateFDIJSON(void) const;
+
     /*! Getters */
     inline const std::string & GetNameOfInputSignal(void) const { return NameOfInputSignal; }
     inline SignalElement::ScalarType GetThreshold(void) const { return Threshold; }

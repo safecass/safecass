@@ -19,12 +19,13 @@
 #include <sstream>
 
 #include "signal.h"
-#include "eventPublisher.h"
+#include "eventPublisherBase.h"
+#include "eventLocationBase.h"
+#include "json.h"
 
 namespace SF {
 
 class HistoryBufferBase;
-class EventPublisherBase;
 
 class SFLIB_EXPORT FilterBase
 {
@@ -106,6 +107,16 @@ protected:
                                          const FilterIDType  root2,
                                          size_t              suffix) const;
 
+    /*! Generate fault diagnosis and identification (FDI) string in JSON format.
+        Filter-specific.  Returned string should include the following information:
+        
+            - Fault type
+            - Fault location (spatial localization)
+            - Fault time (temporal localization)
+            - Fault severity
+    */
+    virtual const std::string GenerateFDIJSON(void) const = 0;
+
     //-------------------------------------------------- 
     //  Middleware-specific Instances
     //-------------------------------------------------- 
@@ -117,6 +128,11 @@ protected:
         Dynamically allocated as middleware-specific plug-in (event propagation 
         accessor adapter) */
     EventPublisherBase * EventPublisher;
+
+    /*! Instance of event or fault location.  If the EventLocationBase class does not have 
+        enough fields to identify an event location in a system, a middleware-specific event
+        location class can be defined, inheriting the base class. */
+    EventLocationBase * EventLocation;
 
     //-------------------------------------------------- 
     //  Constructors and Destructor
