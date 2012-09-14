@@ -48,6 +48,8 @@ set (SF_LIB_MONITOR_INCLUDE_DIR ${LIB_DIR}/monitor)
 # FDD
 set (SF_LIB_FDD_SRC # faults
                     ${LIB_DIR}/fdd/fault.h ${LIB_DIR}/fdd/fault.cpp
+                    # event location
+                    ${LIB_DIR}/fdd/eventLocationBase.h ${LIB_DIR}/fdd/eventLocationBase.cpp
                     # base filter
                     ${LIB_DIR}/fdd/signal.h ${LIB_DIR}/fdd/signal.cpp
                     ${LIB_DIR}/fdd/filterBase.h ${LIB_DIR}/fdd/filterBase.cpp

@@ -66,7 +66,7 @@ public:
     void DoFiltering(bool debug);
 
     /*! Implements string representation of fault diagnosis and identification */
-    const std::string GenerateFDIJSON(void) const;
+    const std::string GenerateFDIJSON(double severity, double timestamp) const;
 
     /*! Getters */
     inline const std::string & GetNameOfInputSignal(void) const { return NameOfInputSignal; }

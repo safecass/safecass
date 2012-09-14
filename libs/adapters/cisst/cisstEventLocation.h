@@ -42,11 +42,12 @@ public:
 
     const std::string GetLocationID(void) const;
 
+    void PopulateJSONValues(::Json::Value & root) const;
     void ToStream(std::ostream & outputStream) const;
 };
 
-inline std::ostream & operator << (std::ostream & outputStream, const cisstEventLocation & targetLocation) {
-    targetLocation.ToStream(outputStream);
+inline std::ostream & operator << (std::ostream & outputStream, const cisstEventLocation & location) {
+    location.ToStream(outputStream);
     return outputStream;
 }
 

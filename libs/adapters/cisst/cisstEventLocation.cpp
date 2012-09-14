@@ -13,6 +13,7 @@
 */
 
 #include "cisstEventLocation.h"
+#include "cisstDic.h"
 
 namespace SF {
 
@@ -32,16 +33,23 @@ const std::string cisstEventLocation::GetLocationID(void) const
     return ss.str();
 }
 
+void cisstEventLocation::PopulateJSONValues(::Json::Value & root) const
+{
+    EventLocationBase::PopulateJSONValues(root);
+
+    root[Dict::cisst::NAME_COMMAND]         = CommandName;
+    root[Dict::cisst::NAME_FUNCTION]        = FunctionName;
+    root[Dict::cisst::NAME_EVENT_GENERATOR] = EventGeneratorName;
+    root[Dict::cisst::NAME_EVENT_HANDLER]   = EventHandlerName;
+}
+
 void cisstEventLocation::ToStream(std::ostream & outputStream) const
 {
-    outputStream << "Process: " << this->ProcessName << ", "
-                 << "Component: " << this->ComponentName << ", "
-                 << "InterfaceProvided: " << this->InterfaceProvidedName << ", "
-                 << "InterfaceRequired: " << this->InterfaceRequiredName << ", "
-                 << "Command: " << CommandName << ", "
-                 << "Function: " << FunctionName << ", "
-                 << "EventGenerator: " << EventGeneratorName << ", "
-                 << "EventHandler: " << EventHandlerName;
+    EventLocationBase::ToStream(outputStream);
+    outputStream << ":[Comm]" << CommandName << ":"
+                 << "[Func]" << FunctionName << ":"
+                 << "[EvtG]" << EventGeneratorName << ":"
+                 << "[EvtH]" << EventHandlerName;
 }
 
 };

@@ -77,7 +77,9 @@ void FilterThreshold::DoFiltering(bool debug)
             // it is properly installed, publish the detected fault event to 
             // the Safety Framework.
             if (this->EventPublisher) {
-                this->EventPublisher->PublishEvent(GenerateFDIJSON());
+                double timestamp = InputSignals[0]->GetTimeLastSampleFetched();
+                double severity = InputSignals[0]->GetPlaceholderScalar() - (Threshold + Margin);
+                this->EventPublisher->PublishEvent(GenerateFDIJSON(severity, timestamp));
             } else {
                 SFLOG_ERROR << "FilterThreshold: No event publisher is active and thus event cannot be published" << std::endl;
             }
@@ -92,7 +94,7 @@ void FilterThreshold::DoFiltering(bool debug)
     }
 }
 
-const std::string FilterThreshold::GenerateFDIJSON(void) const
+const std::string FilterThreshold::GenerateFDIJSON(double severity, double timestamp) const
 {
     if (!EventLocation) {
         SFLOG_ERROR << "GenerateFDIJSON: No event location instance available" << std::endl;
@@ -103,8 +105,9 @@ const std::string FilterThreshold::GenerateFDIJSON(void) const
         FDI JSON Specification: 
 
         {   // event identification
-            "type" : {
-                "fault" : "application",
+            "identity": {
+                "filter" : "threshold",
+                "type" : "application", // or "middleware"
                 "description" : "force sensor reading (Y) threshold exceeded"
             },
             // event localization
@@ -112,6 +115,7 @@ const std::string FilterThreshold::GenerateFDIJSON(void) const
                 "location" : {
                     "process" : "LCM",
                     "component" : "component_name",
+
                     // below are middleware-specific
                     "provided_interface" : "",
                     "required_interface" : "",
@@ -119,6 +123,7 @@ const std::string FilterThreshold::GenerateFDIJSON(void) const
                     "function" : "",
                     "event_generator" : "",
                     "event_handler" : "" },
+
                 "timestamp" : 1234567890 
             },
             // severity
@@ -126,71 +131,31 @@ const std::string FilterThreshold::GenerateFDIJSON(void) const
         }
      */
 
-#if 0
     ::Json::Value root;
 
-    root[NAME] = this->GetUIDAsString();
-
-    // Monitor target type
+    // Event identification
     {   ::Json::Value _root;
-        _root[TYPE] = Monitor::GetTargetTypeString(Target);
-
-        { ::Json::Value __root;
-          __root[NAME_PROCESS]                = EventLocation->GetProcessName();
-          /*
-          __root[NAME_COMPONENT]              = targetID->ComponentName;
-          __root[NAME_INTERFACE_PROVIDED]     = targetID->InterfaceProvidedName;
-          __root[NAME_INTERFACE_REQUIRED]     = targetID->InterfaceRequiredName;
-          __root[cisst::NAME_COMMAND]         = targetID->CommandName;
-          __root[cisst::NAME_FUNCTION]        = targetID->FunctionName;
-          __root[cisst::NAME_EVENT_GENERATOR] = targetID->EventGeneratorName;
-          __root[cisst::NAME_EVENT_HANDLER]   = targetID->EventHandlerName;
-          */
-          _root[IDENTIFIER] = __root;
-        }
-        root[TARGET] = _root;
+        _root["filter"] = this->GetFilterName();
+        _root["type"] = "application";
+        _root["description"] = "user-provided description"; // FIXME
+        root["identity"] = _root;
     }
 
-    // Monitor behaviors
+    // Event localization
     {   ::Json::Value _root;
-        _root[TYPE] = Monitor::GetOutputTypeString(Output);
         {   ::Json::Value __root;
-            {
-                __root[STATE] = Monitor::GetStateTypeString(this->State);
-                if (Output == OUTPUT_STREAM) {
-                    __root[SAMPLING_RATE] = SamplingRate;
-                } else if (Output == OUTPUT_EVENT) {
-#if 0 // MJ TEMP: not yet decided how to use these fields
-                    ::Json::Value array(::Json::arrayValue);
-                    array.append(0.1);
-                    array.append(0.5);
-                    array.append(2.5);
-                    //__root[THRESHOLD] = 3;
-                    __root[THRESHOLD] = array;
-                    __root[MARGIN] = 4;
-#endif
-                }
-            }
-            _root[CONFIG] = __root;
+            this->EventLocation->PopulateJSONValues(__root);
+            _root["location"] = __root;
+            _root["timestamp"] = timestamp;
         }
-
-#if 0 // MJ: where to publish is determined by Ice configuration files
-        {   ::Json::Value __root;
-            {
-                ::Json::Value array(::Json::arrayValue);
-                for (size_t i = 0; i < AddressesToPublish.size(); ++i)
-                    array.append(AddressesToPublish[i]);
-                __root[PUBLISH] = array;
-            }
-            _root[TARGET] = __root;
-        }
-        root[OUTPUT] = _root;
-#endif
+        root["localization"] = _root;
     }
-#endif
+
+    // Fault severity
+    root["severity"] = severity;
 
     std::stringstream ss;
-    //ss << root;
+    ss << root;
 
     return ss.str();
 }

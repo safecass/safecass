@@ -16,6 +16,7 @@
 #define _EventLocationBase_h
 
 #include "common.h"
+#include "json.h"
 
 namespace SF {
 
@@ -43,7 +44,16 @@ public:
 #undef DEFINE_ACCESSORS
 
     virtual const std::string GetLocationID(void) const = 0;
+
+    virtual void PopulateJSONValues(::Json::Value & root) const;
+    virtual void ToStream(std::ostream & outputStream) const;
 };
+
+inline std::ostream & operator << (std::ostream & outputStream, const EventLocationBase & location)
+{
+    location.ToStream(outputStream);
+    return outputStream;
+}
 
 };
 

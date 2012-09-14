@@ -115,7 +115,7 @@ protected:
             - Fault time (temporal localization)
             - Fault severity
     */
-    virtual const std::string GenerateFDIJSON(void) const = 0;
+    virtual const std::string GenerateFDIJSON(double severity, double timestamp) const = 0;
 
     //-------------------------------------------------- 
     //  Middleware-specific Instances
