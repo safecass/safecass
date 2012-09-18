@@ -26,6 +26,8 @@ namespace SF {
 
 const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
 {
+    // FIXME
+#if 0
     // Parse source Json
     SF::JSON json;
     if (!json.Read(topic.c_str())) {
@@ -115,8 +117,10 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
 
     std::stringstream ss;
     ss << entry;
+#endif
 
-    return ss.str();
+    //return ss.str();
+    return "";
 }
 
 MongoDB::MongoDB()

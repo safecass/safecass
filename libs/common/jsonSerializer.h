@@ -69,6 +69,10 @@ public:
     /*! Represent all information in JSON format and return JSON string */
     const std::string GetJSON(void) const;
 
+    /*! Rebuild information based on JSON string.  If successful, internal structures such
+        as Common and either Monitor or Fault are populated and updated. */
+    bool ParseJSON(const std::string & message);
+
     //---------------------------------------- 
     //  Accessors
     //---------------------------------------- 
@@ -77,7 +81,7 @@ public:
     inline void      SetTopicType(const TopicType topicType) { Common.Topic = topicType; }
     // Common::EventLocation
     inline EventLocationBase * GetEventLocation(void) const { return Common.EventLocation; }
-    inline void                SetEventLocation(EventLocationBase * location) { Common.EventLocation = location; }
+    void                       SetEventLocation(EventLocationBase * location);
     // Common::Timestamp
     inline double GetTimestamp(void) const { return Common.Timestamp; }
     inline void   SetTimestamp(double timestamp) { Common.Timestamp = timestamp; }
@@ -86,7 +90,7 @@ public:
     inline Monitor::TargetType GetMonitorTargetType(void) const { return Monitor.Type; }
     inline void                SetMonitorTargetType(Monitor::TargetType target) { Monitor.Type = target; }
     // Monitor::Fields
-    // TODO
+    inline ::Json::Value & GetMonitorFields(void) { return Monitor.Fields; }
 
     // Fault::Type
     inline Fault::FaultType GetFaultType(void) const { return Fault.Type; }

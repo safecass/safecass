@@ -19,12 +19,20 @@ namespace SF {
 
 using namespace Dict::Json;
 
-void EventLocationBase::PopulateJSONValues(::Json::Value & root) const
+void EventLocationBase::ExportToJSON(::Json::Value & root) const
 {
     root[process]            = ProcessName;
     root[component]          = ComponentName;
     root[interface_provided] = InterfaceProvidedName;
     root[interface_required] = InterfaceRequiredName;
+}
+
+void EventLocationBase::ImportFromJSON(const ::Json::Value & value)
+{
+    ProcessName           = value.get(process, "").asString();
+    ComponentName         = value.get(component, "").asString();
+    InterfaceProvidedName = value.get(interface_provided, "").asString();
+    InterfaceRequiredName = value.get(interface_required, "").asString();
 }
 
 void EventLocationBase::ToStream(std::ostream & outputStream) const
@@ -33,6 +41,14 @@ void EventLocationBase::ToStream(std::ostream & outputStream) const
                  << "[Comp]" << ComponentName << ":"
                  << "[IntP]" << InterfaceProvidedName << ":"
                  << "[IntR]" << InterfaceRequiredName;
+}
+
+EventLocationBase & EventLocationBase::operator=(const EventLocationBase & rhs)
+{
+    ProcessName           = rhs.GetProcessName();
+    ComponentName         = rhs.GetComponentName();
+    InterfaceProvidedName = rhs.GetInterfaceProvidedName();
+    InterfaceRequiredName = rhs.GetInterfaceRequiredName();
 }
 
 };

@@ -35,9 +35,9 @@ const std::string cisstEventLocation::GetLocationID(void) const
     return ss.str();
 }
 
-void cisstEventLocation::PopulateJSONValues(::Json::Value & root) const
+void cisstEventLocation::ExportToJSON(::Json::Value & root) const
 {
-    EventLocationBase::PopulateJSONValues(root);
+    EventLocationBase::ExportToJSON(root);
 
     root[cisst::command]         = CommandName;
     root[cisst::function]        = FunctionName;
@@ -45,13 +45,36 @@ void cisstEventLocation::PopulateJSONValues(::Json::Value & root) const
     root[cisst::event_handler]   = EventHandlerName;
 }
 
+void cisstEventLocation::ImportFromJSON(const ::Json::Value & value)
+{
+    EventLocationBase::ImportFromJSON(value);
+
+    CommandName        = value.get(cisst::command, "").asString();
+    FunctionName       = value.get(cisst::function, "").asString();
+    EventGeneratorName = value.get(cisst::event_generator, "").asString();
+    EventHandlerName   = value.get(cisst::event_handler, "").asString();
+}
+
 void cisstEventLocation::ToStream(std::ostream & outputStream) const
 {
     EventLocationBase::ToStream(outputStream);
+
     outputStream << ":[Comm]" << CommandName << ":"
                  << "[Func]" << FunctionName << ":"
                  << "[EvtG]" << EventGeneratorName << ":"
                  << "[EvtH]" << EventHandlerName;
+}
+
+cisstEventLocation & cisstEventLocation::operator=(const cisstEventLocation& rhs)
+{
+    this->ProcessName           = rhs.GetProcessName();
+    this->ComponentName         = rhs.GetComponentName();
+    this->InterfaceProvidedName = rhs.GetInterfaceProvidedName();
+    this->InterfaceRequiredName = rhs.GetInterfaceRequiredName();
+    CommandName        = rhs.GetCommandName();
+    FunctionName       = rhs.GetFunctionName();
+    EventGeneratorName = rhs.GetEventGeneratorName();
+    EventHandlerName   = rhs.GetEventHandlerName();
 }
 
 };

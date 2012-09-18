@@ -42,8 +42,14 @@ public:
 
     const std::string GetLocationID(void) const;
 
-    void PopulateJSONValues(::Json::Value & root) const;
+    /*! Export internal data into JSON container */
+    void ExportToJSON(::Json::Value & root) const;
+    /*! Import JSON to update internal data */
+    void ImportFromJSON(const ::Json::Value & value);
+
     void ToStream(std::ostream & outputStream) const;
+
+    virtual cisstEventLocation & operator=(const cisstEventLocation & rhs);
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const cisstEventLocation & location) {

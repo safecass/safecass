@@ -22,6 +22,8 @@
 #ifdef SF_HAS_CISST
 #include "cisstDic.h"
 #include "cisstEventLocation.h"
+#else
+#include "eventLocationBase.h"
 #endif
 
 namespace SF {
@@ -49,6 +51,54 @@ void JSONSerializer::Init(void)
 
 JSONSerializer::~JSONSerializer(void)
 {
+    if (Common.EventLocation) {
+        // MJ FIXME: Why this crashes???
+        // supervisor(18886,0x111c78000) malloc: *** error for object 0x7fff779c9570:
+        // pointer being freed was not allocated
+        // *** set a breakpoint in malloc_error_break to debug
+        // Abort trap: 6
+        //delete Common.EventLocation;
+    }
+}
+
+const std::string JSONSerializer::GetTopicTypeString(TopicType topicType)
+{
+    switch (topicType) {
+        case MONITOR: return STR(monitor);
+        case FAULT: return STR(fault);
+        case SUPERVISOR: return STR(supervisor);
+        default: return STR(INVALID);
+    }
+}
+
+JSONSerializer::TopicType JSONSerializer::GetTopicTypeFromString(const std::string & topicTypeString)
+{
+    if (topicTypeString.compare(STR(monitor)) == 0) return MONITOR;
+    if (topicTypeString.compare(STR(fault)) == 0) return FAULT;
+    if (topicTypeString.compare(STR(supervisor)) == 0) return SUPERVISOR;
+
+    return INVALID;
+}
+
+void JSONSerializer::SetEventLocation(EventLocationBase * location)
+{
+    if (Common.EventLocation) {
+        delete Common.EventLocation;
+        Common.EventLocation = 0;
+    }
+
+#ifdef SF_HAS_CISST
+    cisstEventLocation * cisstLocation = dynamic_cast<cisstEventLocation *>(location);
+    if (cisstLocation) {
+        Common.EventLocation = new cisstEventLocation;
+        *Common.EventLocation = *cisstLocation;
+    } else {
+        SFASSERT(false);
+    }
+#else
+    // MJ: implement this later
+    SFASSERT(false);
+#endif
 }
 
 const std::string JSONSerializer::GetJSON(void) const
@@ -71,10 +121,10 @@ const std::string JSONSerializer::GetJSON(void) const
 #ifdef SF_HAS_CISST
             cisstEventLocation * cisstLocation = dynamic_cast<cisstEventLocation *>(Common.EventLocation);
             if (cisstLocation) {
-                cisstLocation->PopulateJSONValues(__root);
+                cisstLocation->ExportToJSON(__root);
             }
 #else
-            Common.EventLocation->PopulateJSONValues(__root);
+            Common.EventLocation->ExportToJSON(__root);
 #endif
         } else {
             __root[process]                = "";
@@ -123,23 +173,52 @@ const std::string JSONSerializer::GetJSON(void) const
     return ss.str();
 }
 
-const std::string JSONSerializer::GetTopicTypeString(TopicType topicType)
+bool JSONSerializer::ParseJSON(const std::string & message)
 {
-    switch (topicType) {
-        case MONITOR: return STR(monitor);
-        case FAULT: return STR(fault);
-        case SUPERVISOR: return STR(supervisor);
-        default: return STR(INVALID);
+    JSON json;
+    if (!json.Read(message.c_str())) {
+        return false;
     }
-}
 
-JSONSerializer::TopicType JSONSerializer::GetTopicTypeFromString(const std::string & topicTypeString)
-{
-    if (topicTypeString.compare(STR(monitor)) == 0) return MONITOR;
-    if (topicTypeString.compare(STR(fault)) == 0) return FAULT;
-    if (topicTypeString.compare(STR(supervisor)) == 0) return SUPERVISOR;
+    Json::Value & values = json.GetRoot();
 
-    return INVALID;
+    // Populate common fields
+    Common.Topic = GetTopicTypeFromString(values[identity].get(topic, "").asString());
+    Common.Timestamp = values[localization].get(timestamp, 0.0).asDouble();
+#ifdef SF_HAS_CISST
+    Common.EventLocation = new cisstEventLocation;
+    Common.EventLocation->ImportFromJSON(values[localization][location]);
+#else
+    //Common.EventLocation = 0; // MJ TODO: deal with this later
+    CMN_ASSERT(false);
+#endif
+
+    switch (Common.Topic) {
+        case MONITOR:
+            {
+                // TODO
+            }
+            break;
+        case FAULT:
+            {
+                Fault.Type = Fault::GetFaultTypeFromString(values[fault].get(type, "").asString());
+                Fault.DetectorName = values[fault].get(detector, "").asString();
+
+                Fault.Fields = values[fault];
+                Fault.Fields.removeMember(type);
+                Fault.Fields.removeMember(detector);
+            }
+            break;
+        case SUPERVISOR:
+            {
+            }
+            break;
+    }
+    // Populate monitor fields
+
+    // Populate fault fields
+
+    return true;
 }
 
 };
