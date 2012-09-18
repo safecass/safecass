@@ -15,6 +15,8 @@
 #include "cisstEventLocation.h"
 #include "cisstDic.h"
 
+using namespace SF::Dict::Json;
+
 namespace SF {
 
 const std::string cisstEventLocation::GetLocationID(void) const
@@ -37,10 +39,10 @@ void cisstEventLocation::PopulateJSONValues(::Json::Value & root) const
 {
     EventLocationBase::PopulateJSONValues(root);
 
-    root[Dict::cisst::NAME_COMMAND]         = CommandName;
-    root[Dict::cisst::NAME_FUNCTION]        = FunctionName;
-    root[Dict::cisst::NAME_EVENT_GENERATOR] = EventGeneratorName;
-    root[Dict::cisst::NAME_EVENT_HANDLER]   = EventHandlerName;
+    root[cisst::command]         = CommandName;
+    root[cisst::function]        = FunctionName;
+    root[cisst::event_generator] = EventGeneratorName;
+    root[cisst::event_handler]   = EventHandlerName;
 }
 
 void cisstEventLocation::ToStream(std::ostream & outputStream) const

@@ -56,6 +56,8 @@ std::string GetCISSTInfo(void);
 /*! Get current UTC time */
 std::string GetCurrentUTCTimeString(void);
 
+#define STR(faultType) std::string(#faultType)
+
 //--------------------------------------------------
 //  Common macro definitions
 //--------------------------------------------------

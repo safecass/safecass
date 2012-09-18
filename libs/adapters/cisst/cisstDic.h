@@ -19,16 +19,24 @@
 
 namespace SF {
 
-namespace Dict {
+    namespace Dict {
 
-namespace cisst {
-    DEFINE_KEYWORD(NAME_COMMAND);
-    DEFINE_KEYWORD(NAME_FUNCTION);
-    DEFINE_KEYWORD(NAME_EVENT_GENERATOR);
-    DEFINE_KEYWORD(NAME_EVENT_HANDLER);
-};
+        namespace Json {
 
-}; // SF::Dict
+            namespace cisst {
+                DEFINE_KEYWORD(command);
+                DEFINE_KEYWORD(event_generator);
+                DEFINE_KEYWORD(event_handler);
+                DEFINE_KEYWORD(function);
+                // MJ TODO: remove the followings
+                DEFINE_KEYWORD(NAME_COMMAND);
+                DEFINE_KEYWORD(NAME_FUNCTION);
+                DEFINE_KEYWORD(NAME_EVENT_GENERATOR);
+                DEFINE_KEYWORD(NAME_EVENT_HANDLER);
+            };
+        }
+
+    }; // SF::Dict
 
 }; // SF
 

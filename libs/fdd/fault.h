@@ -21,22 +21,14 @@ namespace SF {
 
 class SFLIB_EXPORT Fault {
 public:
-    /*
-    typedef enum { 
-        LAYER_SYSTEM, 
-        LAYER_PROCESS, 
-        LAYER_COMPONENT, 
-        LAYER_INTERFACE, 
-        //LAYER_EXECUTION,
-        LAYER_INVALID
-    } LayerType;
-    */
-
     // [SFUPDATE]
     typedef enum {
         FAULT_INVALID,
+        // Fault type supported by the framework and middleware
         FAULT_COMPONENT_PERIOD,   // Timing fault: OS thread scheduling latency
-        FAULT_COMPONENT_OVERRUN   // Timing fault: thread overrun
+        FAULT_COMPONENT_OVERRUN,  // Timing fault: thread overrun
+        // Fault defined by applications
+        FAULT_APPLICATION
     } FaultType;
 
 public:

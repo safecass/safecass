@@ -48,52 +48,64 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
     // Monitor data sample
     double nominalPeriod;
     switch (targetType) {
-        case Monitor::TARGET_THREAD_PERIOD: {   
-            // entry type
-            entry["type"] = "period";
-            // measurement data
-            Json::Value _data;
-            _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
-            _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
-            _data["nominal"] = sample[TARGET].get(PERIOD_EXPECTED, 0.0).asDouble();
-            _data["actual"] = sample.get(SAMPLE, 0.0).asDouble();
-            entry["data"] = _data;
-        }
-        break;
+        case Monitor::TARGET_THREAD_PERIOD:
+            {   
+                // entry type
+                entry["type"] = "period";
+                // measurement data
+                Json::Value _data;
+                _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
+                _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
+                _data["nominal"] = sample[TARGET].get(PERIOD_EXPECTED, 0.0).asDouble();
+                _data["actual"] = sample.get(SAMPLE, 0.0).asDouble();
+                entry["data"] = _data;
+            }
+            break;
 
-        case Monitor::TARGET_THREAD_DUTYCYCLE_USER: {
-            // entry type
-            entry["type"] = "exectime_user";
-            // measurement data
-            Json::Value _data;
-            _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
-            _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
-            _data["exectime"] = sample.get(SAMPLE, 0.0).asDouble();
-            nominalPeriod = sample[TARGET].get(PERIOD_EXPECTED, 0.0).asDouble();
-            if (nominalPeriod != 0.0)
-                _data["exectime_ratio"] = (sample.get(SAMPLE, 0.0).asDouble() / nominalPeriod) * 100.0;
-            else
-                _data["exectime_ratio"] = 0.0;
-            entry["data"] = _data;
-        }
-        break;
+        case Monitor::TARGET_THREAD_DUTYCYCLE_USER:
+            {
+                // entry type
+                entry["type"] = "exectime_user";
+                // measurement data
+                Json::Value _data;
+                _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
+                _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
+                _data["exectime"] = sample.get(SAMPLE, 0.0).asDouble();
+                nominalPeriod = sample[TARGET].get(PERIOD_EXPECTED, 0.0).asDouble();
+                if (nominalPeriod != 0.0)
+                    _data["exectime_ratio"] = (sample.get(SAMPLE, 0.0).asDouble() / nominalPeriod) * 100.0;
+                else
+                    _data["exectime_ratio"] = 0.0;
+                entry["data"] = _data;
+            }
+            break;
 
-        case Monitor::TARGET_THREAD_DUTYCYCLE_TOTAL: {
-            // entry type
-            entry["type"] = "exectime_total";
-            // measurement data
-            Json::Value _data;
-            _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
-            _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
-            _data["exectime"] = sample.get(SAMPLE, 0.0).asDouble();
-            nominalPeriod = sample[TARGET].get(PERIOD_EXPECTED, 0.0).asDouble();
-            if (nominalPeriod != 0.0)
-                _data["exectime_ratio"] = (sample.get(SAMPLE, 0.0).asDouble() / nominalPeriod) * 100.0;
-            else
-                _data["exectime_ratio"] = 0.0;
-            entry["data"] = _data;
-        }
-        break;
+        case Monitor::TARGET_THREAD_DUTYCYCLE_TOTAL:
+            {
+                // entry type
+                entry["type"] = "exectime_total";
+                // measurement data
+                Json::Value _data;
+                _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
+                _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
+                _data["exectime"] = sample.get(SAMPLE, 0.0).asDouble();
+                nominalPeriod = sample[TARGET].get(PERIOD_EXPECTED, 0.0).asDouble();
+                if (nominalPeriod != 0.0)
+                    _data["exectime_ratio"] = (sample.get(SAMPLE, 0.0).asDouble() / nominalPeriod) * 100.0;
+                else
+                    _data["exectime_ratio"] = 0.0;
+                entry["data"] = _data;
+            }
+            break;
+
+        case Monitor::TARGET_FILTER_EVENT:
+            {
+                // no need for conversion: filter event comes in json format
+                std::cout << "TARGET_FILTER_EVENT ==============" << std::endl;
+                std::cout << topic << std::endl;
+                return topic;
+            }
+            break;
         // [SFUPDATE]
 
         default:

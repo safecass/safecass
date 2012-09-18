@@ -21,10 +21,10 @@ using namespace Dict::Json;
 
 void EventLocationBase::PopulateJSONValues(::Json::Value & root) const
 {
-    root[NAME_PROCESS]                = ProcessName;
-    root[NAME_COMPONENT]              = ComponentName;
-    root[NAME_INTERFACE_PROVIDED]     = InterfaceProvidedName;
-    root[NAME_INTERFACE_REQUIRED]     = InterfaceRequiredName;
+    root[process]            = ProcessName;
+    root[component]          = ComponentName;
+    root[interface_provided] = InterfaceProvidedName;
+    root[interface_required] = InterfaceRequiredName;
 }
 
 void EventLocationBase::ToStream(std::ostream & outputStream) const

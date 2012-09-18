@@ -14,10 +14,9 @@
 
 #include "threshold.h"
 #include "dict.h"
+#include "JSONSerializer.h"
 
 namespace SF {
-
-using namespace SF::Dict;
 
 const std::string FilterThreshold::Name = "Threshold";
 
@@ -78,7 +77,8 @@ void FilterThreshold::DoFiltering(bool debug)
             // the Safety Framework.
             if (this->EventPublisher) {
                 double timestamp = InputSignals[0]->GetTimeLastSampleFetched();
-                double severity = InputSignals[0]->GetPlaceholderScalar() - (Threshold + Margin);
+                //double severity = InputSignals[0]->GetPlaceholderScalar() - (Threshold + Margin);
+                double severity = InputSignals[0]->GetPlaceholderScalar() - Threshold;
                 this->EventPublisher->PublishEvent(GenerateFDIJSON(severity, timestamp));
             } else {
                 SFLOG_ERROR << "FilterThreshold: No event publisher is active and thus event cannot be published" << std::endl;
@@ -101,63 +101,23 @@ const std::string FilterThreshold::GenerateFDIJSON(double severity, double times
         return "ERROR: no event location available";
     }
 
-    /*
-        FDI JSON Specification: 
+    // Create JSONSerializer instance 
+    JSONSerializer serializer;
 
-        {   // event identification
-            "identity": {
-                "filter" : "threshold",
-                "type" : "application", // or "middleware"
-                "description" : "force sensor reading (Y) threshold exceeded"
-            },
-            // event localization
-            "localization" : {
-                "location" : {
-                    "process" : "LCM",
-                    "component" : "component_name",
+    // Populate common fields
+    serializer.SetTopicType(JSONSerializer::FAULT);
+    serializer.SetEventLocation(EventLocation);
+    serializer.SetTimestamp(timestamp);
 
-                    // below are middleware-specific
-                    "provided_interface" : "",
-                    "required_interface" : "",
-                    "command" : "",
-                    "function" : "",
-                    "event_generator" : "",
-                    "event_handler" : "" },
+    // Populate fault information
+    serializer.SetFaultType(Fault::FAULT_APPLICATION);
+    serializer.SetFaultDetectorName(this->GetFilterName()); // MJ: could use the name of filter pipeline instead
 
-                "timestamp" : 1234567890 
-            },
-            // severity
-            "severity" : 1.3
-        }
-     */
+    // Populate fault-specific fields
+    ::Json::Value & fields = serializer.GetFaultFields();
+    fields[SF::Dict::Json::severity] = severity;
 
-    ::Json::Value root;
-
-    // Event identification
-    {   ::Json::Value _root;
-        _root["filter"] = this->GetFilterName();
-        _root["type"] = "application";
-        _root["description"] = "user-provided description"; // FIXME
-        root["identity"] = _root;
-    }
-
-    // Event localization
-    {   ::Json::Value _root;
-        {   ::Json::Value __root;
-            this->EventLocation->PopulateJSONValues(__root);
-            _root["location"] = __root;
-            _root["timestamp"] = timestamp;
-        }
-        root["localization"] = _root;
-    }
-
-    // Fault severity
-    root["severity"] = severity;
-
-    std::stringstream ss;
-    ss << root;
-
-    return ss.str();
+    return serializer.GetJSON();
 }
 
 void FilterThreshold::ToStream(std::ostream & outputStream) const

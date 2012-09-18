@@ -89,8 +89,8 @@ public:
         // Manual check to confirm if fault events from FDD are correct.
         // USER CODES USUALLY DO NOT INCLUDE THIS PART {
         if (ForceY - Threshold > 0.0) {
-            std::cout << "[" << osaGetTime() - Tic << "] Sensor reading threshold exceeds: "
-                << ForceY - Threshold << std::endl;
+            std::cout << "[" << osaGetTime() - Tic << "] Sensor reading " << SensorReading(1)
+                << " exceeds threshold " << Threshold << " by " << ForceY - Threshold << std::endl;
         }
         // }
 
