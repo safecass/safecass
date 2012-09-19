@@ -64,7 +64,7 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(JSONSerializer & jsonSeria
         // [SFUPDATE]
 
         default:
-            SFLOG_ERROR << "Failed to convert json serializer to JSON string" << std::endl;
+            SFLOG_ERROR << "Failed to convert json serializer to JSON string: " << jsonSerializer.GetMonitorTargetType() << std::endl;
             return "";
     }
 

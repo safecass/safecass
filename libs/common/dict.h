@@ -45,6 +45,7 @@ namespace SF {
             DEFINE_KEYWORD(localization);
             DEFINE_KEYWORD(location);
             DEFINE_KEYWORD(MARGIN);
+            DEFINE_KEYWORD(monitor);
             DEFINE_KEYWORD(name);
             DEFINE_KEYWORD(OUTPUT);
             DEFINE_KEYWORD(period_actual);

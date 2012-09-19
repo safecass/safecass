@@ -146,7 +146,10 @@ const std::string JSONSerializer::GetJSON(void) const
     switch (Common.Topic) {
     case MONITOR:
         {
-            // TODO
+            ::Json::Value _root(Monitor.Fields);
+            _root[type] = Monitor::GetTargetTypeString(Monitor.Type);
+
+            root[monitor] = _root;
         }
         break;
 
@@ -196,7 +199,10 @@ bool JSONSerializer::ParseJSON(const std::string & message)
     switch (Common.Topic) {
         case MONITOR:
             {
-                // TODO
+                Monitor.Type = Monitor::GetTargetTypeFromString(values[monitor].get(type, "").asString());
+
+                Monitor.Fields = values[monitor];
+                Monitor.Fields.removeMember(type);
             }
             break;
         case FAULT:
@@ -211,6 +217,7 @@ bool JSONSerializer::ParseJSON(const std::string & message)
             break;
         case SUPERVISOR:
             {
+                // TODO
             }
             break;
     }
