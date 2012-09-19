@@ -31,47 +31,56 @@ namespace SF {
 
         namespace Json {
             DEFINE_KEYWORD(component);
-            DEFINE_KEYWORD(CONFIG);
+            DEFINE_KEYWORD(config);
+            DEFINE_KEYWORD(data);
             DEFINE_KEYWORD(detector);
+            DEFINE_KEYWORD(dutycycle_total);
+            DEFINE_KEYWORD(dutycycle_total_ratio);
+            DEFINE_KEYWORD(dutycycle_user);
+            DEFINE_KEYWORD(dutycycle_user_ratio);
             DEFINE_KEYWORD(fault);
-            DEFINE_KEYWORD(IDENTIFIER);
             DEFINE_KEYWORD(identity);
             DEFINE_KEYWORD(interface_provided);
             DEFINE_KEYWORD(interface_required);
             DEFINE_KEYWORD(localization);
             DEFINE_KEYWORD(location);
             DEFINE_KEYWORD(MARGIN);
-            DEFINE_KEYWORD(NAME);
-            DEFINE_KEYWORD(NAME_PROCESS);
-            DEFINE_KEYWORD(NAME_COMPONENT);
-            DEFINE_KEYWORD(NAME_INTERFACE_PROVIDED);
-            DEFINE_KEYWORD(NAME_INTERFACE_REQUIRED);
+            DEFINE_KEYWORD(name);
             DEFINE_KEYWORD(OUTPUT);
-            DEFINE_KEYWORD(PERIOD_EXPECTED);
+            DEFINE_KEYWORD(period_actual);
+            DEFINE_KEYWORD(period_nominal);
             DEFINE_KEYWORD(process);
             DEFINE_KEYWORD(PUBLISH);
-            DEFINE_KEYWORD(SAMPLE);
-            DEFINE_KEYWORD(SAMPLING_RATE);
+            DEFINE_KEYWORD(sampling_rate);
             DEFINE_KEYWORD(severity);
-            DEFINE_KEYWORD(STATE);
+            DEFINE_KEYWORD(state);
             DEFINE_KEYWORD(SUBSCRIBE);
-            DEFINE_KEYWORD(TARGET);
             DEFINE_KEYWORD(THRESHOLD);
+            DEFINE_KEYWORD(thread_period);
+            DEFINE_KEYWORD(thread_dutycycle_user);
+            DEFINE_KEYWORD(thread_dutycycle_total);
+            DEFINE_KEYWORD(time);
             DEFINE_KEYWORD(timestamp);
             DEFINE_KEYWORD(topic);
-            DEFINE_KEYWORD(TYPE);
             DEFINE_KEYWORD(type);
         };
 
         namespace TopicNames {
             // For monitoring
             DEFINE_KEYWORD(Monitor);
+            // For fault detection and diagnosis 
+            DEFINE_KEYWORD(Fault);
             // For supervisory control and fault management
             DEFINE_KEYWORD(Supervisor);
         };
 
+        namespace MonitorNames {
+            // Monitor can generate events; for event-type monitoring
+            DEFINE_KEYWORD(MonitorEvent);
+        };
+
         namespace FaultNames {
-            // Used fault event generation and propagation across the system and SF.
+            // Used fault event generation and propagation
             DEFINE_KEYWORD(FaultEvent);
         };
 

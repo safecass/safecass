@@ -24,111 +24,56 @@ using namespace SF::Dict::Json;
 
 namespace SF {
 
-const std::string MongoDB::GetDBEntryFromMonitorTopic(const std::string & topic)
+const std::string MongoDB::GetDBEntryFromMonitorTopic(JSONSerializer & jsonSerializer)
 {
-    // FIXME
-#if 0
-    // Parse source Json
-    SF::JSON json;
-    if (!json.Read(topic.c_str())) {
-        SFLOG_ERROR << "Failed to parse json from topic message: " << topic << std::endl;
-        return "";
-    }
-
-    Json::Value & sample = json.GetRoot();
-
-    // Generate Json for MongoDB entry
+    // Json placeholder for DB entry
     Json::Value entry;
 
-    // MJ TODO: this timestamp should be set by mtsMonitorComponent when collecting samples
-    entry["time"] = GetCurrentUTCTimeString();
-
-    // Get monitor type
-    const std::string targetTypeString = sample[TARGET].get(TYPE, "n/a").asString();
-    Monitor::TargetType targetType = Monitor::GetTargetTypeFromString(targetTypeString);
+    // MJ TODO: Should convert timestamp from json to UTC; right now current UTC is used instead.
+    entry[SF::Dict::Json::time] = GetCurrentUTCTimeString();
 
     // Monitor data sample
-    double nominalPeriod;
-    switch (targetType) {
+    Json::Value _data;
+    _data[process]   = jsonSerializer.GetEventLocation()->GetProcessName();
+    _data[component] = jsonSerializer.GetEventLocation()->GetComponentName();
+
+    switch (jsonSerializer.GetMonitorTargetType()) {
         case Monitor::TARGET_THREAD_PERIOD:
             {   
-                // entry type
-                entry["type"] = "period";
-                // measurement data
-                Json::Value _data;
-                _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
-                _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
-                _data["nominal"] = sample[TARGET].get(PERIOD_EXPECTED, 0.0).asDouble();
-                _data["actual"] = sample.get(SAMPLE, 0.0).asDouble();
-                entry["data"] = _data;
+                entry[type] = thread_period;
+                _data[period_nominal] = jsonSerializer.GetMonitorFields().get(period_nominal, 0.0).asDouble();
+                _data[period_actual]  = jsonSerializer.GetMonitorFields().get(period_actual, 0.0).asDouble();
             }
             break;
 
         case Monitor::TARGET_THREAD_DUTYCYCLE_USER:
             {
-                // entry type
-                entry["type"] = "exectime_user";
-                // measurement data
-                Json::Value _data;
-                _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
-                _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
-                _data["exectime"] = sample.get(SAMPLE, 0.0).asDouble();
-                nominalPeriod = sample[TARGET].get(PERIOD_EXPECTED, 0.0).asDouble();
-                if (nominalPeriod != 0.0)
-                    _data["exectime_ratio"] = (sample.get(SAMPLE, 0.0).asDouble() / nominalPeriod) * 100.0;
-                else
-                    _data["exectime_ratio"] = 0.0;
-                entry["data"] = _data;
+                entry[type] = thread_dutycycle_user;
+                _data[dutycycle_user] = jsonSerializer.GetMonitorFields().get(dutycycle_user, 0.0).asDouble();
+                _data[dutycycle_user_ratio] = jsonSerializer.GetMonitorFields().get(dutycycle_user_ratio, 0.0).asDouble();
             }
             break;
 
         case Monitor::TARGET_THREAD_DUTYCYCLE_TOTAL:
             {
-                // entry type
-                entry["type"] = "exectime_total";
-                // measurement data
-                Json::Value _data;
-                _data["process"]   = sample[TARGET][IDENTIFIER].get(NAME_PROCESS, "n/a").asString();
-                _data["component"] = sample[TARGET][IDENTIFIER].get(NAME_COMPONENT, "n/a").asString();
-                _data["exectime"] = sample.get(SAMPLE, 0.0).asDouble();
-                nominalPeriod = sample[TARGET].get(PERIOD_EXPECTED, 0.0).asDouble();
-                if (nominalPeriod != 0.0)
-                    _data["exectime_ratio"] = (sample.get(SAMPLE, 0.0).asDouble() / nominalPeriod) * 100.0;
-                else
-                    _data["exectime_ratio"] = 0.0;
-                entry["data"] = _data;
-            }
-            break;
-
-        case Monitor::TARGET_FILTER_EVENT:
-            {
-                // no need for conversion: filter event comes in json format
-                std::cout << "TARGET_FILTER_EVENT ==============" << std::endl;
-                std::cout << topic << std::endl;
-                return topic;
+                entry[type] = thread_dutycycle_total;
+                _data[dutycycle_total] = jsonSerializer.GetMonitorFields().get(dutycycle_total, 0.0).asDouble();
+                _data[dutycycle_total_ratio] = jsonSerializer.GetMonitorFields().get(dutycycle_total_ratio, 0.0).asDouble();
             }
             break;
         // [SFUPDATE]
 
         default:
-            SFLOG_ERROR << "Failed to convert topic message to MongoDB entry due to invalid fault type string: "
-                << "\"" << targetTypeString << "\"" << std::endl;
+            SFLOG_ERROR << "Failed to convert json serializer to JSON string" << std::endl;
+            return "";
     }
+
+    entry[data] = _data;
 
     std::stringstream ss;
     ss << entry;
-#endif
 
-    //return ss.str();
-    return "";
-}
-
-MongoDB::MongoDB()
-{
-}
-
-MongoDB::~MongoDB()
-{
+    return ss.str();
 }
 
 }

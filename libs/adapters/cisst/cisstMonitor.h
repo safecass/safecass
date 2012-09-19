@@ -31,17 +31,11 @@ public:
                  const SamplingRateType    samplingRate = 0);
     virtual ~cisstMonitor();
 
+    /*! Returns JSON representation of this monitor */
     const std::string GetMonitorJSON(void) const;
 
-    /*! Returns cisstEventLocation instance */
-
-    //
-    // Publish monitored data in Json
-    //
-    /*! Getters to publish collected (monitored) data via SF */
-    const std::string GetJsonForPublishingPeriod(double sample) const;
-    const std::string GetJsonForPublishingDutyCycleUser(double dutyCycle) const;
-    const std::string GetJsonForPublishingDutyCycleTotal(double dutyCycle) const;
+    /*! Returns JSON message to publish to the Safety Framework */
+    const std::string GetJsonForPublish(double sample, double currentTick) const;
 
     void ToStream(std::ostream & outputStream) const;
 };

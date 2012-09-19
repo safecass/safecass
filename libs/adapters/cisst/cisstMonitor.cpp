@@ -16,7 +16,7 @@
 
 #include "dict.h"
 #include "cisstDic.h"
-#include "json.h"
+#include "jsonSerializer.h"
 
 #include <sstream>
 
@@ -48,34 +48,34 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
     ::Json::Value root;
     cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(LocationID);
 
-    root[NAME] = this->GetUIDAsString();
+    root[name] = this->GetUIDAsString();
 
     // Monitor target type
     {   ::Json::Value _root;
-        _root[TYPE] = Monitor::GetTargetTypeString(Target);
+        _root[type] = Monitor::GetTargetTypeString(Target);
 
         { ::Json::Value __root;
-          __root[NAME_PROCESS]                = locationID->GetProcessName();
-          __root[NAME_COMPONENT]              = locationID->GetComponentName();
-          __root[NAME_INTERFACE_PROVIDED]     = locationID->GetInterfaceProvidedName();
-          __root[NAME_INTERFACE_REQUIRED]     = locationID->GetInterfaceRequiredName();
-          __root[cisst::NAME_COMMAND]         = locationID->GetCommandName();
-          __root[cisst::NAME_FUNCTION]        = locationID->GetFunctionName();
-          __root[cisst::NAME_EVENT_GENERATOR] = locationID->GetEventGeneratorName();
-          __root[cisst::NAME_EVENT_HANDLER]   = locationID->GetEventHandlerName();
-          _root[IDENTIFIER] = __root;
+          __root[process]                = locationID->GetProcessName();
+          __root[component]              = locationID->GetComponentName();
+          __root[interface_provided]     = locationID->GetInterfaceProvidedName();
+          __root[interface_required]     = locationID->GetInterfaceRequiredName();
+          __root[cisst::command]         = locationID->GetCommandName();
+          __root[cisst::function]        = locationID->GetFunctionName();
+          __root[cisst::event_generator] = locationID->GetEventGeneratorName();
+          __root[cisst::event_handler]   = locationID->GetEventHandlerName();
+          _root[location] = __root;
         }
-        root[TARGET] = _root;
+        root[localization] = _root;
     }
 
     // Monitor behaviors
     {   ::Json::Value _root;
-        _root[TYPE] = Monitor::GetOutputTypeString(Output);
+        _root[type] = Monitor::GetOutputTypeString(Output);
         {   ::Json::Value __root;
             {
-                __root[STATE] = Monitor::GetStateTypeString(this->State);
+                __root[state] = Monitor::GetStateTypeString(this->State);
                 if (Output == OUTPUT_STREAM) {
-                    __root[SAMPLING_RATE] = SamplingRate;
+                    __root[sampling_rate] = SamplingRate;
                 } else if (Output == OUTPUT_EVENT) {
 #if 0 // MJ TEMP: not yet decided how to use these fields
                     ::Json::Value array(::Json::arrayValue);
@@ -88,7 +88,7 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
 #endif
                 }
             }
-            _root[CONFIG] = __root;
+            _root[config] = __root;
         }
 
 #if 0 // MJ: where to publish is determined by Ice configuration files
@@ -111,8 +111,48 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
     return ss.str();
 }
 
+const std::string cisstMonitor::GetJsonForPublish(double sample, double currentTick) const
+{
+    // Create JSONSerializer instance 
+    JSONSerializer serializer;
+    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(this->LocationID);
+
+    // Populate common fields
+    serializer.SetTopicType(JSONSerializer::MONITOR);
+    serializer.SetEventLocation(locationID);
+    serializer.SetTimestamp(currentTick);
+
+    // Populate monitor information
+    serializer.SetMonitorTargetType(this->Target);
+
+    // Populate monitor-specific fields
+    ::Json::Value & fields = serializer.GetMonitorFields();
+    switch (serializer.GetMonitorTargetType()) {
+        case TARGET_THREAD_PERIOD:
+            fields[period_nominal] = GetSamplingPeriod();
+            fields[period_actual] = sample;
+            break;
+        case TARGET_THREAD_DUTYCYCLE_USER:
+            fields[dutycycle_user] = sample;
+            fields[dutycycle_user_ratio] = sample / GetSamplingPeriod();
+            break;
+        case TARGET_THREAD_DUTYCYCLE_TOTAL:
+            fields[dutycycle_total] = sample;
+            fields[dutycycle_total_ratio] = sample / GetSamplingPeriod();
+            break;
+        case TARGET_FILTER_EVENT:
+            // MJ: Filter events (i.e., faults) are handled separately
+            CMN_ASSERT(false);
+            break;
+    }
+
+    return serializer.GetJSON();
+}
+
+/*
 const std::string cisstMonitor::GetJsonForPublishingPeriod(double sample) const
 {
+#if 0
     ::Json::Value root;
     cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(LocationID);
 
@@ -132,10 +172,31 @@ const std::string cisstMonitor::GetJsonForPublishingPeriod(double sample) const
     ss << root;
 
     return ss.str();
+#endif
+
+    // Create JSONSerializer instance 
+    JSONSerializer serializer;
+    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(this->LocationID);
+
+    // Populate common fields
+    serializer.SetTopicType(JSONSerializer::MONITOR);
+    serializer.SetEventLocation(locationID);
+    serializer.SetTimestamp(timestamp);
+
+    // Populate monitor information
+    serializer.SetMonitorTargetType(this->Target);
+
+    // Populate monitor-specific fields
+    ::Json::Value & fields = serializer.GetMonitorFields();
+    fields[SF::Dict::Json::period_expected] = GetSamplingPeriod();
+    fields[SF::Dict::Json::sample] = sample;
+
+    return serializer.GetJSON();
 } 
 
 const std::string cisstMonitor::GetJsonForPublishingDutyCycleUser(double dutyCycle) const
 {
+#if 0
     ::Json::Value root;
     cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(LocationID);
 
@@ -155,13 +216,33 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycleUser(double dutyCyc
     ss << root;
 
     return ss.str();
+#endif
+
+    // Create JSONSerializer instance 
+    JSONSerializer serializer;
+    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(this->LocationID);
+
+    // Populate common fields
+    serializer.SetTopicType(JSONSerializer::MONITOR);
+    serializer.SetEventLocation(locationID);
+    serializer.SetTimestamp(timestamp);
+
+    // Populate monitor information
+    serializer.SetMonitorTargetType(this->Target);
+
+    // Populate monitor-specific fields
+    ::Json::Value & fields = serializer.GetMonitorFields();
+    fields[SF::Dict::Json::period_expected] = GetSamplingPeriod();
+    fields[SF::Dict::Json::sample] = dutyCycle;
+
+    return serializer.GetJSON();
 }
 
 const std::string cisstMonitor::GetJsonForPublishingDutyCycleTotal(double dutyCycle) const
 {
+#if 0
     ::Json::Value root;
-    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(LocationID)
-        ;
+    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(LocationID);
 
     ::Json::Value _root;
     _root[TYPE] = Monitor::GetTargetTypeString(Target);
@@ -179,7 +260,28 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycleTotal(double dutyCy
     ss << root;
 
     return ss.str();
+#endif
+
+    // Create JSONSerializer instance 
+    JSONSerializer serializer;
+    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(this->LocationID);
+
+    // Populate common fields
+    serializer.SetTopicType(JSONSerializer::MONITOR);
+    serializer.SetEventLocation(locationID);
+    serializer.SetTimestamp(timestamp);
+
+    // Populate monitor information
+    serializer.SetMonitorTargetType(this->Target);
+
+    // Populate monitor-specific fields
+    ::Json::Value & fields = serializer.GetMonitorFields();
+    fields[SF::Dict::Json::period_expected] = GetSamplingPeriod();
+    fields[SF::Dict::Json::sample] = dutyCycle;
+
+    return serializer.GetJSON();
 }
+*/
 
 void cisstMonitor::ToStream(std::ostream & outputStream) const
 {

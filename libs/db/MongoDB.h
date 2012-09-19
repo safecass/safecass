@@ -16,18 +16,17 @@
 #define _MongoDB_h
 
 #include "common.h"
+#include "jsonSerializer.h"
 
 namespace SF {
 
 class SFLIB_EXPORT MongoDB {
 public:
-    MongoDB();
-    ~MongoDB();
+    MongoDB() {}
+    ~MongoDB() {}
 
-    // MJ TODO: if multiple DBMSs are to be supported, this could be moved up to
-    // the base class
-    /*! Convert topic message into DB-specific entry format */
-    static const std::string GetDBEntryFromMonitorTopic(const std::string & json);
+    /*! Generate DB record from json */
+    static const std::string GetDBEntryFromMonitorTopic(JSONSerializer & jsonSerializer);
 };
 
 };
