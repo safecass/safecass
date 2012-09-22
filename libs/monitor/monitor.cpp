@@ -26,7 +26,8 @@ using namespace Dict;
 Monitor::Monitor() 
     : UID(++UIDCounter), // UID=0 means invalid monitor target
       Target(TARGET_INVALID), LocationID(0), State(STATE_INVALID),
-      Output(OUTPUT_INVALID), SamplingRate(0), LastSamplingTick(0)
+      Output(OUTPUT_INVALID), SamplingRate(0), LastSamplingTick(0),
+      AttachedToFilter(false)
 {
     Samples.Period = 0.0;
     Samples.ExecTimeUser = 0.0;

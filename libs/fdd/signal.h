@@ -24,6 +24,7 @@ namespace SF {
 class HistoryBufferBase;
 
 class SFLIB_EXPORT SignalElement {
+
 public:
     /*! Typedef for scalar and vector types */
     typedef double ScalarType;
@@ -63,14 +64,13 @@ protected:
     /*! Index of signal in the history buffer */
     HistoryBufferIndexType HistoryBufferIndex; // MJ TEMP: was StateDataId (int) in cisst
 
-    /*! Placeholders for each signal type.  Updated when fetching new values from the
-        history buffer. */
-    // MJ: this could be public
-    ScalarType PlaceholderScalar;
-    VectorType PlaceholderVector;
-
     /*! Timestamp of the last sample fetched */
     TimestampType TimeLastSampleFetched;
+
+    /*! Placeholders for each signal type.  Updated when fetching new values from the
+        history buffer. */
+    ScalarType PlaceholderScalar;
+    VectorType PlaceholderVector;
 
     /*! Initialize internal variables */
     void Init(void);
@@ -111,7 +111,7 @@ public:
     inline void SetTimeLastSampleFetched(TimestampType timestamp) { TimeLastSampleFetched = timestamp; }
 
     /*! Returns placeholders */
-    ScalarType GetPlaceholderScalar(void) const { return PlaceholderScalar; }
+    ScalarType & GetPlaceholderScalar(void) { return PlaceholderScalar; }
     VectorType & GetPlaceholderVector(void) { return PlaceholderVector; }
     /*! Returns pointers of placeholders */
     ScalarType * GetPlaceholderScalarPointer(void) { return &PlaceholderScalar; }
