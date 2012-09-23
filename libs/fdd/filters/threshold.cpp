@@ -60,7 +60,7 @@ void FilterThreshold::DoFiltering(bool debug)
     if (!this->IsEnabled()) return;
 
     // Fetch new value from history buffer and update output value
-    if (!InputSignals[0]->FetchNewValueScalar()) {
+    if (!InputSignals[0]->FetchNewValueScalar((this->Type == FilterBase::ACTIVE))) {
         SFLOG_ERROR << "FilterThreshold: failed to fetch new scalar value from history buffer" << std::endl;
         // If failed, placeholders are set as zero internally.
         this->Enable(false); // for no further error messages

@@ -27,7 +27,7 @@ Monitor::Monitor()
     : UID(++UIDCounter), // UID=0 means invalid monitor target
       Target(TARGET_INVALID), LocationID(0), State(STATE_INVALID),
       Output(OUTPUT_INVALID), SamplingRate(0), LastSamplingTick(0),
-      AttachedToFilter(false)
+      AttachedToActiveFilter(false)
 {
     Samples.Period = 0.0;
     Samples.ExecTimeUser = 0.0;
@@ -142,7 +142,7 @@ Monitor::OutputType Monitor::GetOutputTypeFromString(const std::string & str)
 void Monitor::ToStream(std::ostream & outputStream) const
 {
     outputStream << "Target type: " << GetTargetTypeString(Target) << ", "
-                 << "LocationID: " << LocationID << ", "
+                 << "LocationID: " << *LocationID << ", "
                  << "State: " << GetStateTypeString(State) << ", "
                  << "OutputType: " << GetOutputTypeString(Output) << ", "
                  << "SamplingRate: " << SamplingRate << ", ";

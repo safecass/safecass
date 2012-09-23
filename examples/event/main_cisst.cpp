@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
     cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
     //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
-    //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
+    cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
     mtsComponentManager::InstallSafetyCoordinator();
@@ -214,8 +214,8 @@ bool InstallFilter(const std::string & targetComponentName)
     }
 
     // Create two thresholding filters
-#if 0
     // Active filter
+#if 0
     SF::FilterThreshold * filterThresholdActive = 
         new FilterThreshold(// Common arguments
                             SF::FilterBase::FEATURE, // filter category
@@ -242,6 +242,7 @@ bool InstallFilter(const std::string & targetComponentName)
 #endif
 
     // Passive filter
+#if 1
     SF::FilterThreshold * filterThresholdPassive = 
         new FilterThreshold(// Common arguments
                             SF::FilterBase::FEATURE, // filter category
@@ -270,6 +271,7 @@ bool InstallFilter(const std::string & targetComponentName)
     }
     SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdPassive->GetFilterName() << "\"" << std::endl;
     std::cout << *filterThresholdPassive << std::endl;
+#endif
     
     return true;
 }

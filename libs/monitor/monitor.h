@@ -87,7 +87,7 @@ protected:
 
     /*! Monitor type: individual monitor (for passive filtering) or monitor attached 
         to filter (for active filtering) */
-    bool AttachedToFilter;
+    bool AttachedToActiveFilter;
 
 public:
     Monitor();
@@ -125,7 +125,7 @@ public:
     inline bool IsActive(void) const { return (State == STATE_ON); }
     inline bool IsStream(void) const { return (Output == OUTPUT_STREAM); }
     inline bool IsEvent(void) const  { return (Output == OUTPUT_EVENT); }
-    inline bool IsAttachedToFilter(void) const { return AttachedToFilter; }
+    inline bool IsAttachedToActiveFilter(void) const { return AttachedToActiveFilter; }
 
     inline TargetType         GetTargetType(void) const     { return Target; }
     inline EventLocationBase *GetLocationID(void) const     { return LocationID; }
@@ -142,7 +142,9 @@ public:
     inline void SetState(const StateType state)              { State = state; }
     inline void SetOutputType(const OutputType output)       { Output = output; }
     inline void SetSamplingRate(const SamplingRateType rate) { SamplingRate = rate; }
-    inline void SetAttachedToFilter(bool attachedToFilter)   { AttachedToFilter = attachedToFilter; }
+    inline void SetAttachedToActiveFilter(bool attachedToActiveFilter) {
+        AttachedToActiveFilter = attachedToActiveFilter;
+    }
 
     //
     //  Misc. Getters

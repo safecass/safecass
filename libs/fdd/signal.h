@@ -85,9 +85,9 @@ public:
     ~SignalElement();
 
     /*! Fetch latest scalar-type value from history buffer */
-    bool FetchNewValueScalar(void);
+    bool FetchNewValueScalar(bool activeFiltering);
     /*! Fetch latest vector-type value from history buffer */
-    bool FetchNewValueVector(void);
+    bool FetchNewValueVector(bool activeFiltering);
 
     //-------------------------------------------------- 
     //  Getters and Setters

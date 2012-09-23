@@ -66,7 +66,7 @@ void SignalElement::SetHistoryBufferInstance(HistoryBufferBase * buffer)
     HistoryBuffer = buffer;
 }
 
-bool SignalElement::FetchNewValueScalar(void)
+bool SignalElement::FetchNewValueScalar(bool activeFiltering)
 {
     if (!HistoryBuffer) {
         SFLOG_ERROR << "FetchNewValueScalar: Failed to fetch new value - NULL history buffer" << std::endl;
@@ -75,12 +75,15 @@ bool SignalElement::FetchNewValueScalar(void)
         return false;
     }
 
-    HistoryBuffer->GetNewValueScalar(HistoryBufferIndex, PlaceholderScalar, TimeLastSampleFetched);
+    if (activeFiltering)
+        HistoryBuffer->GetNewValueScalar(HistoryBufferIndex, PlaceholderScalar, TimeLastSampleFetched);
+    else
+        HistoryBuffer->GetNewValueScalar(PlaceholderScalar, TimeLastSampleFetched);
 
     return true;
 }
 
-bool SignalElement::FetchNewValueVector(void)
+bool SignalElement::FetchNewValueVector(bool activeFiltering)
 {
     if (!HistoryBuffer) {
         SFLOG_ERROR << "FetchNewValueVector: Failed to fetch new value - NULL history buffer" << std::endl;
@@ -89,7 +92,10 @@ bool SignalElement::FetchNewValueVector(void)
         return false;
     }
 
-    HistoryBuffer->GetNewValueScalar(HistoryBufferIndex, PlaceholderScalar, TimeLastSampleFetched);
+    if (activeFiltering)
+        HistoryBuffer->GetNewValueScalar(HistoryBufferIndex, PlaceholderScalar, TimeLastSampleFetched);
+    else
+        HistoryBuffer->GetNewValueScalar(PlaceholderScalar, TimeLastSampleFetched);
 
     return true;
 }
