@@ -15,6 +15,7 @@
 #include "threshold.h"
 #include "dict.h"
 #include "JSONSerializer.h"
+#include "eventPublisherBase.h"
 
 namespace SF {
 

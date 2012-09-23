@@ -15,14 +15,19 @@
 #ifndef _EventPublisherBase_h
 #define _EventPublisherBase_h
 
-#include "signal.h"
+#include "filterBase.h"
 
 namespace SF {
 
 class SFLIB_EXPORT EventPublisherBase
 {
+protected:
+    /*! Filtering type (active or passive) */
+    FilterBase::FilteringType Type;
+
 public:
-    EventPublisherBase(void) {}
+    EventPublisherBase(FilterBase::FilteringType filteringType)
+        : Type(filteringType) {}
     virtual ~EventPublisherBase() {}
 
     /*! Publish an event directly to the Safety Framework or pass it to a 

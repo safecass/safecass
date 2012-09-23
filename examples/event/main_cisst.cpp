@@ -214,6 +214,7 @@ bool InstallFilter(const std::string & targetComponentName)
     }
 
     // Create two thresholding filters
+#if 0
     // Active filter
     SF::FilterThreshold * filterThresholdActive = 
         new FilterThreshold(// Common arguments
@@ -228,7 +229,7 @@ bool InstallFilter(const std::string & targetComponentName)
                             1.0);     // output 1 (input exceeds threshold)
 
     // Declare the filter as the last filter of FDD pipeline.
-    //filterThresholdActive->DeclareLastFilterOfPipeline();
+    filterThresholdActive->DeclareLastFilterOfPipeline();
 
     // Install filter to the target component [active monitoring]
     if (!coordinator->AddFilter(filterThresholdActive)) {
@@ -238,6 +239,7 @@ bool InstallFilter(const std::string & targetComponentName)
     }
     SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdActive->GetFilterName() << "\"" << std::endl;
     std::cout << *filterThresholdActive << std::endl;
+#endif
 
     // Passive filter
     SF::FilterThreshold * filterThresholdPassive = 
@@ -246,11 +248,18 @@ bool InstallFilter(const std::string & targetComponentName)
                             targetComponentName,     // name of target component
                             SF::FilterBase::PASSIVE, // monitoring type
                             // Arguments specific to this filter
+                            /*
                             filterThresholdActive->GetNameOfInputSignal(),
                             filterThresholdActive->GetThreshold(),
                             filterThresholdActive->GetMargin(),
                             filterThresholdActive->GetOutput0(),
                             filterThresholdActive->GetOutput1());
+                            */
+                            "ForceY",
+                            10.0,     // threshold
+                            0.5,      // margin
+                            0.0,      // output 0 (input is below threshold)
+                            1.0);     // output 1 (input exceeds threshold)
     filterThresholdPassive->DeclareLastFilterOfPipeline();
 
     // Install filter to the target component [passive monitoring]

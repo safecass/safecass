@@ -19,13 +19,13 @@
 #include <sstream>
 
 #include "signal.h"
-#include "eventPublisherBase.h"
 #include "eventLocationBase.h"
 #include "json.h"
 
 namespace SF {
 
 class HistoryBufferBase;
+class EventPublisherBase;
 
 class SFLIB_EXPORT FilterBase
 {
@@ -77,7 +77,7 @@ protected:
     const FilterCategory Category;
     /*! Name of target component */
     const std::string NameOfTargetComponent;
-    /*! Filtering type */
+    /*! Filtering type (active or passive) */
     const FilteringType Type;
     /*! Is this filter the last one of a FDD pipeline? */
     bool LastFilterOfPipeline;

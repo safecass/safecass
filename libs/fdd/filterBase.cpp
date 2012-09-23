@@ -13,6 +13,7 @@
 */
 
 #include "filterBase.h"
+#include "eventPublisherBase.h"
 
 namespace SF {
 
