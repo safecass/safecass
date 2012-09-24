@@ -8,4 +8,6 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 #
 
-add_subdirectory(supervisor)
+if (BUILD_EXAMPLES)
+  add_subdirectory(supervisor)
+endif (BUILD_EXAMPLES)

@@ -54,7 +54,7 @@ set (SF_LIB_FDD_SRC # faults
                     # filters
                     #${LIB_DIR}/fdd/filters/bypass.h ${LIB_DIR}/fdd/filters/bypass.cpp
                     ${LIB_DIR}/fdd/filters/threshold.h ${LIB_DIR}/fdd/filters/threshold.cpp)
-set (SF_LIB_FDD_INCLUDE_DIR ${LIB_DIR}/fdd {$LIB_DIR}/fdd/filters)
+set (SF_LIB_FDD_INCLUDE_DIR ${LIB_DIR}/fdd ${LIB_DIR}/fdd/filters)
 
 # adapters
 set (SF_LIB_ADAPTER_BASE_DIR ${LIB_DIR}/adapters)
@@ -150,6 +150,7 @@ set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${CMAKE_BINARY_DIR})
 # Find JSON (for JSON-based data exchange)
 find_package (JSONCPP REQUIRED)
 if (JSONCPP_FOUND)
+  message ("JSONCPP found")
   set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${JSONCPP_INCLUDE_DIR})
   set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} ${JSONCPP_LIBRARIES})
 elseif (JSONCPP_FOUND)

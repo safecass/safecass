@@ -61,16 +61,22 @@ if (SF_HAS_CISST)
 endif (SF_HAS_CISST)
 
 # Options to enable visualizataion framework using Qt and D3/cubism
-option (ENABLE_VIS_FRAMEWORK "Enable visualization framework.  Requires Qt and D3/cubism" ON)
+option (ENABLE_VIS_FRAMEWORK "Enable visualization framework using Qt and visualization packages" ON)
 if (ENABLE_VIS_FRAMEWORK)
     message("Visualization framework enabled")
 endif (ENABLE_VIS_FRAMEWORK)
+
+# Option to compile examples separately
+option (BUILD_EXAMPLES "Build examples.  Requires safety framework-enabled middleware." OFF)
 
 # Include sub-directories
 add_subdirectory(libs)
 add_subdirectory(programs)
 add_subdirectory(tools)
-add_subdirectory(examples)
+if (BUILD_EXAMPLES)
+  message("Building examples")
+  add_subdirectory(examples)
+endif (BUILD_EXAMPLES)
 if (ENABLE_UNIT_TEST)
   message("Unit-test enabled")
   add_subdirectory(tests)
