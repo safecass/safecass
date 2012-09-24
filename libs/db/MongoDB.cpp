@@ -76,4 +76,62 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(JSONSerializer & jsonSeria
     return ss.str();
 }
 
+const std::string MongoDB::GetDBEntryFromFaultTopic(JSONSerializer & jsonSerializer)
+{
+    // Json placeholder for DB entry
+    Json::Value entry;
+
+    // MJ TODO: Should convert timestamp from json to UTC; right now current UTC is used instead.
+    entry[SF::Dict::Json::time] = GetCurrentUTCTimeString();
+
+    // Fault information
+    Json::Value _data;
+    _data[process]   = jsonSerializer.GetEventLocation()->GetProcessName();
+    _data[component] = jsonSerializer.GetEventLocation()->GetComponentName();
+
+    switch (jsonSerializer.GetFaultType()) {
+        
+        case Fault::FAULT_COMPONENT_PERIOD:
+            {   
+#if 0 // MJ TODO: implement this
+                entry[type] = thread_period;
+                _data[period_nominal] = jsonSerializer.GetMonitorFields().get(period_nominal, 0.0).asDouble();
+                _data[period_actual]  = jsonSerializer.GetMonitorFields().get(period_actual, 0.0).asDouble();
+#endif
+            }
+            break;
+
+        case Fault::FAULT_COMPONENT_OVERRUN:
+            {
+#if 0 // MJ TODO: implement this
+                entry[type] = thread_dutycycle_user;
+                _data[dutycycle_user] = jsonSerializer.GetMonitorFields().get(dutycycle_user, 0.0).asDouble();
+                _data[dutycycle_user_ratio] = jsonSerializer.GetMonitorFields().get(dutycycle_user_ratio, 0.0).asDouble();
+#endif
+            }
+            break;
+
+        case Fault::FAULT_APPLICATION:
+            {
+                entry[type] = fault_application;
+                _data[detector] = jsonSerializer.GetFaultDetectorName();
+                _data[timestamp] = jsonSerializer.GetTimestamp();
+                _data[severity] = jsonSerializer.GetFaultFields().get(severity, 0.0).asDouble();
+            }
+            break;
+        // [SFUPDATE]
+
+        default:
+            SFLOG_ERROR << "Failed to convert json serializer to JSON string: " << jsonSerializer.GetMonitorTargetType() << std::endl;
+            return "";
+    }
+
+    entry[data] = _data;
+
+    std::stringstream ss;
+    ss << entry;
+
+    return ss.str();
+}
+
 }

@@ -25,8 +25,11 @@ public:
     MongoDB() {}
     ~MongoDB() {}
 
-    /*! Generate DB record from json */
+    /*! Convert JSON message from the Monitor topic into MongoDB record */
     static const std::string GetDBEntryFromMonitorTopic(JSONSerializer & jsonSerializer);
+
+    /*! Convert JSON message from the Fault topic into MongoDB record */
+    static const std::string GetDBEntryFromFaultTopic(JSONSerializer & jsonSerializer);
 };
 
 };

@@ -39,6 +39,7 @@ namespace SF {
             DEFINE_KEYWORD(dutycycle_user);
             DEFINE_KEYWORD(dutycycle_user_ratio);
             DEFINE_KEYWORD(fault);
+            DEFINE_KEYWORD(fault_application);
             DEFINE_KEYWORD(identity);
             DEFINE_KEYWORD(interface_provided);
             DEFINE_KEYWORD(interface_required);
