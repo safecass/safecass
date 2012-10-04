@@ -49,13 +49,13 @@ horizon.height(60);
 
 // Reference: https://github.com/square/cube/wiki/Queries#wiki-event
 var metrics = [
-  cube.metric("min(period(actual - nominal))"),
-  cube.metric("max(period(actual - nominal))"),
-  cube.metric("sum(period(actual - nominal)) / sum(period)"),
-  cube.metric("sum(exectime_user(exectime)) / sum(exectime_user)"),
-  cube.metric("sum(exectime_user(exectime_ratio)) / sum(exectime_user)"),
-  cube.metric("sum(exectime_total(exectime)) / sum(exectime_total)"),
-  cube.metric("sum(exectime_total(exectime_ratio)) / sum(exectime_total)")
+  cube.metric("min(thread_period(period_actual - period_nominal))"),
+  cube.metric("max(thread_period(period_actual - period_nominal))"),
+  cube.metric("sum(thread_period(period_actual - period_nominal)) / sum(thread_period)"),
+  cube.metric("sum(thread_dutycycle_user(dutycycle_user)) / sum(thread_dutycycle_user)"),
+  cube.metric("sum(thread_dutycycle_user(dutycycle_user_ratio)) / sum(thread_dutycycle_user)"),
+  cube.metric("sum(thread_dutycycle_total(dutycycle_total)) / sum(thread_dutycycle_total)"),
+  cube.metric("sum(thread_dutycycle_total(dutycycle_total_ratio)) / sum(thread_dutycycle_total)")
   //cube.metric("sum(exectime_total(exec_time)) - sum(exectime_user(exec_time))").divide(cube.metric("sum(exectime_total)"))
 ];
 
