@@ -23,19 +23,32 @@
         d1.push(null);
     }
 
+    function ISODateString(d){
+      function pad(n) { return n < 10 ? '0'+n : n }
+      return d.getUTCFullYear() + '-'  
+      + pad(d.getUTCMonth() +1) + '-'  
+      + pad(d.getUTCDate()) + 'T'  
+      + pad(d.getUTCHours()) + ':'  
+      + pad(d.getUTCMinutes()) + ':'  
+      + pad(d.getUTCSeconds())// + 'Z'  
+    }  
+
     var socket = new WebSocket("ws://localhost:1081/1.0/event/get");
 
+    //console.log(ISODateString(new Date()));
     socket.onopen = function() {
       socket.send(JSON.stringify({
-        "expression": "period(actual)",
-        "start": "2012-09-07T13:31:00"
+        "expression": "thread_period(period_actual)",
+        //"start": "2012-09-07T13:31:00"
+        // Get current UTC timestamp in string format
+        "start": ISODateString(new Date())
       }));
     };
 
     var sample = 0;
     socket.onmessage = function(message) {
       var json = JSON.parse(message.data);
-      sample = json.data.actual;
+      sample = json.data.period_actual;
       //console.log(sample);
       drawGraph();
     };
@@ -48,10 +61,10 @@
             window.__rgraph_line__.Set('chart.xticks', 30);
             window.__rgraph_line__.Set('chart.background.barcolor1', 'white');
             window.__rgraph_line__.Set('chart.background.barcolor2', 'white');
-            window.__rgraph_line__.Set('chart.title.xaxis', 'Time >>>');
-            window.__rgraph_line__.Set('chart.title.yaxis', 'Bandwidth (MB/s)');
+            window.__rgraph_line__.Set('chart.title.xaxis', 'Samples >>>');
+            window.__rgraph_line__.Set('chart.title.yaxis', 'Sampled Period (sec)');
             window.__rgraph_line__.Set('chart.title.vpos', 0.5);
-            window.__rgraph_line__.Set('chart.title', 'Bandwidth used');
+            window.__rgraph_line__.Set('chart.title', 'Period');
             window.__rgraph_line__.Set('chart.title.yaxis.pos', 0.5);
             window.__rgraph_line__.Set('chart.title.xaxis.pos', 0.5);
             window.__rgraph_line__.Set('chart.colors', ['black']);

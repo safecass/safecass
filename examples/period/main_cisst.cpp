@@ -227,7 +227,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
 #endif
 
     // Install monitor for execution time (user)
-#if 1
+#if 0
     {
         monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_USER,
                                    locationID,
