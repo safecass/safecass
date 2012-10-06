@@ -145,7 +145,9 @@ void Monitor::ToStream(std::ostream & outputStream) const
                  << "LocationID: " << *LocationID << ", "
                  << "State: " << GetStateTypeString(State) << ", "
                  << "OutputType: " << GetOutputTypeString(Output) << ", "
-                 << "SamplingRate: " << SamplingRate << ", ";
+                 << "SamplingRate: " << SamplingRate << ", "
+                 << "Last sampling tick: " << LastSamplingTick << ", "
+                 << "Active filter: " << AttachedToActiveFilter;
 }
 
 };
