@@ -55,7 +55,7 @@ FilterThreshold::~FilterThreshold()
 {
 }
 
-void FilterThreshold::DoFiltering(bool debug)
+void FilterThreshold::DoFiltering(void)
 {
     if (!this->IsEnabled()) return;
 
@@ -90,7 +90,7 @@ void FilterThreshold::DoFiltering(bool debug)
         OutputSignals[0]->SetPlaceholderScalar(Output0);
     }
 
-    if (debug) {
+    if (this->PrintDebugLog) {
         std::cout << this->GetFilterName() << "\t" << InputSignals[0]->GetName() << ": " 
             << InputSignals[0]->GetPlaceholderScalar() << " => " << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
     }

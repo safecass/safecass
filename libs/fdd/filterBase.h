@@ -81,6 +81,8 @@ protected:
     const FilteringType Type;
     /*! Is this filter the last one of a FDD pipeline? */
     bool LastFilterOfPipeline;
+    /*! Print out internal debug log of this filter if enabled */
+    bool PrintDebugLog;
 
     /*! State of this filter (enabled or disabled) */
     bool Enabled;
@@ -159,7 +161,7 @@ public:
     bool AddOutput(const std::string & signalName); 
 #endif
     /*! Run filtering algorithm which should be defined and implemented by derived filters */
-    virtual void DoFiltering(bool debug = false) = 0;
+    virtual void DoFiltering(void) = 0;
 
     /*! Declare this filter as the last filter of a FDD pipeline.  This internally creates
         a monitor to publish filtering results, i.e., events or faults, to the Safety Framework, 
@@ -196,6 +198,9 @@ public:
     void SetEventPublisherInstance(EventPublisherBase * publisher);
     /*! Sets event location instance.  Should be called before activating filter */
     void SetEventLocationInstance(EventLocationBase * location);
+
+    /*! Enable or disable internal debug log */
+    inline void EnableDebugLog(bool enable = true) { PrintDebugLog = enable; }
 
     /*! Returns human readable outputs (for debugging purpose) */
     virtual std::string ToString(void) const  {

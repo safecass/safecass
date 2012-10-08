@@ -12,45 +12,51 @@
 
 */
 
+#include <time.h> // for srand(time(NULL))
+
 #include "config.h"
 #include "common.h"
 #include "json.h"
 #include "monitor.h"
 #include "cisstMonitor.h"
-#include "cisstEventLocation.h"
+#include "trendVel.h"
 
 #include <cisstCommon/cmnGetChar.h>
+#include <cisstVector/vctFixedSizeVector.h>
+#include <cisstOSAbstraction/osaGetTime.h>
 #include <cisstOSAbstraction/osaSleep.h>
-#include <cisstMultiTask/mtsCollectorState.h>
 #include <cisstMultiTask/mtsTaskPeriodic.h>
 #include <cisstMultiTask/mtsTaskManager.h>
+#include <cisstMultiTask/mtsInterfaceProvided.h>
 #if (CISST_OS == CISST_LINUX_XENOMAI)
 #include <sys/mman.h>
 #endif
 
 using namespace SF;
 
-class PeriodicTask: public mtsTaskPeriodic {
+// Example task that simulates sensor wrapper
+class SensorReadingTask: public mtsTaskPeriodic {
+protected:
+    double Force;
+
 public:
-    PeriodicTask(const std::string & name, double period) :
-        mtsTaskPeriodic(name, period, false, 5000) {}
-    ~PeriodicTask() {}
+    SensorReadingTask(const std::string & name, double period) : mtsTaskPeriodic(name, period, false, 5000)
+    {
+        Force = 0.0;
+        StateTable.AddData(Force, "Force");
+    }
+    ~SensorReadingTask() {}
 
     void Configure(const std::string & CMN_UNUSED(filename) = "") {}
     void Startup(void) {}
     void Run(void) {
         ProcessQueuedCommands();
         ProcessQueuedEvents();
-        //std::cout << "." << std::flush;
-        /*
-        static int count = 0;
-        if (count++ % 10 == 0) {
-            this->GenerateFaultEvent(std::string("MY FAULT EVENT"));
-        }
-        */
-        static double T = (1.0 / this->Period) * 60.0 * 60.0;
-        static int i = 0;
-        osaSleep(this->Period * (0.8 * sin(2 * cmnPI * ((double) ++i / T))));
+        
+        // To test TrendVel
+        double delta = double(rand() % 10) * 0.1;
+        Force += delta;
+        std::cout << delta << std::endl;
     }
     void Cleanup(void) {}
 };
@@ -58,16 +64,18 @@ public:
 
 // Create periodic task
 bool CreatePeriodicThread(const std::string & componentName, double period);
-// to monitor values in real-time
-bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency);
+// Install filters
+bool InstallFilter(const std::string & targetComponentName);
 
 // Local component manager
 mtsManagerLocal * ComponentManager = 0;
 // Test periodic task
-PeriodicTask * task = 0;
+SensorReadingTask * task = 0;
 
 int main(int argc, char *argv[])
 {
+    srand(time(NULL));
+
 #if (CISST_OS == CISST_LINUX_XENOMAI)
     mlockall(MCL_CURRENT|MCL_FUTURE);
 #endif
@@ -84,7 +92,7 @@ int main(int argc, char *argv[])
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
     cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
     //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
-    //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
+    cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
     mtsComponentManager::InstallSafetyCoordinator();
@@ -104,40 +112,22 @@ int main(int argc, char *argv[])
     }
     std::cout << std::endl;
 
-    // Create five test components with different T
-    std::vector<unsigned int> f; // Hz
-#if 0
-    f.push_back(1);
-    f.push_back(2);
-    f.push_back(5);
-    f.push_back(10);
-    f.push_back(20);
-    f.push_back(50);
-    f.push_back(100);
-    f.push_back(200);
-    f.push_back(500);
-#endif
-    f.push_back(10);
+    // Create simulated sensor reading component
+    std::string componentName("sensorWrapper");
 
-    std::string componentName;
-    std::stringstream ss;
-    for (size_t i = 0; i < f.size(); ++i) {
-        ss.str("");
-        ss << "Component" << f[i];
-        componentName = ss.str();
+    // Create periodic task
+    if (!CreatePeriodicThread(componentName, 100 * cmn_ms)) {
+        SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
+        return 1;
+    }
 
-        // Create periodic task
-        if (!CreatePeriodicThread(componentName, 1.0 / (double)f[i])) {
-            SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
-            return 1;
-        }
-        // Install monitor 
-        if (!InstallMonitor(componentName, f[i])) {
-            SFLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
-            return 1;
-        }
+    // Install filters
+    if (!InstallFilter(componentName)) {
+        SFLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
+        return 1;
     }
     
+    // Activate all the monitors and filters installed
     if (ComponentManager->GetCoordinator()) {
         if (!ComponentManager->GetCoordinator()->DeployMonitorsAndFDDs()) {
             SFLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
@@ -155,7 +145,7 @@ int main(int argc, char *argv[])
     ComponentManager->StartAll();
     ComponentManager->WaitForStateAll(mtsComponentState::ACTIVE);
 
-    std::cout << "Press 'q' to quit or click CLOSE button of the visualizer." << std::endl;
+    std::cout << "Press 'q' to quit." << std::endl;
     std::cout << "Running periodic tasks ";
 
     // loop until 'q' is pressed
@@ -183,7 +173,7 @@ int main(int argc, char *argv[])
 bool CreatePeriodicThread(const std::string & componentName, double period)
 {
     // Create periodic thread
-    task = new PeriodicTask(componentName, period);
+    task = new SensorReadingTask(componentName, period);
     if (!ComponentManager->AddComponent(task)) {
         SFLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
         return false;
@@ -192,75 +182,34 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
     return true;
 }
 
-bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency)
+bool InstallFilter(const std::string & targetComponentName)
 {
-    if (!ComponentManager->GetCoordinator()) {
+    mtsSafetyCoordinator * coordinator = ComponentManager->GetCoordinator();
+    if (!coordinator) {
         SFLOG_ERROR  << "Failed to get coordinator in this process";
         return false;
     }
 
-    // Define target
-    cisstEventLocation * locationID = new cisstEventLocation;
-    locationID->SetProcessName(ComponentManager->GetProcessName());
-    locationID->SetComponentName(targetComponentName);
+    // Create trend velocity filter with active filtering
+    SF::FilterTrendVel * filterTrendVel = 
+        new FilterTrendVel(// Common arguments
+                           SF::FilterBase::FEATURE, // filter category
+                           targetComponentName,     // name of target component
+                           SF::FilterBase::ACTIVE,  // monitoring type
+                           // Arguments specific to this filter
+                           "Force",                    // name of input signal: name of state vector
+                           SF::SignalElement::SCALAR); // input signal type
+    // Enable debug log
+    filterTrendVel->EnableDebugLog(true);
 
-    cisstMonitor * monitor;
-
-    // Install monitor for timing fault - period
-#if 1
-    {
-        monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
-                                   locationID,
-                                   Monitor::STATE_ON,
-                                   Monitor::OUTPUT_STREAM,
-                                   frequency);
-        // MJ TODO: Run system for a few minutes, collect experimental data,
-        // and determine variance of period with upper/lower limits and thresholds.
-        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
-            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
-            return false;
-        }
-        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << locationID->GetLocationID() << " ]" << std::endl;
+    // Install filter to the target component
+    if (!coordinator->AddFilter(filterTrendVel)) {
+        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVel->GetFilterName() << "\""
+            << " to target component \"" << targetComponentName << "\"" << std::endl;
+        return false;
     }
-#endif
-
-    // Install monitor for execution time (user)
-#if 1
-    {
-        monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_USER,
-                                   locationID,
-                                   Monitor::STATE_ON,
-                                   Monitor::OUTPUT_STREAM,
-                                   frequency);
-
-        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
-            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
-            return false;
-        }
-        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << locationID->GetLocationID() << " ]" << std::endl;
-    }
-
-    // Install monitor for execution time (total)
-    {
-        monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_TOTAL,
-                                   locationID,
-                                   Monitor::STATE_ON,
-                                   Monitor::OUTPUT_STREAM,
-                                   frequency);
-
-        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
-            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
-            return false;
-        }
-        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << locationID->GetLocationID() << " ]" << std::endl;
-    }
-#endif
+    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVel->GetFilterName() << "\"" << std::endl;
+    std::cout << *filterTrendVel << std::endl;
 
     return true;
 }

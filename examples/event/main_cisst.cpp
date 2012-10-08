@@ -213,12 +213,7 @@ bool InstallFilter(const std::string & targetComponentName)
         return false;
     }
 
-    // Create two thresholding filters
-
-    // PROBLEM: active filter doesn't work regardless whether MANUAL_ADVANCE of
-    // mtsMonitorComponent.cpp is enabled or not.
-    // Passive filter works only with MANUAL_ADVANCE as false, i.e., it requires
-    // state table to be periodically updated.
+    // Create two different types of thresholding filters: active vs. passive filters
 
     // Active filter
 #if 1

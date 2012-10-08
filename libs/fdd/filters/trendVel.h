@@ -58,7 +58,7 @@ public:
     ~FilterTrendVel();
 
     /*! Implements thresholding algorithm */
-    void DoFiltering(bool debug);
+    void DoFiltering(void);
 
     /*! Implements string representation of fault diagnosis and identification */
     const std::string GenerateFDIJSON(double severity, double timestamp) const;

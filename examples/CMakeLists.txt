@@ -8,6 +8,6 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 #
 
-add_subdirectory(latency)
 add_subdirectory(period)
 add_subdirectory(event)
+add_subdirectory(filter)

@@ -51,7 +51,7 @@ FilterTrendVel::~FilterTrendVel()
 {
 }
 
-void FilterTrendVel::DoFiltering(bool debug)
+void FilterTrendVel::DoFiltering(void)
 {
     if (!this->IsEnabled()) return;
 
@@ -73,7 +73,17 @@ void FilterTrendVel::DoFiltering(bool debug)
             PreviousValue.Initialized = true;
         } else {
             OutputSignals[0]->SetPlaceholderScalar(
-                (newInput - PreviousValue.Scalar) / (newTimestamp - PreviousValue.Timestamp));
+                (newInput - PreviousValue.Scalar) / 1.0);//(newTimestamp - PreviousValue.Timestamp));
+        }
+
+        // Debug log if enabled
+        if (this->PrintDebugLog) {
+            std::cout << this->GetFilterName() << "\t" << InputSignals[0]->GetName() << ": " 
+                      << InputSignals[0]->GetPlaceholderScalar() << "(@ " << InputSignals[0]->GetTimeLastSampleFetched()
+                      << ") - "
+                      << PreviousValue.Scalar << "(@ " << PreviousValue.Timestamp
+                      << ") => "
+                      << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
         }
 
         // Update local cache
@@ -103,25 +113,8 @@ void FilterTrendVel::DoFiltering(bool debug)
             OutputSignals[0]->SetPlaceholderVector(v);
         }
 
-        // Update local cache
-        PreviousValue.Timestamp = newTimestamp;
-        PreviousValue.Vector = newInput;
-    }
-
-    // This filter cannot be the last one of a pipeline (no criteria for publishing events can be specified)
-    if (this->LastFilterOfPipeline) {
-        SFLOG_WARNING << "FilterTrendVel: this type of filter cannot publish envets " << std::endl;
-    }
-
-    if (debug) {
-        if (SignalType == SignalElement::SCALAR) {
-            std::cout << this->GetFilterName() << "\t" << InputSignals[0]->GetName() << ": " 
-                      << InputSignals[0]->GetPlaceholderScalar() << "(@ " << InputSignals[0]->GetTimeLastSampleFetched()
-                      << ") - "
-                      << PreviousValue.Scalar << "(@ " << PreviousValue.Timestamp
-                      << ") => "
-                      << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
-        } else {
+        // Debug log if enabled
+        if (this->PrintDebugLog) {
             std::cout << this->GetFilterName() << "\t" << InputSignals[0]->GetName() << ": [ ";
             SignalElement::VectorType & v = InputSignals[0]->GetPlaceholderVector();
             for (size_t i = 0; i < v.size(); ++i) {
@@ -141,6 +134,15 @@ void FilterTrendVel::DoFiltering(bool debug)
             }
             std::cout << "]" << std::endl;
         }
+
+        // Update local cache
+        PreviousValue.Timestamp = newTimestamp;
+        PreviousValue.Vector = newInput;
+    }
+
+    // This filter cannot be the last one of a pipeline (no criteria for publishing events can be specified)
+    if (this->LastFilterOfPipeline) {
+        SFLOG_WARNING << "FilterTrendVel: this type of filter cannot publish envets " << std::endl;
     }
 }
 
