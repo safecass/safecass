@@ -45,15 +45,16 @@ set (SF_LIB_MONITOR_INCLUDE_DIR ${LIB_DIR}/monitor)
 
 # FDD
 set (SF_LIB_FDD_SRC # faults
-                    ${LIB_DIR}/fdd/fault.h ${LIB_DIR}/fdd/fault.cpp
+                    ${LIB_DIR}/fdd/fault.h ${LIB_DIR}/fdd/code/fault.cpp
                     # event location
-                    ${LIB_DIR}/fdd/eventLocationBase.h ${LIB_DIR}/fdd/eventLocationBase.cpp
+                    ${LIB_DIR}/fdd/eventLocationBase.h ${LIB_DIR}/fdd/code/eventLocationBase.cpp
                     # base filter
-                    ${LIB_DIR}/fdd/signal.h ${LIB_DIR}/fdd/signal.cpp
-                    ${LIB_DIR}/fdd/filterBase.h ${LIB_DIR}/fdd/filterBase.cpp
+                    ${LIB_DIR}/fdd/signal.h ${LIB_DIR}/fdd/code/signal.cpp
+                    ${LIB_DIR}/fdd/filterBase.h ${LIB_DIR}/fdd/code/filterBase.cpp
                     # filters
                     #${LIB_DIR}/fdd/filters/bypass.h ${LIB_DIR}/fdd/filters/bypass.cpp
-                    ${LIB_DIR}/fdd/filters/threshold.h ${LIB_DIR}/fdd/filters/threshold.cpp)
+                    ${LIB_DIR}/fdd/filters/threshold.h ${LIB_DIR}/fdd/filters/code/threshold.cpp
+                    ${LIB_DIR}/fdd/filters/trendVel.h ${LIB_DIR}/fdd/filters/code/trendVel.cpp)
 set (SF_LIB_FDD_INCLUDE_DIR ${LIB_DIR}/fdd ${LIB_DIR}/fdd/filters)
 
 # adapters
