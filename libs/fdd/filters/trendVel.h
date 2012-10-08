@@ -38,6 +38,9 @@ protected:
     std::string NameOfInputSignal;
     /*! Input(output) signal type */
     SignalElement::SignalType SignalType;
+    /*! time scaling.  If enabled, output -- difference of the current and the last input -- is
+        divided by actual time difference of the two samples */
+    bool TimeScaling;
 
     /*! Local cache of previous value */
     // MJ: Could use separate API that fetches value history of length 1
@@ -54,14 +57,12 @@ public:
                    SF::FilterBase::FilteringType monitoringType,
                    // below are filter-specific arguments
                    const std::string &           inputSignalName,
-                   SignalElement::SignalType     signalType);
+                   SignalElement::SignalType     signalType,
+                   bool                          timeScaling);
     ~FilterTrendVel();
 
     /*! Implements thresholding algorithm */
     void DoFiltering(void);
-
-    /*! Implements string representation of fault diagnosis and identification */
-    const std::string GenerateFDIJSON(double severity, double timestamp) const;
 
     /*! Getters */
     inline const std::string & GetNameOfInputSignal(void) const { return NameOfInputSignal; }

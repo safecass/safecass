@@ -93,9 +93,9 @@ bool SignalElement::FetchNewValueVector(bool activeFiltering)
     }
 
     if (activeFiltering)
-        HistoryBuffer->GetNewValueScalar(HistoryBufferIndex, PlaceholderScalar, TimeLastSampleFetched);
+        HistoryBuffer->GetNewValueVector(HistoryBufferIndex, PlaceholderVector, TimeLastSampleFetched);
     else
-        HistoryBuffer->GetNewValueScalar(PlaceholderScalar, TimeLastSampleFetched);
+        HistoryBuffer->GetNewValueVector(PlaceholderVector, TimeLastSampleFetched);
 
     return true;
 }
@@ -109,10 +109,11 @@ void SignalElement::ToStream(std::ostream & outputStream) const
     if (Type == SCALAR) {
         outputStream << "Value: " << PlaceholderScalar << ", ";
     } else {
-        outputStream << "Values: ";
+        outputStream << "Values: [ ";
         for (size_t i = 0; i < PlaceholderVector.size(); ++i) {
              outputStream << PlaceholderVector[i] << ", ";
         }
+        std::cout << " ], ";
     }
     outputStream << "Timestamp: " << TimeLastSampleFetched;
 }

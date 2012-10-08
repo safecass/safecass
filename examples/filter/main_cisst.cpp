@@ -34,16 +34,32 @@
 
 using namespace SF;
 
+#define USE_MTS_DOUBLE_VEC 1
 // Example task that simulates sensor wrapper
 class SensorReadingTask: public mtsTaskPeriodic {
 protected:
+    // scalar type
     double Force;
+    // vector type
+#if USE_MTS_DOUBLE_VEC
+    mtsDoubleVec ForceReadings;
+#else
+    std::vector<double> ForceReadings;
+#endif
 
 public:
     SensorReadingTask(const std::string & name, double period) : mtsTaskPeriodic(name, period, false, 5000)
     {
         Force = 0.0;
+#if USE_MTS_DOUBLE_VEC
+        ForceReadings.SetSize(3);
+        ForceReadings.SetAll(0.0);
+#else
+        ForceReadings.resize(3);
+#endif
+
         StateTable.AddData(Force, "Force");
+        StateTable.AddData(ForceReadings, "ForceReadings");
     }
     ~SensorReadingTask() {}
 
@@ -53,10 +69,28 @@ public:
         ProcessQueuedCommands();
         ProcessQueuedEvents();
         
-        // To test TrendVel
+        // To test TrendVel filter for scalar type
         double delta = double(rand() % 10) * 0.1;
         Force += delta;
-        std::cout << delta << std::endl;
+        // To test TrendVel filter for vector type
+#if USE_MTS_DOUBLE_VEC
+        ForceReadings(0) += double(rand() % 10) * 0.1;
+        ForceReadings(1) += double(rand() % 10) * 0.1;
+        ForceReadings(2) += double(rand() % 10) * 0.1;
+
+        std::cout << Force << "\t | " << ForceReadings << std::endl;
+#else
+        ForceReadings[0] += double(rand() % 10) * 0.1;
+        ForceReadings[1] += double(rand() % 10) * 0.1;
+        ForceReadings[2] += double(rand() % 10) * 0.1;
+
+        std::cout << Force << "\t | [ ";
+        for (size_t i = 0; i < 3; ++i) {
+            std::cout << ForceReadings[i] << " ";
+        }
+        std::cout << " ]" << std::endl;
+#endif
+
     }
     void Cleanup(void) {}
 };
@@ -190,26 +224,49 @@ bool InstallFilter(const std::string & targetComponentName)
         return false;
     }
 
-    // Create trend velocity filter with active filtering
-    SF::FilterTrendVel * filterTrendVel = 
+    // Create trend velocity filter for scalar with active filtering
+    SF::FilterTrendVel * filterTrendVelScalar = 
         new FilterTrendVel(// Common arguments
                            SF::FilterBase::FEATURE, // filter category
                            targetComponentName,     // name of target component
                            SF::FilterBase::ACTIVE,  // monitoring type
                            // Arguments specific to this filter
-                           "Force",                    // name of input signal: name of state vector
-                           SF::SignalElement::SCALAR); // input signal type
+                           "Force",                   // name of input signal: name of state vector
+                           SF::SignalElement::SCALAR, // input signal type
+                           false);                    // time scaling
     // Enable debug log
-    filterTrendVel->EnableDebugLog(true);
+    filterTrendVelScalar->EnableDebugLog(true);
 
     // Install filter to the target component
-    if (!coordinator->AddFilter(filterTrendVel)) {
-        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVel->GetFilterName() << "\""
+    if (!coordinator->AddFilter(filterTrendVelScalar)) {
+        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVel->GetFilterName() << "\"" << std::endl;
-    std::cout << *filterTrendVel << std::endl;
+    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar->GetFilterName() << "\"" << std::endl;
+    std::cout << *filterTrendVelScalar << std::endl;
+
+    // Create trend velocity filter for vector with active filtering
+    SF::FilterTrendVel * filterTrendVelVector = 
+        new FilterTrendVel(// Common arguments
+                           SF::FilterBase::FEATURE, // filter category
+                           targetComponentName,     // name of target component
+                           SF::FilterBase::ACTIVE,  // monitoring type
+                           // Arguments specific to this filter
+                           "ForceReadings",           // name of input signal: name of state vector
+                           SF::SignalElement::VECTOR, // input signal type
+                           false);                     // time scaling
+    // Enable debug log
+    filterTrendVelVector->EnableDebugLog(true);
+
+    // Install filter to the target component
+    if (!coordinator->AddFilter(filterTrendVelVector)) {
+        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelVector->GetFilterName() << "\""
+            << " to target component \"" << targetComponentName << "\"" << std::endl;
+        return false;
+    }
+    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelVector->GetFilterName() << "\"" << std::endl;
+    std::cout << *filterTrendVelVector << std::endl;
 
     return true;
 }

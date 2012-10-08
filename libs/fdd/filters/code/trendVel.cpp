@@ -23,10 +23,12 @@ FilterTrendVel::FilterTrendVel(BaseType::FilterCategory      category,
                                SF::FilterBase::FilteringType monitoringType,
                                // filter-specific arguments
                                const std::string &           inputSignalName,
-                               SignalElement::SignalType     signalType)
+                               SignalElement::SignalType     signalType,
+                               bool                          timeScaling)
     : FilterBase(FilterTrendVel::Name, category, targetComponentName, monitoringType),
       NameOfInputSignal(inputSignalName),
-      SignalType(signalType)
+      SignalType(signalType),
+      TimeScaling(timeScaling)
 {
     // Define inputs
     SFASSERT(this->AddInputSignal(NameOfInputSignal, SignalType));
@@ -72,8 +74,11 @@ void FilterTrendVel::DoFiltering(void)
             OutputSignals[0]->SetPlaceholderScalar(newInput);
             PreviousValue.Initialized = true;
         } else {
-            OutputSignals[0]->SetPlaceholderScalar(
-                (newInput - PreviousValue.Scalar) / 1.0);//(newTimestamp - PreviousValue.Timestamp));
+            if (TimeScaling)
+                OutputSignals[0]->SetPlaceholderScalar(
+                    (newInput - PreviousValue.Scalar) / (newTimestamp - PreviousValue.Timestamp));
+            else
+                OutputSignals[0]->SetPlaceholderScalar(newInput - PreviousValue.Scalar);
         }
 
         // Debug log if enabled
@@ -82,8 +87,14 @@ void FilterTrendVel::DoFiltering(void)
                       << InputSignals[0]->GetPlaceholderScalar() << "(@ " << InputSignals[0]->GetTimeLastSampleFetched()
                       << ") - "
                       << PreviousValue.Scalar << "(@ " << PreviousValue.Timestamp
-                      << ") => "
-                      << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
+                      << ") => ";
+            if (TimeScaling) {
+                std::cout << (newInput - PreviousValue.Scalar) << " / " << (newTimestamp - PreviousValue.Timestamp)
+                          << " => " << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
+            } else {
+                std::cout << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
+            }
+
         }
 
         // Update local cache
@@ -107,8 +118,14 @@ void FilterTrendVel::DoFiltering(void)
             PreviousValue.Initialized = true;
         } else {
             SignalElement::VectorType v(newInput.size());
-            for (size_t i = 0; i < v.size(); ++i) {
-                v[i] = (newInput[i] - PreviousValue.Vector[i]) / (newTimestamp - PreviousValue.Timestamp);
+            if (TimeScaling) {
+                for (size_t i = 0; i < v.size(); ++i) {
+                    v[i] = (newInput[i] - PreviousValue.Vector[i]) / (newTimestamp - PreviousValue.Timestamp);
+                }
+            } else {
+                for (size_t i = 0; i < v.size(); ++i) {
+                    v[i] = (newInput[i] - PreviousValue.Vector[i]);
+                }
             }
             OutputSignals[0]->SetPlaceholderVector(v);
         }
@@ -144,11 +161,6 @@ void FilterTrendVel::DoFiltering(void)
     if (this->LastFilterOfPipeline) {
         SFLOG_WARNING << "FilterTrendVel: this type of filter cannot publish envets " << std::endl;
     }
-}
-
-const std::string FilterTrendVel::GenerateFDIJSON(double severity, double timestamp) const
-{
-    return "n/a";
 }
 
 void FilterTrendVel::ToStream(std::ostream & outputStream) const
