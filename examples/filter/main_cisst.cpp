@@ -224,7 +224,11 @@ bool InstallFilter(const std::string & targetComponentName)
         return false;
     }
 
+    //-------------------------------------------------- 
+    // Velocity filter tests
+    //
     // Create trend velocity filter for scalar with active filtering
+#if 1
     SF::FilterTrendVel * filterTrendVelScalar = 
         new FilterTrendVel(// Common arguments
                            SF::FilterBase::FEATURE, // filter category
@@ -245,8 +249,35 @@ bool InstallFilter(const std::string & targetComponentName)
     }
     SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar->GetFilterName() << "\"" << std::endl;
     std::cout << *filterTrendVelScalar << std::endl;
+#endif
+
+    // If two trend velocity filters are cascaded into a filter pipeline, the pipeline 
+    // acts as a trend accelerometer filter.
+#if 0
+    SF::FilterTrendVel * filterTrendVelScalar2 = 
+        new FilterTrendVel(// Common arguments
+                           SF::FilterBase::FEATURE_VECTOR, // filter category
+                           targetComponentName,     // name of target component
+                           SF::FilterBase::ACTIVE,  // monitoring type
+                           // Arguments specific to this filter
+                           filterTrendVelScalar->GetOutputSignalName(0),
+                           SF::SignalElement::SCALAR, // input signal type
+                           false);                    // time scaling
+    // Enable debug log
+    filterTrendVelScalar2->EnableDebugLog(true);
+
+    // Install filter to the target component
+    if (!coordinator->AddFilter(filterTrendVelScalar2)) {
+        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar2->GetFilterName() << "\""
+            << " to target component \"" << targetComponentName << "\"" << std::endl;
+        return false;
+    }
+    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar2->GetFilterName() << "\"" << std::endl;
+    std::cout << *filterTrendVelScalar2 << std::endl;
+#endif
 
     // Create trend velocity filter for vector with active filtering
+#if 0
     SF::FilterTrendVel * filterTrendVelVector = 
         new FilterTrendVel(// Common arguments
                            SF::FilterBase::FEATURE, // filter category
@@ -267,6 +298,7 @@ bool InstallFilter(const std::string & targetComponentName)
     }
     SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelVector->GetFilterName() << "\"" << std::endl;
     std::cout << *filterTrendVelVector << std::endl;
+#endif
 
     return true;
 }

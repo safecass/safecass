@@ -32,7 +32,7 @@ protected:
     FilterTrendVel();
 
     //--------------------------------------------------
-    //  Collection of filter-specific parameters
+    //  Filter-specific parameters
     //--------------------------------------------------
     /*! Name of input signal */
     std::string NameOfInputSignal;

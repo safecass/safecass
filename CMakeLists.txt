@@ -26,6 +26,19 @@ include_directories("${SafetyFramework_SOURCE_DIR}/libs/common")
 include_directories("${SafetyFramework_SOURCE_DIR}/libs/fdd")
 include_directories("${SafetyFramework_SOURCE_DIR}/libs/fdd/filters")
 
+# If BOOST_ROOT was defined in the environment, use it.
+if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
+  set(BOOST_ROOT $ENV{BOOST_ROOT})
+else ()
+  if (NOT BOOST_ROOT AND NOT $ENV{BOOSTROOT} STREQUAL "")
+    set(BOOST_ROOT $ENV{BOOSTROOT})
+  endif()
+endif()
+
+if (BOOST_ROOT)
+  message("BOOST_ROOT is set as ${BOOST_ROOT}")
+endif (BOOST_ROOT)
+
 # Option to enable unit-testing with CppTest
 option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the CppTest library" ON)
 # Option to use g2log

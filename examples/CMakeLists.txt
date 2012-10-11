@@ -11,3 +11,4 @@
 add_subdirectory(period)
 add_subdirectory(event)
 add_subdirectory(filter)
+add_subdirectory(state)

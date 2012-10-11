@@ -182,6 +182,15 @@ if (ENABLE_VIS_FRAMEWORK)
   endif (CURL_FOUND)
 endif (ENABLE_VIS_FRAMEWORK)
 
+# Find Boost MSM (for state machine)
+find_package(BoostMSM REQUIRED)
+if (BoostMSM_FOUND)
+  message("Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
+else (BoostMSM_FOUND)
+  message(FATAL_ERROR "Boost MSM not found")
+endif (BoostMSM_FOUND)
+
+
 set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} PARENT_SCOPE)
 include_directories (${SF_LIB_INCLUDE_DIR})
 
