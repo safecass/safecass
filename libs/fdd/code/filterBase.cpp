@@ -32,6 +32,7 @@ FilterBase::FilterBase(void)
       NameOfTargetComponent("NONAME"), 
       Type(ACTIVE),
       LastFilterOfPipeline(false),
+      PrintDebugLog(false),
       Enabled(false),
       EventPublisher(0),
       EventLocation(0)
@@ -47,6 +48,7 @@ FilterBase::FilterBase(const std::string & filterName,
       NameOfTargetComponent(targetComponentName), 
       Type(monitoringType),
       LastFilterOfPipeline(false),
+      PrintDebugLog(false),
       // MJ: if filter is enabled when constructed, the first few inputs and outputs could
       // be corrupted.
       Enabled(false),

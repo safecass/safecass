@@ -34,7 +34,10 @@
 
 using namespace SF;
 
-#define USE_MTS_DOUBLE_VEC 1
+// Both work fine
+#define USE_MTS_DOUBLE_VEC 0
+//#define USE_MTS_DOUBLE_VEC 1
+
 // Example task that simulates sensor wrapper
 class SensorReadingTask: public mtsTaskPeriodic {
 protected:
