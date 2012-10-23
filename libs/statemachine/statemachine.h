@@ -29,6 +29,8 @@
 #include <boost/msm/back/state_machine.hpp> // back-end
 #include <boost/msm/front/state_machine_def.hpp> // front-end
 
+static char const* const state_names[] = { "Normal", "Fault", "Error", "Failure" };
+
 namespace SF {
 
 namespace msm = ::boost::msm;
@@ -72,12 +74,12 @@ protected:
         template <class Event,class FSM>
         void on_entry(Event const& ,FSM&) 
         {
-            std::cout << ">>> SM: entering: FaultState" << std::endl;
+            std::cout << ">>> entering" << std::endl;
         }
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) 
         {
-            std::cout << ">>> SM: leaving: FaultState" << std::endl;
+            std::cout << ">>> leaving" << std::endl;
         }
 
         // List of FSM states
@@ -156,15 +158,16 @@ protected:
           a_row < Normal  , failure_detection , Failure , &fs::failure_detected                >,
             //  +---------+-------------+---------+---------------------+----------------------+
           a_row < Fault   , fault_activation  , Error   , &fs::fault_activated                 >,
+          a_row < Fault   , fault_removal     , Normal  , &fs::back_to_normal                  >,
             //  +---------+-------------+---------+---------------------+----------------------+
           a_row < Error   , error_propagation , Failure , &fs::error_propagated                >,
           a_row < Error   , error_removal     , Normal  , &fs::back_to_normal                  >,
             //  +---------+-------------+---------+---------------------+----------------------+
-          a_row < Failure , failure_removal   , Normal  , &fs::back_to_normal                  >,
+          a_row < Failure , failure_removal   , Normal  , &fs::back_to_normal                  >
           // TODO: Next state needs to be fixed
-          a_row < Faiulre , failure_stop      , Failure , &fs::terminated                      >, 
+          //a_row < Failure , failure_stop      , Failure , &fs::terminated                      >, 
           // TODO: Next state needs to be fixed
-          a_row < Faiulre , failure_stop      , Failure , &fs::deactivated                     >
+          //a_row < Failure , failure_stop      , Failure , &fs::deactivated                     >
             //  +---------+-------------+---------+---------------------+----------------------+
         > {};
 #if 0
@@ -205,7 +208,7 @@ protected:
     //
     // Testing utilities.
     //
-    static char const* const state_names[] = { "Normal", "Fault", "Error", "Failure" };
+    //static char const* const state_names[] = { "Normal", "Fault", "Error", "Failure" };
     void pstate(FaultState const& p)
     {
         std::cout << " -> " << state_names[p.current_state()[0]] << std::endl;
@@ -213,28 +216,27 @@ protected:
 
     void test()
     {        
-		player p;
+	    FaultState p;
         // needed to start the highest-level SM. This will call on_entry and mark the start of the SM
         p.start(); 
-        // go to Open, call on_exit on Empty, then action, then on_entry on Open
-        p.process_event(open_close()); pstate(p);
-        p.process_event(open_close()); pstate(p);
-        // will be rejected, wrong disk type
-        p.process_event(
-            cd_detected("louie, louie",DISK_DVD)); pstate(p);
-        p.process_event(
-            cd_detected("louie, louie",DISK_CD)); pstate(p);
-		p.process_event(play());
-
-        // at this point, Play is active      
-        p.process_event(pause()); pstate(p);
-        // go back to Playing
-        p.process_event(end_pause());  pstate(p);
-        p.process_event(pause()); pstate(p);
-        p.process_event(stop());  pstate(p);
-        // event leading to the same state
-        // no action method called as it is not present in the transition table
-        p.process_event(stop());  pstate(p);
+        // to fault, back to normal
+        std::cout <<"\nto fault, back to normal\n";
+        p.process_event(fault_detection()); pstate(p);
+        p.process_event(fault_removal()); pstate(p);
+        // to error, back to Normal
+        std::cout <<"\nto error, back to Normal\n";
+        p.process_event(error_detection()); pstate(p);
+        p.process_event(error_removal()); pstate(p);
+        // to failure, back to Normal
+        std::cout <<"\nto failure, back to Normal\n";
+        p.process_event(failure_detection()); pstate(p);
+        p.process_event(failure_removal()); pstate(p);
+        // to fault and to error and to faillure and to normal
+        std::cout <<"\nto fault and to error and to faillure and to normal\n";
+        p.process_event(fault_detection()); pstate(p);
+        p.process_event(fault_activation()); pstate(p);
+        p.process_event(error_propagation()); pstate(p);
+        p.process_event(failure_removal()); pstate(p);
         std::cout << "stop fsm" << std::endl;
         p.stop();
     }
@@ -242,7 +244,7 @@ protected:
 public:
     StateMachine(void)
     {
-        // TODO: run test util
+        test();
     }
 };
  
@@ -255,4 +257,4 @@ inline std::ostream & operator << (std::ostream & outputStream, const StateMachi
 
 };
 
-#endif // _monitor_h
+#endif // _statemachine_h

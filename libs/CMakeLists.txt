@@ -71,16 +71,6 @@ if (SF_HAS_CISST)
   set (SF_LIB_FDD_SRC ${SF_LIB_FDD_SRC} ${SF_LIB_ADAPTER_CISST_SRC})
 endif (SF_HAS_CISST)
 
-# communicator for message exchange (publish-subscribe)
-# Find ZeroC Ice
-find_package(Ice REQUIRED)
-set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/communicator/baseIce.h
-                             ${LIB_DIR}/communicator/baseIce.cpp
-                             ${LIB_DIR}/communicator/publisher.h
-                             ${LIB_DIR}/communicator/publisher.cpp
-                             ${LIB_DIR}/communicator/subscriber.h
-                             ${LIB_DIR}/communicator/subscriber.cpp)
-set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${LIB_DIR}/communicator)
 # Add Curl wrapper if visualization is enabled
 if (ENABLE_VIS_FRAMEWORK)
     find_package(CURL REQUIRED)
@@ -93,6 +83,25 @@ if (ENABLE_VIS_FRAMEWORK)
                                  ${LIB_DIR}/db
                                  ${LIB_DIR}/communicator)
 endif (ENABLE_VIS_FRAMEWORK)
+
+# State machine
+find_package (BoostMSM REQUIRED)
+if (BoostMSM_FOUND)
+    set (SF_LIB_STATEMACHINE_INCLUDE_DIR ${Boost_INCLUDE_DIR}
+                                         ${LIB_DIR}/statemachine)
+    set (SF_LIB_STATEMACHINE_SRC ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/statemachine.h)
+endif (BoostMSM_FOUND)
+
+# communicator for message exchange (publish-subscribe)
+# Find ZeroC Ice
+find_package(Ice REQUIRED)
+set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/communicator/baseIce.h
+                             ${LIB_DIR}/communicator/baseIce.cpp
+                             ${LIB_DIR}/communicator/publisher.h
+                             ${LIB_DIR}/communicator/publisher.cpp
+                             ${LIB_DIR}/communicator/subscriber.h
+                             ${LIB_DIR}/communicator/subscriber.cpp)
+set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${LIB_DIR}/communicator)
 
 # slice integration
 set (SLICE_FILES communicator messages)
@@ -133,12 +142,14 @@ set (SF_LIB_SRC ${SF_LIB_COMMON_SRC}
                 ${SF_LIB_SUPERVISOR_SRC}
                 ${SF_LIB_MONITOR_SRC} 
                 ${SF_LIB_FDD_SRC}
+                ${SF_LIB_STATEMACHINE_SRC}
                 ${SF_LIB_COMMUNICATOR_SRC})
 set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} 
                         ${SF_LIB_COMMON_INCLUDE_DIR}
                         ${SF_LIB_SUPERVISOR_INCLUDE_DIR}
                         ${SF_LIB_MONITOR_INCLUDE_DIR}
                         ${SF_LIB_FDD_INCLUDE_DIR}
+                        ${SF_LIB_STATEMACHINE_INCLUDE_DIR}
                         ${SF_LIB_COMMUNICATOR_INCLUDE_DIR})
 
 # Set project-wide paths

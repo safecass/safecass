@@ -13,9 +13,12 @@
 */
 
 #include <iostream>
+#include "statemachine.h"
+/*
 // boost msm
 #include <boost/msm/back/state_machine.hpp> // back-end
 #include <boost/msm/front/state_machine_def.hpp> // front-end
+*/
 
 namespace msm = boost::msm;
 namespace mpl = boost::mpl;
@@ -191,7 +194,7 @@ namespace mpl = boost::mpl;
     //
     // Testing utilities.
     //
-    static char const* const state_names[] = { "Normal", "Fault", "Error", "Failure" };
+    //static char const* const state_names[] = { "Normal", "Fault", "Error", "Failure" };
     void pstate(FaultState const& p)
     {
         std::cout << " -> " << state_names[p.current_state()[0]] << std::endl;
@@ -253,7 +256,9 @@ namespace mpl = boost::mpl;
 
     int main()
     {
-        test();
+        SF::StateMachine sm;
+
+        //test();
         return 0;
     }
 //};
