@@ -13,18 +13,26 @@ cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 # Project name
 project(SafetyFramework)
 
-# Project settings for output files
-set (BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
-set (EXECUTABLE_OUTPUT_PATH "${BUILD_ROOT}/bin")
-set (LIBRARY_OUTPUT_PATH "${BUILD_ROOT}/lib")
+# Set the current project as Safety Framework 
+set (CURRENT_PROJECT_IS_SF ON)
 
+# Project settings for output (generated) files
+set (SF_BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+set (SF_BUILD_EXECUTABLE_PATH "${SF_BUILD_ROOT}/bin")
+set (SF_BUILD_LIBRARY_DIR "${SF_BUILD_ROOT}/lib")
+
+set (EXECUTABLE_OUTPUT_PATH ${SF_EXECUTABLE_OUTPUT_PATH})
+set (LIBRARY_OUTPUT_PATH ${SF_BUILD_LIBRARY_DIR})
 set_property (GLOBAL PROPERTY USE_FOLDERS ON) # option to organize targets in folders
 
-# Set where to look for header files
-include_directories("${PROJECT_BINARY_DIR}")
-include_directories("${SafetyFramework_SOURCE_DIR}/libs/common")
-include_directories("${SafetyFramework_SOURCE_DIR}/libs/fdd")
-include_directories("${SafetyFramework_SOURCE_DIR}/libs/fdd/filters")
+# Project settings for source files
+set (SF_SOURCE_DIR ${SafetyFramework_SOURCE_DIR})
+set (SF_LIBRARY_DIR ${SF_SOURCE_DIR}/libs)
+set (SF_INCLUDE_DIR ${SF_LIBRARY_DIR})
+
+# Set cmake module path
+set (SF_CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SF_CMAKE_MODULE_PATH})
 
 # If BOOST_ROOT was defined in the environment, use it.
 if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
@@ -84,6 +92,8 @@ option (BUILD_EXAMPLES "Build examples.  Requires safety framework-enabled middl
 
 # Include sub-directories
 add_subdirectory(libs)
+set (SF_INCLUDE_DIR ${SF_INCLUDE_DIR} ${SF_LIB_INCLUDE_DIR})
+
 add_subdirectory(programs)
 add_subdirectory(tools)
 if (BUILD_EXAMPLES)
@@ -94,3 +104,8 @@ if (ENABLE_UNIT_TEST)
   message("Unit-test enabled")
   add_subdirectory(tests)
 endif (ENABLE_UNIT_TEST)
+
+# Create configuration files
+configure_file ("${SF_CMAKE_MODULE_PATH}/SFConfig.cmake.in"
+                "${SF_BUILD_ROOT}/SFConfig.cmake"
+                @ONLY)

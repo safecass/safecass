@@ -13,16 +13,13 @@
 #---------------------------------
 project(SFLib)
 
-# set cmake module path
-set (CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
 # Set directories
 set (LIB_DIR ${PROJECT_SOURCE_DIR})
 
 #---------------------------------
 # Collect project files
 #---------------------------------
-set (SF_LIB_INCLUDE_DIR ${LIB_DIR} ${BUILD_ROOT})
+set (SF_LIB_INCLUDE_DIR ${LIB_DIR} ${SF_BUILD_ROOT})
 
 # common
 set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h ${LIB_DIR}/common/common.cpp
@@ -79,9 +76,8 @@ if (ENABLE_VIS_FRAMEWORK)
                                  ${LIB_DIR}/db/MongoDB.cpp
                                  ${LIB_DIR}/communicator/curlWrapper.h
                                  ${LIB_DIR}/communicator/curlWrapper.cpp)
-    set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${SF_LIB_COMMUNICATOR_INCLUDE_DIR}
-                                 ${LIB_DIR}/db
-                                 ${LIB_DIR}/communicator)
+    set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${LIB_DIR}/db
+                                         ${LIB_DIR}/communicator)
 endif (ENABLE_VIS_FRAMEWORK)
 
 # State machine
@@ -101,38 +97,40 @@ set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/communicator/baseIce.h
                              ${LIB_DIR}/communicator/publisher.cpp
                              ${LIB_DIR}/communicator/subscriber.h
                              ${LIB_DIR}/communicator/subscriber.cpp)
-set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${LIB_DIR}/communicator)
+set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${SF_LIB_COMMUNICATOR_INCLUDE_DIR} 
+                                     ${LIB_DIR}/communicator)
 
 # slice integration
 set (SLICE_FILES communicator messages)
 set (SLICE_INCLUDE_DIR ${ZEROC_SLICE_INCLUDE_DIR})
 foreach (slice_file ${SLICE_FILES})
-    set (GENERATED_CPP_FILE "${BUILD_ROOT}/libs/${slice_file}.cpp")
-    set (GENERATED_H_FILE "${BUILD_ROOT}/libs/${slice_file}.h")
+    set (GENERATED_CPP_FILE "${SF_BUILD_ROOT}/libs/${slice_file}.cpp")
+    set (GENERATED_H_FILE "${SF_BUILD_ROOT}/libs/${slice_file}.h")
     set (SLICE_SRC_DIR  ${LIB_DIR}/communicator/slice)
     set (SLICE_SRC_FILE ${SLICE_SRC_DIR}/${slice_file}.ice)
     add_custom_command (
         OUTPUT ${GENERATED_CPP_FILE} ${GENERATED_H_FILE} 
-               ${BUILD_ROOT}/include/${slice_file}.h
+               ${SF_BUILD_ROOT}/include/${slice_file}.h
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         # first run slice2cpp
         COMMAND ${ZEROC_SLICE2CPP}
         ARGS -I ${SLICE_INCLUDE_DIR} -I ${SLICE_SRC_DIR} ${SLICE_SRC_FILE}
         # then create a directory to copy the header file
         COMMAND ${CMAKE_COMMAND}
-        ARGS -E make_directory ${BUILD_ROOT}/include
+        ARGS -E make_directory ${SF_BUILD_ROOT}/include
         # and finally copy the header file
         COMMAND ${CMAKE_COMMAND}
-        ARGS -E copy_if_different ${GENERATED_H_FILE} ${BUILD_ROOT}/include
+        ARGS -E copy_if_different ${GENERATED_H_FILE} ${SF_BUILD_ROOT}/include
         COMMENT "Compiling ${slice_file}.ice"
         MAIN_DEPENDENCY ${SLICE_SRC_FILE})
-    include_directories (${BUILD_ROOT})
-    set (GENERATED_HEADER_FILES ${GENERATED_HEADER_FILES} ${BUILD_ROOT}/include/${slice_file}.h)
+    include_directories (${SF_BUILD_ROOT})
+    set (GENERATED_HEADER_FILES ${GENERATED_HEADER_FILES} ${SF_BUILD_ROOT}/include/${slice_file}.h)
     set (GENERATED_SOURCE_FILES ${GENERATED_SOURCE_FILES} ${GENERATED_CPP_FILE})
 endforeach (slice_file ${SLICE_FILES})
 
 set (SF_LIB_COMMUNICATOR_SRC ${SF_LIB_COMMUNICATOR_SRC} ${GENERATED_SOURCE_FILES})
-set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${SF_LIB_COMMUNICATOR_INCLUDE_DIR} ${BUILD_ROOT}/include)
+set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${SF_LIB_COMMUNICATOR_INCLUDE_DIR}
+                                     ${SF_BUILD_ROOT}/include)
 set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} ${ZEROC_ICE_LIBRARIES})
 
 #---------------------------------

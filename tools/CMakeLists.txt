@@ -8,7 +8,7 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 #
 
-set (TARGET_DIR "${BUILD_ROOT}/bin")
+set (SF_BUILD_BIN_ROOT "${SF_BUILD_ROOT}/bin")
 
 #
 # IceBox
@@ -21,10 +21,14 @@ set (ICEBOX_SRC_FILES "config.icebox"
 
 foreach (ICEBOX_SRC_FILE ${ICEBOX_SRC_FILES})
     # create Freeze db folder for IceBox
-    file (MAKE_DIRECTORY "${TARGET_DIR}/db/Freeze")
+    if (NOT EXISTS "${SF_BUILD_BIN_ROOT}/db/Freeze")
+        file (MAKE_DIRECTORY "${SF_BUILD_BIN_ROOT}/db/Freeze")
+    endif ()
     # copy IceBox launch script and setting files to bin folder
-    file (COPY ${ICEBOX_BASE_DIR}/${ICEBOX_SRC_FILE} 
-               DESTINATION ${TARGET_DIR})
+    if (NOT EXISTS ${SF_BUILD_BIN_ROOT}/${ICEBOX_SRC_FILE})
+        file (COPY ${ICEBOX_BASE_DIR}/${ICEBOX_SRC_FILE} 
+                DESTINATION ${SF_BUILD_BIN_ROOT})
+    endif ()
 endforeach (ICEBOX_SRC_FILE)
 
 #
@@ -46,8 +50,8 @@ set (MONGODB_SRC_FILES # MongoDB
 foreach (MONGODB_SRC_FILE ${MONGODB_SRC_FILES})
     # MJ: Don't create db here: it should be created by runDBCube.sh
     # create MongoDB folder for MongoDB
-    #file (MAKE_DIRECTORY "${TARGET_DIR}/db/MongoDB")
+    #file (MAKE_DIRECTORY "${SF_BUILD_BIN_ROOT}/db/MongoDB")
     # copy scripts to bin folder
     file (COPY ${MONGODB_BASE_DIR}/${MONGODB_SRC_FILE} 
-               DESTINATION ${TARGET_DIR})
+               DESTINATION ${SF_BUILD_BIN_ROOT})
 endforeach (MONGODB_SRC_FILE)

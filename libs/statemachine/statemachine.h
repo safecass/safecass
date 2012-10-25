@@ -37,6 +37,19 @@ namespace msm = ::boost::msm;
 namespace mpl = ::boost::mpl;
 
 class SFLIB_EXPORT StateMachine {
+public:
+    typedef enum {
+        FAULT_DETECTION,
+        FAULT_REMOVAL,
+        FAULT_ACTIVATION,
+        ERROR_DETECTION,
+        ERROR_REMOVAL,
+        ERROR_PROPAGATION,
+        FAILURE_DETECTION,
+        FAILURE_REMOVAL,
+        FAILURE_STOP
+    } EventType;
+
 protected:
     // Macros to define msm event
 #define MSM_EVENT(_eventName) struct _eventName {};
@@ -170,29 +183,7 @@ protected:
           //a_row < Failure , failure_stop      , Failure , &fs::deactivated                     >
             //  +---------+-------------+---------+---------------------+----------------------+
         > {};
-#if 0
-            //    Start     Event         Next      Action				 Guard
-            //  +---------+-------------+---------+---------------------+----------------------+
-          a_row < Stopped , play        , Playing , &p::start_playback                         >,
-          a_row < Stopped , open_close  , Open    , &p::open_drawer                            >,
-           _row < Stopped , stop        , Stopped                                              >,
-            //  +---------+-------------+---------+---------------------+----------------------+
-          a_row < Open    , open_close  , Empty   , &p::close_drawer                           >,
-            //  +---------+-------------+---------+---------------------+----------------------+
-          a_row < Empty   , open_close  , Open    , &p::open_drawer                            >,
-            row < Empty   , cd_detected , Stopped , &p::store_cd_info   ,&p::good_disk_format  >,
-            row < Empty   , cd_detected , Playing , &p::store_cd_info   ,&p::auto_start        >,
-            //  +---------+-------------+---------+---------------------+----------------------+
-          a_row < Playing , stop        , Stopped , &p::stop_playback                          >,
-          a_row < Playing , pause       , Paused  , &p::pause_playback                         >,
-          a_row < Playing , open_close  , Open    , &p::stop_and_open                          >,
-            //  +---------+-------------+---------+---------------------+----------------------+
-          a_row < Paused  , end_pause   , Playing , &p::resume_playback                        >,
-          a_row < Paused  , stop        , Stopped , &p::stop_playback                          >,
-          a_row < Paused  , open_close  , Open    , &p::stop_and_open                          >
-            //  +---------+-------------+---------+---------------------+----------------------+
-        > {};
-#endif
+
         // Replaces the default no-transition response.
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
@@ -241,10 +232,40 @@ protected:
         p.stop();
     }
 
+    /*! State machine instance */
+    FaultState State;
+
 public:
     StateMachine(void)
     {
-        test();
+        //test();
+        State.start();
+    }
+
+    ~StateMachine(void)
+    {
+        State.stop();
+    }
+
+    void ProcessEvent(const EventType event) {
+        switch (event) {
+        case FAULT_DETECTION:   State.process_event(fault_detection()); break;
+        case FAULT_REMOVAL:     State.process_event(fault_removal()); break;
+        case FAULT_ACTIVATION:  State.process_event(fault_activation()); break;
+        case ERROR_DETECTION:   State.process_event(error_detection()); break;
+        case ERROR_REMOVAL:     State.process_event(error_removal()); break;
+        case ERROR_PROPAGATION: State.process_event(error_propagation()); break;
+        case FAILURE_DETECTION: State.process_event(failure_detection()); break;
+        case FAILURE_REMOVAL:   State.process_event(failure_removal()); break;
+        case FAILURE_STOP:      State.process_event(failure_stop()); break;
+        default:
+            return;
+        }
+    }
+
+    void PrintState(void)
+    {
+        std::cout << "\tCurrent state: " << state_names[State.current_state()[0]] << std::endl;
     }
 };
  
