@@ -202,7 +202,7 @@ void FilterBase::ToStream(std::ostream & outputStream) const
     case SYMPTOM:        outputStream << "SYMPTOM"; break; 
     case SYMPTOM_VECTOR: outputStream << "SYMPTOM_VECTOR"; break; 
     case FAULT_DETECTOR: outputStream << "FAULT_DETECTOR"; break; 
-    default:             CMN_ASSERT(false);
+    default:             SFASSERT(false);
     }
     outputStream << ", ";
     outputStream << "Target component: \"" << NameOfTargetComponent << "\", "

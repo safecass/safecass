@@ -96,7 +96,7 @@ void JSONSerializer::SetEventLocation(EventLocationBase * location)
         SFASSERT(false);
     }
 #else
-    // MJ: implement this later
+    // MJ TODO: implement this later
     SFASSERT(false);
 #endif
 }
@@ -193,7 +193,7 @@ bool JSONSerializer::ParseJSON(const std::string & message)
     Common.EventLocation->ImportFromJSON(values[localization][location]);
 #else
     //Common.EventLocation = 0; // MJ TODO: deal with this later
-    CMN_ASSERT(false);
+    SFASSERT(false);
 #endif
 
     switch (Common.Topic) {

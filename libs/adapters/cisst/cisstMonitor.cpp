@@ -142,7 +142,7 @@ const std::string cisstMonitor::GetJsonForPublish(double sample, double currentT
             break;
         case TARGET_FILTER_EVENT:
             // MJ: Filter events (i.e., faults) are handled separately
-            CMN_ASSERT(false);
+            SFASSERT(false);
             break;
     }
 
