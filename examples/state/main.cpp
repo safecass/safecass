@@ -35,11 +35,11 @@
 
 using namespace SF;
 
-// Example task that simulates sensor wrapper
+// Simulated sensor wrapper component (e.g., force sensor wrapper component)
 class SensorReadingTask: public mtsTaskPeriodic {
 public:
-    static const double ThresholdForceX;
-    static const std::string NameOfForceX;
+    //static const double ThresholdForceX;
+    //static const std::string NameOfForceX;
 
 protected:
     /*! Time when test began */
@@ -61,6 +61,7 @@ public:
         // TODO: state transition
         std::cout << ".";
 
+#if 0
         static int count = 0;
         count++;
         if (count == 20) {
@@ -92,12 +93,48 @@ public:
             this->FaultState.ProcessEvent(SF::StateMachine::FAILURE_REMOVAL);
             this->FaultState.PrintState();
         }
+#endif
     }
     void Cleanup(void) {}
 };
 
-const double SensorReadingTask::ThresholdForceX = 10.0;
-const std::string SensorReadingTask::NameOfForceX = "ForceX";
+// Simulated controller component that retrieves sensor readings from the simulated
+// sensor wrapper component above and simulates computation overhead up to some degree.
+class ControlComponent: public mtsTaskPeriodic {
+public:
+    //static const double ThresholdForceX;
+    //static const std::string NameOfForceX;
+
+protected:
+    /*! Time when test began */
+    double Tic;
+
+public:
+    ControlComponent(const std::string & name, double period) : mtsTaskPeriodic(name, period, false, 5000)
+    {
+        Tic = osaGetTime();
+    }
+    ~ControlComponent() {}
+
+    void Configure(const std::string & CMN_UNUSED(filename) = "") {}
+    void Startup(void) {}
+    void Run(void) {
+        ProcessQueuedCommands();
+        ProcessQueuedEvents();
+        
+        // TODO: state transition
+        std::cout << ".";
+        //
+        // TODO--------------------------------
+        //
+        this->FaultState.ProcessEvent(SF::State::FAULT_DETECTION);
+        std::cout << this->FaultState.GetStateString() << std::endl;
+    }
+    void Cleanup(void) {}
+};
+
+//const double ControlComponent::ThresholdForceX = 10.0;
+//const std::string ControlComponent::NameOfForceX = "ForceX";
 
 // Create periodic task
 bool CreatePeriodicThread(const std::string & componentName, double period);

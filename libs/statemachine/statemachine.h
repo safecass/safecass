@@ -24,32 +24,21 @@
 #define _statemachine_h
 
 #include "common.h"
+#include "StateEventHandler.h"
 #include <iostream>
 // boost msm
 #include <boost/msm/back/state_machine.hpp> // back-end
 #include <boost/msm/front/state_machine_def.hpp> // front-end
-
-static char const* const state_names[] = { "Normal", "Fault", "Error", "Failure" };
 
 namespace SF {
 
 namespace msm = ::boost::msm;
 namespace mpl = ::boost::mpl;
 
-class SFLIB_EXPORT StateMachine {
-public:
-    typedef enum {
-        FAULT_DETECTION,
-        FAULT_REMOVAL,
-        FAULT_ACTIVATION,
-        ERROR_DETECTION,
-        ERROR_REMOVAL,
-        ERROR_PROPAGATION,
-        FAILURE_DETECTION,
-        FAILURE_REMOVAL,
-        FAILURE_STOP
-    } EventType;
+// Forward declaration of state event handler
+class StateEventHandler;
 
+class SFLIB_EXPORT StateMachine {
 protected:
     // Macros to define msm event
 #define MSM_EVENT(_eventName) struct _eventName {};
@@ -82,83 +71,75 @@ protected:
 #endif
 
     // Define msm front-end (the FSM structure)
-    struct FaultState_: public msm::front::state_machine_def<FaultState_>
-    {
+    struct FaultState_: public msm::front::state_machine_def<FaultState_> {
+        /*! State machine event handler */
+        StateEventHandler * EventHandlerInstance;
+
         template <class Event,class FSM>
-        void on_entry(Event const& ,FSM&) 
-        {
-            std::cout << ">>> entering" << std::endl;
+        void on_entry(Event const& ,FSM&) {
+            if (EventHandlerInstance)
+                EventHandlerInstance->OnStateEntryExit(State::STATEMACHINE_ON_ENTRY);
         }
         template <class Event,class FSM>
-        void on_exit(Event const&,FSM& ) 
-        {
-            std::cout << ">>> leaving" << std::endl;
+        void on_exit(Event const&,FSM& ) {
+            if (EventHandlerInstance)
+                EventHandlerInstance->OnStateEntryExit(State::STATEMACHINE_ON_EXIT);
         }
 
+#define ON_STATE_ENTRY_EXIT(_transition)\
+        if (fsm.EventHandlerInstance)\
+            fsm.EventHandlerInstance->OnStateEntryExit(_transition);
         // List of FSM states
         struct Normal: public msm::front::state<> 
         {
-            // every (optional) entry/exit methods get the event passed.
             template <class Event,class FSM>
-            void on_entry(Event const&,FSM& ) {
-                std::cout << ">>> SM: entering: Normal" << std::endl;
-            }
+            void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::NORMAL_ON_ENTRY); }
             template <class Event,class FSM>
-            void on_exit(Event const&,FSM& ) {
-                std::cout << ">>> SM: leaving: Normal" << std::endl;
-            }
+            void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::NORMAL_ON_EXIT); }
         };
         struct Fault: public msm::front::state<> 
         {
-            // every (optional) entry/exit methods get the event passed.
             template <class Event,class FSM>
-            void on_entry(Event const&,FSM& ) {
-                std::cout << ">>> SM: entering: Fault" << std::endl;
-            }
+            void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::FAULT_ON_ENTRY); }
             template <class Event,class FSM>
-            void on_exit(Event const&,FSM& ) {
-                std::cout << ">>> SM: leaving: Fault" << std::endl;
-            }
+            void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::FAULT_ON_EXIT); }
         };
         struct Error: public msm::front::state<> 
         {
-            // every (optional) entry/exit methods get the event passed.
             template <class Event,class FSM>
-            void on_entry(Event const&,FSM& ) {
-                std::cout << ">>> SM: entering: Error" << std::endl;
-            }
+            void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::ERROR_ON_ENTRY); }
             template <class Event,class FSM>
-            void on_exit(Event const&,FSM& ) {
-                std::cout << ">>> SM: leaving: Error" << std::endl;
-            }
+            void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::ERROR_ON_EXIT); }
         };
         struct Failure: public msm::front::state<> 
         {
-            // every (optional) entry/exit methods get the event passed.
             template <class Event,class FSM>
-            void on_entry(Event const&,FSM& ) {
-                std::cout << ">>> SM: entering: Failure" << std::endl;
-            }
+            void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::FAILURE_ON_ENTRY); }
             template <class Event,class FSM>
-            void on_exit(Event const&,FSM& ) {
-                std::cout << ">>> SM: leaving: Failure" << std::endl;
-            }
+            void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::FAILURE_ON_EXIT); }
         };
+#undef ON_STATE_ENTRY_EXIT
 
         // Initial state (must be defined)
         typedef Normal initial_state;
 
         // Transition actions
-        void fault_detected(fault_detection const&) { std::cout << ">>> SM: fault detected\n"; }
-        void back_to_normal(fault_removal const&) { std::cout << ">>> SM: fault removed\n"; }
-        void fault_activated(fault_activation const&) { std::cout << ">>> SM: fault activated\n"; }
-        void error_detected(error_detection const&) { std::cout << ">>> SM: error detected\n"; } 
-        void back_to_normal(error_removal const&) { std::cout << ">>> SM: error removed\n"; }
-        void error_propagated(error_propagation const&) { std::cout << ">>> SM: error propagated\n"; } 
-        void failure_detected(failure_detection const&) { std::cout << ">>> SM: failure detected\n"; }
-        void back_to_normal(failure_removal const&) { std::cout << ">>> SM: failure removed\n"; }
-        void terminated(failure_stop const&) { std::cout << ">>> SM: failure stop and terminated\n"; }
-        void deactivated(failure_stop const&) { std::cout << ">>> SM: failure stop and deactivated\n"; }
+#define ON_STATE_TRANSITION_ACTION(_transition)\
+        if (EventHandlerInstance)\
+            EventHandlerInstance->OnStateTransition(_transition);
+        void fault_detected(fault_detection const&)     { ON_STATE_TRANSITION_ACTION(State::FAULT_DETECTION); }
+        void back_to_normal(fault_removal const&)       { ON_STATE_TRANSITION_ACTION(State::FAULT_REMOVAL); }
+        void fault_activated(fault_activation const&)   { ON_STATE_TRANSITION_ACTION(State::FAULT_ACTIVATION); }
+        void error_detected(error_detection const&)     { ON_STATE_TRANSITION_ACTION(State::ERROR_DETECTION); }
+        void back_to_normal(error_removal const&)       { ON_STATE_TRANSITION_ACTION(State::ERROR_REMOVAL); }
+        void error_propagated(error_propagation const&) { ON_STATE_TRANSITION_ACTION(State::ERROR_PROPAGATION); }
+        void failure_detected(failure_detection const&) { ON_STATE_TRANSITION_ACTION(State::FAILURE_DETECTION); }
+        void back_to_normal(failure_removal const&)     { ON_STATE_TRANSITION_ACTION(State::FAILURE_REMOVAL); }
+        // MJ TODO
+        void terminated(failure_stop const&)            { ON_STATE_TRANSITION_ACTION(State::FAILURE_STOP); }
+        // MJ TODO
+        void deactivated(failure_stop const&)           { ON_STATE_TRANSITION_ACTION(State::FAILURE_STOP); }
+#undef ON_STATE_TRANSITION_ACTION
 
         // Transition table for FaultState
         typedef FaultState_ fs; // to make transition table cleaner
@@ -169,19 +150,19 @@ protected:
           a_row < Normal  , fault_detection   , Fault   , &fs::fault_detected                  >,
           a_row < Normal  , error_detection   , Error   , &fs::error_detected                  >,
           a_row < Normal  , failure_detection , Failure , &fs::failure_detected                >,
-            //  +---------+-------------+---------+---------------------+----------------------+
+            //  +---------+-------------------+---------+----------------------+---------------+
           a_row < Fault   , fault_activation  , Error   , &fs::fault_activated                 >,
           a_row < Fault   , fault_removal     , Normal  , &fs::back_to_normal                  >,
-            //  +---------+-------------+---------+---------------------+----------------------+
+            //  +---------+-------------------+---------+----------------------+---------------+
           a_row < Error   , error_propagation , Failure , &fs::error_propagated                >,
           a_row < Error   , error_removal     , Normal  , &fs::back_to_normal                  >,
-            //  +---------+-------------+---------+---------------------+----------------------+
+            //  +---------+-------------------+---------+----------------------+---------------+
           a_row < Failure , failure_removal   , Normal  , &fs::back_to_normal                  >
           // TODO: Next state needs to be fixed
           //a_row < Failure , failure_stop      , Failure , &fs::terminated                      >, 
           // TODO: Next state needs to be fixed
           //a_row < Failure , failure_stop      , Failure , &fs::deactivated                     >
-            //  +---------+-------------+---------+---------------------+----------------------+
+            //  +---------+-------------------+---------+----------------------+---------------+
         > {};
 
         // Replaces the default no-transition response.
@@ -196,77 +177,21 @@ protected:
     // Pick a back-end
     typedef msm::back::state_machine<FaultState_> FaultState;
 
-    //
-    // Testing utilities.
-    //
-    //static char const* const state_names[] = { "Normal", "Fault", "Error", "Failure" };
-    void pstate(FaultState const& p)
-    {
-        std::cout << " -> " << state_names[p.current_state()[0]] << std::endl;
-    }
-
-    void test()
-    {        
-	    FaultState p;
-        // needed to start the highest-level SM. This will call on_entry and mark the start of the SM
-        p.start(); 
-        // to fault, back to normal
-        std::cout <<"\nto fault, back to normal\n";
-        p.process_event(fault_detection()); pstate(p);
-        p.process_event(fault_removal()); pstate(p);
-        // to error, back to Normal
-        std::cout <<"\nto error, back to Normal\n";
-        p.process_event(error_detection()); pstate(p);
-        p.process_event(error_removal()); pstate(p);
-        // to failure, back to Normal
-        std::cout <<"\nto failure, back to Normal\n";
-        p.process_event(failure_detection()); pstate(p);
-        p.process_event(failure_removal()); pstate(p);
-        // to fault and to error and to faillure and to normal
-        std::cout <<"\nto fault and to error and to faillure and to normal\n";
-        p.process_event(fault_detection()); pstate(p);
-        p.process_event(fault_activation()); pstate(p);
-        p.process_event(error_propagation()); pstate(p);
-        p.process_event(failure_removal()); pstate(p);
-        std::cout << "stop fsm" << std::endl;
-        p.stop();
-    }
-
     /*! State machine instance */
     FaultState State;
 
+    /*! State machine testing */
+    void Test(void);
+
 public:
-    StateMachine(void)
-    {
-        //test();
-        State.start();
-    }
+    StateMachine(void);
+    virtual ~StateMachine(void);
 
-    ~StateMachine(void)
-    {
-        State.stop();
-    }
+    virtual void ProcessEvent(const State::TransitionType transition);
 
-    void ProcessEvent(const EventType event) {
-        switch (event) {
-        case FAULT_DETECTION:   State.process_event(fault_detection()); break;
-        case FAULT_REMOVAL:     State.process_event(fault_removal()); break;
-        case FAULT_ACTIVATION:  State.process_event(fault_activation()); break;
-        case ERROR_DETECTION:   State.process_event(error_detection()); break;
-        case ERROR_REMOVAL:     State.process_event(error_removal()); break;
-        case ERROR_PROPAGATION: State.process_event(error_propagation()); break;
-        case FAILURE_DETECTION: State.process_event(failure_detection()); break;
-        case FAILURE_REMOVAL:   State.process_event(failure_removal()); break;
-        case FAILURE_STOP:      State.process_event(failure_stop()); break;
-        default:
-            return;
-        }
-    }
-
-    void PrintState(void)
-    {
-        std::cout << "\tCurrent state: " << state_names[State.current_state()[0]] << std::endl;
-    }
+    /*! Getters */
+    const State::StateType GetState(void) const;
+    const std::string GetStateString(void) const;
 };
  
 /*
