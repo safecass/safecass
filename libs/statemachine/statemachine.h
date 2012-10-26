@@ -78,17 +78,17 @@ protected:
         template <class Event,class FSM>
         void on_entry(Event const& ,FSM&) {
             if (EventHandlerInstance)
-                EventHandlerInstance->OnStateEntryExit(State::STATEMACHINE_ON_ENTRY);
+                EventHandlerInstance->OnStateEntryOrExit(State::STATEMACHINE_ON_ENTRY);
         }
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) {
             if (EventHandlerInstance)
-                EventHandlerInstance->OnStateEntryExit(State::STATEMACHINE_ON_EXIT);
+                EventHandlerInstance->OnStateEntryOrExit(State::STATEMACHINE_ON_EXIT);
         }
 
 #define ON_STATE_ENTRY_EXIT(_transition)\
         if (fsm.EventHandlerInstance)\
-            fsm.EventHandlerInstance->OnStateEntryExit(_transition);
+            fsm.EventHandlerInstance->OnStateEntryOrExit(_transition);
         // List of FSM states
         struct Normal: public msm::front::state<> 
         {
@@ -184,11 +184,11 @@ public:
     StateMachine(void);
     virtual ~StateMachine(void);
 
-    /*! Getters */
     virtual void ProcessEvent(const State::TransitionType transition);
 
+    /*! Getters and setters */
     const State::StateType GetState(void) const;
-    const std::string GetStateString(void) const;
+    void SetStateEventHandler(StateEventHandler * instance);
 
 #if 1
     /*! State machine testing */

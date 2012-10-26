@@ -22,6 +22,8 @@
 #ifndef _state_h
 #define _state_h
 
+#include <string>
+
 namespace SF {
 
     namespace State {
@@ -64,8 +66,12 @@ namespace SF {
             FAILURE_STOP
         } TransitionType;
 
-    };
+        const std::string GetString(StateType type);
+        const std::string GetString(StateEntryExitType type);
+        const std::string GetString(TransitionType type);
 
-};
+    } // SF::State
+
+}; // SF
 
 #endif // _state_h

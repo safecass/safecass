@@ -27,7 +27,7 @@ public:
     StateEventHandler(void);
     virtual ~StateEventHandler(void);
 
-    virtual void OnStateEntryExit(const State::StateEntryExitType stateEntryExit);
+    virtual void OnStateEntryOrExit(const State::StateEntryExitType stateEntryExit);
     virtual void OnStateTransition(const State::TransitionType transition);
 };
  

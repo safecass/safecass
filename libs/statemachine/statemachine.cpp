@@ -34,6 +34,18 @@ StateMachine::StateMachine(void)
 StateMachine::~StateMachine(void)
 {
     State.stop();
+
+    if (State.EventHandlerInstance) {
+        delete State.EventHandlerInstance;
+    }
+}
+
+void StateMachine::SetStateEventHandler(StateEventHandler * instance)
+{
+    if (State.EventHandlerInstance) {
+        delete State.EventHandlerInstance;
+    }
+    State.EventHandlerInstance = instance;
 }
 
 void StateMachine::ProcessEvent(const TransitionType transition)
@@ -55,7 +67,7 @@ void StateMachine::ProcessEvent(const TransitionType transition)
 
 const StateType StateMachine::GetState(void) const
 {
-    switch (*State.current_state()) {
+    switch (State.current_state()[0]) {
         case 0: return NORMAL;
         case 1: return FAULT;
         case 2: return ERROR;
@@ -64,45 +76,25 @@ const StateType StateMachine::GetState(void) const
     }
 }
  
-const std::string StateMachine::GetStateString(void) const
-{
-    switch (GetState()) {
-        case NORMAL:  return "NORMAL";
-        case FAULT:   return "FAULT";
-        case ERROR:   return "ERROR";
-        case FAILURE: return "FAILURE";
-        default:      return "INVALID";
-    }
-}
-
 void StateMachine::Test(void)
 {        
-    //static char const* const state_names[] = { "Normal", "Fault", "Error", "Failure" };
-    //std::cout << " -> " << state_names[p.current_state()[0]] << std::endl;
-
-    FaultState p;
-    // needed to start the highest-level SM. This will call on_entry and mark the start of the SM
-    p.start(); 
-    // to fault, back to normal
     std::cout <<"\nto fault, back to normal\n";
-    p.process_event(fault_detection()); std::cout << GetStateString() << std::endl;
-    p.process_event(fault_removal()); std::cout << GetStateString() << std::endl;
-    // to error, back to Normal
-    std::cout <<"\nto error, back to Normal\n";
-    p.process_event(error_detection()); std::cout << GetStateString() << std::endl;
-    p.process_event(error_removal()); std::cout << GetStateString() << std::endl;
-    // to failure, back to Normal
-    std::cout <<"\nto failure, back to Normal\n";
-    p.process_event(failure_detection()); std::cout << GetStateString() << std::endl;
-    p.process_event(failure_removal()); std::cout << GetStateString() << std::endl;
-    // to fault and to error and to faillure and to normal
-    std::cout <<"\nto fault and to error and to faillure and to normal\n";
-    p.process_event(fault_detection()); std::cout << GetStateString() << std::endl;
-    p.process_event(fault_activation()); std::cout << GetStateString() << std::endl;
-    p.process_event(error_propagation()); std::cout << GetStateString() << std::endl;
-    p.process_event(failure_removal()); std::cout << GetStateString() << std::endl;
-    std::cout << "stop fsm" << std::endl;
-    p.stop();
+    ProcessEvent(State::FAULT_DETECTION); std::cout << GetString(GetState()) << std::endl;
+    ProcessEvent(State::FAULT_REMOVAL); std::cout << GetString(GetState()) << std::endl;
+
+    std::cout <<"\nto error, back to normal\n";
+    ProcessEvent(State::ERROR_DETECTION); std::cout << GetString(GetState()) << std::endl;
+    ProcessEvent(State::ERROR_REMOVAL); std::cout << GetString(GetState()) << std::endl;
+
+    std::cout <<"\nto failure, back to normal\n";
+    ProcessEvent(State::FAILURE_DETECTION); std::cout << GetString(GetState()) << std::endl;
+    ProcessEvent(State::FAILURE_REMOVAL); std::cout << GetString(GetState()) << std::endl;
+
+    std::cout <<"\nto fault, error, failure, and back to normal\n";
+    ProcessEvent(State::FAULT_DETECTION); std::cout << GetString(GetState()) << std::endl;
+    ProcessEvent(State::FAULT_ACTIVATION); std::cout << GetString(GetState()) << std::endl;
+    ProcessEvent(State::ERROR_PROPAGATION); std::cout << GetString(GetState()) << std::endl;
+    ProcessEvent(State::FAILURE_REMOVAL); std::cout << GetString(GetState()) << std::endl;
 }
 
 };

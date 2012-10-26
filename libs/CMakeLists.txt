@@ -86,6 +86,7 @@ if (BoostMSM_FOUND)
     set (SF_LIB_STATEMACHINE_INCLUDE_DIR ${Boost_INCLUDE_DIR}
                                          ${LIB_DIR}/statemachine)
     set (SF_LIB_STATEMACHINE_SRC ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/state.h
+                                 ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/state.cpp
                                  ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/statemachine.h
                                  ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/statemachine.cpp
                                  ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/stateEventHandler.h

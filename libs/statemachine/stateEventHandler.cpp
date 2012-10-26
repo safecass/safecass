@@ -24,14 +24,14 @@ StateEventHandler::~StateEventHandler(void)
 {
 }
 
-void StateEventHandler::OnStateEntryExit(const State::StateEntryExitType stateEntryExit)
+void StateEventHandler::OnStateEntryOrExit(const State::StateEntryExitType stateEntryExit)
 {
-    std::cout << "OnStateEntryExit: " << (int) stateEntryExit << std::endl;
+    std::cout << "OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::endl;
 }
 
 void StateEventHandler::OnStateTransition(const State::TransitionType transition)
 {
-    std::cout << "OnStateTransition: " << (int) transition << std::endl;
+    std::cout << "OnStateTransition: " << State::GetString(transition) << std::endl;
 }
 
 };

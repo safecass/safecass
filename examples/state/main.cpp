@@ -53,48 +53,14 @@ public:
     ~SensorReadingTask() {}
 
     void Configure(const std::string & CMN_UNUSED(filename) = "") {}
-    void Startup(void) {}
+    void Startup(void) {
+        this->FaultState.Test();
+    }
     void Run(void) {
         ProcessQueuedCommands();
         ProcessQueuedEvents();
         
-        // TODO: state transition
-        std::cout << "#";
-        this->FaultState.Test();
-
-#if 0
-        static int count = 0;
-        count++;
-        if (count == 20) {
-            std::cout <<"\nto fault, back to normal\n";
-            this->FaultState.ProcessEvent(SF::StateMachine::FAULT_DETECTION);
-            this->FaultState.PrintState();
-            this->FaultState.ProcessEvent(SF::StateMachine::FAULT_REMOVAL);
-            this->FaultState.PrintState();
-        } else if (count == 60) {
-            std::cout <<"\nto error, back to normal\n";
-            this->FaultState.ProcessEvent(SF::StateMachine::ERROR_DETECTION);
-            this->FaultState.PrintState();
-            this->FaultState.ProcessEvent(SF::StateMachine::ERROR_REMOVAL);
-            this->FaultState.PrintState();
-        } else if (count == 90) {
-            std::cout <<"\nto failure, back to normal\n";
-            this->FaultState.ProcessEvent(SF::StateMachine::FAILURE_DETECTION);
-            this->FaultState.PrintState();
-            this->FaultState.ProcessEvent(SF::StateMachine::FAILURE_REMOVAL);
-            this->FaultState.PrintState();
-        } else if (count == 120) {
-            std::cout <<"\nto fault, error, failure, and back to normal\n";
-            this->FaultState.ProcessEvent(SF::StateMachine::FAULT_DETECTION);
-            this->FaultState.PrintState();
-            this->FaultState.ProcessEvent(SF::StateMachine::FAULT_ACTIVATION);
-            this->FaultState.PrintState();
-            this->FaultState.ProcessEvent(SF::StateMachine::ERROR_PROPAGATION);
-            this->FaultState.PrintState();
-            this->FaultState.ProcessEvent(SF::StateMachine::FAILURE_REMOVAL);
-            this->FaultState.PrintState();
-        }
-#endif
+        std::cout << ".";
     }
     void Cleanup(void) {}
 };
@@ -151,7 +117,6 @@ SensorReadingTask * task = 0;
 
 int main(int argc, char *argv[])
 {
-    std::cout << "#### " << __LINE__ << std::endl;
     srand(time(NULL));
 
 #if (CISST_OS == CISST_LINUX_XENOMAI)
@@ -174,7 +139,6 @@ int main(int argc, char *argv[])
     
     // Get instance of the cisst Component Manager
     mtsComponentManager::InstallSafetyCoordinator();
-    std::cout << "#### " << __LINE__ << std::endl;
     ComponentManager = mtsComponentManager::GetInstance();
 
 #if 0
