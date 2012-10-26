@@ -17,15 +17,14 @@ project(SafetyFramework)
 set (CURRENT_PROJECT_IS_SF ON)
 
 # Project settings for output (generated) files
-set (SF_BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
-set (SF_BUILD_EXECUTABLE_PATH "${SF_BUILD_ROOT}/bin")
-set (SF_BUILD_LIBRARY_DIR "${SF_BUILD_ROOT}/lib")
+set (BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+set (EXECUTABLE_OUTPUT_PATH "${BUILD_ROOT}/bin")
+set (LIBRARY_OUTPUT_PATH "${BUILD_ROOT}/lib")
 
-set (EXECUTABLE_OUTPUT_PATH ${SF_EXECUTABLE_OUTPUT_PATH})
-set (LIBRARY_OUTPUT_PATH ${SF_BUILD_LIBRARY_DIR})
 set_property (GLOBAL PROPERTY USE_FOLDERS ON) # option to organize targets in folders
 
 # Project settings for source files
+set (SF_BUILD_ROOT ${BUILD_ROOT})
 set (SF_SOURCE_DIR ${SafetyFramework_SOURCE_DIR})
 set (SF_LIBRARY_DIR ${SF_SOURCE_DIR}/libs)
 set (SF_INCLUDE_DIR ${SF_LIBRARY_DIR})

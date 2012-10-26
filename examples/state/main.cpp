@@ -59,7 +59,8 @@ public:
         ProcessQueuedEvents();
         
         // TODO: state transition
-        std::cout << ".";
+        std::cout << "#";
+        this->FaultState.Test();
 
 #if 0
         static int count = 0;
@@ -127,8 +128,8 @@ public:
         //
         // TODO--------------------------------
         //
-        this->FaultState.ProcessEvent(SF::State::FAULT_DETECTION);
-        std::cout << this->FaultState.GetStateString() << std::endl;
+        //this->FaultState.ProcessEvent(SF::State::FAULT_DETECTION);
+        //std::cout << this->FaultState.GetStateString() << std::endl;
     }
     void Cleanup(void) {}
 };
@@ -278,6 +279,7 @@ bool InstallFilter(const std::string & targetComponentName)
         return false;
     }
 
+#if 0
     // Create active types of thresholding filters
     SF::FilterThreshold * filterThresholdActive = 
         new FilterThreshold(// Common arguments
@@ -302,6 +304,7 @@ bool InstallFilter(const std::string & targetComponentName)
     }
     SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdActive->GetFilterName() << "\"" << std::endl;
     std::cout << *filterThresholdActive << std::endl;
+#endif
 
     return true;
 }

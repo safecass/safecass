@@ -180,18 +180,20 @@ protected:
     /*! State machine instance */
     FaultState State;
 
-    /*! State machine testing */
-    void Test(void);
-
 public:
     StateMachine(void);
     virtual ~StateMachine(void);
 
+    /*! Getters */
     virtual void ProcessEvent(const State::TransitionType transition);
 
-    /*! Getters */
     const State::StateType GetState(void) const;
     const std::string GetStateString(void) const;
+
+#if 1
+    /*! State machine testing */
+    void Test(void);
+#endif
 };
  
 /*

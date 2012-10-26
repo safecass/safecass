@@ -196,6 +196,20 @@ if (ENABLE_VIS_FRAMEWORK)
 endif (ENABLE_VIS_FRAMEWORK)
 
 # Find Boost MSM (for state machine)
+    # find Boost
+    # Disable auto-linking. 
+    #add_definitions(-DBOOST_ALL_NO_LIB)
+    # In case of a Shared Boost install (dlls), you should then enable this
+    #if (BUILD_SHARED_LIBS)
+    #    add_definitions(-DBOOST_ALL_DYN_LINK)
+    #    # Explicitly tell find-package to search for Static Boost libs (if needed)
+    #    set(Boost_USE_STATIC_LIBS OFF) 
+    #else (BUILD_SHARED_LIBS)
+    #    set(Boost_USE_STATIC_LIBS ON) 
+    #endif (BUILD_SHARED_LIBS)
+
+    #find_package(Boost REQUIRED COMPONENTS msm)
+    #set (Boost_ADDITIONAL_VERSIONS "1.51.0")
 find_package(BoostMSM REQUIRED)
 if (BoostMSM_FOUND)
   message("Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
