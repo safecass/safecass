@@ -44,6 +44,8 @@
 // Simulated Force Sensor Component (could be generalized as generic sensor wrapper component)
 //-------------------------------------------------- 
 const std::string ForceSensorComponent::NameOfProvidedInterface = "ForceSensorProvided";
+const std::string ForceSensorComponent::NameOfScalarSignal = "ForceScalar";
+const std::string ForceSensorComponent::NameOfVectorSignal = "ForceVector";
 
 ForceSensorComponent::ForceSensorComponent(const std::string & name, double period)
     : mtsTaskPeriodic(name, period, false, 5000)
@@ -52,8 +54,8 @@ ForceSensorComponent::ForceSensorComponent(const std::string & name, double peri
     ForceVector.SetSize(6); // x,y,z,tx,ty,tz
     ForceVector.SetAll(0.0);
 
-    StateTable.AddData(ForceScalar, "ForceScalar");
-    StateTable.AddData(ForceVector, "ForceVector");
+    StateTable.AddData(ForceScalar, NameOfScalarSignal);
+    StateTable.AddData(ForceVector, NameOfVectorSignal);
 
     mtsInterfaceProvided * provided = AddInterfaceProvided(NameOfProvidedInterface);
     CMN_ASSERT(provided);
@@ -70,7 +72,32 @@ void ForceSensorComponent::Run(void)
     ProcessQueuedCommands();
     ProcessQueuedEvents();
 
-    ForceScalar += 0.01;
+    int ErrorCode = CheckSensorStatus();
+    if (ErrorCode == ERROR_OK) {
+        ForceScalar = ReadForceScalar();
+    } else {
+        std::cout << "Force sensor status error: error code = " << ErrorCode << std::endl;
+        //
+        // MJ: what do people do usually here, in case of sensor error?
+        //
+    }
+}
+
+int ForceSensorComponent::CheckSensorStatus(void)
+{
+    // MJ TODO: randomly choose error code
+
+    static int a = 0;
+    if (++a == 300) {
+        a = 0;
+        return ERROR_DSP_DEAD;
+    }
+    return ERROR_OK;
+}
+
+double ForceSensorComponent::ReadForceScalar(void)
+{
+    return (ForceScalar + 0.01);
 }
 
 //-------------------------------------------------- 

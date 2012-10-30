@@ -66,7 +66,7 @@ void FilterTrendVel::DoFiltering(void)
             return;
         }
 
-        // Filtering algorithm: 1st-order differentiation
+        // Filtering algorithm: 1st-order derivative
         SignalElement::ScalarType newInput = InputSignals[0]->GetPlaceholderScalar();
         const SignalElement::ScalarType newTimestamp = InputSignals[0]->GetTimeLastSampleFetched();
         if (!PreviousValue.Initialized) {

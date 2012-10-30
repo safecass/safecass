@@ -41,10 +41,26 @@
 // Simulated Force Sensor Component (could be generalized as generic sensor wrapper component)
 //-------------------------------------------------- 
 class ForceSensorComponent: public mtsTaskPeriodic {
+public:
+    typedef enum {
+        // OK
+        ERROR_OK,
+        // ERROR
+        ERROR_DSP_DEAD,
+        ERROR_DATA_RECEPTION_ERROR,
+        ERROR_SATURATION,
+        ERROR_MEMORY_ERROR,
+        ERROR_BAD_CRC,
+        ERROR_WATCHDOG
+    } ErrorCodes;
+
 protected:
     double ForceScalar;
     mtsDoubleVec ForceVector;
     
+    int    CheckSensorStatus(void);
+    double ReadForceScalar(void);
+
 public:
     ForceSensorComponent(const std::string & name, double period);
     ~ForceSensorComponent(void);
@@ -54,8 +70,10 @@ public:
     void Run(void);
     void Cleanup(void) {}
 
-    // public interface name
+    // predefined names and values
     static const std::string NameOfProvidedInterface;
+    static const std::string NameOfScalarSignal;
+    static const std::string NameOfVectorSignal;
 };
 
 //-------------------------------------------------- 

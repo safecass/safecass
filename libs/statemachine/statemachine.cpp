@@ -26,8 +26,11 @@ using namespace SF::State;
 
 namespace SF {
 
-StateMachine::StateMachine(void)
+StateMachine::StateMachine(StateEventHandler * instance)
 {
+    SFASSERT(instance);
+    State.EventHandlerInstance = instance;
+
     State.start();
 }
 
@@ -40,6 +43,7 @@ StateMachine::~StateMachine(void)
     }
 }
 
+/*
 void StateMachine::SetStateEventHandler(StateEventHandler * instance)
 {
     if (State.EventHandlerInstance) {
@@ -47,6 +51,7 @@ void StateMachine::SetStateEventHandler(StateEventHandler * instance)
     }
     State.EventHandlerInstance = instance;
 }
+*/
 
 void StateMachine::ProcessEvent(const TransitionType transition)
 {

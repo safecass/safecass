@@ -64,27 +64,41 @@ int main(int argc, char *argv[])
     mtsComponentManager::InstallSafetyCoordinator();
     mtsComponentManager * ComponentManager = mtsComponentManager::GetInstance();
 
-    // Print information about middleware(s) available
-#if 0
-    StrVecType info;
-    GetMiddlewareInfo(info);
-    std::cout << "Middleware(s) detected: ";
-    if (info.size() == 0) {
-        std::cout << "none" << std::endl;
-    } else {
-        std::cout << std::endl;
-        for (size_t i = 0; i < info.size(); ++i) {
-            std::cout << "[" << (i+1) << "] " << info[i] << std::endl;
-        }
-    }
-    std::cout << std::endl;
-#endif
-
     // Create simulated components
     ForceSensorComponent * forceSensor = new ForceSensorComponent("ForceSensor", 10 * cmn_ms);
     CMN_ASSERT(ComponentManager->AddComponent(forceSensor));
     ControlComponent * controller = new ControlComponent("Controller", 1 * cmn_ms);
     CMN_ASSERT(ComponentManager->AddComponent(controller));
+
+#if 0
+    // Create thresholding filter for scalar with active filtering
+    mtsSafetyCoordinator * coordinator = ComponentManager->GetCoordinator();
+    if (!coordinator) {
+        SFLOG_ERROR  << "Failed to get coordinator in this process";
+        return false;
+    }
+
+    SF::FilterThreshold * filterTrendVelScalar = 
+        new FilterTrendVel(// Common arguments
+                           SF::FilterBase::FEATURE, // filter category
+                           targetComponentName,     // name of target component
+                           SF::FilterBase::ACTIVE,  // monitoring type
+                           // Arguments specific to this filter
+                           ForceSensorComponent::NameOfScalarSignal, // inputSignalName
+                           SF::SignalElement::SCALAR, // input signal type
+                           false);                    // time scaling
+    // Enable debug log
+    filterTrendVelScalar->EnableDebugLog(true);
+
+    // Install the filter to the target component
+    if (!coordinator->AddFilter(filterTrendVelScalar)) {
+        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar->GetFilterName() << "\""
+            << " to target component \"" << targetComponentName << "\"" << std::endl;
+        return false;
+    }
+    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar->GetFilterName() << "\"" << std::endl;
+    std::cout << *filterTrendVelScalar << std::endl;
+#endif
 
     // Connect components
     CONNECT_LOCAL(controller->GetName(), ControlComponent::NameOfRequiredInterface,

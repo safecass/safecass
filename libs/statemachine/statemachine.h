@@ -181,14 +181,14 @@ protected:
     FaultState State;
 
 public:
-    StateMachine(void);
+    StateMachine(StateEventHandler * instance);
     virtual ~StateMachine(void);
 
     virtual void ProcessEvent(const State::TransitionType transition);
 
     /*! Getters and setters */
     const State::StateType GetState(void) const;
-    void SetStateEventHandler(StateEventHandler * instance);
+    //void SetStateEventHandler(StateEventHandler * instance);
 
 #if 1
     /*! State machine testing */
