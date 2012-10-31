@@ -43,7 +43,6 @@ StateMachine::~StateMachine(void)
     }
 }
 
-/*
 void StateMachine::SetStateEventHandler(StateEventHandler * instance)
 {
     if (State.EventHandlerInstance) {
@@ -51,7 +50,6 @@ void StateMachine::SetStateEventHandler(StateEventHandler * instance)
     }
     State.EventHandlerInstance = instance;
 }
-*/
 
 void StateMachine::ProcessEvent(const TransitionType transition)
 {
@@ -70,7 +68,7 @@ void StateMachine::ProcessEvent(const TransitionType transition)
     }
 }
 
-const StateType StateMachine::GetState(void) const
+StateType StateMachine::GetState(void) const
 {
     switch (State.current_state()[0]) {
         case 0: return NORMAL;

@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
     mtsComponentManager * ComponentManager = mtsComponentManager::GetInstance();
 
     // Create simulated components
-    ForceSensorComponent * forceSensor = new ForceSensorComponent("ForceSensor", 10 * cmn_ms);
+    ForceSensorComponent * forceSensor = new ForceSensorComponent("ForceSensor", 500 * cmn_ms);
     CMN_ASSERT(ComponentManager->AddComponent(forceSensor));
-    ControlComponent * controller = new ControlComponent("Controller", 1 * cmn_ms);
+    ControlComponent * controller = new ControlComponent("Controller", 1 * cmn_s);
     CMN_ASSERT(ComponentManager->AddComponent(controller));
 
 #if 0

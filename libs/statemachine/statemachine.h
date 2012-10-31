@@ -186,9 +186,14 @@ public:
 
     virtual void ProcessEvent(const State::TransitionType transition);
 
-    /*! Getters and setters */
-    const State::StateType GetState(void) const;
-    //void SetStateEventHandler(StateEventHandler * instance);
+    /*! Returns current state of SF state machine */
+    State::StateType GetState(void) const;
+
+    /*! Replace default state event handler with user-defined event handler.  This is
+        useful when an application wants to handle state change events.
+        When the previously existing state event handler is swapped out with the new
+        state event handler instance, the previous one is deleted internally. */
+    void SetStateEventHandler(StateEventHandler * instance);
 
 #if 1
     /*! State machine testing */

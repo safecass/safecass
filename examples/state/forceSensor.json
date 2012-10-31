@@ -1,0 +1,26 @@
+// State transition definitions for ForceSensorComponent
+{
+    // Name of component
+    "component_name" : "ForceSensor",
+
+    // Target fault type
+    "fault_type" : "application",
+
+    // State transition conditions
+    "transition_conditions" : {
+
+        // How many faults are tolerated before transition happens
+        // (0: no tolerance, period in msec)
+        "fault_detection"   : { "occurrence" : 0, "period" : 0 },
+        "fault_removal"     : { "occurrence" : 0, "period" : 1000 },
+        "fault_activation"  : { "occurrence" : 3, "period" : 1000 },
+
+        "error_detection"   : { "occurrence" : 0, "period" : 0 },
+        "error_removal"     : { "occurrence" : 0, "period" : 3000 },
+        "error_propagation" : { "occurrence" : 3, "period" : 1000 },
+
+        "failure_detection" : { "occurrence" : 0, "period" : 0 },
+        "failure_removal"   : { "occurrence" : 0, "period" : 5000 },
+        "failure_stop"      : { "occurrence" : 3, "period" : 1000 },
+    }
+}

@@ -21,9 +21,7 @@
 #include "monitor.h"
 #include "cisstMonitor.h"
 #include "threshold.h"
-#include "statemachine.h"
 */
-
 #include <cisstMultiTask/mtsTaskPeriodic.h>
 #include <cisstMultiTask/mtsInterfaceProvided.h>
 #include <cisstMultiTask/mtsInterfaceRequired.h>
@@ -39,6 +37,32 @@
 #include <sys/mman.h>
 #endif
 */
+
+//-------------------------------------------------- 
+// State event handler for ForceSensorComponent
+//-------------------------------------------------- 
+ForceSensorComponent::ForceSensorEventHandler::ForceSensorEventHandler()
+    : SF::StateEventHandler()
+{
+    std::cout << "ForceSensorComponent state transition event handler: created\n";
+}
+
+ForceSensorComponent::ForceSensorEventHandler::~ForceSensorEventHandler()
+{
+    std::cout << "ForceSensorComponent state transition event handler: deleted\n";
+}
+
+void ForceSensorComponent::ForceSensorEventHandler::OnStateEntryOrExit(
+     const SF::State::StateEntryExitType stateEntryExit)
+{
+    std::cout << "ForceSensorComponent state transition: " << SF::State::GetString(stateEntryExit) << std::endl;
+}
+
+void ForceSensorComponent::ForceSensorEventHandler::OnStateTransition(
+     const SF::State::TransitionType transition)
+{
+    std::cout << "ForceSensorComponent state: " << SF::State::GetString(transition) << std::endl;
+}
 
 //-------------------------------------------------- 
 // Simulated Force Sensor Component (could be generalized as generic sensor wrapper component)
@@ -61,6 +85,16 @@ ForceSensorComponent::ForceSensorComponent(const std::string & name, double peri
     CMN_ASSERT(provided);
     provided->AddCommandReadState(StateTable, ForceScalar, "GetForceScalar");
     provided->AddCommandReadState(StateTable, ForceVector, "GetForceVector");
+
+    // If an application wants to handle state transition events, create a new event
+    // handler class which is derived from SF::StateEventHandler and replace the default
+    // state event handler with it by calling mtsComponent::ReplaceStateEventHandler().
+    ForceSensorComponent::ForceSensorEventHandler * newEventHandler
+        = new ForceSensorComponent::ForceSensorEventHandler;
+    this->SetStateEventHandler(newEventHandler);
+
+    // MJTEST
+    this->FaultState->Test();
 }
 
 ForceSensorComponent::~ForceSensorComponent(void)
@@ -72,6 +106,7 @@ void ForceSensorComponent::Run(void)
     ProcessQueuedCommands();
     ProcessQueuedEvents();
 
+#if 0 // usual codes look like this
     int ErrorCode = CheckSensorStatus();
     if (ErrorCode == ERROR_OK) {
         ForceScalar = ReadForceScalar();
@@ -81,6 +116,79 @@ void ForceSensorComponent::Run(void)
         // MJ: what do people do usually here, in case of sensor error?
         //
     }
+#endif
+    switch (GetFaultState()) {
+        case SF::State::NORMAL:  RunNormal(); break;
+        case SF::State::FAULT:   RunFault(); break;
+        case SF::State::ERROR:   RunError(); break;
+        case SF::State::FAILURE: RunFailure(); break;
+    }
+}
+
+void ForceSensorComponent::RunNormal(void)
+{
+    int ErrorCode = CheckSensorStatus();
+    if (ErrorCode == ERROR_OK) {
+        ForceScalar = ReadForceScalar();
+    } else {
+        std::cout << "Force sensor status error: error code = " << ErrorCode << std::endl;
+
+        // Determine the severity of the fault and inform the SF state machine of 
+        // the fault/error/failure event depending on its severity.
+        switch (ErrorCode) {
+            case ERROR_DATA_RECEPTION_ERROR:
+            case ERROR_SATURATION:
+            case ERROR_BAD_CRC:
+                //this->FaultState->HandleAbnormalEvent(FAULT);
+                break;
+            case ERROR_WATCHDOG:
+                //this->FaultState->HandleAbnormalEvent(ERROR);
+                break;
+            case ERROR_DSP_DEAD:
+            case ERROR_MEMORY_ERROR:
+                //this->FaultState->HandleAbnormalEvent(FAILURE);
+                break;
+        }
+
+        // Print-out current SF state
+        std::cout << "CURRENT SF STATE: " << SF::State::GetString(this->FaultState->GetState()) << std::endl;
+    }
+}
+
+void ForceSensorComponent::RunFault(void)
+{
+    static int count = 0;
+
+    std::cout << "[RunFault]: Trying to recover from fault: " << ++count << std::endl;
+    // try to recover from fault
+
+    // DO NOTHING because fault removal strategy in this particular example is to wait for 
+    // some time expecting the fault to be resolved.
+    // Should other types of fault removal trials be made, it can be done here.
+}
+
+void ForceSensorComponent::RunError(void)
+{
+    static int count = 0;
+
+    std::cout << "[RunError]: Trying to recover from error: " << ++count << std::endl;
+    // try to recover from error
+
+    // DO NOTHING because fault removal strategy in this particular example is to wait for 
+    // some time expecting the fault to be resolved.
+    // Should other types of fault removal trials be made, it can be done here.
+}
+
+void ForceSensorComponent::RunFailure(void)
+{
+    static int count = 0;
+
+    std::cout << "[RunFailure]: Trying to recover from failure: " << ++count << std::endl;
+    // try to recover from failure
+
+    // DO NOTHING because fault removal strategy in this particular example is to wait for 
+    // some time expecting the fault to be resolved.
+    // Should other types of fault removal trials be made, it can be done here.
 }
 
 int ForceSensorComponent::CheckSensorStatus(void)
@@ -88,7 +196,7 @@ int ForceSensorComponent::CheckSensorStatus(void)
     // MJ TODO: randomly choose error code
 
     static int a = 0;
-    if (++a == 300) {
+    if (++a == 6) {
         a = 0;
         return ERROR_DSP_DEAD;
     }
@@ -126,7 +234,7 @@ void ControlComponent::Run(void)
 
     if (GetForceScalar.IsValid()) {
         static int count = 0;
-        if (count++ == 1000) {
+        if (count++ == 1) {
             double forceScalar;
             GetForceScalar(forceScalar);
             std::cout << forceScalar << std::endl;

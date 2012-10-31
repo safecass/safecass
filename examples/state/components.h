@@ -21,8 +21,8 @@
 #include "monitor.h"
 #include "cisstMonitor.h"
 #include "threshold.h"
-#include "statemachine.h"
 */
+#include "statemachine.h"
 
 #include <cisstMultiTask/mtsTaskPeriodic.h>
 /*
@@ -54,6 +54,17 @@ public:
         ERROR_WATCHDOG
     } ErrorCodes;
 
+    // state transition event handler derived from default state event handler
+    // (SF::StateEventHandler)
+    class ForceSensorEventHandler: public SF::StateEventHandler {
+    public:
+        ForceSensorEventHandler();
+        ~ForceSensorEventHandler();
+
+        void OnStateEntryOrExit(const SF::State::StateEntryExitType stateEntryExit);
+        void OnStateTransition(const SF::State::TransitionType transition);
+    };
+
 protected:
     double ForceScalar;
     mtsDoubleVec ForceVector;
@@ -69,6 +80,12 @@ public:
     void Startup(void) {}
     void Run(void);
     void Cleanup(void) {}
+
+    // Different versions of Run() method depending on the current fault state
+    void RunNormal(void);
+    void RunFault(void);
+    void RunError(void);
+    void RunFailure(void);
 
     // predefined names and values
     static const std::string NameOfProvidedInterface;
