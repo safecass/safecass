@@ -1,26 +1,144 @@
-// State transition definitions for ForceSensorComponent
+// Dependability definitions for ForceSensor component
 {
     // Name of component
     "component_name" : "ForceSensor",
 
-    // Target fault type
-    "fault_type" : "application",
+    // Event definition.  When loaded into C++, unique id of type unsigned integer 
+    // will be assigned to each entry.
+    "event" : [
+        "ERROR_BAD_CRC",
+        "ERROR_WATCHDOG"
+        "ERROR_DSP_DEAD",
+        "ERROR_DATA_RECEPTION_ERROR",
+        "ERROR_SATURATION",
+    ],
 
-    // State transition conditions
-    "transition_conditions" : {
+    // severity definition (minor, catastrophic)
+    // An event with the maximum severity (i.e., catastrophic event) immediately makes 
+    // a component INACTIVE/READY/STOP .
+    "severity" : [ 0, 10 ],
 
-        // How many faults are tolerated before transition happens
-        // (0: no tolerance, period in msec)
-        "fault_detection"   : { "occurrence" : 0, "period" : 0 },
-        "fault_removal"     : { "occurrence" : 0, "period" : 1000 },
-        "fault_activation"  : { "occurrence" : 3, "period" : 1000 },
+    // Details of each event
+    "ERROR_BAD_CRC" : {
+        // A typical sensor transmits the entire contents of its calibration matrix over 30 
+        // times a second. Therefore, if this bit is not zero within a couple of seconds after
+        // the sensor has been plugged in, there is a problem with the sensor's calibration data.
+        "description" : "sensor calibration data error",
+        // severity
+        "severity"    : 5,
+        // error class (see wiki for classification of errors)
+        "class"       : "content_error",
+        // defines state transition events and event handling policies
+        "policy" : {
+            // notify connected components of this error
+            "broadcast" : "yes",
+            // propagate this error to Safety Coordinator
+            "propagation" : "no",
+            // current state
+            "normal" : {
+                // defines state transition conditions
+                "transition" : {
+                    // new state
+                    "error" : {
+                        // How many faults are tolerated before state transition happens
+                        // (occurrence = 0: no tolerance, period: in msec)
+                        "detection" : { "occurrence": 0, "period": 3000 }
+                    }
+                }
+            },
+            // current state
+            "error" : {
+                // defines state transition conditions
+                "transition" : {
+                    // new state
+                    "normal" : {
+                        // How many faults are tolerated before state transition happens
+                        // (occurrence = 0: no tolerance, period: in msec)
+                        "detection" : { "occurrence": 0, "period": 3000 }
+                    }
+                }
+            }
+        }
+    },
 
-        "error_detection"   : { "occurrence" : 0, "period" : 0 },
-        "error_removal"     : { "occurrence" : 0, "period" : 3000 },
-        "error_propagation" : { "occurrence" : 3, "period" : 1000 },
+    "ERROR_WATCHDOG" : {
+        // The watch_dog and watch_dog2 bits are sensor, not processor, watch dog bits.
+        // Watch_dog: if sensor data line is acting correctly.
+        // Watch_dog2: if sensor data and clock are being received.
+        // If either watch dog barks, the sensor data is not being received correctly.
+        "description" : "Watch dog error - sensor data is not being received correctly",
+        "severity"    : 5,
+        "class"       : "content_error",
+        "policy" : {
+            "broadcast"   : "yes",
+            "propagation" : "no",
+            "normal" : {
+                "transition" : {
+                    "error" : {
+                        "detection" : { "occurrence": 5, "period": 1000 }
+                    }
+                }
+            },
+            "error" : {
+                "transition" : {
+                    "failure" : {
+                        "detection" : { "occurrence": 5, "period": 1000 },
+                        "propagation" : "yes"
+                    },
+                    "normal" : {
+                        "detection" : { "occurrence": 0, "period": 1000 }
+                    }
+                }
+            }
+        }
+    },
 
-        "failure_detection" : { "occurrence" : 0, "period" : 0 },
-        "failure_removal"   : { "occurrence" : 0, "period" : 5000 },
-        "failure_stop"      : { "occurrence" : 3, "period" : 1000 },
+    "ERROR_DSP_DEAD" : {
+        "description" : "DSP is dead",
+        "severity"    : 10,
+        "class"       : "content_error",
+        "description" : "DSP is not working",
+        "policy" : {
+            "broadcast"   : "yes",
+            "propagation" : "yes",
+            "normal" : {
+                "transition" : {
+                    "failure" : {
+                        "detection" : { "occurrence": 0, "period": 1000 }
+                    }
+                }
+            }
+        }
+    },
+
+    "ERROR_DATA_RECEPTION_ERROR" : {
+        "description" : "Data reception error - bad sensor cable connection, hardware problem, or extremely noisy environment",
+        "severity"    : 5,
+        "class"       : "content_error",
+        "policy" : {
+            "broadcast"   : "yes",
+            "propagation" : "no",
+            "normal" : {
+                "transition" : {
+                    "error" : {
+                        "detection" : { "occurrence": 5, "period": 1000 }
+                    }
+                }
+            },
+            "error" : {
+                "transition" : {
+                    "failure" : {
+                        "detection" : { "occurrence": 5, "period": 1000 },
+                        "propagation" : "yes"
+                    },
+                    "normal" : {
+                        "detection" : { "occurrence": 5, "period": 1000 }
+                    }
+                }
+            }
+        }
+    },
+
+    "ERROR_SATURATION" : {
     }
 }

@@ -133,7 +133,12 @@ int main(int argc, char *argv[])
     
     // Get instance of the cisst Component Manager
     mtsComponentManager::InstallSafetyCoordinator();
-    ComponentManager = mtsComponentManager::GetInstance();
+    try {
+        ComponentManager = mtsComponentManager::GetInstance();
+    } catch (...) {
+        SFLOG_ERROR << "Failed to initialize local component manager" << std::endl;
+        return 1;
+    }
 
     // Print information about middleware(s) available
     StrVecType info;
