@@ -78,6 +78,7 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
                     __root[sampling_rate] = SamplingRate;
                 } else if (Output == OUTPUT_EVENT) {
 #if 0 // MJ TEMP: not yet decided how to use these fields
+// 02/08/13: isn't this what filters do???
                     ::Json::Value array(::Json::arrayValue);
                     array.append(0.1);
                     array.append(0.5);
