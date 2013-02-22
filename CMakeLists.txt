@@ -40,16 +40,16 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SF_CMAKE_MODULE_PATH})
 
 # If BOOST_ROOT was defined in the environment, use it.
 if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
-  set(BOOST_ROOT $ENV{BOOST_ROOT})
+    set(BOOST_ROOT $ENV{BOOST_ROOT})
 else ()
-  if (NOT BOOST_ROOT AND NOT $ENV{BOOSTROOT} STREQUAL "")
-    set(BOOST_ROOT $ENV{BOOSTROOT})
-  endif()
+    if (NOT BOOST_ROOT AND NOT $ENV{BOOSTROOT} STREQUAL "")
+        set(BOOST_ROOT $ENV{BOOSTROOT})
+    endif()
 endif()
 
 if (BOOST_ROOT)
   message("BOOST_ROOT is set as ${BOOST_ROOT}")
-endif (BOOST_ROOT)
+endif ()
 
 # Option to enable unit-testing with CppTest
 option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the CppTest library" ON)
@@ -59,9 +59,9 @@ option (ENABLE_G2LOG "Enable and use g2log as logging framework. Requires the g2
 option (BUILD_SHARED_LIBS "Build shared libraries" OFF)
 if (BUILD_SHARED_LIBS)
     set (LIB_TYPE SHARED)
-elseif (BUILD_SHARED_LIBS)
+elseif ()
     set (LIB_TYPE STATIC)
-endif (BUILD_SHARED_LIBS)
+endif ()
 
 # Option to use robot middleware packages
 option (SF_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)
@@ -80,34 +80,30 @@ if (SF_HAS_CISST)
         #
         # TODO
         #
-    else (cisst_FOUND_AS_REQUIRED)
+    else ()
         message(FATAL_ERROR "Failed to find cisst")
-    endif (cisst_FOUND_AS_REQUIRED)
+    endif ()
 endif (SF_HAS_CISST)
 
 # Options to enable visualizataion framework using Qt and D3/cubism
 option (ENABLE_VIS_FRAMEWORK "Enable visualization framework using Qt and visualization packages" ON)
 if (ENABLE_VIS_FRAMEWORK)
     message("Visualization framework enabled")
-endif (ENABLE_VIS_FRAMEWORK)
+endif ()
 
 # Option to compile examples separately
 option (BUILD_EXAMPLES "Build examples.  Requires safety framework-enabled middleware." OFF)
 
 # Include sub-directories
 add_subdirectory(libs)
-#set (SF_INCLUDE_DIR ${SF_INCLUDE_DIR} ${SF_LIB_INCLUDE_DIR})
-
 add_subdirectory(programs)
 add_subdirectory(tools)
 if (BUILD_EXAMPLES)
-  message("Building examples")
-  add_subdirectory(examples)
-endif (BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif ()
 if (ENABLE_UNIT_TEST)
-  message("Unit-test enabled")
-  add_subdirectory(tests)
-endif (ENABLE_UNIT_TEST)
+    add_subdirectory(tests)
+endif ()
 
 # Create configuration files
 configure_file ("${SF_CMAKE_MODULE_PATH}/SFConfig.cmake.in"

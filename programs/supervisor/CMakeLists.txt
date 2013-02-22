@@ -1,7 +1,7 @@
 #
 # Safety Framework for Component-based Robotics
 #
-# Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+# Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,30 +10,23 @@
 
 project(supervisor)
 
-set (REQUIRED_SF_LIBS SFLib ${JSONCPP_LIBRARIES})
-if (ENABLE_G2LOG)
-    set (REQUIRED_SF_LIBS ${REQUIRED_SF_LIBS} ${G2LOG_LIBRARIES})
-endif (ENABLE_G2LOG)
-
-set (INCLUDE_DIR ${SF_LIB_INCLUDE_DIR})
-
 if (SF_HAS_CISST)
     set (REQUIRED_CISST_LIBS cisstCommon cisstVector cisstOSAbstraction cisstMultiTask)
+    set (REQUIRED_SF_LIBS SFLib)
 
     # find cisst and make sure the required libraries have been compiled
     find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES} QUIET)
 
     if (cisst_FOUND_AS_REQUIRED)
-        set (INCLUDE_DIR ${INCLUDE_DIR} ${cisst_INCLUDE_DIR})
-        include_directories (${INCLUDE_DIR})
+        include_directories (${SF_LIB_INCLUDE_DIR})
         add_executable (supervisor main_cisst.cpp)
         cisst_target_link_libraries(supervisor ${REQUIRED_CISST_LIBS})
-        target_link_libraries (supervisor ${REQUIRED_SF_LIBS})
-    else (cisst_FOUND_AS_REQUIRED)
+        target_link_libraries (supervisor ${SF_LIB_DEPENDENCY_LIBS})
+    else ()
         cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
-    endif (cisst_FOUND_AS_REQUIRED)
+    endif ()
 endif (SF_HAS_CISST)
 
 if (ENABLE_VIS_FRAMEWORK AND CISST_HAS_QT)
     add_subdirectory(Qt)
-endif (ENABLE_VIS_FRAMEWORK AND CISST_HAS_QT)
+endif ()
