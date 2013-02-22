@@ -1,17 +1,22 @@
 #
 # Safety Framework for Component-based Robotics
 #
-# Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+# Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 #
-
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
 # Project name
 project(SafetyFramework)
+
+# Set the version number
+set (SF_VERSION_MAJOR "0")
+set (SF_VERSION_MINOR "0")
+set (SF_VERSION_PATCH "1")
+set (SF_VERSION "${SF_VERSION_MAJOR}.${SF_VERSION_MINOR}.${SF_VERSION_PATCH}")
 
 # Set the current project as Safety Framework 
 set (CURRENT_PROJECT_IS_SF ON)
@@ -26,8 +31,8 @@ set_property (GLOBAL PROPERTY USE_FOLDERS ON) # option to organize targets in fo
 # Project settings for source files
 set (SF_BUILD_ROOT ${BUILD_ROOT})
 set (SF_SOURCE_DIR ${SafetyFramework_SOURCE_DIR})
-set (SF_LIBRARY_DIR ${SF_SOURCE_DIR}/libs)
-set (SF_INCLUDE_DIR ${SF_LIBRARY_DIR})
+set (SF_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}) # where to find SFLib build library
+set (SF_INCLUDE_DIR "${SF_SOURCE_DIR}/libs") # where to find header files
 
 # Set cmake module path
 set (SF_CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -91,7 +96,7 @@ option (BUILD_EXAMPLES "Build examples.  Requires safety framework-enabled middl
 
 # Include sub-directories
 add_subdirectory(libs)
-set (SF_INCLUDE_DIR ${SF_INCLUDE_DIR} ${SF_LIB_INCLUDE_DIR})
+#set (SF_INCLUDE_DIR ${SF_INCLUDE_DIR} ${SF_LIB_INCLUDE_DIR})
 
 add_subdirectory(programs)
 add_subdirectory(tools)

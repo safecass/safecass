@@ -1,7 +1,7 @@
 #
 # Safety Framework for Component-based Robotics
 #
-# Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+# Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,23 +11,22 @@
 # Version
 set (SF_VERSION_MAJOR "@SF_VERSION_MAJOR@")
 set (SF_VERSION_MINOR "@SF_VERSION_MINOR@")
-set (SF_VERSION "@SF_VERSION@")
+set (SF_VERSION_PATCH "@SF_VERSION_PATCH@")
+set (SF_VERSION       "@SF_VERSION@")
 
 # Paths
-set (SF_BUILD_ROOT "@SF_BUILD_ROOT@")
-set (SF_BUILD_EXECUTABLE_PATH "@SF_BUILD_EXECUTABLE_PATH@")
-set (SF_BUILD_LIBRARY_DIR "@SF_BUILD_LIBRARY_DIR@")
+set (SF_BUILD_ROOT            "@SF_BUILD_ROOT@")
+set (SF_BUILD_EXECUTABLE_PATH "@EXECUTABLE_OUTPUT_PATH@")
+set (SF_BUILD_LIBRARY_DIR     "@LIBRARY_OUTPUT_PATH@")
 
-set (SF_SOURCE_DIR "@SF_SOURCE_DIR@")
+# For external project that uses SF
+set (SF_SOURCE_DIR  "@SF_SOURCE_DIR@")
 set (SF_LIBRARY_DIR "@SF_LIBRARY_DIR@")
 set (SF_INCLUDE_DIR "@SF_INCLUDE_DIR@")
-
 set (SF_CMAKE_MODULE_PATH "@SF_CMAKE_MODULE_PATH@")
 
 # locate cisst use file
-find_file (SF_USE_FILE
-           UseSF.cmake
-           ${SF_CMAKE_MODULE_PATH})
+find_file (SF_USE_FILE UseSF.cmake ${SF_CMAKE_MODULE_PATH})
 
 # On Windows, CMake uses a different compiler at configuration time
 #set (CISST_CMAKE_COMPILER_IS_MSVC_64 @CISST_CMAKE_COMPILER_IS_MSVC_64@)
@@ -38,5 +37,7 @@ find_file (SF_USE_FILE
 # Middleware
 set (SF_HAS_CISST "@SF_HAS_CISST@")
 
-# Dependencies
-set (SF_BUILD_SHARED_LIBS "@BUILD_SHARED_LIBS@")
+# External dependencies of Safety Framework
+set (SF_BUILD_SHARED_LIBS          "@BUILD_SHARED_LIBS@")
+set (SF_LIB_DEPENDENCY_LIBS        "@SF_LIB_DEPENDENCY_LIBS@")
+set (SF_LIB_DEPENDENCY_INCLUDE_DIR "@SF_LIB_INCLUDE_DIR@")
