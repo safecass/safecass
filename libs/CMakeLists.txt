@@ -177,9 +177,14 @@ if (ENABLE_G2LOG)
   find_package (G2LOG REQUIRED)
   if (G2LOG_FOUND)
     message ("g2log found")
-    set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++11" PARENT_SCOPE)
+    set (CMAKE_CXX_FLAGS "-std=c++11")
+    set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
     set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${G2LOG_INCLUDE_DIR})
     set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} ${G2LOG_LIBRARIES})
+    # suppress warnings
+    if (UNIX OR APPLE)
+        add_definitions(-Wdeprecated-declarations)
+    endif()
   else (G2LOG_FOUND)
     message (FATAL_ERROR "g2log not found")
   endif (G2LOG_FOUND)
@@ -218,10 +223,7 @@ else (BoostMSM_FOUND)
   message(FATAL_ERROR "Boost MSM not found")
 endif (BoostMSM_FOUND)
 
-
-set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} PARENT_SCOPE)
 include_directories (${SF_LIB_INCLUDE_DIR})
-
 add_library(SFLib ${LIB_TYPE} ${SF_LIB_SRC})
 target_link_libraries(SFLib ${SF_LIB_DEPENDENCY_LIBS})
 
@@ -232,10 +234,13 @@ if (SF_HAS_CISST AND NOT ENABLE_G2LOG)
   find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES} QUIET)
 
   if (cisst_FOUND_AS_REQUIRED)
-    set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${cisst_INCLUDE_DIR} PARENT_SCOPE)
     include_directories (${SF_LIB_INCLUDE_DIR})
     cisst_target_link_libraries(SFLib ${REQUIRED_CISST_LIBS})
-  else (cisst_FOUND_AS_REQUIRED)
+  else ()
     cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
-  endif (cisst_FOUND_AS_REQUIRED)
+  endif ()
 endif (SF_HAS_CISST AND NOT ENABLE_G2LOG)
+
+# Set variables in the parent scope
+set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} PARENT_SCOPE)
+set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} PARENT_SCOPE)

@@ -75,7 +75,7 @@ if (SF_HAS_CISST)
         # Modify CMake configuration to use cisst
         include (${CISST_USE_FILE})
         # Print out cisst information
-        message("CISST found (ver. ${CISST_VERSION}): ${CISST_BINARY_DIR}")
+        message("CISST ${CISST_VERSION} found: ${CISST_BINARY_DIR}")
         add_definitions(-DSF_HAS_CISST)
         #
         # TODO
@@ -104,6 +104,11 @@ endif ()
 if (ENABLE_UNIT_TEST)
     add_subdirectory(tests)
 endif ()
+
+# Set compiler flags if necessary
+if (ENABLE_G2LOG)
+    set (SF_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+endif()
 
 # Create configuration files
 configure_file ("${SF_CMAKE_MODULE_PATH}/SFConfig.cmake.in"

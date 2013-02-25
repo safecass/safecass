@@ -31,6 +31,9 @@ find_file (SF_USE_FILE UseSF.cmake ${SF_CMAKE_MODULE_PATH})
 # On Windows, CMake uses a different compiler at configuration time
 #set (CISST_CMAKE_COMPILER_IS_MSVC_64 @CISST_CMAKE_COMPILER_IS_MSVC_64@)
 
+# Compiler options (e.g., g2log requires c++11 standard)
+set (SF_CXX_FLAGS "@SF_CXX_FLAGS@")
+
 # Which flags have been set and include path/libs
 #set (CISST_HAS_SAFETY_PLUGINS @CISST_HAS_SAFETY_PLUGINS@)
 
