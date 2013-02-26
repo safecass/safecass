@@ -24,6 +24,6 @@
 
 #define SF_COMMUNICATOR_CONFIG_DIR "@CMAKE_SOURCE_DIR@/libs/communicator"
 
-#cmakedefine01 ENABLE_G2LOG
+#cmakedefine01 SF_USE_G2LOG
 
 #endif // _COMMON_CONFIG_H

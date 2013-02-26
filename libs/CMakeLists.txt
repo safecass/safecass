@@ -227,7 +227,7 @@ include_directories (${SF_LIB_INCLUDE_DIR})
 add_library(SFLib ${LIB_TYPE} ${SF_LIB_SRC})
 target_link_libraries(SFLib ${SF_LIB_DEPENDENCY_LIBS})
 
-if (SF_HAS_CISST AND NOT ENABLE_G2LOG)
+if (SF_HAS_CISST)# AND NOT ENABLE_G2LOG)
   set (REQUIRED_CISST_LIBS cisstCommon)
 
   # find cisst and make sure the required libraries have been compiled
@@ -239,7 +239,7 @@ if (SF_HAS_CISST AND NOT ENABLE_G2LOG)
   else ()
     cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
   endif ()
-endif (SF_HAS_CISST AND NOT ENABLE_G2LOG)
+endif (SF_HAS_CISST)# AND NOT ENABLE_G2LOG)
 
 # Set variables in the parent scope
 set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} PARENT_SCOPE)

@@ -17,6 +17,9 @@
 #include <iostream>
 #include <sstream>
 
+// import build tree configurations
+#include "config.h"
+// for dynamic library support
 #include "SFDLLDefines.h"
 
 #if ENABLE_G2LOG
