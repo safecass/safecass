@@ -56,7 +56,6 @@ option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the Cpp
 # Option to use g2log
 option (ENABLE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
 if (ENABLE_G2LOG)
-    set (SF_CXX_FLAGS ${CMAKE_CXX_FLAGS})
     set (SF_USE_G2LOG ${ENABLE_G2LOG})
 endif()
 # Option to build shared library
@@ -108,6 +107,11 @@ endif ()
 if (ENABLE_UNIT_TEST)
     add_subdirectory(tests)
 endif ()
+
+# Update compiler configuration accordingly
+if (ENABLE_G2LOG)
+    set (SF_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+endif()
 
 # Create configuration files
 configure_file ("${SF_CMAKE_MODULE_PATH}/SFConfig.cmake.in"
