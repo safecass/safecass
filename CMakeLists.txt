@@ -26,7 +26,32 @@ set (BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 set (EXECUTABLE_OUTPUT_PATH "${BUILD_ROOT}/bin")
 set (LIBRARY_OUTPUT_PATH "${BUILD_ROOT}/lib")
 
-set_property (GLOBAL PROPERTY USE_FOLDERS ON) # option to organize targets in folders
+# OS recognition
+set (SF_ON_MAC     FALSE)
+set (SF_ON_WINDOWS FALSE)
+set (SF_ON_LINUX   FALSE)
+# Mac/Apple
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+    set (SF_ON_MAC TRUE)
+    message("OS: Apple/Mac detected")
+else ()
+    if (UNIX)
+        set (SF_ON_LINUX TRUE)
+        message("OS: Linux detected")
+    endif ()
+endif ()
+# Windows
+if (WIN32)
+    set (SF_ON_WINDOWS TRUE)
+    message("OS: Windows detected")
+endif ()
+# QNX
+#if ("${CMAKE_SYSTEM_NAME}" strequal "QNX")
+#    set (SF_ON_QNX ON)
+#else if (UNIX)
+
+# option to organize targets in folders
+set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Project settings for source files
 set (SF_BUILD_ROOT ${BUILD_ROOT})
