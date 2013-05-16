@@ -22,7 +22,7 @@
 // for dynamic library support
 #include "SFDLLDefines.h"
 
-#ifdef SF_USE_G2LOG
+#if SF_USE_G2LOG
   #include "g2logworker.h"
   #include "g2log.h"
   #include <iomanip>
@@ -65,7 +65,7 @@ std::string GetCurrentUTCTimeString(void);
 //  Common macro definitions
 //--------------------------------------------------
 // Logger macros
-#ifdef SF_USE_G2LOG
+#if SF_USE_G2LOG
   #define SFLOG_INFO    LOG(INFO)
   #define SFLOG_DEBUG   LOG(DEBUG)
   #define SFLOG_WARNING LOG(WARNING)
@@ -88,7 +88,7 @@ std::string GetCurrentUTCTimeString(void);
 #endif
 
 // Assertion macro
-#ifdef SF_USE_G2LOG
+#if SF_USE_G2LOG
   /* G2LOG CHECK macro usage examples:
      (from http://www.codeproject.com/Articles/288827/g2log-An-efficient-asynchronous-logger-using-Cplus#TOC_design_by_contract)
 

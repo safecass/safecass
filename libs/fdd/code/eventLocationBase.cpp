@@ -45,10 +45,12 @@ void EventLocationBase::ToStream(std::ostream & outputStream) const
 
 EventLocationBase & EventLocationBase::operator=(const EventLocationBase & rhs)
 {
-    ProcessName           = rhs.GetProcessName();
-    ComponentName         = rhs.GetComponentName();
-    InterfaceProvidedName = rhs.GetInterfaceProvidedName();
-    InterfaceRequiredName = rhs.GetInterfaceRequiredName();
+    this->ProcessName           = rhs.GetProcessName();
+    this->ComponentName         = rhs.GetComponentName();
+    this->InterfaceProvidedName = rhs.GetInterfaceProvidedName();
+    this->InterfaceRequiredName = rhs.GetInterfaceRequiredName();
+
+    return (*this);
 }
 
 };

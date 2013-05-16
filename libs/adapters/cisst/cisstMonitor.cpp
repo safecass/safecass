@@ -145,6 +145,9 @@ const std::string cisstMonitor::GetJsonForPublish(double sample, double currentT
             // MJ: Filter events (i.e., faults) are handled separately
             SFASSERT(false);
             break;
+        case TARGET_INVALID:
+        default:
+            break;
     }
 
     return serializer.GetJSON();

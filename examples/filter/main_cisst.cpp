@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     mlockall(MCL_CURRENT|MCL_FUTURE);
 #endif
 
-#ifdef SF_USE_G2LOG
+#if SF_USE_G2LOG
     // Logger setup
     g2LogWorker logger(argv[0], "./");
     g2::initializeLogging(&logger);

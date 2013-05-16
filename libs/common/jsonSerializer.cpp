@@ -144,30 +144,33 @@ const std::string JSONSerializer::GetJSON(void) const
     }
 
     switch (Common.Topic) {
-    case MONITOR:
-        {
-            ::Json::Value _root(Monitor.Fields);
-            _root[type] = Monitor::GetTargetTypeString(Monitor.Type);
+        case MONITOR:
+            {
+                ::Json::Value _root(Monitor.Fields);
+                _root[type] = Monitor::GetTargetTypeString(Monitor.Type);
 
-            root[monitor] = _root;
-        }
-        break;
+                root[monitor] = _root;
+            }
+            break;
 
-    case FAULT:
-        {
-            ::Json::Value _root(Fault.Fields);
-            _root[type] = Fault::GetFaultTypeString(Fault.Type);
-            _root[detector] = Fault.DetectorName;
+        case FAULT:
+            {
+                ::Json::Value _root(Fault.Fields);
+                _root[type] = Fault::GetFaultTypeString(Fault.Type);
+                _root[detector] = Fault.DetectorName;
 
-            root[fault] = _root;
-        }
-        break;
+                root[fault] = _root;
+            }
+            break;
 
-    case SUPERVISOR:
-        {
-            // TODO
-        }
-        break;
+        case SUPERVISOR:
+            {
+                // TODO
+            }
+            break;
+
+        default:
+            break;
     }
 
     std::stringstream ss;
@@ -205,6 +208,7 @@ bool JSONSerializer::ParseJSON(const std::string & message)
                 Monitor.Fields.removeMember(type);
             }
             break;
+
         case FAULT:
             {
                 Fault.Type = Fault::GetFaultTypeFromString(values[fault].get(type, "").asString());
@@ -215,10 +219,14 @@ bool JSONSerializer::ParseJSON(const std::string & message)
                 Fault.Fields.removeMember(detector);
             }
             break;
+
         case SUPERVISOR:
             {
                 // TODO
             }
+            break;
+
+        default:
             break;
     }
     // Populate monitor fields

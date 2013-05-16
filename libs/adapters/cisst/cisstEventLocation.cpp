@@ -23,8 +23,8 @@ const std::string cisstEventLocation::GetLocationID(void) const
 {
     std::stringstream ss;
 
-    ss << this->ProcessName.empty() ? "-" : this->ProcessName;
-    ss << ":" << this->ComponentName.empty() ? "-" : this->ComponentName;
+    ss << (this->ProcessName.empty() ? "-" : this->ProcessName) << ":";
+    ss << (this->ComponentName.empty() ? "-" : this->ComponentName);
     if (!this->InterfaceProvidedName.empty() || !CommandName.empty() || !EventGeneratorName.empty()) {
         ss << ":[P]" << this->InterfaceProvidedName << ":" << CommandName << ":" << EventGeneratorName;
     }
@@ -75,6 +75,8 @@ cisstEventLocation & cisstEventLocation::operator=(const cisstEventLocation& rhs
     FunctionName       = rhs.GetFunctionName();
     EventGeneratorName = rhs.GetEventGeneratorName();
     EventHandlerName   = rhs.GetEventHandlerName();
+
+    return (*this);
 }
 
 };
