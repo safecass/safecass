@@ -122,6 +122,7 @@ void ForceSensorComponent::Run(void)
         case SF::State::FAULT:   RunFault(); break;
         case SF::State::ERROR:   RunError(); break;
         case SF::State::FAILURE: RunFailure(); break;
+        default: break;                         
     }
 }
 
