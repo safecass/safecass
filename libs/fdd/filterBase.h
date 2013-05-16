@@ -41,14 +41,16 @@ public:
                  - Cons: Delay in detecting an event (currently, monitoring component is periodic task) */
     typedef enum { ACTIVE, PASSIVE } FilteringType;
 
-    /*! Typedef for filter categories */
+    /*! \enum SF::FilterBase::FilterCategory 
+     * Typedef for filter categories 
+     */
     typedef enum {
-        INVALID,        // invalid filter is not processed
-        FEATURE,        // raw measurement processed 
-        FEATURE_VECTOR, // collection of features
-        SYMPTOM,        // feature vectors processed
-        SYMPTOM_VECTOR, // collection of symptoms
-        FAULT_DETECTOR  // fault detector
+        INVALID,        /*! invalid filter is not processed */
+        FEATURE,        /*! raw measurement processed */
+        FEATURE_VECTOR, /*! collection of features */
+        SYMPTOM,        /*! feature vectors processed */
+        SYMPTOM_VECTOR, /*! collection of symptoms */
+        FAULT_DETECTOR  /*! fault detector */
     } FilterCategory;
 
     /*! Input signal element.  A filter may need more than one signal to run 
@@ -117,7 +119,7 @@ protected:
             - Fault time (temporal localization)
             - Fault severity
     */
-    virtual const std::string GenerateFDIJSON(double severity, double timestamp) const { return "n/a"; }
+    virtual const std::string GenerateFDIJSON(double severity, double timestamp) const;
 
     //-------------------------------------------------- 
     //  Middleware-specific Instances

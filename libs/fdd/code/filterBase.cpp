@@ -117,6 +117,11 @@ std::string FilterBase::GenerateOutputSignalName(const std::string & prefix,
     return ss.str();
 }
 
+const std::string FilterBase::GenerateFDIJSON(double severity, double timestamp) const
+{
+    return std::string("n/a (not implemented)");
+}
+
 std::string FilterBase::GetInputSignalName(size_t index) const
 {
     if (index >= InputSignals.size()) {

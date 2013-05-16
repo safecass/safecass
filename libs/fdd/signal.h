@@ -31,7 +31,11 @@ public:
     typedef std::vector<double> VectorType;
 
     /*! Typedef for signal type */
-    typedef enum { SCALAR, VECTOR } SignalType;
+    typedef enum {
+        SCALAR, // scalar input
+        VECTOR, // vector of doubles
+        CUSTOM  // custom (user-defined) structure
+    } SignalType;
 
     /*! Typedef for timestamp representations */
     typedef double TimestampType;
