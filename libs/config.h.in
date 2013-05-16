@@ -32,4 +32,7 @@
 #cmakedefine01 SF_ON_LINUX
 #cmakedefine01 SF_ON_QNX
 
+// Component-based middleware in use
+#cmakedefine01 SF_HAS_CISST
+
 #endif // _COMMON_CONFIG_H
