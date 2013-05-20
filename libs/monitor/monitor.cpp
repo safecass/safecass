@@ -79,7 +79,7 @@ const std::string Monitor::GetUIDAsString(void) const
     }
 
     std::stringstream ss;
-    ss << LocationID->GetLocationID();
+    ss << LocationID->GetIDString();
     ss << ":" << GetTargetTypeString(Target);
 
     return ss.str();

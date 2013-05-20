@@ -49,10 +49,14 @@ void EventLocationBase::ImportFromJSON(const ::Json::Value & value)
 
 void EventLocationBase::ToStream(std::ostream & outputStream) const
 {
-    outputStream << "[Proc]" << ProcessName << ":"
-                 << "[Comp]" << ComponentName << ":"
-                 << "[IntP]" << InterfaceProvidedName << ":"
-                 << "[IntR]" << InterfaceRequiredName;
+    if (!ProcessName.empty())
+        outputStream << "[P]" << ProcessName << ":";
+    if (!ComponentName.empty())
+        outputStream << "[C]" << ComponentName << ":";
+    if (!InterfaceProvidedName.empty())
+        outputStream << "[IP]" << InterfaceProvidedName << ":";
+    if (!InterfaceRequiredName.empty())
+        outputStream << "[IR]" << InterfaceRequiredName << ":";
 }
 
 EventLocationBase & EventLocationBase::operator=(const EventLocationBase & rhs)

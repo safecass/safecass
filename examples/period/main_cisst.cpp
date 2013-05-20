@@ -227,7 +227,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
             return false;
         }
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << locationID->GetLocationID() << " ]" << std::endl;
+                   << " ] to [ " << locationID->GetIDString() << " ]" << std::endl;
     }
 #endif
 
@@ -246,7 +246,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
             return false;
         }
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << locationID->GetLocationID() << " ]" << std::endl;
+                   << " ] to [ " << locationID->GetIDString() << " ]" << std::endl;
     }
 
     // Install monitor for execution time (total)
@@ -263,7 +263,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
             return false;
         }
         SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << locationID->GetLocationID() << " ]" << std::endl;
+                   << " ] to [ " << locationID->GetIDString() << " ]" << std::endl;
     }
 #endif
 

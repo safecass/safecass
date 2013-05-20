@@ -47,7 +47,7 @@ public:
     DEFINE_ACCESSORS(InterfaceRequiredName);
 #undef DEFINE_ACCESSORS
 
-    virtual const std::string GetLocationID(void) const = 0;
+    virtual const std::string GetIDString(void) const = 0;
 
     /*! Export internal data into JSON container */
     virtual void ExportToJSON(::Json::Value & root) const;

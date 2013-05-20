@@ -41,7 +41,7 @@ public:
     DEFINE_ACCESSORS(EventHandlerName);
 #undef DEFINE_ACCESSORS
 
-    const std::string GetLocationID(void) const;
+    const std::string GetIDString(void) const;
 
     /*! Export internal data into JSON container */
     void ExportToJSON(::Json::Value & root) const;

@@ -23,23 +23,10 @@ cisstEventLocation::cisstEventLocation(void) : EventLocationBase()
 {
 }
 
-const std::string cisstEventLocation::GetLocationID(void) const
+const std::string cisstEventLocation::GetIDString(void) const
 {
     std::stringstream ss;
-
-    ss << (this->ProcessName.empty() ? "-" : this->ProcessName) << ":";
-    ss << (this->ComponentName.empty() ? "-" : this->ComponentName);
-    if (!this->InterfaceProvidedName.empty() || !CommandName.empty() || !EventGeneratorName.empty()) {
-        ss << ":[P]" << this->InterfaceProvidedName << ":" << CommandName;
-        if (!EventGeneratorName.empty())
-            ss << ":" << EventGeneratorName;
-    }
-    if (!this->InterfaceRequiredName.empty() || !FunctionName.empty() || !EventHandlerName.empty()) {
-        ss << ":[R]" << this->InterfaceRequiredName << ":" << FunctionName;
-        if (!EventHandlerName.empty())
-            ss << ":" << EventHandlerName;
-    }
-
+    ss << *this;
     return ss.str();
 }
 
@@ -65,12 +52,20 @@ void cisstEventLocation::ImportFromJSON(const ::Json::Value & value)
 
 void cisstEventLocation::ToStream(std::ostream & outputStream) const
 {
-    EventLocationBase::ToStream(outputStream);
+    std::stringstream ss;
+    EventLocationBase::ToStream(ss);
 
-    outputStream << ":[Comm]" << CommandName << ":"
-                 << "[Func]" << FunctionName << ":"
-                 << "[EvtG]" << EventGeneratorName << ":"
-                 << "[EvtH]" << EventHandlerName;
+    if (!CommandName.empty())
+        ss << "[Cm]" << CommandName << ":";
+    if (!FunctionName.empty())
+        ss << "[Fn]" << FunctionName << ":";
+    if (!EventGeneratorName.empty())
+        ss << "[Eg]" << EventGeneratorName << ":";
+    if (!EventHandlerName.empty())
+        ss << "[Eh]" << EventHandlerName << ":";
+
+    // Remove trailing delimeter
+    outputStream << ss.str().erase(ss.str().size() - 1, 1);
 }
 
 cisstEventLocation & cisstEventLocation::operator=(const cisstEventLocation& rhs)
