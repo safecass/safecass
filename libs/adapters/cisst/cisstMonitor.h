@@ -22,6 +22,10 @@
 namespace SF {
 
 class SFLIB_EXPORT cisstMonitor: public Monitor {
+protected:
+    // cisstMonitor should be created with explicit arguments
+    cisstMonitor(void) {}
+
 public:
     cisstMonitor(const Monitor::TargetType target,
                  cisstEventLocation *      locationID,

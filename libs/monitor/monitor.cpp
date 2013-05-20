@@ -29,9 +29,20 @@ Monitor::Monitor()
       Output(OUTPUT_INVALID), SamplingRate(0), LastSamplingTick(0),
       AttachedToActiveFilter(false)
 {
-    Samples.Period = 0.0;
-    Samples.ExecTimeUser = 0.0;
-    Samples.ExecTimeTotal = 0.0;
+    Initialize();
+}
+
+Monitor::Monitor(const TargetType target, 
+                 EventLocationBase * locationId,
+                 const StateType state,
+                 const OutputType output,
+                 const SamplingRateType samplingRate,
+                 double lastSamplingTick)
+    : Target(target), LocationID(locationId), State(state),
+      Output(output), SamplingRate(samplingRate), LastSamplingTick(lastSamplingTick),
+      AttachedToActiveFilter(false)
+{
+    Initialize();
 }
 
 Monitor::~Monitor()
@@ -54,6 +65,13 @@ Monitor & Monitor::operator=(const Monitor & rhs)
 #undef COPY
 #endif
 
+void Monitor::Initialize(void)
+{
+    Samples.Period = 0.0;
+    Samples.ExecTimeUser = 0.0;
+    Samples.ExecTimeTotal = 0.0;
+}
+
 const std::string Monitor::GetUIDAsString(void) const
 {
     if (!LocationID) {
@@ -62,7 +80,7 @@ const std::string Monitor::GetUIDAsString(void) const
 
     std::stringstream ss;
     ss << LocationID->GetLocationID();
-    ss << "-" << GetTargetTypeString(Target);
+    ss << ":" << GetTargetTypeString(Target);
 
     return ss.str();
 }
@@ -87,22 +105,30 @@ bool Monitor::IsSamplingNecessary(double currentTick) const
 //-----------------------------------------------
 // Misc. Getters
 //-----------------------------------------------
+static const std::string STR_TARGET_CUSTOM                 = "CUSTOM";
+static const std::string STR_TARGET_THREAD_PERIOD          = "THREAD_PERIOD";
+static const std::string STR_TARGET_THREAD_DUTYCYCLE_USER  = "THREAD_DUTYCYCLE_USER";
+static const std::string STR_TARGET_THREAD_DUTYCYCLE_TOTAL = "THREAD_DUTYCYCLE_TOTAL";
+static const std::string STR_TARGET_FILTER_EVENT           = "FILTER_EVENT";
+
 const std::string Monitor::GetTargetTypeString(const TargetType type)
 {
-    if (type == TARGET_THREAD_PERIOD) return "THREAD_PERIOD";
-    if (type == TARGET_THREAD_DUTYCYCLE_USER) return "THREAD_DUTYCYCLE_USER";
-    if (type == TARGET_THREAD_DUTYCYCLE_TOTAL) return "THREAD_DUTYCYCLE_TOTAL";
-    if (type == TARGET_FILTER_EVENT) return "FILTER_EVENT";
+    if (type == TARGET_CUSTOM)                 return STR_TARGET_CUSTOM;
+    if (type == TARGET_THREAD_PERIOD)          return STR_TARGET_THREAD_PERIOD;
+    if (type == TARGET_THREAD_DUTYCYCLE_USER)  return STR_TARGET_THREAD_DUTYCYCLE_USER;
+    if (type == TARGET_THREAD_DUTYCYCLE_TOTAL) return STR_TARGET_THREAD_DUTYCYCLE_TOTAL;
+    if (type == TARGET_FILTER_EVENT)           return STR_TARGET_FILTER_EVENT;
 
     return INVALID;
 }
 
 Monitor::TargetType Monitor::GetTargetTypeFromString(const std::string & str)
 {
-    if (str.compare("THREAD_PERIOD") == 0) return TARGET_THREAD_PERIOD;
-    if (str.compare("THREAD_DUTYCYCLE_USER") == 0) return TARGET_THREAD_DUTYCYCLE_USER;
-    if (str.compare("THREAD_DUTYCYCLE_TOTAL") == 0) return TARGET_THREAD_DUTYCYCLE_TOTAL;
-    if (str.compare("FILTER_EVENT") == 0) return TARGET_FILTER_EVENT;
+    if (str.compare(STR_TARGET_CUSTOM) == 0)                 return TARGET_CUSTOM;
+    if (str.compare(STR_TARGET_THREAD_PERIOD) == 0)          return TARGET_THREAD_PERIOD;
+    if (str.compare(STR_TARGET_THREAD_DUTYCYCLE_USER) == 0)  return TARGET_THREAD_DUTYCYCLE_USER;
+    if (str.compare(STR_TARGET_THREAD_DUTYCYCLE_TOTAL) == 0) return TARGET_THREAD_DUTYCYCLE_TOTAL;
+    if (str.compare(STR_TARGET_FILTER_EVENT) == 0)           return TARGET_FILTER_EVENT;
 
     return TARGET_INVALID;
 }

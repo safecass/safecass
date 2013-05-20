@@ -18,6 +18,9 @@ set (SF_VERSION_MINOR "0")
 set (SF_VERSION_PATCH "1")
 set (SF_VERSION "${SF_VERSION_MAJOR}.${SF_VERSION_MINOR}.${SF_VERSION_PATCH}")
 
+# Enable or disable Safety Framework (used by external project where SF is deployed)
+set (SF_ACTIVATED TRUE)
+
 # Set the current project as Safety Framework 
 set (CURRENT_PROJECT_IS_SF ON)
 

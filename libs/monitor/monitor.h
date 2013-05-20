@@ -35,7 +35,9 @@ public:
         TARGET_THREAD_DUTYCYCLE_USER,
         TARGET_THREAD_DUTYCYCLE_TOTAL,
         // Events from filter (usually faults)
-        TARGET_FILTER_EVENT
+        TARGET_FILTER_EVENT,
+        // Custom event (defined by users)
+        TARGET_CUSTOM
         // [SFUPDATE]
     } TargetType;
 
@@ -87,10 +89,19 @@ protected:
 
     /*! Monitor type: individual monitor (for passive filtering) or monitor attached 
         to filter (for active filtering) */
-    bool AttachedToActiveFilter;
+    bool AttachedToActiveFilter; // MJTEMP: is this used????
+
+    /*! Initialize internal variables */
+    void Initialize(void);
 
 public:
     Monitor();
+    Monitor(const TargetType target, 
+            EventLocationBase * locationId,
+            const StateType state,
+            const OutputType outputType,
+            const SamplingRateType samplingRate = 0, // unsigned int type (Hz)
+            double lastSamplingTick = 0.0);
     virtual ~Monitor();
 
     /*! Placeholders for samples */

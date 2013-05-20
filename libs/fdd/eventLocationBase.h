@@ -29,7 +29,11 @@ protected:
     std::string InterfaceRequiredName;
 
 public:
-    EventLocationBase(void) {}
+    EventLocationBase(void);
+    EventLocationBase(const std::string & processName,
+                      const std::string & componentName,
+                      const std::string & interfaceProvidedName,
+                      const std::string & interfaceRequiredName);
     virtual ~EventLocationBase() {}
 
     // Getters and Setters

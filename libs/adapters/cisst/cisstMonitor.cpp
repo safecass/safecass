@@ -30,13 +30,8 @@ cisstMonitor::cisstMonitor(const Monitor::TargetType target,
                            const Monitor::StateType  state,
                            const Monitor::OutputType output,
                            const SamplingRateType    samplingRate)
-    : Monitor()
+    : Monitor(target, locationID, state, output, samplingRate)
 {
-    this->Target = target;
-    this->LocationID = locationID;
-    this->State = state;
-    this->Output = output;
-    this->SamplingRate = samplingRate;
 }
 
 cisstMonitor::~cisstMonitor()

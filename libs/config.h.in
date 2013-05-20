@@ -24,6 +24,10 @@
 
 #define SF_COMMUNICATOR_CONFIG_DIR "@CMAKE_SOURCE_DIR@/libs/communicator"
 
+// Global macro to enable or disable SF
+#cmakedefine01 SF_ACTIVATED
+
+// Logger
 #cmakedefine01 SF_USE_G2LOG
 
 // Operating system

@@ -19,6 +19,10 @@ using namespace SF::Dict::Json;
 
 namespace SF {
 
+cisstEventLocation::cisstEventLocation(void) : EventLocationBase()
+{
+}
+
 const std::string cisstEventLocation::GetLocationID(void) const
 {
     std::stringstream ss;
@@ -26,10 +30,14 @@ const std::string cisstEventLocation::GetLocationID(void) const
     ss << (this->ProcessName.empty() ? "-" : this->ProcessName) << ":";
     ss << (this->ComponentName.empty() ? "-" : this->ComponentName);
     if (!this->InterfaceProvidedName.empty() || !CommandName.empty() || !EventGeneratorName.empty()) {
-        ss << ":[P]" << this->InterfaceProvidedName << ":" << CommandName << ":" << EventGeneratorName;
+        ss << ":[P]" << this->InterfaceProvidedName << ":" << CommandName;
+        if (!EventGeneratorName.empty())
+            ss << ":" << EventGeneratorName;
     }
     if (!this->InterfaceRequiredName.empty() || !FunctionName.empty() || !EventHandlerName.empty()) {
-        ss << ":[R]" << this->InterfaceRequiredName << ":" << FunctionName << ":" << EventHandlerName;
+        ss << ":[R]" << this->InterfaceRequiredName << ":" << FunctionName;
+        if (!EventHandlerName.empty())
+            ss << ":" << EventHandlerName;
     }
 
     return ss.str();

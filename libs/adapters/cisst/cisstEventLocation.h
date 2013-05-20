@@ -28,7 +28,7 @@ protected:
     std::string EventHandlerName;
 
 public:
-    cisstEventLocation() {}
+    cisstEventLocation(void);
 
     // Getters and Setters
 #define DEFINE_ACCESSORS(_var)\
@@ -39,14 +39,17 @@ public:
     DEFINE_ACCESSORS(FunctionName);
     DEFINE_ACCESSORS(EventGeneratorName);
     DEFINE_ACCESSORS(EventHandlerName);
+#undef DEFINE_ACCESSORS
 
     const std::string GetLocationID(void) const;
 
     /*! Export internal data into JSON container */
     void ExportToJSON(::Json::Value & root) const;
+
     /*! Import JSON to update internal data */
     void ImportFromJSON(const ::Json::Value & value);
 
+    /*! Output contents to stream */
     void ToStream(std::ostream & outputStream) const;
 
     virtual cisstEventLocation & operator=(const cisstEventLocation & rhs);

@@ -19,6 +19,18 @@ namespace SF {
 
 using namespace Dict::Json;
 
+EventLocationBase::EventLocationBase(void)
+    : ProcessName(""), ComponentName(""), InterfaceProvidedName(""), InterfaceRequiredName("")
+{}
+
+EventLocationBase::EventLocationBase(const std::string & processName,
+                                     const std::string & componentName,
+                                     const std::string & interfaceProvidedName,
+                                     const std::string & interfaceRequiredName)
+    : ProcessName(processName), ComponentName(componentName),
+      InterfaceProvidedName(interfaceProvidedName), InterfaceRequiredName(interfaceRequiredName)
+{}
+
 void EventLocationBase::ExportToJSON(::Json::Value & root) const
 {
     root[process]            = ProcessName;
