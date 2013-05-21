@@ -19,14 +19,19 @@
 
 namespace SF {
 
-JSON::JSON(): JSONValues(0), JSONReader(0)
+JSON::JSON(void): JSONValues(0), JSONReader(0)
 {
-    JSONValues = new Json::Value;
-    JSONReader = new Json::Reader;
+    Initialize();
 }
 
 JSON::~JSON()
 {
+}
+
+void JSON::Initialize(void)
+{
+    JSONValues = new Json::Value;
+    JSONReader = new Json::Reader;
 }
 
 void JSON::Cleanup(void)
@@ -41,7 +46,12 @@ bool JSON::Read(const char * json)
 {
     if (!json) return false;
 
+    // MJTODO: if json file is corrupted or contains invalid syntax,
+    // following call to parse() will crash (points being freed is not allocated).
+    // Json syntax validation would be a good plus.
     if (!JSONReader->parse(json, *JSONValues)) {
+        std::cout << "JSON::Read - Failed to parse json:\n" 
+                  << JSONReader->getFormatedErrorMessages() << std::endl;
         Cleanup();
         return false;
     }
@@ -69,11 +79,20 @@ bool JSON::ReadFromFile(const std::string & fileName)
     return Read(jsonString.c_str());
 }
 
-std::string JSON::GetJSON() const
+std::string JSON::GetJSON(void) const
 {
     std::stringstream ss;
     Json::StyledWriter writer;
     ss << writer.write(*JSONValues);
+
+    return ss.str();
+}
+
+std::string JSON::GetJSONString(const Json::Value & jsonValue)
+{
+    std::stringstream ss;
+    Json::StyledWriter writer;
+    ss << writer.write(jsonValue);
 
     return ss.str();
 }
@@ -91,15 +110,34 @@ bool JSON::WriteToFile(const std::string & fileName) const
     return true;
 }
 
-/*
-bool JSON::Parse(std::string & result)
+bool JSON::GetSafeValueBool(const JSONVALUE & json, const std::string & key)
 {
-    Json::Value ret = JSONValues.get("test", "UNKNOWN");
-
-    result = ret.asString();
-
-    return true;
+    JSONVALUE val = json.get(key, Json::nullValue);
+    return (val.isNull() ? false : val.asBool());
 }
-*/
+
+int JSON::GetSafeValueInt(const JSONVALUE & json, const std::string & key)
+{
+    JSONVALUE val = json.get(key, Json::nullValue);
+    return (val.isNull() ? 0 : val.asInt());
+}
+
+unsigned int JSON::GetSafeValueUInt(const JSONVALUE & json, const std::string & key)
+{
+    JSONVALUE val = json.get(key, Json::nullValue);
+    return (val.isNull() ? 0 : val.asUInt());
+}
+
+double JSON::GetSafeValueDouble(const JSONVALUE & json, const std::string & key)
+{
+    JSONVALUE val = json.get(key, Json::nullValue);
+    return (val.isNull() ? 0.0 : val.asDouble());
+}
+
+std::string JSON::GetSafeValueString(const JSONVALUE & json, const std::string & key)
+{
+    JSONVALUE val = json.get(key, Json::nullValue);
+    return (val.isNull() ? "" : val.asString());
+}
 
 };
