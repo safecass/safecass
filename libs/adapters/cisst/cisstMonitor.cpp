@@ -34,6 +34,39 @@ cisstMonitor::cisstMonitor(const Monitor::TargetType target,
 {
 }
 
+cisstMonitor::cisstMonitor(const JSON::JSONVALUE & jsonNode)
+    : Monitor(jsonNode)
+{
+    // Extract target information
+    const JSON::JSONVALUE location = jsonNode[Json::location];
+    std::cout << "cisstMonitor location json: " << JSON::GetJSONString(location) << std::endl;
+
+    std::string processName, componentName;
+    std::string interfaceProvidedName, interfaceRequiredName;
+    std::string commandName, eventHandlerName;
+    std::string functionName, eventGeneratorName;
+    
+    commandName           = JSON::GetSafeValueString(location, Json::command);
+    eventHandlerName      = JSON::GetSafeValueString(location, Json::event_handler);
+    functionName          = JSON::GetSafeValueString(location, Json::function);
+    eventGeneratorName    = JSON::GetSafeValueString(location, Json::event_generator);
+
+    cisstEventLocation * locationID = 
+        new cisstEventLocation(this->LocationID->GetProcessName(),
+                               this->LocationID->GetComponentName(),
+                               this->LocationID->GetInterfaceProvidedName(),
+                               this->LocationID->GetInterfaceRequiredName(),
+                               commandName,
+                               functionName,
+                               eventGeneratorName,
+                               eventHandlerName);
+
+    // Replace eventLocationBase instance that base class (SF::Monitor) created
+    // with cisstEventLocation instance.
+    delete this->LocationID;
+    this->LocationID = locationID;
+}
+
 cisstMonitor::~cisstMonitor()
 {
 }
@@ -140,6 +173,7 @@ const std::string cisstMonitor::GetJsonForPublish(double sample, double currentT
             // MJ: Filter events (i.e., faults) are handled separately
             SFASSERT(false);
             break;
+            // [SFUPDATE]
         case TARGET_INVALID:
         default:
             break;
@@ -282,9 +316,17 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycleTotal(double dutyCy
 }
 */
 
-void cisstMonitor::ToStream(std::ostream & outputStream) const
+void cisstMonitor::ToStream(std::ostream & outputStream, bool includeLocation) const
 {
-    Monitor::ToStream(outputStream);
+    Monitor::ToStream(outputStream, includeLocation);
+
+    if (!includeLocation) {
+        outputStream << "LocationID: ";
+        if (LocationID == 0)
+            outputStream << "NULL";
+        else
+            outputStream << *LocationID;
+    }
 }
 
 };

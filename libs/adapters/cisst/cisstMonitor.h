@@ -23,29 +23,37 @@ namespace SF {
 
 class SFLIB_EXPORT cisstMonitor: public Monitor {
 protected:
-    // cisstMonitor should be created with explicit arguments
+    //! cisstMonitor should be created with explicit arguments
     cisstMonitor(void) {}
 
 public:
+    //! Create cisst monitor target with explicit arguments
     cisstMonitor(const Monitor::TargetType target,
                  cisstEventLocation *      locationID,
                  const Monitor::StateType  state,
                  const Monitor::OutputType output,
                  // zero sampling rate for event-type monitoring
                  const SamplingRateType    samplingRate = 0);
+    //! Constructor using instance of JSON structure
+    cisstMonitor(const JSON::JSONVALUE & jsonNode);
+    //! Constructor using JSON string.
+    /*! Internally calls constructor with JSON structure */
+    //Monitor(const std::string & jsonMonitorSpecString);
+    //! Destructor
     virtual ~cisstMonitor();
 
-    /*! Returns JSON representation of this monitor */
+    //! Returns JSON representation of this monitor
     const std::string GetMonitorJSON(void) const;
 
-    /*! Returns JSON message to publish to the Safety Framework */
+    //! Returns JSON message to publish to the Safety Framework
     const std::string GetJsonForPublish(double sample, double currentTick) const;
 
-    void ToStream(std::ostream & outputStream) const;
+    //! Returns contents of this class in human readable format
+    void ToStream(std::ostream & outputStream, bool includeLocation = true) const;
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const cisstMonitor & monitor) {
-    monitor.ToStream(outputStream);
+    monitor.ToStream(outputStream, false);
     return outputStream;
 }
 
