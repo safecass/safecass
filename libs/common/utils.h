@@ -23,7 +23,7 @@ namespace SF {
 #include <algorithm> 
 #include <functional> 
 #include <cctype>
-#include <locale>
+//#include <locale>
 
 // trim from start
 static inline std::string &ltrim(std::string &s) {
@@ -40,6 +40,16 @@ static inline std::string &rtrim(std::string &s) {
 // trim from both ends
 static inline std::string &trim(std::string &s) {
     return ltrim(rtrim(s));
+}
+
+// to lowercase
+static void to_lowercase(std::string & s) {
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+}
+
+// to uppercase 
+static void to_uppercase(std::string & s) {
+    std::transform(s.begin(), s.end(), s.begin(), ::toupper);
 }
 
 };
