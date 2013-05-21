@@ -4,7 +4,7 @@
 
   Created on: September 14, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -23,18 +23,22 @@ namespace SF {
 class SFLIB_EXPORT EventLocationBase
 {
 protected:
+    //! Middleware independent fields
     std::string ProcessName;
     std::string ComponentName;
     std::string InterfaceProvidedName;
     std::string InterfaceRequiredName;
 
 public:
+    //! Default constructor
     EventLocationBase(void);
+    //! Constructor with explicit arguments
     EventLocationBase(const std::string & processName,
                       const std::string & componentName,
                       const std::string & interfaceProvidedName,
                       const std::string & interfaceRequiredName);
-    virtual ~EventLocationBase() {}
+    //! Destructor
+    virtual ~EventLocationBase();
 
     // Getters and Setters
 #define DEFINE_ACCESSORS(_var)\
@@ -47,15 +51,18 @@ public:
     DEFINE_ACCESSORS(InterfaceRequiredName);
 #undef DEFINE_ACCESSORS
 
-    virtual const std::string GetIDString(void) const = 0;
+    //! Get string representation of this class
+    virtual const std::string GetIDString(void) const;
 
-    /*! Export internal data into JSON container */
+    //! Export internal data into JSON container
     virtual void ExportToJSON(::Json::Value & root) const;
-    /*! Import JSON to update internal data */
+    //! Import JSON to update internal data
     virtual void ImportFromJSON(const ::Json::Value & value);
 
+    //! Human-readable output of this class
     virtual void ToStream(std::ostream & outputStream) const;
 
+    //! Operator= overloading
     virtual EventLocationBase & operator=(const EventLocationBase & rhs);
 };
 

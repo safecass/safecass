@@ -4,7 +4,7 @@
 
   Created on: September 14, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -31,6 +31,39 @@ EventLocationBase::EventLocationBase(const std::string & processName,
       InterfaceProvidedName(interfaceProvidedName), InterfaceRequiredName(interfaceRequiredName)
 {}
 
+EventLocationBase::~EventLocationBase()
+{}
+
+EventLocationBase & EventLocationBase::operator=(const EventLocationBase & rhs)
+{
+    this->ProcessName           = rhs.GetProcessName();
+    this->ComponentName         = rhs.GetComponentName();
+    this->InterfaceProvidedName = rhs.GetInterfaceProvidedName();
+    this->InterfaceRequiredName = rhs.GetInterfaceRequiredName();
+
+    return (*this);
+}
+
+const std::string EventLocationBase::GetIDString(void) const
+{
+    std::stringstream ss;
+
+    if (!ProcessName.empty())
+        ss << "[P]" << ProcessName << ":";
+    if (!ComponentName.empty())
+        ss << "[C]" << ComponentName << ":";
+    if (!InterfaceProvidedName.empty())
+        ss << "[IP]" << InterfaceProvidedName << ":";
+    if (!InterfaceRequiredName.empty())
+        ss << "[IR]" << InterfaceRequiredName << ":";
+
+    // Remove trailing delimeter
+    std::string s(ss.str());
+    s = s.substr(0, s.size() - 1);
+
+    return s;
+}
+
 void EventLocationBase::ExportToJSON(::Json::Value & root) const
 {
     root[process]            = ProcessName;
@@ -49,24 +82,7 @@ void EventLocationBase::ImportFromJSON(const ::Json::Value & value)
 
 void EventLocationBase::ToStream(std::ostream & outputStream) const
 {
-    if (!ProcessName.empty())
-        outputStream << "[P]" << ProcessName << ":";
-    if (!ComponentName.empty())
-        outputStream << "[C]" << ComponentName << ":";
-    if (!InterfaceProvidedName.empty())
-        outputStream << "[IP]" << InterfaceProvidedName << ":";
-    if (!InterfaceRequiredName.empty())
-        outputStream << "[IR]" << InterfaceRequiredName << ":";
-}
-
-EventLocationBase & EventLocationBase::operator=(const EventLocationBase & rhs)
-{
-    this->ProcessName           = rhs.GetProcessName();
-    this->ComponentName         = rhs.GetComponentName();
-    this->InterfaceProvidedName = rhs.GetInterfaceProvidedName();
-    this->InterfaceRequiredName = rhs.GetInterfaceRequiredName();
-
-    return (*this);
+    outputStream << GetIDString();
 }
 
 };
