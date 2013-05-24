@@ -48,6 +48,9 @@ public:
     //! Returns JSON message to publish to the Safety Framework
     const std::string GetJsonForPublish(double sample, double currentTick) const;
 
+    //! Returns instance of monitoring target
+    cisstEventLocation * GetLocationID(void) const;
+
     //! Returns contents of this class in human readable format
     void ToStream(std::ostream & outputStream, bool includeLocation = true) const;
 };

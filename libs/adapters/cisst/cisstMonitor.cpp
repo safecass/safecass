@@ -39,7 +39,6 @@ cisstMonitor::cisstMonitor(const JSON::JSONVALUE & jsonNode)
 {
     // Extract target information
     const JSON::JSONVALUE location = jsonNode[Json::location];
-    std::cout << "cisstMonitor location json: " << JSON::GetJSONString(location) << std::endl;
 
     std::string processName, componentName;
     std::string interfaceProvidedName, interfaceRequiredName;
@@ -71,15 +70,22 @@ cisstMonitor::~cisstMonitor()
 {
 }
 
+cisstEventLocation * cisstMonitor::GetLocationID(void) const
+{
+    return dynamic_cast<cisstEventLocation *>(this->LocationID);
+}
+
 const std::string cisstMonitor::GetMonitorJSON(void) const
 {
-    ::Json::Value root;
-    cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(LocationID);
+    JSON::JSONVALUE root;
+    cisstEventLocation * locationID = GetLocationID();
+    if (!locationID)
+        return std::string("ERROR: no location information");
 
     root[name] = this->GetUIDAsString();
 
     // Monitor target type
-    {   ::Json::Value _root;
+    {   JSON::JSONVALUE _root;
         _root[type] = Monitor::GetTargetTypeString(Target);
 
         { ::Json::Value __root;
@@ -97,7 +103,7 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
     }
 
     // Monitor behaviors
-    {   ::Json::Value _root;
+    {   JSON::JSONVALUE _root;
         _root[type] = Monitor::GetOutputTypeString(Output);
         {   ::Json::Value __root;
             {
