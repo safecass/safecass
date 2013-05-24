@@ -24,10 +24,31 @@ using namespace SF::Dict::Json;
 
 namespace SF {
 
-const std::string MongoDB::GetDBEntryFromMonitorTopic(JSONSerializer & jsonSerializer)
+MongoDB::MongoDB(void)
+{}
+
+MongoDB::~MongoDB(void)
+{}
+
+const std::string MongoDB::ConvertTopicMesssageToDBEntry(const JSONSerializer::TopicType topic, 
+                                                         JSONSerializer & jsonSerializer)
+{
+    switch (topic) {
+        case JSONSerializer::MONITOR:
+            return ConvertTopicMesssageToDBEntry_Monitor(jsonSerializer);
+        case JSONSerializer::FAULT:
+            return ConvertTopicMesssageToDBEntry_Fault(jsonSerializer);
+        case JSONSerializer::SUPERVISOR:
+        case JSONSerializer::INVALID:
+        default:
+            return std::string("SF::MongoDB::ConvertTopicMesssageToDBEntry - invalid topic type");
+    }
+}
+
+const std::string MongoDB::ConvertTopicMesssageToDBEntry_Monitor(JSONSerializer & jsonSerializer)
 {
     // Json placeholder for DB entry
-    Json::Value entry;
+    JSON::JSONVALUE entry;
 
     // MJ TODO: Should convert timestamp from json to UTC; right now current UTC is used instead.
     entry[SF::Dict::Json::time] = GetCurrentUTCTimeString();
@@ -76,10 +97,10 @@ const std::string MongoDB::GetDBEntryFromMonitorTopic(JSONSerializer & jsonSeria
     return ss.str();
 }
 
-const std::string MongoDB::GetDBEntryFromFaultTopic(JSONSerializer & jsonSerializer)
+const std::string MongoDB::ConvertTopicMesssageToDBEntry_Fault(JSONSerializer & jsonSerializer)
 {
     // Json placeholder for DB entry
-    Json::Value entry;
+    JSON::JSONVALUE entry;
 
     // MJ TODO: Should convert timestamp from json to UTC; right now current UTC is used instead.
     entry[SF::Dict::Json::time] = GetCurrentUTCTimeString();
