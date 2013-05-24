@@ -82,9 +82,9 @@ int main(int argc, char *argv[])
     cmnLogger::SetMask(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
-    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
-    //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
+    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
+    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
+    cmnLogger::SetMaskClassMatching("mtsSafetyCoordinator", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
     mtsComponentManager::InstallSafetyCoordinator();
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
     f.push_back(200);
     f.push_back(500);
 #endif
-    f.push_back(10);
+    f.push_back(1);
 
     std::string componentName;
     std::stringstream ss;
@@ -205,6 +205,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
     }
 
     // Define target
+#if 0
     cisstEventLocation * locationID = new cisstEventLocation;
     locationID->SetProcessName(ComponentManager->GetProcessName());
     locationID->SetComponentName(targetComponentName);
@@ -212,58 +213,52 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
     cisstMonitor * monitor;
 
     // Install monitor for timing fault - period
-#if 1
-    {
-        monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
-                                   locationID,
-                                   Monitor::STATE_ON,
-                                   Monitor::OUTPUT_STREAM,
-                                   frequency);
-        // MJ TODO: Run system for a few minutes, collect experimental data,
-        // and determine variance of period with upper/lower limits and thresholds.
-        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
-            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
-            return false;
-        }
-        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << locationID->GetIDString() << " ]" << std::endl;
+    monitor = new cisstMonitor(Monitor::TARGET_THREAD_PERIOD,
+                               locationID,
+                               Monitor::STATE_ON,
+                               Monitor::OUTPUT_STREAM,
+                               frequency);
+    // MJ TODO: Run system for a few minutes, collect experimental data,
+    // and determine variance of period with upper/lower limits and thresholds.
+    if (!ComponentManager->GetCoordinator()->AddMonitorTarget(monitor)) {
+        SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
+        SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
+        return false;
     }
-#endif
+    SFLOG_INFO << "Successfully added monitor target: " << *monitor << std::endl;
 
     // Install monitor for execution time (user)
-#if 1
-    {
-        monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_USER,
-                                   locationID,
-                                   Monitor::STATE_ON,
-                                   Monitor::OUTPUT_STREAM,
-                                   frequency);
+    monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_USER,
+                               locationID,
+                               Monitor::STATE_ON,
+                               Monitor::OUTPUT_STREAM,
+                               frequency);
 
-        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
-            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
-            return false;
-        }
-        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << locationID->GetIDString() << " ]" << std::endl;
+    if (!ComponentManager->GetCoordinator()->AddMonitorTarget(monitor)) {
+        SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
+        SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
+        return false;
     }
+    SFLOG_INFO << "Successfully added monitor target: " << *monitor << std::endl;
 
     // Install monitor for execution time (total)
-    {
-        monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_TOTAL,
-                                   locationID,
-                                   Monitor::STATE_ON,
-                                   Monitor::OUTPUT_STREAM,
-                                   frequency);
+    monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_TOTAL,
+                               locationID,
+                               Monitor::STATE_ON,
+                               Monitor::OUTPUT_STREAM,
+                               frequency);
 
-        if (!ComponentManager->GetCoordinator()->AddMonitor(monitor)) {
-            SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-            SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
-            return false;
-        }
-        SFLOG_INFO << "Successfully installed monitor [ " << monitor->GetMonitorJSON() 
-                   << " ] to [ " << locationID->GetIDString() << " ]" << std::endl;
+    if (!ComponentManager->GetCoordinator()->AddMonitorTarget(monitor)) {
+        SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
+        SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
+        return false;
+    }
+    SFLOG_INFO << "Successfully added monitor target: " << *monitor << std::endl;
+#else
+    const std::string jsonFileName(SF_SOURCE_ROOT_DIR"/examples/period/period.json");
+    if (!ComponentManager->GetCoordinator()->AddMonitorTarget(jsonFileName)) {
+        SFLOG_ERROR << "Failed to load monitoring target file: \"" << jsonFileName << "\"" << std::endl;
+        return false;
     }
 #endif
 
