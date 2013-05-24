@@ -96,7 +96,8 @@ endif (BoostMSM_FOUND)
 # communicator for message exchange (publish-subscribe)
 # Find ZeroC Ice
 find_package(Ice REQUIRED)
-set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/communicator/baseIce.h
+set (SF_LIB_COMMUNICATOR_SRC ${SF_LIB_COMMUNICATOR_SRC}
+                             ${LIB_DIR}/communicator/baseIce.h
                              ${LIB_DIR}/communicator/baseIce.cpp
                              ${LIB_DIR}/communicator/publisher.h
                              ${LIB_DIR}/communicator/publisher.cpp

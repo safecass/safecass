@@ -4,7 +4,7 @@
 
   Created on: September 17, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -22,89 +22,107 @@
 
 namespace SF {
 
+//! JSON serializer and deserializer
+/** 
+    JSONSerializer implements serialization and deserialization of JSON messages
+    for data exchange within Safety Framework.  This class also defines a list of
+    topics avaiable.
+*/
 class SFLIB_EXPORT JSONSerializer {
 public:
     typedef enum {
         INVALID,
-        MONITOR,    // monitoring
-        FAULT,      // fault detection and diagnosis
-        SUPERVISOR  // fault tolerance and removal
+        MONITOR,    /*!< monitoring */
+        FAULT,      /*!< fault detection and diagnosis */
+        SUPERVISOR  /*!< supervisory control messages for fault tolerance and removal */
     } TopicType;
 
 protected:
-    // Common Fields
+    //! Common Fields
     struct {
-        /*! Type of topic */
+        //! Type of topic (enum variable)
         TopicType Topic;
-        /*! Event localization */
+        //! Location of event (middleware specific)
         EventLocationBase * EventLocation;
-        /*! Event timestamp */
+        //! Event timestamp
         double Timestamp;
     } Common;
 
-    // Monitor
+    //! Monitor topic
     struct {
-        /*! Common field */
+        //! Common field
         Monitor::TargetType Type;
-        /*! Monitor-specific fields */
-        ::Json::Value Fields;
+        //! Monitor-specific fields
+        JSON::JSONVALUE Fields;
     } Monitor;
 
-    // Fault
+    //! Fault topic
     struct {
-        /*! Common fields */
+        //! Common fields
         Fault::FaultType Type;
         std::string DetectorName;
-        /*! Fault-specific fields */
-        ::Json::Value Fields;
+        //! Fault-specific fields
+        JSON::JSONVALUE Fields;
     } Fault;
 
-    /*! Initialization */
-    void Init(void);
+    //! Initialization
+    void Initialize(void);
 
 public:
     JSONSerializer(void);
-    virtual ~JSONSerializer(void);
+    ~JSONSerializer(void);
 
-    /*! Represent all information in JSON format and return JSON string */
+    //! Represent all information in JSON format and return JSON string
     const std::string GetJSON(void) const;
 
-    /*! Rebuild information based on JSON string.  If successful, internal structures such
-        as Common and either Monitor or Fault are populated and updated. */
+    //! Rebuild topic information based on JSON
     bool ParseJSON(const std::string & message);
 
-    //---------------------------------------- 
-    //  Accessors
-    //---------------------------------------- 
-    // Common::Topic
-    inline TopicType GetTopicType(void) const { return Common.Topic; }
+    /*! \addtogroup Accessors for common fields
+        @{
+     */
+    //! Common::Topic
+    inline TopicType GetTopicType(void) const                { return Common.Topic; }
     inline void      SetTopicType(const TopicType topicType) { Common.Topic = topicType; }
-    // Common::EventLocation
-    inline EventLocationBase * GetEventLocation(void) const { return Common.EventLocation; }
+    //! Common::EventLocation
+    inline EventLocationBase * GetEventLocation(void) const  { return Common.EventLocation; }
     void                       SetEventLocation(EventLocationBase * location);
-    // Common::Timestamp
-    inline double GetTimestamp(void) const { return Common.Timestamp; }
+    //! Common::Timestamp
+    inline double GetTimestamp(void) const       { return Common.Timestamp; }
     inline void   SetTimestamp(double timestamp) { Common.Timestamp = timestamp; }
+    /*! @} */
 
-    // Monitor::Type
-    inline Monitor::TargetType GetMonitorTargetType(void) const { return Monitor.Type; }
+    /*! \addtogroup Accessors for Monitor messages
+        @{
+     */
+    //! Monitor::Type
+    inline Monitor::TargetType GetMonitorTargetType(void) const                 { return Monitor.Type; }
     inline void                SetMonitorTargetType(Monitor::TargetType target) { Monitor.Type = target; }
-    // Monitor::Fields
-    inline ::Json::Value & GetMonitorFields(void) { return Monitor.Fields; }
+    //! Monitor::Fields
+    inline JSON::JSONVALUE & GetMonitorFields(void) { return Monitor.Fields; }
+    /*! @} */
 
+    /*! \addtogroup Accessors for Fault messages
+        @{
+     */
     // Fault::Type
-    inline Fault::FaultType GetFaultType(void) const { return Fault.Type; }
+    inline Fault::FaultType GetFaultType(void) const                 { return Fault.Type; }
     inline void             SetFaultType(Fault::FaultType faultType) { Fault.Type = faultType; }
     // Fault::Detector
-    inline const std::string GetFaultDetectorName(void) const { return Fault.DetectorName; }
+    inline const std::string GetFaultDetectorName(void) const               { return Fault.DetectorName; }
     inline void              SetFaultDetectorName(const std::string & name) { Fault.DetectorName = name; }
     // Fault::Fields
-    inline ::Json::Value & GetFaultFields(void) { return Fault.Fields; }
+    inline JSON::JSONVALUE & GetFaultFields(void) { return Fault.Fields; }
+    /*! @} */
 
-    /*! Return string that corresponds to topic type */
+    /*! \addtogroup Getters
+        @{
+     */
+    //! Get string representation of topic type
     static const std::string GetTopicTypeString(TopicType topicType);
-    /*! Return topic type from string */
+    //! Get topic type enum from string
     static TopicType GetTopicTypeFromString(const std::string & topicTypeString);
+    /*! @} */
 };
 
 };

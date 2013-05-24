@@ -4,7 +4,7 @@
 
   Created on: September 17, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -32,10 +32,10 @@ using namespace SF::Dict::Json;
 
 JSONSerializer::JSONSerializer(void)
 {
-    Init();
+    Initialize();
 }
 
-void JSONSerializer::Init(void)
+void JSONSerializer::Initialize(void)
 {
     Common.Topic         = JSONSerializer::INVALID;
     Common.EventLocation = 0;
@@ -52,7 +52,7 @@ void JSONSerializer::Init(void)
 JSONSerializer::~JSONSerializer(void)
 {
     if (Common.EventLocation) {
-        // MJ FIXME: Why this crashes???
+        // MJFIXME: Why this crashes???
         // supervisor(18886,0x111c78000) malloc: *** error for object 0x7fff779c9570:
         // pointer being freed was not allocated
         // *** set a breakpoint in malloc_error_break to debug
@@ -93,6 +93,7 @@ void JSONSerializer::SetEventLocation(EventLocationBase * location)
         Common.EventLocation = new cisstEventLocation;
         *Common.EventLocation = *cisstLocation;
     } else {
+        SFLOG_ERROR << "JSONSerializer::SetEventLocation: invalid cisstEventLocation instance" << std::endl;
         SFASSERT(false);
     }
 #else
