@@ -28,7 +28,7 @@ Monitor::Monitor()
     : UID(++UIDCounter), // UID=0 means invalid monitor target
       Target(TARGET_INVALID), LocationID(0), State(STATE_INVALID),
       Output(OUTPUT_INVALID), SamplingRate(0), 
-      LastSamplingTick(0), AttachedToActiveFilter(false)
+      LastSamplingTick(0)
 {
     Initialize();
 }
@@ -42,13 +42,14 @@ Monitor::Monitor(const TargetType target,
     : UID(++UIDCounter),
       Target(target), LocationID(locationId), State(state),
       Output(output), SamplingRate(samplingRate), 
-      LastSamplingTick(lastSamplingTick), AttachedToActiveFilter(false)
+      LastSamplingTick(lastSamplingTick)
 {
     Initialize();
 }
 
 Monitor::Monitor(const JSON::JSONVALUE & jsonNode)
-    : UID(++UIDCounter)
+    : UID(++UIDCounter),
+      LastSamplingTick(0)
 {
     Initialize();
 
@@ -76,6 +77,15 @@ Monitor::~Monitor()
     }
 }
 
+void Monitor::Initialize(void)
+{
+    Samples.Period = 0.0;
+    Samples.ExecTimeUser = 0.0;
+    Samples.ExecTimeTotal = 0.0;
+
+    AttachedToActiveFilter = false;
+}
+
 #if 0
 #define COPY(_field) this->_field = rhs._field;
 Monitor & Monitor::operator=(const Monitor & rhs)
@@ -88,13 +98,6 @@ Monitor & Monitor::operator=(const Monitor & rhs)
 }
 #undef COPY
 #endif
-
-void Monitor::Initialize(void)
-{
-    Samples.Period = 0.0;
-    Samples.ExecTimeUser = 0.0;
-    Samples.ExecTimeTotal = 0.0;
-}
 
 const std::string Monitor::GetUIDAsString(void) const
 {

@@ -170,7 +170,7 @@ public:
     inline bool IsAttachedToActiveFilter(void) const { return AttachedToActiveFilter; }
 
     inline TargetType         GetTargetType(void) const     { return Target; }
-    inline EventLocationBase *GetLocationID(void) const     { return LocationID; }
+    virtual inline EventLocationBase *GetLocationID(void) const     { return LocationID; }
     inline StateType          GetState(void) const          { return State; }
     inline OutputType         GetOutputType(void) const     { return Output; }
     inline SamplingRateType   GetSamplingRate(void) const   { return SamplingRate; }
@@ -207,13 +207,13 @@ public:
     static const std::string GetOutputTypeString(const OutputType output);
     //! Return output type from string
     static OutputType GetOutputTypeFromString(const std::string & str);
+    /*! @} */
 
     //! For human-readable logging and debugging
     /*! \param outputStream output stream
         \param includeLocation target location is printed if yes (default: yes)
     */
     virtual void ToStream(std::ostream & outputStream, bool includeLocation = true) const;
-    /*! @} */
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const Monitor & monitor) {
