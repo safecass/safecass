@@ -24,6 +24,7 @@
 #include <cisstMultiTask/mtsCollectorState.h>
 #include <cisstMultiTask/mtsTaskPeriodic.h>
 #include <cisstMultiTask/mtsTaskManager.h>
+#include <cisstMultiTask/mtsInterfaceProvided.h>
 #if (CISST_OS == CISST_LINUX_XENOMAI)
 #include <sys/mman.h>
 #endif
@@ -31,9 +32,23 @@
 using namespace SF;
 
 class PeriodicTask: public mtsTaskPeriodic {
+protected:
+    double SleepDuration; 
+
 public:
     PeriodicTask(const std::string & name, double period) :
-        mtsTaskPeriodic(name, period, false, 5000) {}
+        mtsTaskPeriodic(name, period, false, 5000)
+    {
+        SleepDuration = 0.0;
+
+        StateTable.AddData(SleepDuration, "SleepDuration");
+
+        mtsInterfaceProvided * provided = AddInterfaceProvided("CustomInterface");
+        if (provided) {
+            provided->AddCommandReadState(StateTable, SleepDuration, "SleepDuration");
+        }
+    }
+
     ~PeriodicTask() {}
 
     void Configure(const std::string & CMN_UNUSED(filename) = "") {}
@@ -50,7 +65,9 @@ public:
         */
         static double T = (1.0 / this->Period) * 60.0 * 60.0;
         static int i = 0;
-        osaSleep(this->Period * (0.8 * sin(2 * cmnPI * ((double) ++i / T))));
+
+        SleepDuration = this->Period * (0.8 * sin(2 * cmnPI * ((double) ++i / T)));
+        osaSleep(SleepDuration);
     }
     void Cleanup(void) {}
 };
@@ -85,6 +102,7 @@ int main(int argc, char *argv[])
     //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
     cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskClassMatching("mtsSafetyCoordinator", CMN_LOG_ALLOW_ALL);
+    cmnLogger::SetMaskClassMatching("mtsMonitorComponent", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
     mtsComponentManager::InstallSafetyCoordinator();

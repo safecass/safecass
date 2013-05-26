@@ -34,6 +34,19 @@
             "state"         : "On",
             "output_type"   : "Stream",
             "sampling_rate" : 1
+        },
+        // target (index: 3) : Custom target (sleep period)
+        {
+            "type" : "CUSTOM",
+            "location" : {
+                "process"            : "LCM",
+                "component"          : "Component1",
+                "interface_provided" : "CustomInterface",
+                "command"            : "SleepDuration"
+            },
+            "state"         : "On",
+            "output_type"   : "Stream",
+            "sampling_rate" : 1
         }
     ]
 }
