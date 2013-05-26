@@ -179,6 +179,9 @@ const std::string cisstMonitor::GetJsonForPublish(double sample, double currentT
             // MJ: Filter events (i.e., faults) are handled separately
             SFASSERT(false);
             break;
+        case TARGET_CUSTOM:
+            fields[custom] = sample;
+            break;
             // [SFUPDATE]
         case TARGET_INVALID:
         default:

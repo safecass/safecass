@@ -82,8 +82,17 @@ const std::string MongoDB::ConvertTopicMesssageToDBEntry_Monitor(JSONSerializer 
                 _data[dutycycle_total_ratio] = jsonSerializer.GetMonitorFields().get(dutycycle_total_ratio, 0.0).asDouble();
             }
             break;
+
+        case Monitor::TARGET_CUSTOM:
+            {
+                entry[type] = custom;
+                _data[custom] = jsonSerializer.GetMonitorFields().get(custom, 0.0).asDouble();
+            }
+            break;
+
         // [SFUPDATE]
 
+        case Monitor::TARGET_INVALID:
         default:
             SFLOG_ERROR << "Failed to convert json serializer to JSON string: " << jsonSerializer.GetMonitorTargetType() << std::endl;
             return "";
