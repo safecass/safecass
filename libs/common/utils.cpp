@@ -2,7 +2,7 @@
 
   Safety Framework for Component-based Robotics
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,38 +11,13 @@
 */
 
 #include "common.h"
-//#include <stdio.h>
 #include <time.h>
+#include <algorithm> 
+#include <functional> 
+#include <cctype>
+//#include <locale>
 
 namespace SF {
-
-StrVecType GetMiddlewareInfo(void)
-{
-    StrVecType info;
-#ifdef SF_HAS_CISST
-    info.push_back(GetCISSTInfo());
-#endif
-    return info;
-}
-
-void GetMiddlewareInfo(StrVecType & info)
-{
-#ifdef SF_HAS_CISST
-    info.push_back(GetCISSTInfo());
-#endif
-}
-
-#ifdef SF_HAS_CISST
-#include <cisstConfig.h>
-#include <cisstRevision.h>
-std::string GetCISSTInfo(void)
-{
-    std::stringstream ss;
-    ss << "CISST: version: " << CISST_VERSION << ", svn revision: " << CISST_WC_REVISION;
-
-    return ss.str();
-}
-#endif
 
 /*! Returns current UTC time as formatted string: e.g. "2011-09-12T21:33:12Z"
 
@@ -74,9 +49,10 @@ std::string GetCISSTInfo(void)
     [3] C++ Date & Time
         : http://www.tutorialspoint.com/cplusplus/cpp_date_time.htm
 */
+// TODO: (at least) millisecond resolution?
 std::string GetCurrentUTCTimeString(void)
 {
-    // MJ TODO:  this const could be re-defined as enum to support different time zones
+    // TODO:  this const could be re-defined as enum to support different time zones
     static const int MST = -7;
     static const int UTC = 0;
     static const int CCT = +8;
@@ -97,9 +73,44 @@ std::string GetCurrentUTCTimeString(void)
     return std::string(buf);
 }
 
-/* MJ TODO: later
+/* TODO
 std::string GetCurrentLocalTimeString(void)
 {}
 */
+
+std::string &ltrim(std::string &s)
+{
+    s.erase(s.begin(), std::find_if(s.begin(), 
+                                    s.end(), 
+                                    std::not1(std::ptr_fun<int, int>(std::isspace))));
+    return s;
+}
+
+// trim from end
+std::string &rtrim(std::string &s)
+{
+    s.erase(std::find_if(s.rbegin(), 
+                         s.rend(), 
+                         std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+    return s;
+}
+
+// trim from both ends
+std::string &trim(std::string &s)
+{
+    return ltrim(rtrim(s));
+}
+
+// to lowercase
+void to_lowercase(std::string & s)
+{
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+}
+
+// to uppercase 
+void to_uppercase(std::string & s)
+{
+    std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+}
 
 };

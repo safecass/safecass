@@ -23,6 +23,7 @@ set (SF_LIB_INCLUDE_DIR ${LIB_DIR} ${SF_BUILD_ROOT})
 
 # common
 set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h ${LIB_DIR}/common/common.cpp
+                       ${LIB_DIR}/common/common.h ${LIB_DIR}/common/utils.cpp
                        ${LIB_DIR}/common/dict.h ${LIB_DIR}/common/dict.cpp
                        ${LIB_DIR}/common/json.h ${LIB_DIR}/common/json.cpp
                        ${LIB_DIR}/common/jsonSerializer.h ${LIB_DIR}/common/jsonSerializer.cpp)
