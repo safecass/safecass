@@ -135,9 +135,10 @@ public:
 
     //! Placeholders for predefined monitoring targets
     struct {
-        double Period;
-        double ExecTimeUser;
-        double ExecTimeTotal;
+        double PeriodActual;  // period measurement
+        double PeriodNominal; // period measurement
+        double ExecTimeUser;  // execution time for user codes
+        double ExecTimeTotal; // execution time for user codes with internal processing
     } Samples;
 
     //! Assignment operator overloading

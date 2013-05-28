@@ -79,8 +79,9 @@ Monitor::~Monitor()
 
 void Monitor::Initialize(void)
 {
-    Samples.Period = 0.0;
-    Samples.ExecTimeUser = 0.0;
+    Samples.PeriodActual  = 0.0;
+    Samples.PeriodNominal = 0.0;
+    Samples.ExecTimeUser  = 0.0;
     Samples.ExecTimeTotal = 0.0;
 
     AttachedToActiveFilter = false;
