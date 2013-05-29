@@ -24,7 +24,7 @@
 #define _statemachine_h
 
 #include "common.h"
-#include "StateEventHandler.h"
+#include "stateEventHandler.h"
 #include <iostream>
 // boost msm
 #include <boost/msm/back/state_machine.hpp> // back-end
