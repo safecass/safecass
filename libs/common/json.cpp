@@ -140,4 +140,10 @@ std::string JSON::GetSafeValueString(const JSONVALUE & json, const std::string &
     return (val.isNull() ? "" : val.asString());
 }
 
+void JSON::ToStream(std::ostream & outputStream) const
+{
+    Json::StyledWriter writer;
+    outputStream << writer.write(*JSONValues);
+}
+
 };

@@ -75,7 +75,14 @@ public:
     static unsigned int GetSafeValueUInt  (const JSONVALUE & json, const std::string & key);
     static double       GetSafeValueDouble(const JSONVALUE & json, const std::string & key);
     static std::string  GetSafeValueString(const JSONVALUE & json, const std::string & key);
+
+    virtual void ToStream(std::ostream & outputStream) const;
 };
+
+inline std::ostream & operator << (std::ostream & outputStream, const JSON & json) {
+    json.ToStream(outputStream);
+    return outputStream;
+}
 
 };
 
