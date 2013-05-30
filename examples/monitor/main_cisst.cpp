@@ -25,6 +25,7 @@
 #include <cisstMultiTask/mtsTaskPeriodic.h>
 #include <cisstMultiTask/mtsTaskManager.h>
 #include <cisstMultiTask/mtsInterfaceProvided.h>
+#include <cisstMultiTask/mtsFixedSizeVectorTypes.h>
 #if (CISST_OS == CISST_LINUX_XENOMAI)
 #include <sys/mman.h>
 #endif
@@ -33,15 +34,44 @@ using namespace SF;
 
 class PeriodicTask: public mtsTaskPeriodic {
 protected:
-    double SleepDuration; 
+    //double SleepDuration; 
+    //mtsDouble SleepDuration; 
+    //mtsDouble2 SleepDuration;
+    vctDoubleVec SleepDuration;
+
+    mtsDouble       d0;
+    mtsDouble1      d1;
+    mtsDouble2      d2;
+    mtsInt          i;
+    mtsInt1         i1;
+    mtsInt2         i2;
+    mtsVctDoubleVec vd;
+    mtsVctIntVec    vi;
+    mtsVct3         v3;
+    mtsVct3         v5;
 
 public:
     PeriodicTask(const std::string & name, double period) :
         mtsTaskPeriodic(name, period, false, 5000)
     {
-        SleepDuration = 0.0;
+        //SleepDuration = 10.0;
+        //SleepDuration(0) = 100.0;
+        //SleepDuration(1) = 1000.0;
+        SleepDuration.SetSize(5);
 
         StateTable.AddData(SleepDuration, "SleepDuration");
+#if 0
+        StateTable.AddData(d0, "SleepDuration");
+        StateTable.AddData(d1, "SleepDuration");
+        StateTable.AddData(d2, "SleepDuration");
+        StateTable.AddData(i,  "SleepDuration");
+        StateTable.AddData(i1, "SleepDuration");
+        StateTable.AddData(i2, "SleepDuration");
+        StateTable.AddData(vd, "SleepDuration");
+        StateTable.AddData(vi, "SleepDuration");
+        StateTable.AddData(v3, "SleepDuration");
+        StateTable.AddData(v5, "SleepDuration");
+#endif
 
         mtsInterfaceProvided * provided = AddInterfaceProvided("CustomInterface");
         if (provided) {
@@ -66,8 +96,17 @@ public:
         static double T = (1.0 / this->Period) * 60.0 * 60.0;
         static int i = 0;
 
-        SleepDuration = this->Period * (0.8 * sin(2 * cmnPI * ((double) ++i / T)));
-        osaSleep(SleepDuration);
+        //SleepDuration = this->Period * (0.8 * sin(2 * cmnPI * ((double) ++i / T)));
+        //osaSleep(SleepDuration);
+
+        //SleepDuration(0) += 0.1;
+        //SleepDuration(1) += 0.1;
+        //SleepDuration += 0.2;
+        SleepDuration(0) += 0.1;
+        SleepDuration(1) += 0.2;
+        SleepDuration(2) += 0.3;
+        SleepDuration(3) += 0.4;
+        SleepDuration(4) += 0.5;
     }
     void Cleanup(void) {}
 };
@@ -85,10 +124,6 @@ PeriodicTask * task = 0;
 
 int main(int argc, char *argv[])
 {
-#if (CISST_OS == CISST_LINUX_XENOMAI)
-    mlockall(MCL_CURRENT|MCL_FUTURE);
-#endif
-
 #if SF_USE_G2LOG
     // Logger setup
     g2LogWorker logger(argv[0], "./");
@@ -217,7 +252,8 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
 
 bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency)
 {
-    if (!ComponentManager->GetCoordinator()) {
+    mtsSafetyCoordinator * coordinator = ComponentManager->GetCoordinator();
+    if (!coordinator) {
         SFLOG_ERROR  << "Failed to get coordinator in this process";
         return false;
     }
@@ -238,7 +274,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
                                frequency);
     // MJ TODO: Run system for a few minutes, collect experimental data,
     // and determine variance of period with upper/lower limits and thresholds.
-    if (!ComponentManager->GetCoordinator()->AddMonitorTarget(monitor)) {
+    if (!coordinator->AddMonitorTarget(monitor)) {
         SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
         SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
         return false;
@@ -252,7 +288,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
                                Monitor::OUTPUT_STREAM,
                                frequency);
 
-    if (!ComponentManager->GetCoordinator()->AddMonitorTarget(monitor)) {
+    if (!coordinator->AddMonitorTarget(monitor)) {
         SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
         SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
         return false;
@@ -266,7 +302,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
                                Monitor::OUTPUT_STREAM,
                                frequency);
 
-    if (!ComponentManager->GetCoordinator()->AddMonitorTarget(monitor)) {
+    if (!coordinator->AddMonitorTarget(monitor)) {
         SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
         SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
         return false;
@@ -274,7 +310,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
     SFLOG_INFO << "Successfully added monitor target: " << *monitor << std::endl;
 #else
     const std::string jsonFileName(SF_SOURCE_ROOT_DIR"/examples/monitor/monitor.json");
-    if (!ComponentManager->GetCoordinator()->AddMonitorTarget(jsonFileName)) {
+    if (!coordinator->AddMonitorTargetFromJSONFile(jsonFileName)) {
         SFLOG_ERROR << "Failed to load monitoring target file: \"" << jsonFileName << "\"" << std::endl;
         return false;
     }
