@@ -66,10 +66,14 @@ const std::string EventLocationBase::GetIDString(void) const
 
 void EventLocationBase::ExportToJSON(::Json::Value & root) const
 {
-    root[process]            = ProcessName;
-    root[component]          = ComponentName;
-    root[interface_provided] = InterfaceProvidedName;
-    root[interface_required] = InterfaceRequiredName;
+    if (!ProcessName.empty())
+        root[process] = ProcessName;
+    if (!ComponentName.empty())
+        root[component] = ComponentName;
+    if (!InterfaceProvidedName.empty())
+        root[interface_provided] = InterfaceProvidedName;
+    if (!InterfaceRequiredName.empty())
+        root[interface_required] = InterfaceRequiredName;
 }
 
 void EventLocationBase::ImportFromJSON(const ::Json::Value & value)

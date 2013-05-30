@@ -45,6 +45,7 @@ namespace SF {
             DEFINE_KEYWORD(event_handler);
             DEFINE_KEYWORD(fault);
             DEFINE_KEYWORD(fault_application);
+            DEFINE_KEYWORD(filter);
             DEFINE_KEYWORD(filter_event); // MJTEMP: am I using this?
             DEFINE_KEYWORD(function);
             DEFINE_KEYWORD(identity);
@@ -78,6 +79,8 @@ namespace SF {
             DEFINE_KEYWORD(timestamp);
             DEFINE_KEYWORD(topic);
             DEFINE_KEYWORD(type);
+            DEFINE_KEYWORD(value);
+            DEFINE_KEYWORD(values);
         };
 
         namespace TopicNames {

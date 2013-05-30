@@ -80,10 +80,14 @@ void cisstEventLocation::ExportToJSON(::Json::Value & root) const
 {
     EventLocationBase::ExportToJSON(root);
 
-    root[cisst::command]         = CommandName;
-    root[cisst::function]        = FunctionName;
-    root[cisst::event_generator] = EventGeneratorName;
-    root[cisst::event_handler]   = EventHandlerName;
+    if (!CommandName.empty())
+        root[cisst::command] = CommandName;
+    if (!FunctionName.empty())
+        root[cisst::function] = FunctionName;
+    if (!EventGeneratorName.empty())
+        root[cisst::event_generator] = EventGeneratorName;
+    if (!EventHandlerName.empty())
+        root[cisst::event_handler] = EventHandlerName;
 }
 
 void cisstEventLocation::ImportFromJSON(const ::Json::Value & value)
