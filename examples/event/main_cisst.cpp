@@ -4,7 +4,7 @@
 
   Created on: August 31, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -33,6 +33,11 @@
 #endif
 
 using namespace SF;
+
+bool InstallFilter(const std::string & targetComponentName);
+
+mtsManagerLocal      * ComponentManager = 0;
+mtsSafetyCoordinator * SafetyCoordinator = 0;
 
 // Example task that simulates sensor wrapper
 class SensorReadingTask: public mtsTaskPeriodic {
@@ -82,26 +87,9 @@ public:
     void Cleanup(void) {}
 };
 
-
-// Create periodic task
-bool CreatePeriodicThread(const std::string & componentName, double period);
-// Install monitors to monitor quantities in real-time
-//bool InstallMonitor(const std::string & targetComponentName, unsigned int frequency);
-// Install filters
-bool InstallFilter(const std::string & targetComponentName);
-
-// Local component manager
-mtsManagerLocal * ComponentManager = 0;
-// Test periodic task
-SensorReadingTask * task = 0;
-
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
-
-#if (CISST_OS == CISST_LINUX_XENOMAI)
-    mlockall(MCL_CURRENT|MCL_FUTURE);
-#endif
 
 #if SF_USE_G2LOG
     // Logger setup
@@ -114,8 +102,8 @@ int main(int argc, char *argv[])
     cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
     cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
-    cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
+    //cmnLogger::SetMaskClassMatching("mtsSafetyCoordinator", CMN_LOG_ALLOW_ALL);
+    //cmnLogger::SetMaskClassMatching("mtsMonitorComponent", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
     mtsComponentManager::InstallSafetyCoordinator();
@@ -126,26 +114,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Print information about middleware(s) available
-    StrVecType info;
-    GetMiddlewareInfo(info);
-    std::cout << "Middleware(s) detected: ";
-    if (info.size() == 0) {
-        std::cout << "none" << std::endl;
-    } else {
-        std::cout << std::endl;
-        for (size_t i = 0; i < info.size(); ++i) {
-            std::cout << "[" << (i+1) << "] " << info[i] << std::endl;
-        }
-    }
-    std::cout << std::endl;
+    // Get safety coordinator instance
+    SafetyCoordinator = ComponentManager->GetCoordinator();
 
     // Create simulated sensor reading component
-    std::string componentName("sensorWrapper");
-
-    // Create periodic task
-    if (!CreatePeriodicThread(componentName, 100 * cmn_ms)) {
-        SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
+    const std::string componentName("sensorWrapper");
+    SensorReadingTask * task = new SensorReadingTask(componentName, 100 * cmn_ms);
+    if (!ComponentManager->AddComponent(task)) {
+        SFLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
         return 1;
     }
 
@@ -174,7 +150,6 @@ int main(int argc, char *argv[])
     ComponentManager->WaitForStateAll(mtsComponentState::ACTIVE);
 
     std::cout << "Press 'q' to quit." << std::endl;
-    std::cout << "Running periodic tasks ";
 
     // loop until 'q' is pressed
     int key = ' ';
@@ -187,41 +162,18 @@ int main(int argc, char *argv[])
     // Clean up resources
     SFLOG_INFO << "Cleaning up..." << std::endl;
 
-#if (CISST_OS != CISST_LINUX_XENOMAI)
     ComponentManager->KillAll();
     ComponentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
-#endif   
-
     ComponentManager->Cleanup();
 
     return 0;
 }
 
-// Create periodic thread
-bool CreatePeriodicThread(const std::string & componentName, double period)
-{
-    // Create periodic thread
-    task = new SensorReadingTask(componentName, period);
-    if (!ComponentManager->AddComponent(task)) {
-        SFLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
-        return false;
-    }
-
-    return true;
-}
-
+// Create two different types of thresholding filters: active vs. passive filters
 bool InstallFilter(const std::string & targetComponentName)
 {
-    mtsSafetyCoordinator * coordinator = ComponentManager->GetCoordinator();
-    if (!coordinator) {
-        SFLOG_ERROR  << "Failed to get coordinator in this process";
-        return false;
-    }
-
-    // Create two different types of thresholding filters: active vs. passive filters
-
     // Active filter
-#if 1
+#if 0
     SF::FilterThreshold * filterThresholdActive = 
         new FilterThreshold(// Common arguments
                             SF::FilterBase::FEATURE, // filter category
@@ -238,7 +190,7 @@ bool InstallFilter(const std::string & targetComponentName)
     filterThresholdActive->DeclareLastFilterOfPipeline();
 
     // Install filter to the target component [active monitoring]
-    if (!coordinator->AddFilter(filterThresholdActive)) {
+    if (!SafetyCoordinator->AddFilter(filterThresholdActive)) {
         SFLOG_ERROR << "Failed to add ACTIVE filter \"" << filterThresholdActive->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
@@ -270,7 +222,7 @@ bool InstallFilter(const std::string & targetComponentName)
     filterThresholdPassive->DeclareLastFilterOfPipeline();
 
     // Install filter to the target component [passive monitoring]
-    if (!coordinator->AddFilter(filterThresholdPassive)) {
+    if (!SafetyCoordinator->AddFilter(filterThresholdPassive)) {
         SFLOG_ERROR << "Failed to add PASSIVE filter \"" << filterThresholdPassive->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
@@ -279,5 +231,11 @@ bool InstallFilter(const std::string & targetComponentName)
     std::cout << *filterThresholdPassive << std::endl;
 #endif
     
+    const std::string jsonFileName(SF_SOURCE_ROOT_DIR"/examples/event/event.json");
+    if (!SafetyCoordinator->AddFilterFromJSONFile(jsonFileName)) {
+        SFLOG_ERROR << "Failed to add filter(s) from file: \"" << jsonFileName << "\"" << std::endl;
+        return false;
+    }
+
     return true;
 }
