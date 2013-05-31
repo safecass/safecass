@@ -1,16 +1,14 @@
 #
 # Safety Framework for Component-based Robotics
 #
-# Created on: August 31, 2012
-#
-# Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
+# Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 #
 
-project(event)
+project(filter)
 
 set (REQUIRED_SF_LIBS SFLib ${JSONCPP_LIBRARIES})
 if (ENABLE_G2LOG)
@@ -28,9 +26,9 @@ if (SF_HAS_CISST)
     if (cisst_FOUND_AS_REQUIRED)
         set (INCLUDE_DIR ${INCLUDE_DIR} ${cisst_INCLUDE_DIR})
         include_directories (${INCLUDE_DIR})
-        add_executable (event main_cisst.cpp)
-        cisst_target_link_libraries(event ${REQUIRED_CISST_LIBS})
-        target_link_libraries (event ${REQUIRED_SF_LIBS})
+        add_executable (filter main_cisst.cpp)
+        cisst_target_link_libraries(filter ${REQUIRED_CISST_LIBS})
+        target_link_libraries (filter ${REQUIRED_SF_LIBS})
     else (cisst_FOUND_AS_REQUIRED)
         cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
     endif (cisst_FOUND_AS_REQUIRED)

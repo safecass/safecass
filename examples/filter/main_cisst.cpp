@@ -2,9 +2,9 @@
 
   Safety Framework for Component-based Robotics
 
-  Created on: October 8, 2012
+  Created on: August 31, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -19,7 +19,7 @@
 #include "json.h"
 #include "monitor.h"
 #include "cisstMonitor.h"
-#include "trendVel.h"
+#include "threshold.h"
 
 #include <cisstCommon/cmnGetChar.h>
 #include <cisstVector/vctFixedSizeVector.h>
@@ -34,35 +34,31 @@
 
 using namespace SF;
 
-// Both work fine
-#define USE_MTS_DOUBLE_VEC 0
-//#define USE_MTS_DOUBLE_VEC 1
+bool InstallFilter(const std::string & targetComponentName);
+
+mtsManagerLocal      * ComponentManager = 0;
+mtsSafetyCoordinator * SafetyCoordinator = 0;
 
 // Example task that simulates sensor wrapper
 class SensorReadingTask: public mtsTaskPeriodic {
+public:
+    // Typedef for sensor readings
+    typedef vctFixedSizeVector<double, 6> SensorReadingType;
+
 protected:
-    // scalar type
-    double Force;
-    // vector type
-#if USE_MTS_DOUBLE_VEC
-    mtsDoubleVec ForceReadings;
-#else
-    std::vector<double> ForceReadings;
-#endif
+    double Threshold;
+    double Tic;
+    SensorReadingType SensorReading;
+    double ForceY;
 
 public:
     SensorReadingTask(const std::string & name, double period) : mtsTaskPeriodic(name, period, false, 5000)
     {
-        Force = 0.0;
-#if USE_MTS_DOUBLE_VEC
-        ForceReadings.SetSize(3);
-        ForceReadings.SetAll(0.0);
-#else
-        ForceReadings.resize(3);
-#endif
+        StateTable.AddData(SensorReading, "SensorReadings");
+        StateTable.AddData(ForceY, "ForceY");
 
-        StateTable.AddData(Force, "Force");
-        StateTable.AddData(ForceReadings, "ForceReadings");
+        Tic = osaGetTime();
+        Threshold = 10.0;
     }
     ~SensorReadingTask() {}
 
@@ -72,50 +68,28 @@ public:
         ProcessQueuedCommands();
         ProcessQueuedEvents();
         
-        // To test TrendVel filter for scalar type
-        double delta = double(rand() % 10) * 0.1;
-        Force += delta;
-        // To test TrendVel filter for vector type
-#if USE_MTS_DOUBLE_VEC
-        ForceReadings(0) += double(rand() % 10) * 0.1;
-        ForceReadings(1) += double(rand() % 10) * 0.1;
-        ForceReadings(2) += double(rand() % 10) * 0.1;
+        // Update sensor readings
+        SensorReading(1) = Threshold;
 
-        std::cout << Force << "\t | " << ForceReadings << std::endl;
-#else
-        ForceReadings[0] += double(rand() % 10) * 0.1;
-        ForceReadings[1] += double(rand() % 10) * 0.1;
-        ForceReadings[2] += double(rand() % 10) * 0.1;
-
-        std::cout << Force << "\t | [ ";
-        for (size_t i = 0; i < 3; ++i) {
-            std::cout << ForceReadings[i] << " ";
+        // MJ TEMP: Inject fault event at 10% probability
+        if (rand() % 100 > 90) {
+            SensorReading(1) += SensorReading(1) * 0.1 + (double)(rand() % 10) * 0.1;
         }
-        std::cout << " ]" << std::endl;
-#endif
+        ForceY = SensorReading(1);
+
+        // MJ TEMP: Manual check to confirm if fault events from FDD are correct.
+        if (ForceY - Threshold > 0.0) {
+            std::cout << "[" << osaGetTime() - Tic << "] Sensor reading " << SensorReading(1)
+                << " exceeds threshold " << Threshold << " by " << ForceY - Threshold << std::endl;
+        }
 
     }
     void Cleanup(void) {}
 };
 
-
-// Create periodic task
-bool CreatePeriodicThread(const std::string & componentName, double period);
-// Install filters
-bool InstallFilter(const std::string & targetComponentName);
-
-// Local component manager
-mtsManagerLocal * ComponentManager = 0;
-// Test periodic task
-SensorReadingTask * task = 0;
-
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
-
-#if (CISST_OS == CISST_LINUX_XENOMAI)
-    mlockall(MCL_CURRENT|MCL_FUTURE);
-#endif
 
 #if SF_USE_G2LOG
     // Logger setup
@@ -128,8 +102,8 @@ int main(int argc, char *argv[])
     cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
     cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
-    cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
+    //cmnLogger::SetMaskClassMatching("mtsSafetyCoordinator", CMN_LOG_ALLOW_ALL);
+    //cmnLogger::SetMaskClassMatching("mtsMonitorComponent", CMN_LOG_ALLOW_ALL);
     
     // Get instance of the cisst Component Manager
     mtsComponentManager::InstallSafetyCoordinator();
@@ -140,26 +114,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Print information about middleware(s) available
-    StrVecType info;
-    GetMiddlewareInfo(info);
-    std::cout << "Middleware(s) detected: ";
-    if (info.size() == 0) {
-        std::cout << "none" << std::endl;
-    } else {
-        std::cout << std::endl;
-        for (size_t i = 0; i < info.size(); ++i) {
-            std::cout << "[" << (i+1) << "] " << info[i] << std::endl;
-        }
-    }
-    std::cout << std::endl;
+    // Get safety coordinator instance
+    SafetyCoordinator = ComponentManager->GetCoordinator();
 
     // Create simulated sensor reading component
-    std::string componentName("sensorWrapper");
-
-    // Create periodic task
-    if (!CreatePeriodicThread(componentName, 100 * cmn_ms)) {
-        SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
+    const std::string componentName("sensorWrapper");
+    SensorReadingTask * task = new SensorReadingTask(componentName, 100 * cmn_ms);
+    if (!ComponentManager->AddComponent(task)) {
+        SFLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
         return 1;
     }
 
@@ -188,7 +150,6 @@ int main(int argc, char *argv[])
     ComponentManager->WaitForStateAll(mtsComponentState::ACTIVE);
 
     std::cout << "Press 'q' to quit." << std::endl;
-    std::cout << "Running periodic tasks ";
 
     // loop until 'q' is pressed
     int key = ' ';
@@ -201,112 +162,80 @@ int main(int argc, char *argv[])
     // Clean up resources
     SFLOG_INFO << "Cleaning up..." << std::endl;
 
-#if (CISST_OS != CISST_LINUX_XENOMAI)
     ComponentManager->KillAll();
     ComponentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
-#endif   
-
     ComponentManager->Cleanup();
 
     return 0;
 }
 
-// Create periodic thread
-bool CreatePeriodicThread(const std::string & componentName, double period)
-{
-    // Create periodic thread
-    task = new SensorReadingTask(componentName, period);
-    if (!ComponentManager->AddComponent(task)) {
-        SFLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
-        return false;
-    }
-
-    return true;
-}
-
+// Create two different types of thresholding filters: active vs. passive filters
 bool InstallFilter(const std::string & targetComponentName)
 {
-    mtsSafetyCoordinator * coordinator = ComponentManager->GetCoordinator();
-    if (!coordinator) {
-        SFLOG_ERROR  << "Failed to get coordinator in this process";
-        return false;
-    }
-
-    //-------------------------------------------------- 
-    // Velocity filter tests
-    //
-    // Create trend velocity filter for scalar with active filtering
-#if 1
-    SF::FilterTrendVel * filterTrendVelScalar = 
-        new FilterTrendVel(// Common arguments
-                           SF::FilterBase::FEATURE, // filter category
-                           targetComponentName,     // name of target component
-                           SF::FilterBase::ACTIVE,  // monitoring type
-                           // Arguments specific to this filter
-                           "Force",                   // name of input signal: name of state vector
-                           SF::SignalElement::SCALAR, // input signal type
-                           false);                    // time scaling
-    // Enable debug log
-    filterTrendVelScalar->EnableDebugLog(true);
-
-    // Install filter to the target component
-    if (!coordinator->AddFilter(filterTrendVelScalar)) {
-        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar->GetFilterName() << "\""
-            << " to target component \"" << targetComponentName << "\"" << std::endl;
-        return false;
-    }
-    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar->GetFilterName() << "\"" << std::endl;
-    std::cout << *filterTrendVelScalar << std::endl;
-#endif
-
-    // If two trend velocity filters are cascaded into a filter pipeline, the pipeline 
-    // acts as a trend accelerometer filter.
+    // Active filter
 #if 0
-    SF::FilterTrendVel * filterTrendVelScalar2 = 
-        new FilterTrendVel(// Common arguments
-                           SF::FilterBase::FEATURE_VECTOR, // filter category
-                           targetComponentName,     // name of target component
-                           SF::FilterBase::ACTIVE,  // monitoring type
-                           // Arguments specific to this filter
-                           filterTrendVelScalar->GetOutputSignalName(0),
-                           SF::SignalElement::SCALAR, // input signal type
-                           false);                    // time scaling
-    // Enable debug log
-    filterTrendVelScalar2->EnableDebugLog(true);
+    SF::FilterThreshold * filterThresholdActive = 
+        new FilterThreshold(// Common arguments
+                            SF::FilterBase::FEATURE, // filter category
+                            targetComponentName,     // name of target component
+                            SF::FilterBase::ACTIVE,  // monitoring type
+                            // Arguments specific to this filter
+                            "ForceY", // name of input signal: name of state vector
+                            10.0,     // threshold
+                            0.5,      // margin
+                            0.0,      // output 0 (input is below threshold)
+                            1.0);     // output 1 (input exceeds threshold)
 
-    // Install filter to the target component
-    if (!coordinator->AddFilter(filterTrendVelScalar2)) {
-        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar2->GetFilterName() << "\""
+    // Declare the filter as the last filter of FDD pipeline.
+    filterThresholdActive->DeclareLastFilterOfPipeline();
+
+    // Install filter to the target component [active monitoring]
+    if (!SafetyCoordinator->AddFilter(filterThresholdActive)) {
+        SFLOG_ERROR << "Failed to add ACTIVE filter \"" << filterThresholdActive->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar2->GetFilterName() << "\"" << std::endl;
-    std::cout << *filterTrendVelScalar2 << std::endl;
+    SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdActive->GetFilterName() << "\"" << std::endl;
+    std::cout << *filterThresholdActive << std::endl;
 #endif
 
-    // Create trend velocity filter for vector with active filtering
+    // Passive filter
 #if 0
-    SF::FilterTrendVel * filterTrendVelVector = 
-        new FilterTrendVel(// Common arguments
-                           SF::FilterBase::FEATURE, // filter category
-                           targetComponentName,     // name of target component
-                           SF::FilterBase::ACTIVE,  // monitoring type
-                           // Arguments specific to this filter
-                           "ForceReadings",           // name of input signal: name of state vector
-                           SF::SignalElement::VECTOR, // input signal type
-                           false);                     // time scaling
-    // Enable debug log
-    filterTrendVelVector->EnableDebugLog(true);
+    SF::FilterThreshold * filterThresholdPassive = 
+        new FilterThreshold(// Common arguments
+                            SF::FilterBase::FEATURE, // filter category
+                            targetComponentName,     // name of target component
+                            SF::FilterBase::PASSIVE, // monitoring type
+                            // Arguments specific to this filter
+                            /*
+                            filterThresholdActive->GetNameOfInputSignal(),
+                            filterThresholdActive->GetThreshold(),
+                            filterThresholdActive->GetMargin(),
+                            filterThresholdActive->GetOutput0(),
+                            filterThresholdActive->GetOutput1());
+                            */
+                            "ForceY",
+                            10.0,     // threshold
+                            0.5,      // margin
+                            0.0,      // output 0 (input is below threshold)
+                            1.0);     // output 1 (input exceeds threshold)
+    filterThresholdPassive->DeclareLastFilterOfPipeline();
 
-    // Install filter to the target component
-    if (!coordinator->AddFilter(filterTrendVelVector)) {
-        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelVector->GetFilterName() << "\""
+    // Install filter to the target component [passive monitoring]
+    if (!SafetyCoordinator->AddFilter(filterThresholdPassive)) {
+        SFLOG_ERROR << "Failed to add PASSIVE filter \"" << filterThresholdPassive->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelVector->GetFilterName() << "\"" << std::endl;
-    std::cout << *filterTrendVelVector << std::endl;
+    SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdPassive->GetFilterName() << "\"" << std::endl;
+    std::cout << *filterThresholdPassive << std::endl;
 #endif
+    
+    const std::string jsonFileName(SF_SOURCE_ROOT_DIR"/examples/filter/filter.json");
+    if (!SafetyCoordinator->AddFilterFromJSONFile(jsonFileName)) {
+        SFLOG_ERROR << "Failed to add filter(s) from file: \"" << jsonFileName << "\"" << std::endl;
+        return false;
+    }
 
     return true;
 }
