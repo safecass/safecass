@@ -9,7 +9,6 @@
 #
 
 add_subdirectory(monitor)
-add_subdirectory(event)
 add_subdirectory(filter)
-add_subdirectory(state)
-add_subdirectory(application)
+#add_subdirectory(state)
+#add_subdirectory(application)
