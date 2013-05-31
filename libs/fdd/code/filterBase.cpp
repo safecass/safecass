@@ -4,7 +4,7 @@
 
   Created on: January 7, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -12,10 +12,14 @@
 
 */
 
+#include "dict.h"
+#include "utils.h"
 #include "filterBase.h"
 #include "eventPublisherBase.h"
 
 namespace SF {
+
+using namespace Dict;
 
 FilterBase::FilterIDType FilterBase::FilterUID = 0;
 
@@ -31,40 +35,55 @@ FilterBase::FilterBase(void)
       Category(INVALID),
       NameOfTargetComponent("NONAME"), 
       Type(ACTIVE),
-      LastFilterOfPipeline(false),
-      PrintDebugLog(false),
-      Enabled(false),
-      EventPublisher(0),
-      EventLocation(0)
-{}
+      LastFilterOfPipeline(false)
+{
+    Initialize();
+}
 
 FilterBase::FilterBase(const std::string & filterName,
                        FilterCategory      filterCategory,
                        const std::string & targetComponentName,
                        FilteringType       monitoringType)
-    : UID(FilterUID++),
+    : UID(++FilterUID),
       Name(filterName),
+      ClassName(""),
       Category(filterCategory),
       NameOfTargetComponent(targetComponentName), 
       Type(monitoringType),
-      LastFilterOfPipeline(false),
-      PrintDebugLog(false),
-      // MJ: if filter is enabled when constructed, the first few inputs and outputs could
-      // be corrupted.
-      Enabled(false),
-      EventPublisher(0),
-      EventLocation(0)
+      LastFilterOfPipeline(false)
 {
+    Initialize();
+}
+
+FilterBase::FilterBase(const std::string & filterName, const JSON::JSONVALUE & jsonNode)
+    : UID(++FilterUID),
+      Name(filterName),
+      ClassName( JSON::GetSafeValueString( jsonNode, Json::class_name)),
+      Category( GetFilterCategoryFromString( JSON::GetSafeValueString( jsonNode, Json::category) ) ),
+      NameOfTargetComponent( JSON::GetSafeValueString( jsonNode, Json::target_component ) ), 
+      Type( GetFilteringTypeFromString(JSON::GetSafeValueString( jsonNode, Json::type ) ) ),
+      LastFilterOfPipeline( JSON::GetSafeValueBool( jsonNode, Filter::last_filter ) )
+{
+    Initialize();
+}
+
+void FilterBase::Initialize(void)
+{
+    PrintDebugLog = false;
+    // MJ: if filter is enabled when constructed, the first few inputs and outputs could
+    // be corrupted.
+    Enabled       = false;
+
+    EventPublisher = 0;
+    EventLocation  = 0;
 }
 
 FilterBase::~FilterBase()
 {
-    for (size_t i = 0; i < InputSignals.size(); ++i) {
+    for (size_t i = 0; i < InputSignals.size(); ++i)
         delete InputSignals[i];
-    }
-    for (size_t i = 0; i < OutputSignals.size(); ++i) {
+    for (size_t i = 0; i < OutputSignals.size(); ++i)
         delete OutputSignals[i];
-    }
 
     if (EventPublisher) delete EventPublisher;
     if (EventLocation) delete EventLocation;
@@ -195,6 +214,14 @@ void FilterBase::SetEventLocationInstance(EventLocationBase * location)
     EventLocation = location;
 }
 
+std::string FilterBase::ToString(void) const
+{
+    std::stringstream ss;
+    ToStream(ss);
+
+    return ss.str();
+}
+
 void FilterBase::ToStream(std::ostream & outputStream) const
 {
     outputStream << "[" << UID << "] "
@@ -213,9 +240,10 @@ void FilterBase::ToStream(std::ostream & outputStream) const
     outputStream << "Target component: \"" << NameOfTargetComponent << "\", "
                  << "Filtering type: " << (Type == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
                  << "State: " << (Enabled ? "ENABLED" : "DISABLED");
+    outputStream << ", Event location: " << (EventLocation ? "Available" : "n/a");
     if (LastFilterOfPipeline)
-        outputStream << ", Event publisher: " << (EventPublisher ? "Avaiable" : "Unavailable");
-    outputStream << ", Event location: " << (EventLocation ? "Available" : "Unavailable") << std::endl;
+        outputStream << ", Event publisher: " << (EventPublisher ? "installed" : "n/a");
+    outputStream << std::endl;
 
     // Input signals
     outputStream << "----- Input Signals:" << std::endl;
@@ -227,6 +255,60 @@ void FilterBase::ToStream(std::ostream & outputStream) const
     for (size_t i = 0; i < OutputSignals.size(); ++i) {
         outputStream << "[" << i << "] " << (*OutputSignals[i]) << std::endl;
     }
+}
+
+//-----------------------------------------------
+// Misc. Getters
+//-----------------------------------------------
+static const std::string STR_FILTER_INVALID        = "INVALID";
+static const std::string STR_FILTER_FEATURE        = "FEATURE";
+static const std::string STR_FILTER_FEATURE_VECTOR = "FEATURE_VECTOR";
+static const std::string STR_FILTER_SYMPTOM        = "SYMPTOM";
+static const std::string STR_FILTER_SYMPTOM_VECTOR = "SYMPTOM_VECTOR";
+static const std::string STR_FILTER_FAULT_DETECTOR = "FAULT_DETECTOR";
+
+const std::string FilterBase::GetFilterCategoryString(const FilterCategory type)
+{
+    if (type == FEATURE)        return STR_FILTER_FEATURE;
+    if (type == FEATURE_VECTOR) return STR_FILTER_FEATURE_VECTOR;
+    if (type == SYMPTOM)        return STR_FILTER_SYMPTOM;
+    if (type == SYMPTOM_VECTOR) return STR_FILTER_SYMPTOM_VECTOR;
+    if (type == FAULT_DETECTOR) return STR_FILTER_FAULT_DETECTOR;
+
+    return Dict::INVALID;
+}
+
+FilterBase::FilterCategory FilterBase::GetFilterCategoryFromString(const std::string & str)
+{
+    std::string _str(str);
+    to_uppercase(_str);
+
+    if (_str.compare(STR_FILTER_FEATURE) == 0)        return FEATURE;
+    if (_str.compare(STR_FILTER_FEATURE_VECTOR) == 0) return FEATURE_VECTOR;
+    if (_str.compare(STR_FILTER_SYMPTOM) == 0)        return SYMPTOM;
+    if (_str.compare(STR_FILTER_SYMPTOM_VECTOR) == 0) return SYMPTOM_VECTOR;
+    if (_str.compare(STR_FILTER_FAULT_DETECTOR) == 0) return FAULT_DETECTOR;
+
+    return INVALID;
+}
+
+const std::string FilterBase::GetFilteringTypeString(const FilteringType type)
+{
+    if (type == ACTIVE)  return Dict::ACTIVE;
+    if (type == PASSIVE) return Dict::PASSIVE;
+
+    return Dict::INVALID;
+}
+
+FilterBase::FilteringType FilterBase::GetFilteringTypeFromString(const std::string & str)
+{
+    std::string _str(str);
+    to_uppercase(_str);
+
+    if (_str.compare(Dict::ACTIVE) == 0)  return ACTIVE;
+    if (_str.compare(Dict::PASSIVE) == 0) return PASSIVE;
+
+    return ACTIVE;
 }
 
 };

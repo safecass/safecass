@@ -117,7 +117,7 @@ protected:
 
 public:
     //! Default constructor
-    Monitor();
+    Monitor(void);
     //! Constructor with explicit arguments
     Monitor(const TargetType target, 
             EventLocationBase * locationId,

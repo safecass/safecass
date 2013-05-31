@@ -4,7 +4,7 @@
 
   Created on: January 7, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -27,128 +27,167 @@ namespace SF {
 class HistoryBufferBase;
 class EventPublisherBase;
 
-class SFLIB_EXPORT FilterBase
-{
+class SFLIB_EXPORT FilterBase {
 public:
-    /*! Typedef for filtering type.
-        ACTIVE:  filter is processed by the target component and thus the execution time of 
+    //! Typedef of numerical representation of unique filter id
+    typedef int FilterIDType;
+
+    //! Typedef for filtering type
+    /*! ACTIVE:  filter is processed by the target component and thus the execution time of 
                  the target component is consumed.
-                 - Pros: Fastest and guaranteed detection of an event
-                 - Cons: Run-time overhead to execute FDD pipelines and generate and propagate events
-        PASSIVE: filter is processed by the monitoring component which does not require the 
+                 - Pros: Fastest and guaranteed detection of events
+                 - Cons: Run-time overhead to run FDD pipelines and to propagate events
+        PASSIVE: filter is processed by the monitoring component which does not consume the 
                  execution time of the target component.
                  - Pros: No run-time performance impact on the target component
-                 - Cons: Delay in detecting an event (currently, monitoring component is periodic task) */
-    typedef enum { ACTIVE, PASSIVE } FilteringType;
+                 - Cons: Delay in detecting an event (currently, monitoring component is 
+                 implemented as a periodic task) 
+    */
+    typedef enum {
+        ACTIVE,  /*!< active filtering */
+        PASSIVE  /*!< passive filtering */
+    } FilteringType;
 
     /*! \enum SF::FilterBase::FilterCategory 
      * Typedef for filter categories 
      */
     typedef enum {
-        INVALID,        /*! invalid filter is not processed */
-        FEATURE,        /*! raw measurement processed */
-        FEATURE_VECTOR, /*! collection of features */
-        SYMPTOM,        /*! feature vectors processed */
-        SYMPTOM_VECTOR, /*! collection of symptoms */
-        FAULT_DETECTOR  /*! fault detector */
+        INVALID,        /*!< invalid filter is not processed */
+        FEATURE,        /*!< raw measurement processed */
+        FEATURE_VECTOR, /*!< collection of features */
+        SYMPTOM,        /*!< feature vectors processed */
+        SYMPTOM_VECTOR, /*!< collection of symptoms */
+        FAULT_DETECTOR  /*!< fault detector */
     } FilterCategory;
 
-    /*! Input signal element.  A filter may need more than one signal to run 
-        its filtering algorithm and this class represents a signal. */
+    //! Typedef for inputs
+    /*! A filtering algorithm may require more than one input signal.
+     *  Each input signal is represented as SignalElement and this container maintains
+     *  all inputs of this filter instance. 
+     */
     typedef std::vector<SignalElement*> SignalElementsType;
-    // not used now
+    // not used now: TODO: remove this if not used anymore
     //typedef std::vector<std::string> SignalNamesType;
 
-    /*! Typedef for filter id */
-    typedef int FilterIDType;
-
 private:
-    /*! ID of this filter which allows multiple filters of the same type to be 
-        used in the same state table. */
+    //! UID of this filters
+    /*! Multiple filters of the same type may be deployed
+     */
     static FilterIDType FilterUID;
 
 protected:
-    /*! Typedef of base class for derived classes */
+    //! Typedef for derived classes
     typedef FilterBase BaseType;
 
-    /*! UID of this filter */
+    //! UID of this filter
     const FilterIDType UID;
-    /*! Name of this filter */
-    const std::string Name;
-    /*! Category of this filter */
+
+    //! Name of this filter
+    std::string Name;
+
+    //! Class name of this filter
+    /*! Derived filter is instantiated based on this class name string 
+     */
+    std::string ClassName;
+
+    //! Category of this filter
     const FilterCategory Category;
-    /*! Name of target component */
+
+    //! Name of target component
+    // MJTODO: this can be replaced with MonitorTarget structure(?)
     const std::string NameOfTargetComponent;
-    /*! Filtering type (active or passive) */
+
+    //! Filtering type (active or passive)
     const FilteringType Type;
-    /*! Is this filter the last one of a FDD pipeline? */
+
+    //! Is this filter the last filter (of FDD pipeline)?
     bool LastFilterOfPipeline;
-    /*! Print out internal debug log of this filter if enabled */
+
+    //! Print out internal debug log if true
     bool PrintDebugLog;
 
-    /*! State of this filter (enabled or disabled) */
+    //! State of this filter (enabled or disabled)
     bool Enabled;
 
-    /*! Input signals that this filter uses */
+    //! Input signals that this filter uses
     SignalElementsType InputSignals;
-    /*! Output signals that this filter generates */
+    //! Output signals that this filter generates
     SignalElementsType OutputSignals;
 
-    /*! Helper function to register input signal to this filter (used by derived filters) */
+    //! Add input signal to this filter (used by derived filters)
     bool AddInputSignal(const std::string &       signalName, 
                         SignalElement::SignalType signalType);
-    /*! Helper function to register output signal generated by filter (used by derived filters) */
+    //! Add output signal to this filter (used by derived filters)
     bool AddOutputSignal(const std::string &       signalName, 
                         SignalElement::SignalType  signalType);
 
-    /*! Generate name of output signal.
-        Prefix: Name of input signal or input-specific word
+    //! Generate output signal name
+    /*! Prefix: Name of input signal or input-specific word
         Root1 : Filter name
         Root2 : Filter UID
-        Suffix: Signal id */
+        Suffix: Signal id 
+
+        TODO: this may need to be deprecated if user provides output signals name via json
+     */
     std::string GenerateOutputSignalName(const std::string & prefix,
                                          const std::string & root1,
                                          const FilterIDType  root2,
                                          size_t              suffix) const;
 
-    /*! Generate fault diagnosis and identification (FDI) string in JSON format.
-        Filter-specific.  Returned string should include the following information:
-        
-            - Fault type
-            - Fault location (spatial localization)
-            - Fault time (temporal localization)
-            - Fault severity
+    //! Generate fault diagnosis and identification (FDI) string in JSON format
+    /*!
+        Filter-specific.  String to be returned contains the following information:
+        - Fault type
+        - Fault location (spatial localization)
+        - Fault time (temporal localization)
+        - Fault severity
     */
     virtual const std::string GenerateFDIJSON(double severity, double timestamp) const;
 
     //-------------------------------------------------- 
-    //  Middleware-specific Instances
+    //  Middleware-specific Instances (cisst)
     //-------------------------------------------------- 
-    /*! Instance of history buffer that this filter runs on.  Dynamically allocated as 
-        middleware-specific plug-in (i.e., history buffer accessor adapter) */
+    // REMOVE THE BELOW STRUCTURE IF I DON'T USE IT
+    //! Instance of history buffer that this filter runs on
+    /*! Dynamically allocated as middleware-specific plug-in (i.e., history buffer accessor 
+        adapter)
+    */
     //HistoryBufferBase * HistoryBuffer; // am I using this??? Probably not...
 
-    /*! Instance of object that enables event propagation to the Safety Framework.
-        Dynamically allocated as middleware-specific plug-in (event propagation 
-        accessor adapter) */
+    //! Event publisher to propagate events to the Safety Framework
+    /*! Dynamically allocated as middleware-specific plug-in (event propagation 
+        accessor adapter)
+    */
     EventPublisherBase * EventPublisher;
 
-    /*! Instance of event or fault location.  If the EventLocationBase class does not have 
-        enough fields to identify an event location in a system, a middleware-specific event
-        location class can be defined, inheriting the base class. */
+    //! Event location to uniquely identify source of event
+    /*! If EventLocationBase class is not expressive enough to uniquely identify an event 
+     *  location in the system, a middleware-specific event location class that is derived 
+     *  from this class can be used.
+     */
     EventLocationBase * EventLocation;
+
+    //! Initialize internal variables
+    void Initialize(void);
 
     //-------------------------------------------------- 
     //  Constructors and Destructor
     //-------------------------------------------------- 
-    // Filter has to be created with explicit type and name.
 protected:
+    //! Default constructor 
+    /*! All filters have to be created with explicit type and name
+     */
     FilterBase(void);
 public:
+    //! Constructor with explicit arguments
     FilterBase(const std::string & filterName,
                FilterCategory      filterCategory,
                const std::string & targetComponentName,
                FilteringType       monitoringType);
+    //! Constructor using instance of JSON structure
+    FilterBase(const std::string & filterName,
+               const JSON::JSONVALUE & jsonNode);
+    //! Destructor
     virtual ~FilterBase();
 
 #if 0 // MJ: future improvements
@@ -162,12 +201,15 @@ public:
     // is attached to the source component.
     bool AddOutput(const std::string & signalName); 
 #endif
-    /*! Run filtering algorithm which should be defined and implemented by derived filters */
+    //! Run filtering algorithm (pure virtual)
+    /*! This method should be re-defined and implemented by derived filters
+     */
     virtual void DoFiltering(void) = 0;
 
-    /*! Declare this filter as the last filter of a FDD pipeline.  This internally creates
-        a monitor to publish filtering results, i.e., events or faults, to the Safety Framework, 
-        and attaches the monitor to this filter. */
+    //! Declare this filter as the last filter of FDD pipeline
+    /*! This internally creates a monitor to publish filtering results (e.g., events or 
+     *  faults) to the Safety Framework, and attaches the monitor to this filter.
+     */
     inline void DeclareLastFilterOfPipeline(void) { LastFilterOfPipeline = true; }
 
     //-------------------------------------------------- 
@@ -196,21 +238,34 @@ public:
     SignalElement * GetInputSignalElement(size_t index) const;
     SignalElement * GetOutputSignalElement(size_t index) const;
 
-    /*! Sets event publisher instance.  Should be called before activating filter (or signal) */
+    //! Sets event publisher instance
+    /*! This method should be called BEFORE activating filter
+     */
     void SetEventPublisherInstance(EventPublisherBase * publisher);
-    /*! Sets event location instance.  Should be called before activating filter */
+    //! Sets event location instance
+    /*! This method should be called BEFORE activating filter
+     */
     void SetEventLocationInstance(EventLocationBase * location);
 
-    /*! Enable or disable internal debug log */
+    //! Enable or disable internal debug log
     inline void EnableDebugLog(bool enable = true) { PrintDebugLog = enable; }
 
-    /*! Returns human readable outputs (for debugging purpose) */
-    virtual std::string ToString(void) const  {
-        std::stringstream ss;
-        ToStream(ss);
-        return ss.str();
-    };
-    virtual void ToStream(std::ostream & outputStream) const;
+    //! Returns human readable outputs
+    virtual std::string ToString(void) const;
+    virtual void        ToStream(std::ostream & outputStream) const;
+
+    /*! \addtogroup Misc. Getters
+        @{
+     */
+    //! Convert filter category to string
+    static const std::string GetFilterCategoryString(const FilterCategory type);
+    //! Convert string to filter category
+    static FilterCategory GetFilterCategoryFromString(const std::string & str);
+
+    //! Convert filtering type to string
+    static const std::string GetFilteringTypeString(const FilteringType type);
+    //! Convert string to filtering type
+    static FilteringType GetFilteringTypeFromString(const std::string & str);
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const FilterBase & filter)

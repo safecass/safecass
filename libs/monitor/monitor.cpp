@@ -147,7 +147,7 @@ const std::string Monitor::GetTargetTypeString(const TargetType type)
     if (type == TARGET_THREAD_DUTYCYCLE_TOTAL) return STR_TARGET_THREAD_DUTYCYCLE_TOTAL;
     if (type == TARGET_FILTER_EVENT)           return STR_TARGET_FILTER_EVENT;
 
-    return INVALID;
+    return Dict::INVALID;
 }
 
 Monitor::TargetType Monitor::GetTargetTypeFromString(const std::string & str)
@@ -166,10 +166,10 @@ Monitor::TargetType Monitor::GetTargetTypeFromString(const std::string & str)
 
 const std::string Monitor::GetStateTypeString(const StateType type)
 {
-    if (type == STATE_OFF) return OFF;
-    if (type == STATE_ON) return ON;
+    if (type == STATE_OFF) return Dict::OFF;
+    if (type == STATE_ON) return Dict::ON;
 
-    return INVALID;
+    return Dict::INVALID;
 }
 
 Monitor::StateType Monitor::GetStateTypeFromString(const std::string & str)

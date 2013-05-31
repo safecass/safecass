@@ -23,6 +23,8 @@ namespace SF {
 
     namespace Dict {
 
+        DEFINE_KEYWORD(ACTIVE);
+        DEFINE_KEYWORD(PASSIVE);
         DEFINE_KEYWORD(EVENT);
         DEFINE_KEYWORD(INVALID);
         DEFINE_KEYWORD(ON);
@@ -30,6 +32,8 @@ namespace SF {
         DEFINE_KEYWORD(STREAM);
 
         namespace Json {
+            DEFINE_KEYWORD(category);
+            DEFINE_KEYWORD(class_name);
             DEFINE_KEYWORD(component);
             DEFINE_KEYWORD(config);
             DEFINE_KEYWORD(command);
@@ -71,7 +75,7 @@ namespace SF {
             DEFINE_KEYWORD(state);
             DEFINE_KEYWORD(stream);
             DEFINE_KEYWORD(SUBSCRIBE);
-            DEFINE_KEYWORD(THRESHOLD);
+            DEFINE_KEYWORD(target_component);
             DEFINE_KEYWORD(thread_period);
             DEFINE_KEYWORD(thread_dutycycle_user);
             DEFINE_KEYWORD(thread_dutycycle_total);
@@ -101,6 +105,20 @@ namespace SF {
             // Used fault event generation and propagation
             DEFINE_KEYWORD(FaultEvent);
         };
+
+        // Filters and filter-specific keywords
+        namespace Filter {
+            DEFINE_KEYWORD(arguments);
+            DEFINE_KEYWORD(input_signal_name);
+            DEFINE_KEYWORD(last_filter);
+        };
+
+        namespace FilterThreshold {
+            DEFINE_KEYWORD(threshold);
+            DEFINE_KEYWORD(margin);
+            DEFINE_KEYWORD(output0);
+            DEFINE_KEYWORD(output1);
+        }
 
     }; // SF::Dict
 

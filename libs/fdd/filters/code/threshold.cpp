@@ -37,13 +37,34 @@ FilterThreshold::FilterThreshold(BaseType::FilterCategory      category,
       Output0(output0),
       Output1(output1)
 {
+    Initialize();
+}
+
+FilterThreshold::FilterThreshold(const JSON::JSONVALUE & jsonNode)
+    : FilterBase(FilterThreshold::Name, jsonNode),
+      NameOfInputSignal(JSON::GetSafeValueString(
+          jsonNode[Dict::Filter::arguments], Dict::Filter::input_signal_name)),
+      Threshold(JSON::GetSafeValueDouble(
+          jsonNode[Dict::Filter::arguments], Dict::FilterThreshold::threshold)),
+      Margin(JSON::GetSafeValueDouble(
+          jsonNode[Dict::Filter::arguments], Dict::FilterThreshold::margin)),
+      Output0(JSON::GetSafeValueDouble(
+          jsonNode[Dict::Filter::arguments], Dict::FilterThreshold::output0)),
+      Output1(JSON::GetSafeValueDouble(
+          jsonNode[Dict::Filter::arguments], Dict::FilterThreshold::output1))
+{
+    Initialize();
+}
+
+void FilterThreshold::Initialize(void)
+{
     // Define inputs
     SFASSERT(this->AddInputSignal(NameOfInputSignal,
                                   SignalElement::SCALAR));
 
     // Define outputs
     const std::string outputSignalName(
-        this->GenerateOutputSignalName(inputSignalName,
+        this->GenerateOutputSignalName(NameOfInputSignal,
                                        FilterThreshold::Name,
                                        this->UID,
                                        0));

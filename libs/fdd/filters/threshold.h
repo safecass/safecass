@@ -4,7 +4,7 @@
 
   Created on: September 3, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -33,24 +33,27 @@ namespace SF {
 class SFLIB_EXPORT FilterThreshold: public FilterBase
 {
 protected:
-    // Filter should be created with explicit arguments
-    FilterThreshold();
+    //! Default constructor: Filter should be created with explicit arguments
+    FilterThreshold(void);
 
     //--------------------------------------------------
     //  Filter-specific parameters
     //--------------------------------------------------
-    /*! Name of input signal */
+    //! Name of input signal
     std::string NameOfInputSignal;
-    /*! Threshold */
+    //! Threshold
     SignalElement::ScalarType Threshold;
-    /*! Threshold margin */
+    //! Threshold margin
     SignalElement::ScalarType Margin;
-    /*! Output when input does not exceed threshold specified */
+    //! Output when input does not exceed threshold specified
     SignalElement::ScalarType Output0;
-    /*! Output when input exceeds threshold specified */
+    //! Output when input exceeds threshold specified
     SignalElement::ScalarType Output1;
 
+    void Initialize(void);
+
 public:
+    //! Constructor with explicit arguments
     FilterThreshold(BaseType::FilterCategory      category, 
                     const std::string &           targetComponentName,
                     SF::FilterBase::FilteringType monitoringType,
@@ -60,25 +63,28 @@ public:
                     SignalElement::ScalarType     margin,
                     SignalElement::ScalarType     output0,
                     SignalElement::ScalarType     output1);
+    //! Constructor using instance of JSON structure
+    FilterThreshold(const JSON::JSONVALUE & jsonNode);
+    //! Destructor
     ~FilterThreshold();
 
-    /*! Implements thresholding algorithm */
+    //! Implements thresholding algorithm
     void DoFiltering(void);
 
-    /*! Implements string representation of fault diagnosis and identification */
+    //! Implements string representation of fault diagnosis and identification
     const std::string GenerateFDIJSON(double severity, double timestamp) const;
 
-    /*! Getters */
+    //! Getters
     inline const std::string & GetNameOfInputSignal(void) const { return NameOfInputSignal; }
     inline SignalElement::ScalarType GetThreshold(void) const { return Threshold; }
     inline SignalElement::ScalarType GetMargin(void) const { return Margin; }
     inline SignalElement::ScalarType GetOutput0(void) const { return Output0; }
     inline SignalElement::ScalarType GetOutput1(void) const { return Output1; }
 
-    /*! Returns human readable representation of this filter */
+    //! Returns human readable representation of this filter
     void ToStream(std::ostream & outputStream) const;
 
-    /*! Name of this filter */
+    //! Name of this filter
     static const std::string Name;
 };
 
