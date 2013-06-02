@@ -214,10 +214,17 @@ public:
     // is attached to the source component.
     bool AddOutput(const std::string & signalName); 
 #endif
-    //! Run filtering algorithm (pure virtual)
-    /*! This method should be re-defined and implemented by derived filters
-     */
-    virtual void DoFiltering(void) = 0;
+    //-------------------------------------------------- 
+    //  Pure virtual methods
+    //-------------------------------------------------- 
+    //! Initialization of filter
+    virtual void Initialize(const std::string & param) = 0;
+
+    //! Run filtering algorithm
+    virtual void RunFilter(void) = 0;
+
+    //! Release
+    virtual void Cleanup(void) = 0;
 
     //! Declare this filter as the last filter of FDD pipeline
     /*! This internally creates a monitor to publish filtering results (e.g., events or 

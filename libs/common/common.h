@@ -61,6 +61,12 @@ std::string GetCurrentUTCTimeString(void);
 
 #define STR(faultType) std::string(#faultType)
 
+#if (CISST_COMPILER == CISST_GCC) || (CISST_COMPILER == CISST_CLANG)
+#define CMN_UNUSED(argument) MARKED_AS_UNUSED ## argument __attribute__((unused))
+#else
+#define CMN_UNUSED(argument) MARKED_AS_UNUSED ## argument
+#endif
+
 //--------------------------------------------------
 //  Common macro definitions
 //--------------------------------------------------

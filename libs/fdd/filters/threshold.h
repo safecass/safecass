@@ -68,8 +68,10 @@ public:
     //! Destructor
     ~FilterThreshold();
 
-    //! Implements thresholding algorithm
-    void DoFiltering(void);
+    //! Implements pure virtual methods including thresholding algorithm
+    void Initialize(const std::string & param);
+    void RunFilter(void);
+    void Cleanup(void);
 
     //! Implements string representation of fault diagnosis and identification
     const std::string GenerateFDIJSON(double severity, double timestamp) const;

@@ -77,10 +77,14 @@ void FilterThreshold::Initialize(void)
 }
 
 FilterThreshold::~FilterThreshold()
+{}
+
+void FilterThreshold::Initialize(const std::string & param)
 {
+    // NOP
 }
 
-void FilterThreshold::DoFiltering(void)
+void FilterThreshold::RunFilter(void)
 {
     if (!this->IsEnabled()) return;
 
@@ -119,6 +123,11 @@ void FilterThreshold::DoFiltering(void)
         std::cout << this->GetFilterName() << "\t" << InputSignals[0]->GetName() << ": " 
             << InputSignals[0]->GetPlaceholderScalar() << " => " << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
     }
+}
+
+void FilterThreshold::FilterThreshold::Cleanup(void)
+{
+    // NOP
 }
 
 const std::string FilterThreshold::GenerateFDIJSON(double severity, double timestamp) const
