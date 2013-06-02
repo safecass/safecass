@@ -46,9 +46,10 @@ set (SF_LIB_FDD_SRC # faults
                     ${LIB_DIR}/fdd/fault.h ${LIB_DIR}/fdd/code/fault.cpp
                     # event location
                     ${LIB_DIR}/fdd/eventLocationBase.h ${LIB_DIR}/fdd/code/eventLocationBase.cpp
-                    # base filter
+                    # filter
                     ${LIB_DIR}/fdd/signal.h ${LIB_DIR}/fdd/code/signal.cpp
                     ${LIB_DIR}/fdd/filterBase.h ${LIB_DIR}/fdd/code/filterBase.cpp
+                    ${LIB_DIR}/fdd/filterFactory.h ${LIB_DIR}/fdd/code/filterFactory.cpp
                     # filters
                     #${LIB_DIR}/fdd/filters/bypass.h ${LIB_DIR}/fdd/filters/bypass.cpp
                     ${LIB_DIR}/fdd/filters/threshold.h ${LIB_DIR}/fdd/filters/code/threshold.cpp

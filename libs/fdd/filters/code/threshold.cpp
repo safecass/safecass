@@ -16,10 +16,11 @@
 #include "dict.h"
 #include "jsonSerializer.h"
 #include "eventPublisherBase.h"
+#include "filterFactory.h"
 
 namespace SF {
 
-const std::string FilterThreshold::Name = "Threshold";
+const std::string FilterThreshold::Name = "FilterThreshold";
 
 FilterThreshold::FilterThreshold(BaseType::FilterCategory      category, 
                                  const std::string &           targetComponentName,
@@ -70,6 +71,9 @@ void FilterThreshold::Initialize(void)
                                        0));
     SFASSERT(this->AddOutputSignal(outputSignalName,
                                    SignalElement::SCALAR));
+
+    // Register this filter to the filter factory
+    SF_REGISTER_FILTER_TO_FACTORY(FilterThreshold);
 }
 
 FilterThreshold::~FilterThreshold()

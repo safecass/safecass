@@ -87,8 +87,34 @@ public:
     void Cleanup(void) {}
 };
 
+//#include "filterFactory.h"
+
 int main(int argc, char *argv[])
 {
+    // Filter factory testing codes
+#if 0
+    // Construct JSON structure from JSON file
+    const std::string jsonFileName(SF_SOURCE_ROOT_DIR"/examples/filter/filter.json");
+    SF::JSON json;
+    if (!json.ReadFromFile(jsonFileName)) {
+        std::cerr << "AddFilterFromJSONFile: Failed to read json file: " << jsonFileName << std::endl;
+        return 1;
+    }
+
+    const SF::JSON::JSONVALUE filters = json.GetRoot()["filter"];
+    //std::cout << filters[(unsigned int)0] << std::endl;
+
+    SF::FilterBase * filter = SF::FilterFactory::GetInstance()->CreateFilter(
+        "FilterThreshold", filters[(unsigned int)0]);
+
+    if (!filter)
+        std::cerr << "no FilterThreshold\n";
+    else
+        std::cout << *filter << std::endl;
+    
+    return 1;
+#endif
+
     srand(time(NULL));
 
 #if SF_USE_G2LOG

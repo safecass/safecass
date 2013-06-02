@@ -27,7 +27,17 @@ namespace SF {
 class HistoryBufferBase;
 class EventPublisherBase;
 
-class SFLIB_EXPORT FilterBase {
+// Helper macros to ease implementation of Create() function
+#define SF_IMPLEMENT_FACTORY_CREATE(_className)\
+    static FilterBase * Create(const SF::JSON::JSONVALUE & jsonNode) {\
+        return new _className(jsonNode);\
+    }
+
+#define SF_REGISTER_FILTER_TO_FACTORY(_className)\
+    FilterFactory::GetInstance()->RegisterFilter(#_className, &_className::Create);
+
+class SFLIB_EXPORT FilterBase
+{
 public:
     //! Typedef of numerical representation of unique filter id
     typedef int FilterIDType;
@@ -68,6 +78,9 @@ public:
     typedef std::vector<SignalElement*> SignalElementsType;
     // not used now: TODO: remove this if not used anymore
     //typedef std::vector<std::string> SignalNamesType;
+
+    //! Typedef for filter factory
+    typedef FilterBase * (*CreateFilterFuncType)(const JSON::JSONVALUE & jsonNode);
 
 private:
     //! UID of this filters

@@ -86,6 +86,9 @@ public:
 
     //! Name of this filter
     static const std::string Name;
+
+    //! For filter factory 
+    SF_IMPLEMENT_FACTORY_CREATE(FilterThreshold);
 };
 
 };
