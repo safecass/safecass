@@ -53,6 +53,33 @@ endif ()
 #    set (SF_ON_QNX ON)
 #else if (UNIX)
 
+# Detecting compiler
+set (SF_COMPILER "")
+if (SF_ON_WINDOWS)
+    if (MINGW) # MinGW compiler in Windows
+        set (SF_COMPILER "MinGW") 
+    elseif (MSYS) # MSYS developer environment in Windows
+        set (SF_COMPILER "MSYS")
+    elseif (BORLAND) # Borland compiler in Windows
+        set (SF_COMPILER "Borland")
+    elseif (WATCOM) # Open Watcom compiler in Windows
+        set (SF_COMPILER "Watcom")
+    elseif (MSVC OR MSVC_IDE OR MSVC60 OR MSVC70 OR MSVC71 OR MSVC80 OR
+            CMAKE_COMPILER_2005 OR MSVC90) # Microsoft Visual Studio
+        set (SF_COMPILER "MSVS")
+    endif()
+else (SF_ON_WINDOWS)
+    if (CMAKE_COMPILER_IS_GNUCC) # variant of GCC
+        set (SF_COMPILER "gcc variant")
+    elseif (CMAKE_COMPILER_IS_GNUCXX) # variant of g++
+        set (SF_COMPILER "g++ variant")
+    elseif (CYGWIN) # Cygwin
+        set (SF_COMPILER "Cygwin")
+    endif()
+endif (SF_ON_WINDOWS)
+
+message("Compiler detected: ${SF_COMPILER}")
+
 # option to organize targets in folders
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
