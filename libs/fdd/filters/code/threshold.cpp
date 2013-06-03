@@ -79,9 +79,10 @@ void FilterThreshold::Initialize(void)
 FilterThreshold::~FilterThreshold()
 {}
 
-void FilterThreshold::Initialize(const std::string & param)
+bool FilterThreshold::InitFilter(void)
 {
     // NOP
+    return true;
 }
 
 void FilterThreshold::RunFilter(void)
@@ -125,7 +126,7 @@ void FilterThreshold::RunFilter(void)
     }
 }
 
-void FilterThreshold::FilterThreshold::Cleanup(void)
+void FilterThreshold::FilterThreshold::CleanupFilter(void)
 {
     // NOP
 }

@@ -50,6 +50,7 @@ protected:
     //! Output when input exceeds threshold specified
     SignalElement::ScalarType Output1;
 
+    //! initialize internal variables (called by constructor)
     void Initialize(void);
 
 public:
@@ -69,9 +70,9 @@ public:
     ~FilterThreshold();
 
     //! Implements pure virtual methods including thresholding algorithm
-    void Initialize(const std::string & param);
+    bool InitFilter(void);
     void RunFilter(void);
-    void Cleanup(void);
+    void CleanupFilter(void);
 
     //! Implements string representation of fault diagnosis and identification
     const std::string GenerateFDIJSON(double severity, double timestamp) const;
