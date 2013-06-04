@@ -26,7 +26,7 @@ protected:
     //! Convert Monitor topic messages from JSON to MongoDB entry format
     static const std::string ConvertTopicMesssageToDBEntry_Monitor(JSONSerializer & jsonSerializer);
     //! Convert Fault topic messages from JSON to MongoDB entry format
-    static const std::string ConvertTopicMesssageToDBEntry_Fault(JSONSerializer & jsonSerializer);
+    static const std::string ConvertTopicMesssageToDBEntry_Event(JSONSerializer & jsonSerializer);
 
 public:
     //! Constructor

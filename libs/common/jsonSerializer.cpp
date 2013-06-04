@@ -42,11 +42,10 @@ void JSONSerializer::Initialize(void)
     Common.Timestamp     = 0;
 
     Monitor.Type = Monitor::TARGET_INVALID;
-    Monitor.Fields.clear();
+    Monitor.Json.clear();
 
-    Fault.Type = Fault::FAULT_INVALID;
-    Fault.DetectorName = "";
-    Fault.Fields.clear();
+    Event.Type = Event::EVENT_INVALID;
+    Event.Json.clear();
 }
 
 JSONSerializer::~JSONSerializer(void)
@@ -64,17 +63,17 @@ JSONSerializer::~JSONSerializer(void)
 const std::string JSONSerializer::GetTopicTypeString(TopicType topicType)
 {
     switch (topicType) {
-        case MONITOR: return STR(monitor);
-        case FAULT: return STR(fault);
+        case MONITOR:    return STR(monitor);
+        case EVENT:      return STR(event);
         case SUPERVISOR: return STR(supervisor);
-        default: return STR(INVALID);
+        default:         return STR(INVALID);
     }
 }
 
 JSONSerializer::TopicType JSONSerializer::GetTopicTypeFromString(const std::string & topicTypeString)
 {
-    if (topicTypeString.compare(STR(monitor)) == 0) return MONITOR;
-    if (topicTypeString.compare(STR(fault)) == 0) return FAULT;
+    if (topicTypeString.compare(STR(monitor)) == 0)    return MONITOR;
+    if (topicTypeString.compare(STR(event)) == 0)      return EVENT;
     if (topicTypeString.compare(STR(supervisor)) == 0) return SUPERVISOR;
 
     return INVALID;
@@ -104,20 +103,20 @@ void JSONSerializer::SetEventLocation(EventLocationBase * location)
 
 const std::string JSONSerializer::GetJSON(void) const
 {
-    ::Json::Value root;
+    JSON::JSONVALUE root;
 
     // Common::identity
-    {   ::Json::Value _root;
+    {   JSON::JSONVALUE _root;
         _root[topic] = GetTopicTypeString(Common.Topic);
 
         root[identity] = _root;
     }
     
     // Common::localization
-    {   ::Json::Value _root;
+    {   JSON::JSONVALUE _root;
         _root[timestamp] = Common.Timestamp;
 
-        ::Json::Value __root;
+        JSON::JSONVALUE __root;
         if (Common.EventLocation) {
 #ifdef SF_HAS_CISST
             cisstEventLocation * cisstLocation = dynamic_cast<cisstEventLocation *>(Common.EventLocation);
@@ -147,20 +146,20 @@ const std::string JSONSerializer::GetJSON(void) const
     switch (Common.Topic) {
         case MONITOR:
             {
-                ::Json::Value _root(Monitor.Fields);
+                JSON::JSONVALUE _root(Monitor.Json);
                 _root[type] = Monitor::GetTargetTypeString(Monitor.Type);
 
                 root[monitor] = _root;
             }
             break;
 
-        case FAULT:
+        case EVENT:
             {
-                ::Json::Value _root(Fault.Fields);
-                _root[type] = Fault::GetFaultTypeString(Fault.Type);
-                _root[detector] = Fault.DetectorName;
+                JSON::JSONVALUE _root(Event.Json);
+                _root[type] = Event::GetEventTypeString(Event.Type);
+                //_root[detector] = Fault.DetectorName;
 
-                root[fault] = _root;
+                root[event] = _root;
             }
             break;
 
@@ -205,19 +204,19 @@ bool JSONSerializer::ParseJSON(const std::string & message)
             {
                 Monitor.Type = Monitor::GetTargetTypeFromString(values[monitor].get(type, "").asString());
 
-                Monitor.Fields = values[monitor];
-                Monitor.Fields.removeMember(type);
+                Monitor.Json= values[monitor];
+                Monitor.Json.removeMember(type);
             }
             break;
 
-        case FAULT:
+        case EVENT:
             {
-                Fault.Type = Fault::GetFaultTypeFromString(values[fault].get(type, "").asString());
-                Fault.DetectorName = values[fault].get(detector, "").asString();
+                Event.Type = Event::GetEventTypeFromString(values[event].get(type, "").asString());
+                //Fault.DetectorName = values[fault].get(detector, "").asString();
 
-                Fault.Fields = values[fault];
-                Fault.Fields.removeMember(type);
-                Fault.Fields.removeMember(detector);
+                Event.Json = values[event];
+                Event.Json.removeMember(type);
+                Event.Json.removeMember(detector);
             }
             break;
 

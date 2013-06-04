@@ -18,7 +18,7 @@
 #include "json.h"
 #include "eventLocationBase.h"
 #include "monitor.h"
-#include "fault.h"
+#include "event.h"
 
 namespace SF {
 
@@ -33,7 +33,7 @@ public:
     typedef enum {
         INVALID,
         MONITOR,    /*!< monitoring */
-        FAULT,      /*!< fault detection and diagnosis */
+        EVENT,      /*!< events (fault, error, failures) */
         SUPERVISOR  /*!< supervisory control messages for fault tolerance and removal */
     } TopicType;
 
@@ -52,18 +52,18 @@ protected:
     struct {
         //! Common field
         Monitor::TargetType Type;
-        //! Monitor-specific fields
-        JSON::JSONVALUE Fields;
+        //! Monitor-specific values
+        JSON::JSONVALUE Json;
     } Monitor;
 
-    //! Fault topic
+    //! Event topic
     struct {
         //! Common fields
-        Fault::FaultType Type;
-        std::string DetectorName;
-        //! Fault-specific fields
-        JSON::JSONVALUE Fields;
-    } Fault;
+        Event::EventType Type;
+        //std::string DetectorName;
+        //! Event-specific values
+        JSON::JSONVALUE Json;
+    } Event;
 
     //! Initialization
     void Initialize(void);
@@ -98,13 +98,22 @@ public:
     //! Monitor::Type
     inline Monitor::TargetType GetMonitorTargetType(void) const                 { return Monitor.Type; }
     inline void                SetMonitorTargetType(Monitor::TargetType target) { Monitor.Type = target; }
-    //! Monitor::Fields
-    inline JSON::JSONVALUE & GetMonitorFields(void) { return Monitor.Fields; }
+    //! Returns json container for monitor specific values
+    inline JSON::JSONVALUE &   GetMonitorFields(void) { return Monitor.Json; }
     /*! @} */
 
-    /*! \addtogroup Accessors for Fault messages
+    /*! \addtogroup Accessors for Event messages
         @{
      */
+    //! Event::Type
+    inline Event::EventType  GetEventType(void) const                 { return Event.Type; }
+    inline void              SetEventType(Event::EventType eventType) { Event.Type = eventType; }
+    //! Returns json container for event specific values
+    inline JSON::JSONVALUE & GetEventSpecificJson(void) { return Event.Json; }
+
+    // For faults
+    // TODO
+#if 0
     // Fault::Type
     inline Fault::FaultType GetFaultType(void) const                 { return Fault.Type; }
     inline void             SetFaultType(Fault::FaultType faultType) { Fault.Type = faultType; }
@@ -113,6 +122,19 @@ public:
     inline void              SetFaultDetectorName(const std::string & name) { Fault.DetectorName = name; }
     // Fault::Fields
     inline JSON::JSONVALUE & GetFaultFields(void) { return Fault.Fields; }
+#endif
+
+    // For errors
+    // TODO
+
+    // For failures
+    // TODO
+
+    // Fault::Detector
+    //inline const std::string GetFaultDetectorName(void) const               { return Fault.DetectorName; }
+    //inline void              SetFaultDetectorName(const std::string & name) { Fault.DetectorName = name; }
+    // Fault::Fields
+    //inline JSON::JSONVALUE & GetFaultFields(void) { return Fault.Fields; }
     /*! @} */
 
     /*! \addtogroup Getters

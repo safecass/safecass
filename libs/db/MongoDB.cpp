@@ -36,8 +36,8 @@ const std::string MongoDB::ConvertTopicMesssageToDBEntry(const JSONSerializer::T
     switch (topic) {
         case JSONSerializer::MONITOR:
             return ConvertTopicMesssageToDBEntry_Monitor(jsonSerializer);
-        case JSONSerializer::FAULT:
-            return ConvertTopicMesssageToDBEntry_Fault(jsonSerializer);
+        case JSONSerializer::EVENT:
+            return ConvertTopicMesssageToDBEntry_Event(jsonSerializer);
         case JSONSerializer::SUPERVISOR:
         case JSONSerializer::INVALID:
         default:
@@ -54,7 +54,7 @@ const std::string MongoDB::ConvertTopicMesssageToDBEntry_Monitor(JSONSerializer 
     entry[SF::Dict::Json::time] = GetCurrentUTCTimeString();
 
     // Monitor data sample
-    Json::Value _data;
+    JSON::JSONVALUE _data;
     _data[process]   = jsonSerializer.GetEventLocation()->GetProcessName();
     _data[component] = jsonSerializer.GetEventLocation()->GetComponentName();
 
@@ -106,8 +106,10 @@ const std::string MongoDB::ConvertTopicMesssageToDBEntry_Monitor(JSONSerializer 
     return ss.str();
 }
 
-const std::string MongoDB::ConvertTopicMesssageToDBEntry_Fault(JSONSerializer & jsonSerializer)
+const std::string MongoDB::ConvertTopicMesssageToDBEntry_Event(JSONSerializer & jsonSerializer)
 {
+    // FIXME
+#if 0
     // Json placeholder for DB entry
     JSON::JSONVALUE entry;
 
@@ -115,7 +117,7 @@ const std::string MongoDB::ConvertTopicMesssageToDBEntry_Fault(JSONSerializer & 
     entry[SF::Dict::Json::time] = GetCurrentUTCTimeString();
 
     // Fault information
-    Json::Value _data;
+    JSON::JSONVALUE _data;
     _data[process]   = jsonSerializer.GetEventLocation()->GetProcessName();
     _data[component] = jsonSerializer.GetEventLocation()->GetComponentName();
 
@@ -162,6 +164,8 @@ const std::string MongoDB::ConvertTopicMesssageToDBEntry_Fault(JSONSerializer & 
     ss << entry;
 
     return ss.str();
+#endif
+    return std::string("FIXME");
 }
 
 }

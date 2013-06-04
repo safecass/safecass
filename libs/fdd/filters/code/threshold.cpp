@@ -142,17 +142,21 @@ const std::string FilterThreshold::GenerateFDIJSON(double severity, double times
     JSONSerializer serializer;
 
     // Populate common fields
-    serializer.SetTopicType(JSONSerializer::FAULT);
+    serializer.SetTopicType(JSONSerializer::EVENT);
     serializer.SetEventLocation(EventLocation);
     serializer.SetTimestamp(timestamp);
 
     // Populate fault information
-    serializer.SetFaultType(Fault::FAULT_APPLICATION);
+    // FIXME
+#if 0
+    serializer.SetEventType(Event::EVENT_FAULT);
+    serializer.SetFaultType(Event::FAULT_APPLICATION);
     serializer.SetFaultDetectorName(this->GetFilterName()); // MJ: could use the name of filter pipeline instead
 
     // Populate fault-specific fields
-    ::Json::Value & fields = serializer.GetFaultFields();
-    fields[SF::Dict::Json::severity] = severity;
+    JSON::JSONVALUE & fields = serializer.GetFaultFields();
+    fields[Dict::Json::severity] = severity;
+#endif
 
     return serializer.GetJSON();
 }

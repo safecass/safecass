@@ -4,7 +4,7 @@
 
   Created on: July 7, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -12,35 +12,39 @@
 
 */
 
-#ifndef _fault_h
-#define _fault_h
+#ifndef _event_h
+#define _event_h
 
 #include "common.h"
 
 namespace SF {
 
-class SFLIB_EXPORT Fault {
+class SFLIB_EXPORT Event
+{
 public:
-    // [SFUPDATE]
+    typedef enum {
+        EVENT_INVALID,
+        EVENT_FAULT,
+        EVENT_ERROR,
+        EVENT_FAILURE
+    } EventType;
+
     typedef enum {
         FAULT_INVALID,
-        // Fault type supported by the framework and middleware
+        // Predefined faults
         FAULT_COMPONENT_PERIOD,   // Timing fault: OS thread scheduling latency
         FAULT_COMPONENT_OVERRUN,  // Timing fault: thread overrun
         // Fault defined by applications
         FAULT_APPLICATION
     } FaultType;
 
-public:
-    Fault();
-    virtual ~Fault();
-
-    /*! Return string that corresponds to fault type */
+    static const std::string GetEventTypeString(EventType Type);
     static const std::string GetFaultTypeString(FaultType faultType);
-    /*! Return fault type from string */
+
+    static EventType GetEventTypeFromString(const std::string & eventString);
     static FaultType GetFaultTypeFromString(const std::string & faultString);
 };
 
 };
 
-#endif // _fault_h
+#endif // _event_h

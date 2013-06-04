@@ -76,6 +76,8 @@ void FilterBase::Initialize(void)
 
     EventPublisher = 0;
     EventLocation  = 0;
+
+    EventState = FilterBase::NONE;
 }
 
 FilterBase::~FilterBase()

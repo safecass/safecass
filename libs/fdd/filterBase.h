@@ -79,8 +79,16 @@ public:
     // not used now: TODO: remove this if not used anymore
     //typedef std::vector<std::string> SignalNamesType;
 
-    //! Typedef for filter factory
+    //! Typedef for filter factory class registration
     typedef FilterBase * (*CreateFilterFuncType)(const JSON::JSONVALUE & jsonNode);
+
+    /*! \enum SF::FilterBase::EventState
+     * Typedef for filter state to manage events (faults, errors, failures)
+     */
+    typedef enum {
+        NONE,     /*!< default state, no pending event, new event can be detected */
+        DETECTED, /*!< event is detected, no new event can be detected */
+    } EventStateType;
 
 private:
     //! UID of this filters
@@ -119,9 +127,15 @@ protected:
     //! Print out internal debug log if true
     bool PrintDebugLog;
 
-    //! State of this filter (enabled or disabled)
+    //! If this filter is enabled or disabled
     bool Enabled;
 
+    //! Event detection state
+    EventStateType EventState;
+
+    //-------------------------------------------------- 
+    //  Filter Inputs and Outputs
+    //-------------------------------------------------- 
     //! Input signals that this filter uses
     SignalElementsType InputSignals;
     //! Output signals that this filter generates
