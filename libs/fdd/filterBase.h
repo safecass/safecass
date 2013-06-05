@@ -40,7 +40,7 @@ class SFLIB_EXPORT FilterBase
 {
 public:
     //! Typedef of numerical representation of unique filter id
-    typedef int FilterIDType;
+    typedef unsigned int FilterIDType;
 
     //! Typedef for filtering type
     /*! ACTIVE:  filter is processed by the target component and thus the execution time of 
@@ -115,7 +115,7 @@ protected:
     const FilterCategory Category;
 
     //! Name of target component
-    // MJTODO: this can be replaced with MonitorTarget structure(?)
+    // TODO: this can be replaced with MonitorTarget structure(?)
     const std::string NameOfTargetComponent;
 
     //! Filtering type (active or passive)
@@ -271,6 +271,9 @@ public:
 
     SignalElement * GetInputSignalElement(size_t index) const;
     SignalElement * GetOutputSignalElement(size_t index) const;
+
+    inline EventStateType GetEventState(void) const { return EventState; }
+    inline void SetEventState(EventStateType newEventState) { EventState = newEventState; }
 
     //! Sets event publisher instance
     /*! This method should be called BEFORE activating filter
