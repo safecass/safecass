@@ -39,14 +39,19 @@ namespace SF {
 
         /*! State entry and exit events */
         typedef enum {
+            // state machine
             STATEMACHINE_ON_ENTRY,
             STATEMACHINE_ON_EXIT,
+            // normal state
             NORMAL_ON_ENTRY,
             NORMAL_ON_EXIT,
+            // fault state
             FAULT_ON_ENTRY,
             FAULT_ON_EXIT,
+            // error state
             ERROR_ON_ENTRY,
             ERROR_ON_EXIT,
+            // failure state
             FAILURE_ON_ENTRY,
             FAILURE_ON_EXIT
         } StateEntryExitType;

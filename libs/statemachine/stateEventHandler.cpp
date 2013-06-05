@@ -26,12 +26,12 @@ StateEventHandler::~StateEventHandler(void)
 
 void StateEventHandler::OnStateEntryOrExit(const State::StateEntryExitType stateEntryExit)
 {
-    std::cout << "OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
+    std::cout << "Base state machine: OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
 }
 
 void StateEventHandler::OnStateTransition(const State::TransitionType transition)
 {
-    std::cout << "OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
+    std::cout << "Base state machine: OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
 }
 
 };
