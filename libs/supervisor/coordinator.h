@@ -62,6 +62,11 @@ public:
      */
     virtual bool DeployMonitorsAndFDDs(void) = 0;
 
+    //! Handle event (fault, error, failure)
+    /*! Middleware specific: This method should be overriden by derived class
+     */
+    virtual void OnFaultEvent(const std::string & json) = 0;
+
     //! For human-readable logging and debugging
     /*! \param outputStream output stream
         \param includeLocation target location is printed if yes (default: yes)
