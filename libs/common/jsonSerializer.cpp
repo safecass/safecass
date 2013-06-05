@@ -37,6 +37,7 @@ JSONSerializer::JSONSerializer(void)
 
 void JSONSerializer::Initialize(void)
 {
+    Common.FilterUID     = 0;
     Common.Topic         = JSONSerializer::INVALID;
     Common.EventLocation = 0;
     Common.Timestamp     = 0;
@@ -105,11 +106,12 @@ const std::string JSONSerializer::GetJSON(void) const
 {
     JSON::JSONVALUE root;
 
-    // Common::identity
+    // Common::common
     {   JSON::JSONVALUE _root;
+        _root[filter_uid] = Common.FilterUID;
         _root[topic] = GetTopicTypeString(Common.Topic);
 
-        root[identity] = _root;
+        root[common] = _root;
     }
     
     // Common::localization
@@ -143,6 +145,7 @@ const std::string JSONSerializer::GetJSON(void) const
         root[localization] = _root;
     }
 
+    // Common::Topic
     switch (Common.Topic) {
         case MONITOR:
             {
@@ -189,7 +192,8 @@ bool JSONSerializer::ParseJSON(const std::string & message)
     Json::Value & values = json.GetRoot();
 
     // Populate common fields
-    Common.Topic = GetTopicTypeFromString(values[identity].get(topic, "").asString());
+    Common.FilterUID = values[common].get(filter_uid, 0).asInt();
+    Common.Topic = GetTopicTypeFromString(values[common].get(topic, "").asString());
     Common.Timestamp = values[localization].get(timestamp, 0.0).asDouble();
 #ifdef SF_HAS_CISST
     Common.EventLocation = new cisstEventLocation;

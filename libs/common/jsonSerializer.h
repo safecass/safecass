@@ -19,6 +19,7 @@
 #include "eventLocationBase.h"
 #include "monitor.h"
 #include "event.h"
+#include "filterBase.h"
 
 namespace SF {
 
@@ -40,6 +41,8 @@ public:
 protected:
     //! Common Fields
     struct {
+        //! Filter UID
+        FilterBase::FilterIDType FilterUID;
         //! Type of topic (enum variable)
         TopicType Topic;
         //! Location of event (middleware specific)
@@ -81,6 +84,9 @@ public:
     /*! \addtogroup Accessors for common fields
         @{
      */
+    //! Common::FilterUID
+    inline FilterBase::FilterIDType GetFilterUID(void) const { return Common.FilterUID; }
+    inline void SetFilterUID(const FilterBase::FilterIDType uid) { Common.FilterUID = uid; }
     //! Common::Topic
     inline TopicType GetTopicType(void) const                { return Common.Topic; }
     inline void      SetTopicType(const TopicType topicType) { Common.Topic = topicType; }
