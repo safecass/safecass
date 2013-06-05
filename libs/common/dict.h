@@ -37,6 +37,7 @@ namespace SF {
             DEFINE_KEYWORD(component);
             DEFINE_KEYWORD(config);
             DEFINE_KEYWORD(command);
+            DEFINE_KEYWORD(common);
             DEFINE_KEYWORD(custom);
             DEFINE_KEYWORD(data);
             DEFINE_KEYWORD(detector);
@@ -50,9 +51,9 @@ namespace SF {
             DEFINE_KEYWORD(fault);
             DEFINE_KEYWORD(fault_application);
             DEFINE_KEYWORD(filter);
+            DEFINE_KEYWORD(filter_uid);
             DEFINE_KEYWORD(filter_event); // MJTEMP: am I using this?
             DEFINE_KEYWORD(function);
-            DEFINE_KEYWORD(identity);
             DEFINE_KEYWORD(interface_provided);
             DEFINE_KEYWORD(interface_required);
             DEFINE_KEYWORD(invalid);
