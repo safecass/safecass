@@ -82,13 +82,16 @@ public:
     //! Typedef for filter factory class registration
     typedef FilterBase * (*CreateFilterFuncType)(const JSON::JSONVALUE & jsonNode);
 
-    /*! \enum SF::FilterBase::EventState
-     * Typedef for filter state to manage events (faults, errors, failures)
+    /*! \enum SF::FilterBase::FilterState
+     * Typedef for internal state of filter.  A filter has to be explicitly enabled to be
+     * used because its internal state is initialized as DISABLED.
      */
     typedef enum {
-        NONE,     /*!< default state, no pending event, new event can be detected */
-        DETECTED, /*!< event is detected, no new event can be detected */
-    } EventStateType;
+        DISABLED, /*!< disabled (default state) */
+        ENABLED,  /*!< enabled, no pending event, new event can be detected */
+        DETECTED, /*!< enabled with event detected, waiting for the event to be cleared,
+                       no new event can be detected */
+    } FilterStateType;
 
 private:
     //! UID of this filters
@@ -127,11 +130,8 @@ protected:
     //! Print out internal debug log if true
     bool PrintDebugLog;
 
-    //! If this filter is enabled or disabled
-    bool Enabled;
-
     //! Event detection state
-    EventStateType EventState;
+    FilterStateType FilterState;
 
     //-------------------------------------------------- 
     //  Filter Inputs and Outputs
@@ -256,8 +256,8 @@ public:
     inline FilteringType       GetFilteringType(void) const { return Type; }
     inline bool IsLastFilterOfPipeline(void) const { return LastFilterOfPipeline; }
 
-    inline bool IsEnabled(void) const { return Enabled; }
-    inline void Enable(bool enable = true) { this->Enabled = enable; }
+    bool IsEnabled(void) const;
+    void Enable(bool enable = true);
 
     inline size_t GetNumberOfInputs(void) const { return InputSignals.size(); }
     inline size_t GetNumberOfOutputs(void) const { return OutputSignals.size(); }
@@ -272,8 +272,8 @@ public:
     SignalElement * GetInputSignalElement(size_t index) const;
     SignalElement * GetOutputSignalElement(size_t index) const;
 
-    inline EventStateType GetEventState(void) const { return EventState; }
-    inline void SetEventState(EventStateType newEventState) { EventState = newEventState; }
+    inline FilterStateType GetFilterState(void) const { return FilterState; }
+    inline void SetFilterState(FilterStateType newFilterState) { FilterState = newFilterState; }
 
     //! Sets event publisher instance
     /*! This method should be called BEFORE activating filter
@@ -303,6 +303,11 @@ public:
     static const std::string GetFilteringTypeString(const FilteringType type);
     //! Convert string to filtering type
     static FilteringType GetFilteringTypeFromString(const std::string & str);
+
+    //! Convert filter state to string
+    static const std::string GetFilterStateString(const FilterStateType state);
+    //! Convert string to filter state
+    static FilterStateType GetFilterStateFromString(const std::string & str);
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const FilterBase & filter)

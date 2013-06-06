@@ -24,11 +24,14 @@ namespace SF {
     namespace Dict {
 
         DEFINE_KEYWORD(ACTIVE);
-        DEFINE_KEYWORD(PASSIVE);
+        DEFINE_KEYWORD(DETECTED);
+        DEFINE_KEYWORD(DISABLED);
+        DEFINE_KEYWORD(ENABLED);
         DEFINE_KEYWORD(EVENT);
         DEFINE_KEYWORD(INVALID);
-        DEFINE_KEYWORD(ON);
         DEFINE_KEYWORD(OFF);
+        DEFINE_KEYWORD(ON);
+        DEFINE_KEYWORD(PASSIVE);
         DEFINE_KEYWORD(STREAM);
 
         namespace Json {

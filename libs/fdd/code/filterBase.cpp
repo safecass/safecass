@@ -70,14 +70,12 @@ FilterBase::FilterBase(const std::string & filterName, const JSON::JSONVALUE & j
 void FilterBase::Initialize(void)
 {
     PrintDebugLog = false;
-    // MJ: if filter is enabled when constructed, the first few inputs and outputs could
-    // be corrupted.
-    Enabled       = false;
-
     EventPublisher = 0;
     EventLocation  = 0;
 
-    EventState = FilterBase::NONE;
+    // To prevent filters from reading and using non-initialized values, filters are 
+    // initially disabled.
+    FilterState = FilterBase::DISABLED;
 }
 
 FilterBase::~FilterBase()
@@ -141,6 +139,29 @@ std::string FilterBase::GenerateOutputSignalName(const std::string & prefix,
 const std::string FilterBase::GenerateFDIJSON(double severity, double timestamp) const
 {
     return std::string("n/a (not implemented)");
+}
+
+bool FilterBase::IsEnabled(void) const
+{
+    return (FilterState != FilterBase::DISABLED);
+}
+
+void FilterBase::Enable(bool enable)
+{
+    if (enable) {
+        // When enabling a filter, it can be either in the ENABLED or DETECTED state.
+        if (IsEnabled())
+            return;
+        FilterState = FilterBase::ENABLED;
+    } else {
+        // If a filter detected an event which has not been resolved yet, SF should inform
+        // the user of the pending event.
+        if (FilterState == FilterBase::DETECTED) {
+            // TODO: print out detailed information about pending event
+            SFLOG_WARNING << "Warning: filter [ " << *this << " ] has pending event" << std::endl;
+        }
+        FilterState = FilterBase::DISABLED;
+    }
 }
 
 std::string FilterBase::GetInputSignalName(size_t index) const
@@ -241,7 +262,7 @@ void FilterBase::ToStream(std::ostream & outputStream) const
     outputStream << ", ";
     outputStream << "Target component: \"" << NameOfTargetComponent << "\", "
                  << "Filtering type: " << (Type == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
-                 << "State: " << (Enabled ? "ENABLED" : "DISABLED");
+                 << "State: " << GetFilterStateString(FilterState);
     outputStream << ", Event location: " << (EventLocation ? "Available" : "n/a");
     if (LastFilterOfPipeline)
         outputStream << ", Event publisher: " << (EventPublisher ? "installed" : "n/a");
@@ -311,6 +332,29 @@ FilterBase::FilteringType FilterBase::GetFilteringTypeFromString(const std::stri
     if (_str.compare(Dict::PASSIVE) == 0) return PASSIVE;
 
     return ACTIVE;
+}
+
+const std::string FilterBase::GetFilterStateString(const FilterStateType state)
+{
+    switch (state) {
+    case DISABLED: return Dict::DISABLED;
+    case ENABLED:  return Dict::ENABLED;
+    case DETECTED: return Dict::DETECTED;
+    }
+
+    return Dict::INVALID;
+}
+
+FilterBase::FilterStateType FilterBase::GetFilterStateFromString(const std::string & str)
+{
+    std::string _str(str);
+    to_uppercase(_str);
+
+    if (_str.compare(Dict::DISABLED) == 0)  return DISABLED;
+    if (_str.compare(Dict::ENABLED) == 0)   return ENABLED;
+    if (_str.compare(Dict::DETECTED) == 0)  return DETECTED;
+
+    return DISABLED;
 }
 
 };
