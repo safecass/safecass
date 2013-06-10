@@ -21,6 +21,7 @@
 #include "signal.h"
 #include "eventLocationBase.h"
 #include "json.h"
+#include "event.h"
 
 namespace SF {
 
@@ -132,6 +133,9 @@ protected:
 
     //! Event detection state
     FilterStateType FilterState;
+
+    //! Event that this filter detected, which needs to be handled (or removed)
+    Event * EventDetected;
 
     //-------------------------------------------------- 
     //  Filter Inputs and Outputs
@@ -264,15 +268,14 @@ public:
     //! Enable or disable this filter
     void Enable(bool enable = true);
 
+    //! Set event detected
+    bool SetEventDetected(const std::string & json);
+    bool SetEventDetected(Event * event);
     //! Does this filter have any pending event?
+    /*! TODO: if filter needs to handle multiple types of events, HasPendingEvent() has to
+     *  accpet parameter(s) to specify type(s) of events.
+     */
     bool HasPendingEvent(void) const;
-
-    //
-    //
-    // SMMY: Create SF::Event class to model events
-    //
-    //
-    //void SetEventDetected(/*TODO*/);
 
     inline size_t GetNumberOfInputs(void) const { return InputSignals.size(); }
     inline size_t GetNumberOfOutputs(void) const { return OutputSignals.size(); }

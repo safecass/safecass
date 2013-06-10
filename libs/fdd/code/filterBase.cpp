@@ -75,7 +75,8 @@ void FilterBase::Initialize(void)
 
     // To prevent filters from reading and using non-initialized values, filters are 
     // initially disabled.
-    FilterState = FilterBase::DISABLED;
+    FilterState   = FilterBase::DISABLED;
+    EventDetected = 0;
 }
 
 FilterBase::~FilterBase()
@@ -150,6 +151,10 @@ bool FilterBase::IsEnabled(void) const {
 }
 
 bool FilterBase::HasPendingEvent(void) const {
+    // integrity check
+    if (FilterState == FilterBase::DETECTED) {
+        SFASSERT(EventDetected);
+    }
     return (FilterState == FilterBase::DETECTED);
 }
 
@@ -362,6 +367,31 @@ FilterBase::FilterStateType FilterBase::GetFilterStateFromString(const std::stri
     if (_str.compare(Dict::DETECTED) == 0)  return DETECTED;
 
     return DISABLED;
+}
+
+bool FilterBase::SetEventDetected(Event * event)
+{
+    if (!event)
+        return false;
+
+    EventDetected = event;
+
+    return true;
+}
+
+bool FilterBase::SetEventDetected(const std::string & json)
+{
+    if (!HasPendingEvent()) {
+        SFLOG_ERROR << "SetEventDetected: this filter already found event: \n" << json << std::endl;
+        return false;
+    }
+
+    // TODO
+    // 1. parse JSON
+    // 2. create event instance
+    // 3. call the other SetEventDetected method
+
+    return false; // FIXME
 }
 
 };
