@@ -17,13 +17,57 @@
 
 namespace SF {
 
+Event::Event(void)
+    : Type(Event::INVALID), 
+      TypeFault(Event::FAULT_INVALID), 
+      TypeError(Event::ERROR_INVALID), 
+      TypeFailure(Event::FAILURE_INVALID), 
+      Name("undefined"), Location(0), Timestamp(0)
+{}
+
+Event::Event(EventType           type, 
+             FaultType           typeFault,
+             const std::string & name,
+             EventLocationBase * location,
+             double              timestamp)
+    : Type(type),
+      TypeError(Event::ERROR_INVALID), 
+      TypeFault(typeFault), 
+      TypeFailure(Event::FAILURE_INVALID), 
+      Name(name), Location(location), Timestamp(timestamp)
+{}
+
+Event::Event(EventType           type, 
+             ErrorType           typeError,
+             const std::string & name,
+             EventLocationBase * location,
+             double              timestamp)
+    : Type(type),
+      TypeError(typeError), 
+      TypeFault(Event::FAULT_INVALID), 
+      TypeFailure(Event::FAILURE_INVALID), 
+      Name(name), Location(location), Timestamp(timestamp)
+{}
+
+Event::Event(EventType           type, 
+             FailureType         typeFailure,
+             const std::string & name,
+             EventLocationBase * location,
+             double              timestamp)
+    : Type(type), 
+      TypeFault(Event::FAULT_INVALID), 
+      TypeError(Event::ERROR_INVALID), 
+      TypeFailure(typeFailure), 
+      Name(name), Location(location), Timestamp(timestamp)
+{}
+
 const std::string Event::GetEventTypeString(EventType event)
 {
     switch (event) {
-        case EVENT_FAULT:   return STR(FAULT);
-        case EVENT_ERROR:   return STR(ERROR);
-        case EVENT_FAILURE: return STR(FAILURE);
-        default:            return STR(INVALID);
+        case FAULT:   return STR(FAULT);
+        case ERROR:   return STR(ERROR);
+        case FAILURE: return STR(FAILURE);
+        default:      return STR(INVALID);
     }
 }
 
@@ -42,11 +86,11 @@ Event::EventType Event::GetEventTypeFromString(const std::string & str)
     std::string _str(str);
     to_uppercase(_str);
 
-    if (_str.compare(STR(FAULT)) == 0)   return EVENT_FAULT;
-    if (_str.compare(STR(ERROR)) == 0)   return EVENT_ERROR;
-    if (_str.compare(STR(FAILURE)) == 0) return EVENT_FAILURE;
+    if (_str.compare(STR(FAULT)) == 0)   return FAULT;
+    if (_str.compare(STR(ERROR)) == 0)   return ERROR;
+    if (_str.compare(STR(FAILURE)) == 0) return FAILURE;
 
-    return EVENT_INVALID;
+    return INVALID;
 }
 
 Event::FaultType Event::GetFaultTypeFromString(const std::string & str)

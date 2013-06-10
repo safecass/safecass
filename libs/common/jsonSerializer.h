@@ -16,7 +16,6 @@
 #define _jsonSerializer_h
 
 #include "json.h"
-#include "eventLocationBase.h"
 #include "monitor.h"
 #include "event.h"
 #include "filterBase.h"
@@ -33,9 +32,9 @@ class SFLIB_EXPORT JSONSerializer {
 public:
     typedef enum {
         INVALID,
-        MONITOR,    /*!< monitoring */
-        EVENT,      /*!< events (fault, error, failures) */
-        SUPERVISOR  /*!< supervisory control messages for fault tolerance and removal */
+        MONITOR,    /*!< monitoring (see SF::Monitor) */
+        EVENT,      /*!< events (e.g., fault, error, failures; see SF::Event) */
+        SUPERVISOR  /*!< supervisory control messages (TODO: SF::Supervisory) */
     } TopicType;
 
 protected:
@@ -63,6 +62,7 @@ protected:
     struct {
         //! Common fields
         Event::EventType Type;
+        std::string      Name;
         //std::string DetectorName;
         //! Event-specific values
         JSON::JSONVALUE Json;
@@ -80,6 +80,9 @@ public:
 
     //! Rebuild topic information based on JSON
     bool ParseJSON(const std::string & message);
+
+    //! Populate event topic with SF::Event object
+    void SetEvent(const SF::Event & event);
 
     /*! \addtogroup Accessors for common fields
         @{
@@ -114,34 +117,9 @@ public:
     //! Event::Type
     inline Event::EventType  GetEventType(void) const                 { return Event.Type; }
     inline void              SetEventType(Event::EventType eventType) { Event.Type = eventType; }
+    inline void              SetEventName(const std::string & name)   { Event.Name = name; }
     //! Returns json container for event specific values
     inline JSON::JSONVALUE & GetEventSpecificJson(void) { return Event.Json; }
-
-    // For faults
-    // TODO
-#if 0
-    // Fault::Type
-    inline Fault::FaultType GetFaultType(void) const                 { return Fault.Type; }
-    inline void             SetFaultType(Fault::FaultType faultType) { Fault.Type = faultType; }
-    // Fault::Detector
-    inline const std::string GetFaultDetectorName(void) const               { return Fault.DetectorName; }
-    inline void              SetFaultDetectorName(const std::string & name) { Fault.DetectorName = name; }
-    // Fault::Fields
-    inline JSON::JSONVALUE & GetFaultFields(void) { return Fault.Fields; }
-#endif
-
-    // For errors
-    // TODO
-
-    // For failures
-    // TODO
-
-    // Fault::Detector
-    //inline const std::string GetFaultDetectorName(void) const               { return Fault.DetectorName; }
-    //inline void              SetFaultDetectorName(const std::string & name) { Fault.DetectorName = name; }
-    // Fault::Fields
-    //inline JSON::JSONVALUE & GetFaultFields(void) { return Fault.Fields; }
-    /*! @} */
 
     /*! \addtogroup Getters
         @{

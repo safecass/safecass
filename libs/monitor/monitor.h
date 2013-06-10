@@ -4,7 +4,7 @@
 
   Created on: July 7, 2012
 
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE_1_0.txt or copy at
@@ -20,6 +20,11 @@
 
 namespace SF {
 
+//! Class Monitor
+/** 
+    Monitor defines and implements a monitoring instance that monitors a quantity
+    in the system.
+*/
 class SFLIB_EXPORT Monitor {
 public:
     //! Typedef of numerical representation of unique id of monitor targets

@@ -89,7 +89,7 @@ public:
     typedef enum {
         DISABLED, /*!< disabled (default state) */
         ENABLED,  /*!< enabled, no pending event, new event can be detected */
-        DETECTED, /*!< enabled with event detected, waiting for the event to be cleared,
+        DETECTED  /*!< enabled with event detected, waiting for the event to be cleared,
                        no new event can be detected */
     } FilterStateType;
 
@@ -256,8 +256,23 @@ public:
     inline FilteringType       GetFilteringType(void) const { return Type; }
     inline bool IsLastFilterOfPipeline(void) const { return LastFilterOfPipeline; }
 
+    // queries for filter state 
+    //! Is this filter disabled?
+    bool IsDisabled(void) const;
+    //! Is this filter enabled?
     bool IsEnabled(void) const;
+    //! Enable or disable this filter
     void Enable(bool enable = true);
+
+    //! Does this filter have any pending event?
+    bool HasPendingEvent(void) const;
+
+    //
+    //
+    // SMMY: Create SF::Event class to model events
+    //
+    //
+    //void SetEventDetected(/*TODO*/);
 
     inline size_t GetNumberOfInputs(void) const { return InputSignals.size(); }
     inline size_t GetNumberOfOutputs(void) const { return OutputSignals.size(); }

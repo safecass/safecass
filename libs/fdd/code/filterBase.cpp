@@ -141,9 +141,16 @@ const std::string FilterBase::GenerateFDIJSON(double severity, double timestamp)
     return std::string("n/a (not implemented)");
 }
 
-bool FilterBase::IsEnabled(void) const
-{
+bool FilterBase::IsDisabled(void) const {
+    return !IsEnabled();
+}
+
+bool FilterBase::IsEnabled(void) const {
     return (FilterState != FilterBase::DISABLED);
+}
+
+bool FilterBase::HasPendingEvent(void) const {
+    return (FilterState == FilterBase::DETECTED);
 }
 
 void FilterBase::Enable(bool enable)
@@ -156,7 +163,7 @@ void FilterBase::Enable(bool enable)
     } else {
         // If a filter detected an event which has not been resolved yet, SF should inform
         // the user of the pending event.
-        if (FilterState == FilterBase::DETECTED) {
+        if (HasPendingEvent()) {
             // TODO: print out detailed information about pending event
             SFLOG_WARNING << "Warning: filter [ " << *this << " ] has pending event" << std::endl;
         }

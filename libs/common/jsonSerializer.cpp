@@ -45,7 +45,7 @@ void JSONSerializer::Initialize(void)
     Monitor.Type = Monitor::TARGET_INVALID;
     Monitor.Json.clear();
 
-    Event.Type = Event::EVENT_INVALID;
+    Event.Type = Event::INVALID;
     Event.Json.clear();
 }
 
@@ -238,6 +238,16 @@ bool JSONSerializer::ParseJSON(const std::string & message)
     // Populate fault fields
 
     return true;
+}
+
+void JSONSerializer::SetEvent(const SF::Event & event)
+{
+    SetTopicType(JSONSerializer::EVENT);
+
+    SetEventType(event.GetEventType());
+    SetEventName(event.GetName());
+    SetEventLocation(event.GetLocation());
+    SetTimestamp(event.GetTimestamp());
 }
 
 };
