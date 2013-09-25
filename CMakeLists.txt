@@ -64,21 +64,28 @@ if (SF_ON_WINDOWS)
         set (SF_COMPILER "Borland")
     elseif (WATCOM) # Open Watcom compiler in Windows
         set (SF_COMPILER "Watcom")
-    elseif (MSVC OR MSVC_IDE OR MSVC60 OR MSVC70 OR MSVC71 OR MSVC80 OR
-            CMAKE_COMPILER_2005 OR MSVC90) # Microsoft Visual Studio
-        set (SF_COMPILER "MSVS")
+    #elseif (MSVC OR MSVC_IDE OR MSVC60 OR MSVC70 OR MSVC71 OR MSVC80 OR
+    #        CMAKE_COMPILER_2005 OR MSVC90) # Microsoft Visual Studio
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        set (SF_COMPILER "MSVC")
     endif()
 else (SF_ON_WINDOWS)
-    if (CMAKE_COMPILER_IS_GNUCC) # variant of GCC
-        set (SF_COMPILER "gcc variant")
-    elseif (CMAKE_COMPILER_IS_GNUCXX) # variant of g++
-        set (SF_COMPILER "g++ variant")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set (SF_COMPILER "Clang")
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        set (SF_COMPILER "GCC")
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+        set (SF_COMPILER "Intel")
+  #if (CMAKE_COMPILER_IS_GNUCC) # variant of GCC
+  #      set (SF_COMPILER "gcc variant")
+  #  elseif (CMAKE_COMPILER_IS_GNUCXX) # variant of g++
+  #      set (SF_COMPILER "g++ variant")
     elseif (CYGWIN) # Cygwin
         set (SF_COMPILER "Cygwin")
     endif()
 endif (SF_ON_WINDOWS)
 
-message("Compiler detected: ${SF_COMPILER}")
+message("Compiler: ${SF_COMPILER} detected")
 
 # option to organize targets in folders
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
