@@ -75,7 +75,7 @@ void Publisher::Startup(void)
         }   
     }   
 
-    // Get the topic's publisher object, and create a Clock proxy with
+    // Get the topic's publisher object, and create a SF proxy with
     // the mode specified as an argument of this application.
     Ice::ObjectPrx Publisher = topic->getPublisher();
     if (TopicName.compare(Dict::TopicNames::Monitor) == 0) {

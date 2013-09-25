@@ -95,8 +95,7 @@ void Subscriber::Startup(void)
         }   
     }   
 
-    //Ice::ObjectAdapterPtr adapter = IceCommunicator->createObjectAdapter("MonitorSamples.Subscriber");
-    Ice::ObjectAdapterPtr adapter = IceCommunicator->createObjectAdapter("Clock.Subscriber");
+    Ice::ObjectAdapterPtr adapter = IceCommunicator->createObjectAdapter("SF.Subscriber");
 
     //
     // Add a servant for the Ice object. If --id is used the identity
@@ -105,7 +104,7 @@ void Subscriber::Startup(void)
     // id is not directly altered since it is used below to detect
     // whether subscribeAndGetPublisher can raise AlreadySubscribed.
     //
-    std::string id, retryCount;
+    std::string id(""), retryCount("");
     Ice::Identity subId;
     subId.name = id;
     if(subId.name.empty()) {
