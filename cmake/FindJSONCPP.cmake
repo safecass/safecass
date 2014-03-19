@@ -26,8 +26,10 @@
 #       http://jsoncpp.sourceforge.net
 #
 
-find_path(JSONCPP_INCLUDE_DIR NAMES jsoncpp/json.h DOC "Directory containing jsoncpp/json.h")
-find_library(JSONCPP_LIBRARY NAMES json_linux-gcc-4.2.1_libmt DOC "Path to jsoncpp library")
+#find_path(JSONCPP_INCLUDE_DIR NAMES jsoncpp/json.h DOC "Directory containing jsoncpp/json.h")
+#find_library(JSONCPP_LIBRARY NAMES json_linux-gcc-4.2.1_libmt DOC "Path to jsoncpp library")
+find_path(JSONCPP_INCLUDE_DIR NAMES json.h DOC "Directory containing json.h")
+find_library(JSONCPP_LIBRARY NAMES jsoncpp DOC "Path to jsoncpp library")
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(JSONCPP DEFAULT_MSG JSONCPP_LIBRARY JSONCPP_INCLUDE_DIR)
