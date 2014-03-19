@@ -19,7 +19,11 @@ set (LIB_DIR ${PROJECT_SOURCE_DIR})
 #---------------------------------
 # Collect project files
 #---------------------------------
-set (SF_LIB_INCLUDE_DIR ${LIB_DIR} ${SF_BUILD_ROOT})
+#get_filename_component(BOOST_PARENT_DIR ${BOOST_ROOT})
+#set (SF_LIB_INCLUDE_DIR ${LIB_DIR} ${SF_BUILD_ROOT} )
+#if (BOOST_ROOT)
+#  set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${BOOST_ROOT} ${BOOST_PARENT_DIR})
+#endif()
 
 # common
 set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h ${LIB_DIR}/common/common.cpp
@@ -83,7 +87,7 @@ if (ENABLE_VIS_FRAMEWORK)
                                          ${LIB_DIR}/communicator)
 endif (ENABLE_VIS_FRAMEWORK)
 
-# State machine
+# Boost (requires boost/msm and boost/detail)
 find_package (BoostMSM REQUIRED)
 if (BoostMSM_FOUND)
     set (SF_LIB_STATEMACHINE_INCLUDE_DIR ${Boost_INCLUDE_DIR}
@@ -169,11 +173,8 @@ set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${CMAKE_BINARY_DIR})
 # Find JSON (for JSON-based data exchange)
 find_package (JSONCPP REQUIRED)
 if (JSONCPP_FOUND)
-  message ("JSONCPP found")
   set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${JSONCPP_INCLUDE_DIR})
   set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} ${JSONCPP_LIBRARIES})
-elseif (JSONCPP_FOUND)
-  message (FATAL_ERROR "JSONCPP not found")
 endif (JSONCPP_FOUND)
 
 # Find g2log (for high-performance, safe, asynchronous logging)
