@@ -1,7 +1,7 @@
 #
 # The IceStorm service instance name.
 #
-IceStorm.InstanceName=SFTutorial
+IceStorm.InstanceName=DemoIceStorm
 
 #
 # This property defines the endpoints on which the IceStorm
