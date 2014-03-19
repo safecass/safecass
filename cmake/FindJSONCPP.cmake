@@ -48,47 +48,51 @@ find_library(JSONCPP_LIBRARY NAMES jsoncpp
                              DOC "Path to jsoncpp library"
                              PATHS ${JSONCPP_LIB_DEFAULT_PATH})
 
-if (DEFINED ${JSONCPP_INCLUDE_DIR} AND DEFINED ${JSONCPP_LIBRARY})
+if (DEFINED JSONCPP_INCLUDE_DIR AND DEFINED JSONCPP_LIBRARY)
   message("JSONCPP found")
   set (JSONCPP_FOUND TRUE)
 else()
-  message("JSONCPP not found -- will be downloaded and compiled during build")
+  message("JSONCPP not found")
+  option (JSONCPP_DOWNLOAD "Automatic download and build jsoncpp as part of build process" OFF)
 endif ()
 
 if (JSONCPP_FOUND)
   set(JSONCPP_LIBRARIES ${JSONCPP_LIBRARY})
   set(JSONCPP_INCLUDE_DIR ${JSONCPP_INCLUDE_DIR})# PARENT_SCOPE)
 else ()
-  # if not found, try downloading and building JSON automatically
-  include (ExternalProject)
-  set (JSONCPP_SVN_REPOSITORY svn://svn.code.sf.net/p/jsoncpp/code/trunk/jsoncpp)
-  set (JSONCPP_SVN_REVISION 276)
-  ExternalProject_Add (jsoncppExternal
-                       PREFIX casrosJSON
-                       SVN_REPOSITORY ${JSONCPP_SVN_REPOSITORY}
-                       SVN_REVISION   -r ${JSONCPP_SVN_REVISION}
-                       CMAKE_CACHE_ARGS -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
-                                        -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-                                        -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
-                                        -DOPTION_BUILD_EXAMPLES:BOOL=OFF
-                                        -DJSONCPP_WITH_TESTS:BOOL=OFF
-                                        -DJSONCPP_LIB_BUILD_SHARED:BOOL=ON
-                                        -DJSONCPP_WITH_POST_BUILD_UNITTEST:BOOL=OFF
-                                        -DCMAKE_INSTALL_PREFIX:FILEPATH=${SF_BUILD_ROOT}/external/json
-                       INSTALL_DIR ${SF_BUILD_ROOT}/external/json
-                       )
-  
-  # Set all JSON variables based on install directory
-  set (JSONCPP_INCLUDE_DIR "${SF_BUILD_ROOT}/external/json/include")
-  set (JSONCPP_INCLUDE_DIR ${JSONCPP_INCLUDE_DIR} PARENT_SCOPE)
+  if (JSONCPP_DOWNLOAD)
+    message("JSONCPP will be downloaded and compiled during build")
+    # if not found, try downloading and building JSON automatically
+    include (ExternalProject)
+    set (JSONCPP_SVN_REPOSITORY svn://svn.code.sf.net/p/jsoncpp/code/trunk/jsoncpp)
+    set (JSONCPP_SVN_REVISION 276)
+    ExternalProject_Add (jsoncppExternal
+                        PREFIX casrosJSON
+                        SVN_REPOSITORY ${JSONCPP_SVN_REPOSITORY}
+                        SVN_REVISION   -r ${JSONCPP_SVN_REVISION}
+                        CMAKE_CACHE_ARGS -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
+                                          -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                                          -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
+                                          -DOPTION_BUILD_EXAMPLES:BOOL=OFF
+                                          -DJSONCPP_WITH_TESTS:BOOL=OFF
+                                          -DJSONCPP_LIB_BUILD_SHARED:BOOL=ON
+                                          -DJSONCPP_WITH_POST_BUILD_UNITTEST:BOOL=OFF
+                                          -DCMAKE_INSTALL_PREFIX:FILEPATH=${SF_BUILD_ROOT}/external/json
+                        INSTALL_DIR ${SF_BUILD_ROOT}/external/json
+                        )
+    
+    # Set all JSON variables based on install directory
+    set (JSONCPP_INCLUDE_DIR "${SF_BUILD_ROOT}/external/json/include")
+    set (JSONCPP_INCLUDE_DIR ${JSONCPP_INCLUDE_DIR} PARENT_SCOPE)
 
-  set (JSONCPP_LIBRARY_DIRS "${SF_BUILD_ROOT}/external/json/lib")
-  set (JSONCPP_LIBRARY_DIRS ${JSONCPP_LIBRARY_DIRS} PARENT_SCOPE)
-  set (JSONCPP_LIBRARIES jsoncpp)
-  set (JSONCPP_LIBRARIES ${JSONCPP_LIBRARIES} PARENT_SCOPE)
+    set (JSONCPP_LIBRARY_DIRS "${SF_BUILD_ROOT}/external/json/lib")
+    set (JSONCPP_LIBRARY_DIRS ${JSONCPP_LIBRARY_DIRS} PARENT_SCOPE)
+    set (JSONCPP_LIBRARIES jsoncpp)
+    set (JSONCPP_LIBRARIES ${JSONCPP_LIBRARIES} PARENT_SCOPE)
 
-  set (JSONCPP_FOUND ON)
-  set (JSONCPP_FOUND ON PARENT_SCOPE)
+    set (JSONCPP_FOUND ON)
+    set (JSONCPP_FOUND ON PARENT_SCOPE)
+  endif(JSONCPP_DOWNLOAD)
 
   message(STATUS "JSONCPP include dir: ${JSONCPP_INCLUDE_DIR}")
   message(STATUS "JSONCPP libs:${JSONCPP_LIBRARIES}")
