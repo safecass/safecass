@@ -24,8 +24,10 @@
   </property>
   <property name="font">
    <font>
-    <family>Trebuchet MS</family>
-    <pointsize>14</pointsize>
+    <family>Arial</family>
+    <pointsize>13</pointsize>
+    <weight>75</weight>
+    <bold>true</bold>
    </font>
   </property>
   <property name="styleSheet">
@@ -75,7 +77,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
