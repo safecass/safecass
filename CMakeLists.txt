@@ -114,7 +114,7 @@ if (BOOST_ROOT)
 endif ()
 
 # Option to enable unit-testing with CppTest
-option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the CppTest library" ON)
+option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the CppTest library" OFF)
 # Option to use g2log
 option (ENABLE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
 if (ENABLE_G2LOG)
@@ -151,7 +151,7 @@ if (SF_HAS_CISST)
 endif (SF_HAS_CISST)
 
 # Options to enable visualizataion framework using Qt and D3/cubism
-option (ENABLE_VIS_FRAMEWORK "Enable visualization framework using Qt and visualization packages" ON)
+option (ENABLE_VIS_FRAMEWORK "Enable visualization framework using Qt and visualization packages" OFF)
 if (ENABLE_VIS_FRAMEWORK)
     message("Visualization framework enabled")
 endif ()
