@@ -30,22 +30,22 @@ MongoDB::MongoDB(void)
 MongoDB::~MongoDB(void)
 {}
 
-const std::string MongoDB::ConvertTopicMesssageToDBEntry(const JSONSerializer::TopicType topic, 
+const std::string MongoDB::ConvertTopicMessageToDBEntry(const JSONSerializer::TopicType topic, 
                                                          JSONSerializer & jsonSerializer)
 {
     switch (topic) {
         case JSONSerializer::MONITOR:
-            return ConvertTopicMesssageToDBEntry_Monitor(jsonSerializer);
+            return ConvertTopicMessageToDBEntry_Monitor(jsonSerializer);
         case JSONSerializer::EVENT:
-            return ConvertTopicMesssageToDBEntry_Event(jsonSerializer);
+            return ConvertTopicMessageToDBEntry_Event(jsonSerializer);
         case JSONSerializer::SUPERVISOR:
         case JSONSerializer::INVALID:
         default:
-            return std::string("SF::MongoDB::ConvertTopicMesssageToDBEntry - invalid topic type");
+            return std::string("SF::MongoDB::ConvertTopicMessageToDBEntry - invalid topic type");
     }
 }
 
-const std::string MongoDB::ConvertTopicMesssageToDBEntry_Monitor(JSONSerializer & jsonSerializer)
+const std::string MongoDB::ConvertTopicMessageToDBEntry_Monitor(JSONSerializer & jsonSerializer)
 {
     // Json placeholder for DB entry
     JSON::JSONVALUE entry;
@@ -106,7 +106,7 @@ const std::string MongoDB::ConvertTopicMesssageToDBEntry_Monitor(JSONSerializer 
     return ss.str();
 }
 
-const std::string MongoDB::ConvertTopicMesssageToDBEntry_Event(JSONSerializer & jsonSerializer)
+const std::string MongoDB::ConvertTopicMessageToDBEntry_Event(JSONSerializer & jsonSerializer)
 {
     // FIXME
 #if 0

@@ -76,11 +76,11 @@ if (SF_HAS_CISST)
 endif (SF_HAS_CISST)
 
 # Add Curl wrapper if visualization is enabled
+set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/db/MongoDB.h
+                             ${LIB_DIR}/db/MongoDB.cpp)
 if (ENABLE_VIS_FRAMEWORK)
     find_package(CURL REQUIRED)
     set (SF_LIB_COMMUNICATOR_SRC ${SF_LIB_COMMUNICATOR_SRC}
-                                 ${LIB_DIR}/db/MongoDB.h
-                                 ${LIB_DIR}/db/MongoDB.cpp
                                  ${LIB_DIR}/communicator/curlWrapper.h
                                  ${LIB_DIR}/communicator/curlWrapper.cpp)
     set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${LIB_DIR}/db

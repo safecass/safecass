@@ -24,9 +24,9 @@ class SFLIB_EXPORT MongoDB {
 protected:
 
     //! Convert Monitor topic messages from JSON to MongoDB entry format
-    static const std::string ConvertTopicMesssageToDBEntry_Monitor(JSONSerializer & jsonSerializer);
+    static const std::string ConvertTopicMessageToDBEntry_Monitor(JSONSerializer & jsonSerializer);
     //! Convert Fault topic messages from JSON to MongoDB entry format
-    static const std::string ConvertTopicMesssageToDBEntry_Event(JSONSerializer & jsonSerializer);
+    static const std::string ConvertTopicMessageToDBEntry_Event(JSONSerializer & jsonSerializer);
 
 public:
     //! Constructor
@@ -35,7 +35,7 @@ public:
     ~MongoDB();
 
     //! Convert topic messages from JSON to MongoDB entry format
-    static const std::string ConvertTopicMesssageToDBEntry(
+    static const std::string ConvertTopicMessageToDBEntry(
         const JSONSerializer::TopicType topic, JSONSerializer & jsonSerializer);
 };
 
