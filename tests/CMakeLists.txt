@@ -1,13 +1,16 @@
+#------------------------------------------------------------------------
 #
-# Safety Framework for Component-based Robotics
+# CASROS: Component-based Architecture for Safe Robotic Systems
 #
-# Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
+# Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
 #
-# Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or copy at
-# http://www.boost.org/LICENSE_1_0.txt)
+#------------------------------------------------------------------------
 #
-
+# Created on   : Jul 6, 2012
+# Last revision: Apr 15, 2014
+# Author       : Min Yang Jung (myj@jhu.edu)
+# Github       : https://github.com/minyang/casros
+#
 project (tests)
 
 message("Unit-tests enabled")
@@ -24,4 +27,6 @@ include_directories (${SF_LIB_INCLUDE_DIR} ${CPPTEST_INCLUDE_DIR})
 
 add_executable (tests main.cpp testJson.h testJson.cpp)
 
-target_link_libraries (tests SFLib ${SF_LIB_DEPENDENCY_LIBS} ${CPPTEST_LIBRARY})
+target_link_libraries (tests SFLib ${SF_LIB_DEPENDENCY_LIBS} 
+                             ${CPPTEST_LIBRARY}
+                             ${BOOST_LIB_PROGRAM_OPTION})
