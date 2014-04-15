@@ -134,8 +134,7 @@ int main(int argc, char *argv[])
     cmnLogger::SetMask(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
-    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
+    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS);
     cmnLogger::SetMaskClassMatching("mtsSafetyCoordinator", CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskClassMatching("mtsMonitorComponent", CMN_LOG_ALLOW_ALL);
     
@@ -151,7 +150,7 @@ int main(int argc, char *argv[])
     // Print information about middleware(s) available
     StrVecType info;
     GetMiddlewareInfo(info);
-    std::cout << "Middleware(s) detected: ";
+    std::cout << "Framework(s) detected: ";
     if (info.size() == 0) {
         std::cout << "none" << std::endl;
     } else {
@@ -311,7 +310,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
 #else
     const std::string jsonFileName(SF_SOURCE_ROOT_DIR"/examples/monitor/monitor.json");
     if (!coordinator->AddMonitorTargetFromJSONFile(jsonFileName)) {
-        SFLOG_ERROR << "Failed to load monitoring target file: \"" << jsonFileName << "\"" << std::endl;
+        SFLOG_ERROR << "Failed to install monitoring target file: \"" << jsonFileName << "\"" << std::endl;
         return false;
     }
 #endif
