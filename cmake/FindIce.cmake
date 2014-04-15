@@ -11,6 +11,7 @@
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
+
 #
 # FindIce.cmake
 #
@@ -35,7 +36,7 @@ set (ICE_VERSIONS 3.3.0 3.3.1
                   3.5.0 3.5.1)
 
 # set default search paths
-# TODO: expand default search paths
+# TODO: expand default search paths on other platforms
 set (ICE_DEFAULT_PATH)
 if (SF_ON_MAC)
   set (ICE_INCLUDE_DEFAULT_PATH "/opt/local/include") # mac port
