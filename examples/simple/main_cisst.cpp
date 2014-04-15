@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: January 8, 2013
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung, Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : July 31, 2012
+// Last revision: March 19, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #include <time.h> // for srand(time(NULL))
 
 #include "config.h"

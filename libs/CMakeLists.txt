@@ -1,11 +1,15 @@
+#------------------------------------------------------------------------
 #
-# Safety Framework for Component-based Robotics
+# CASROS: Component-based Architecture for Safe Robotic Systems
 #
-# Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+# Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
 #
-# Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or copy at
-# http://www.boost.org/LICENSE_1_0.txt)
+#------------------------------------------------------------------------
+#
+# Created on   : Jul 2, 2012
+# Last revision: Apr 15, 2014
+# Author       : Min Yang Jung (myj@jhu.edu)
+# Github       : https://github.com/minyang/casros
 #
 
 #---------------------------------
@@ -19,12 +23,6 @@ set (LIB_DIR ${PROJECT_SOURCE_DIR})
 #---------------------------------
 # Collect project files
 #---------------------------------
-#get_filename_component(BOOST_PARENT_DIR ${BOOST_ROOT})
-#set (SF_LIB_INCLUDE_DIR ${LIB_DIR} ${SF_BUILD_ROOT} )
-#if (BOOST_ROOT)
-#  set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${BOOST_ROOT} ${BOOST_PARENT_DIR})
-#endif()
-
 # common
 set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h ${LIB_DIR}/common/common.cpp
                        ${LIB_DIR}/common/common.h ${LIB_DIR}/common/utils.cpp
@@ -87,10 +85,10 @@ if (ENABLE_VIS_FRAMEWORK)
                                          ${LIB_DIR}/communicator)
 endif (ENABLE_VIS_FRAMEWORK)
 
-# Boost (requires boost/msm and boost/detail)
-find_package (BoostMSM REQUIRED)
-if (BoostMSM_FOUND)
-    set (SF_LIB_STATEMACHINE_INCLUDE_DIR ${Boost_INCLUDE_DIR}
+# Boost (requires msm and program_options)
+find_package (BOOST REQUIRED)
+if (BOOST_FOUND)
+    set (SF_LIB_STATEMACHINE_INCLUDE_DIR ${BOOST_INCLUDE_DIR}
                                          ${LIB_DIR}/statemachine)
     set (SF_LIB_STATEMACHINE_SRC ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/state.h
                                  ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/state.cpp
@@ -98,7 +96,7 @@ if (BoostMSM_FOUND)
                                  ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/statemachine.cpp
                                  ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/stateEventHandler.h
                                  ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/stateEventHandler.cpp)
-endif (BoostMSM_FOUND)
+endif()
 
 # communicator for message exchange (publish-subscribe)
 # Find ZeroC Ice
@@ -205,28 +203,6 @@ if (ENABLE_VIS_FRAMEWORK)
     message (FATAL_ERROR "CURL not found")
   endif (CURL_FOUND)
 endif (ENABLE_VIS_FRAMEWORK)
-
-# Find Boost MSM (for state machine)
-    # find Boost
-    # Disable auto-linking. 
-    #add_definitions(-DBOOST_ALL_NO_LIB)
-    # In case of a Shared Boost install (dlls), you should then enable this
-    #if (BUILD_SHARED_LIBS)
-    #    add_definitions(-DBOOST_ALL_DYN_LINK)
-    #    # Explicitly tell find-package to search for Static Boost libs (if needed)
-    #    set(Boost_USE_STATIC_LIBS OFF) 
-    #else (BUILD_SHARED_LIBS)
-    #    set(Boost_USE_STATIC_LIBS ON) 
-    #endif (BUILD_SHARED_LIBS)
-
-    #find_package(Boost REQUIRED COMPONENTS msm)
-    #set (Boost_ADDITIONAL_VERSIONS "1.51.0")
-find_package(BoostMSM REQUIRED)
-if (BoostMSM_FOUND)
-  message("Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")
-else (BoostMSM_FOUND)
-  message(FATAL_ERROR "Boost MSM not found")
-endif (BoostMSM_FOUND)
 
 include_directories (${SF_LIB_INCLUDE_DIR})
 add_library(SFLib ${LIB_TYPE} ${SF_LIB_SRC})
