@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Apr 15, 2014
+# Last revision: Apr 18, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -25,8 +25,11 @@ endif ()
 
 include_directories (${SF_LIB_INCLUDE_DIR} ${CPPTEST_INCLUDE_DIR})
 
-add_executable (tests main.cpp testJson.h testJson.cpp)
+add_executable (tests main.cpp 
+                      testJson.h testJson.cpp
+                      testGCM.h testGCM.cpp
+                      )
 
 target_link_libraries (tests SFLib ${SF_LIB_DEPENDENCY_LIBS} 
-                             ${CPPTEST_LIBRARY}
-                             ${BOOST_LIB_PROGRAM_OPTION})
+                                   ${CPPTEST_LIBRARY}
+                                   ${BOOST_LIB_PROGRAM_OPTION})
