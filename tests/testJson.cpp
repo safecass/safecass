@@ -1,21 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: July 6, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-  Reference:
-
-  - CppTest macros: http://cpptest.sourceforge.net/cpptest-assert_8h.html
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jul 6, 2012
+// Last revision: Apr 18, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #include "testJson.h"
 #include "json.h"
 #include "config.h"
@@ -126,7 +121,7 @@ void SFUtilTest::TestJSONWrite(void)
 
     i = 0;
     const Json::Value plugins = test.GetRoot()["plug-ins"];
-    TEST_ASSERT(false);//plugins[i++].asString().compare(newPlugin1) != 0);
+    TEST_ASSERT(plugins[i++].asString().compare(newPlugin1) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(newPlugin2) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(newPlugin3) == 0);
 

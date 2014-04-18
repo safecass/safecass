@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: July 6, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jul 6, 2012
+// Last revision: Apr 18, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _SFUtilTest_h
 #define _SFUtilTest_h
 
@@ -19,9 +18,6 @@
 
 #include <iostream>
 #include <sstream>
-
-#define TEST_DEBUG( _cond, _message )\
-    if (_cond) { std::cout << "FAILED (" << __LINE__ << ") : " << _message << std::endl; }
 
 class SFUtilTest: public Test::Suite 
 {
