@@ -11,11 +11,14 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
+// CppTest macros: http://cpptest.sourceforge.net/cpptest-assert_8h.html
+//
 #include "cpptest.h"
 #include <boost/program_options.hpp>
 
 // test suites
 #include "testJson.h"
+#include "testGCM.h"
 
 #include <algorithm>
 #include <iostream>
@@ -74,9 +77,12 @@ int main(int argc, char ** argv)
         outputFormat = VERBOSE;
     }
 
+    // Define test suites
     Test::Suite suite;
     suite.add(auto_ptr<Test::Suite>(new SFUtilTest));
+    suite.add(auto_ptr<Test::Suite>(new SFGCMTest));
 
+    // Execute unit-test with specified output format
     switch (outputFormat) {
     case TERSE:
         {
