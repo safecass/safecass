@@ -33,7 +33,7 @@ int main(int argc, char ** argv)
     po::options_description desc("unit-tests launcher");
     desc.add_options()
         ("help", "Print this help")
-        ("output,o", po::value<string>(), "output format. arg=[terse|verbose|compiler|html]")
+        ("output,o", po::value<string>(), "output format. arg=[terse|verbose|compiler|html] (default: verbose)")
         ;
 
     po::variables_map vm;
@@ -71,26 +71,27 @@ int main(int argc, char ** argv)
             return 1;
         }
     } else {
-        outputFormat = TERSE;
+        outputFormat = VERBOSE;
     }
 
-    SFTests tests;
+    Test::Suite suite;
+    suite.add(auto_ptr<Test::Suite>(new SFUtilTest));
 
     switch (outputFormat) {
     case TERSE:
         {
             Test::TextOutput output(Test::TextOutput::Terse);
-            return (tests.run(output) ? 0 : 1);
+            return (suite.run(output) ? 0 : 1);
         }
     case VERBOSE:
         {
             Test::TextOutput output(Test::TextOutput::Verbose);
-            return (tests.run(output) ? 0 : 1);
+            return (suite.run(output) ? 0 : 1);
         }
     case COMPILER:
         {
             Test::CompilerOutput output;
-            return (tests.run(output) ? 0 : 1);
+            return (suite.run(output) ? 0 : 1);
         }
     case HTML:
         {
@@ -99,7 +100,7 @@ int main(int argc, char ** argv)
             outputFile.open("./result.html");
 
             cout << "Generating output file (\"result.html\") ... ";
-            bool success = tests.run(output);
+            bool success = suite.run(output);
             if (success) {
                 cout << "success" << endl;
             } else {
