@@ -36,13 +36,13 @@ const std::string VALUE_PLUGIN3 = "ruby";
 const unsigned int VALUE_LENGTH = 3;
 const bool VALUE_USE_SPACE = true;
 
-SFTests::SFTests()
+SFUtilTest::SFUtilTest()
 {
     // Test registration
-    TEST_ADD(SFTests::TestJSONRead);
-    TEST_ADD(SFTests::TestJSONReadFromFile);
-    TEST_ADD(SFTests::TestJSONWrite);
-    TEST_ADD(SFTests::TestJSONWriteToFile);
+    TEST_ADD(SFUtilTest::TestJSONRead);
+    TEST_ADD(SFUtilTest::TestJSONReadFromFile);
+    TEST_ADD(SFUtilTest::TestJSONWrite);
+    TEST_ADD(SFUtilTest::TestJSONWriteToFile);
 
     // Sample JSON from JsonCpp documentation:
     SampleJSON << "// Configuration options\n";
@@ -63,7 +63,7 @@ SFTests::SFTests()
     SampleJSON << "}\n";
 }
 
-void SFTests::TestJSONRead(void)
+void SFUtilTest::TestJSONRead(void)
 {
     JSONTest test;
     const std::string sample(SampleJSON.str());
@@ -83,7 +83,7 @@ void SFTests::TestJSONRead(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
 }
 
-void SFTests::TestJSONReadFromFile(void)
+void SFUtilTest::TestJSONReadFromFile(void)
 {
     JSONTest test;
     TEST_ASSERT(test.ReadFromFile(SF_SOURCE_ROOT_DIR"/tests/sample.json"));
@@ -101,7 +101,7 @@ void SFTests::TestJSONReadFromFile(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
 }
 
-void SFTests::TestJSONWrite(void)
+void SFUtilTest::TestJSONWrite(void)
 {
     JSONTest test;
     TEST_ASSERT(test.Read(SampleJSON.str().c_str()));
@@ -126,7 +126,7 @@ void SFTests::TestJSONWrite(void)
 
     i = 0;
     const Json::Value plugins = test.GetRoot()["plug-ins"];
-    TEST_ASSERT(plugins[i++].asString().compare(newPlugin1) == 0);
+    TEST_ASSERT(false);//plugins[i++].asString().compare(newPlugin1) != 0);
     TEST_ASSERT(plugins[i++].asString().compare(newPlugin2) == 0);
     TEST_ASSERT(plugins[i++].asString().compare(newPlugin3) == 0);
 
@@ -134,7 +134,7 @@ void SFTests::TestJSONWrite(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == newUseSpace);
 }
 
-void SFTests::TestJSONWriteToFile(void)
+void SFUtilTest::TestJSONWriteToFile(void)
 {
     JSONTest test;
     TEST_ASSERT(test.Read(SampleJSON.str().c_str()));

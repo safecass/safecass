@@ -12,8 +12,8 @@
 
 */
 
-#ifndef _SFTests_h
-#define _SFTests_h
+#ifndef _SFUtilTest_h
+#define _SFUtilTest_h
 
 #include "cpptest.h"
 
@@ -23,7 +23,7 @@
 #define TEST_DEBUG( _cond, _message )\
     if (_cond) { std::cout << "FAILED (" << __LINE__ << ") : " << _message << std::endl; }
 
-class SFTests: public Test::Suite 
+class SFUtilTest: public Test::Suite 
 {
     std::stringstream SampleJSON;
 
@@ -33,8 +33,8 @@ class SFTests: public Test::Suite
     void TestJSONWriteToFile(void);
 
 public:
-    SFTests();
-    ~SFTests() {}
+    SFUtilTest();
+    ~SFUtilTest() {}
 };
 
-#endif // _SFTests_h
+#endif // _SFUtilTest_h
