@@ -1,15 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jul 2, 2012
+// Last revision: Apr 19, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _common_h
 #define _common_h
 
@@ -28,7 +29,7 @@
   #include <iomanip>
 #endif
 
-#ifdef SF_HAS_CISST
+#if SF_HAS_CISST
   #include <cisstCommon/cmnPortability.h>
   #include <cisstCommon/cmnLogger.h>
   #include <cisstCommon/cmnAssert.h>
@@ -52,7 +53,7 @@ StrVecType GetMiddlewareInfo(void);
 void GetMiddlewareInfo(StrVecType & info);
 
 /*! Get information about cisst detected */
-#ifdef SF_HAS_CISST
+#if SF_HAS_CISST
 std::string GetCISSTInfo(void);
 #endif
 
@@ -79,7 +80,7 @@ std::string GetCurrentUTCTimeString(void);
   #define SFLOG_ERROR   LOG(WARNING)
   #define SFLOG_FATAL   LOG(FATAL)
 #else
-  #ifdef SF_HAS_CISST
+  #if SF_HAS_CISST
     #define SFLOG_INFO    CMN_LOG_RUN_VERBOSE
     #define SFLOG_DEBUG   CMN_LOG_RUN_DEBUG
     #define SFLOG_WARNING CMN_LOG_RUN_WARNING
@@ -107,7 +108,12 @@ std::string GetCurrentUTCTimeString(void);
   */
   #define SFASSERT CHECK
 #else
-  #define SFASSERT CMN_ASSERT
+  #if SF_HAS_CISST
+    #define SFASSERT CMN_ASSERT
+  #else
+    #include <assert.h>
+    #define SFASSERT assert
+  #endif
 #endif
 };
 
@@ -119,7 +125,7 @@ std::string GetCurrentUTCTimeString(void);
 #define SF_PACKAGE_ROS    1
 #define SF_PACKAGE_OROCOS 2
 
-#ifdef SF_HAS_CISST
+#if SF_HAS_CISST
     #define SF_PACKAGE SF_PACKAGE_CISST
 #endif
 #ifdef SF_HAS_ROS

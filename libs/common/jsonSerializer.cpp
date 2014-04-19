@@ -19,7 +19,7 @@
 #include "jsonSerializer.h"
 #include "dict.h"
 
-#ifdef SF_HAS_CISST
+#if SF_HAS_CISST
 #include "cisstDic.h"
 #include "cisstEventLocation.h"
 #else
@@ -87,7 +87,7 @@ void JSONSerializer::SetEventLocation(EventLocationBase * location)
         Common.EventLocation = 0;
     }
 
-#ifdef SF_HAS_CISST
+#if SF_HAS_CISST
     cisstEventLocation * cisstLocation = dynamic_cast<cisstEventLocation *>(location);
     if (cisstLocation) {
         Common.EventLocation = new cisstEventLocation;
@@ -120,7 +120,7 @@ const std::string JSONSerializer::GetJSON(void) const
 
         JSON::JSONVALUE __root;
         if (Common.EventLocation) {
-#ifdef SF_HAS_CISST
+#if SF_HAS_CISST
             cisstEventLocation * cisstLocation = dynamic_cast<cisstEventLocation *>(Common.EventLocation);
             if (cisstLocation) {
                 cisstLocation->ExportToJSON(__root);
@@ -133,7 +133,7 @@ const std::string JSONSerializer::GetJSON(void) const
             __root[component]              = "";
             __root[interface_provided]     = "";
             __root[interface_required]     = "";
-#ifdef SF_HAS_CISST
+#if SF_HAS_CISST
             __root[cisst::command]         = "";
             __root[cisst::function]        = "";
             __root[cisst::event_generator] = "";
@@ -195,7 +195,7 @@ bool JSONSerializer::ParseJSON(const std::string & message)
     Common.FilterUID = values[common].get(filter_uid, 0).asInt();
     Common.Topic = GetTopicTypeFromString(values[common].get(topic, "").asString());
     Common.Timestamp = values[localization].get(timestamp, 0.0).asDouble();
-#ifdef SF_HAS_CISST
+#if SF_HAS_CISST
     Common.EventLocation = new cisstEventLocation;
     Common.EventLocation->ImportFromJSON(values[localization][location]);
 #else
