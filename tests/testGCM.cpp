@@ -7,21 +7,33 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 18, 2012
-// Last revision: Apr 18, 2014
+// Last revision: Apr 19, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "testGCM.h"
+#include "GCMHelper.h"
 
-SFGCMTest::SFGCMTest()
+#include <cisstOSAbstraction/osaSleep.h>
+#include <cisstMultiTask/mtsManagerLocal.h>
+
+using namespace SF;
+
+SFGCMTest::SFGCMTest(void)
 {
+    // test registration
     TEST_ADD(SFGCMTest::test);
-    TEST_ADD(SFGCMTest::test2);
+
+    GCMHelper::cisstInit();
+}
+
+SFGCMTest::~SFGCMTest(void)
+{
+    GCMHelper::cisstCleanup();
 }
 
 void SFGCMTest::setup()
 {
-    std::cout << "setup\n" << std::flush;
 }
 
 void SFGCMTest::tear_down()
@@ -32,9 +44,4 @@ void SFGCMTest::tear_down()
 void SFGCMTest::test(void)
 {
     TEST_ASSERT(true);
-}
-
-void SFGCMTest::test2(void)
-{
-    TEST_ASSERT(false);
 }

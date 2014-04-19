@@ -16,21 +16,19 @@
 
 #include "cpptest.h"
 
-#include <iostream>
-#include <sstream>
+class mtsManagerLocal;
 
 class SFGCMTest: public Test::Suite 
 {
 protected:
-    virtual void setup(void);
-    virtual void tear_down(void);
+    void setup(void);
+    void tear_down(void);
 
     void test(void);
-    void test2(void);
 
 public:
-    SFGCMTest();
-    ~SFGCMTest() {}
+    SFGCMTest(void);
+    ~SFGCMTest(void);
 };
 
 #endif // _SFGCMTest_h
