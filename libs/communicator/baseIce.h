@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: July 31, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jul 31, 2012
+// Last revision: Apr 19, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _baseIce_h
 #define _baseIce_h
 
@@ -98,7 +97,7 @@ public:
     virtual ~BaseIce();
 
     /*! Prepare publish/subscribe via Ice network */
-    virtual void Startup(void);
+    virtual bool Startup(void);
 
     /*! Start publish/subscribe topic */
     virtual void Run(void) = 0;

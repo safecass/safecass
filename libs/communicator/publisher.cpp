@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: July 31, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jul 31, 2012
+// Last revision: Apr 19, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #include "publisher.h"
 #include "config.h"
 #include "dict.h"
@@ -48,15 +47,21 @@ void Publisher::Init(void)
     SFLOG_INFO << PUBLISHER_INFO << "Created with topic name: " << TopicName << std::endl;
 }
 
-void Publisher::Startup(void)
+bool Publisher::Startup(void)
 {
     this->IceInitialize();
 
-    IceStorm::TopicManagerPrx manager = 
-        IceStorm::TopicManagerPrx::checkedCast(this->IceCommunicator->propertyToProxy("TopicManager.Proxy"));
+    IceStorm::TopicManagerPrx manager;
+    try {
+        manager = IceStorm::TopicManagerPrx::checkedCast(this->IceCommunicator->propertyToProxy("TopicManager.Proxy"));
+    } catch (const Ice::ConnectionRefusedException & e) {
+        SFLOG_ERROR << "Failed to initialize IceStorm.  Check if IceBox is running." << std::endl;
+        return false;
+    }
+
     if (!manager) {
         SFLOG_ERROR << PUBLISHER_INFO << "Invalid proxy" << std::endl;
-        return;
+        return false;
     }
 
     // Retrieve the topic.
@@ -64,14 +69,13 @@ void Publisher::Startup(void)
     const std::string topicName = TopicName;
     try {   
         topic = manager->retrieve(topicName);
-    } 
-    catch(const IceStorm::NoSuchTopic&) {   
+    } catch(const IceStorm::NoSuchTopic&) {   
         try {   
             topic = manager->create(topicName);
         } 
         catch(const IceStorm::TopicExists&) {   
-            SFLOG_ERROR << PUBLISHER_INFO << "Temporary failure. try again." << std::endl;
-            return;
+            SFLOG_ERROR << PUBLISHER_INFO << "Topic not found. Try again." << std::endl;
+            return false;
         }   
     }   
 
@@ -85,6 +89,8 @@ void Publisher::Startup(void)
     }
 
     BaseType::Startup();
+
+    return true;
 }
 
 #define PUBLISH_BEGIN\
