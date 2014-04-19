@@ -13,12 +13,18 @@
 //
 // CppTest macros: http://cpptest.sourceforge.net/cpptest-assert_8h.html
 //
+// SF configurations
+#include "config.h"
+
+// external packages
 #include "cpptest.h"
 #include <boost/program_options.hpp>
 
 // test suites
 #include "testJson.h"
+#if SF_HAS_CISST
 #include "testGCM.h"
+#endif
 
 #include <algorithm>
 #include <iostream>
@@ -80,7 +86,15 @@ int main(int argc, char ** argv)
     // Define test suites
     Test::Suite suite;
     suite.add(auto_ptr<Test::Suite>(new SFUtilTest));
-    suite.add(auto_ptr<Test::Suite>(new SFGCMTest));
+#if SF_HAS_CISST
+    SFGCMTest * GCMTest = 0;
+    try {
+        GCMTest = new SFGCMTest;
+        suite.add(auto_ptr<Test::Suite>(GCMTest));
+    } catch (...) {
+        cerr << "Skipped SFGCMTest: Failed to initialize cisst" << endl;
+    }
+#endif
 
     // Execute unit-test with specified output format
     switch (outputFormat) {
