@@ -86,8 +86,9 @@ ForceSensor::ForceSensor(const std::string & name, double period)
     StateTable.AddData(ForceX, "ForceX");
     StateTable.AddData(ForceXYZ, "ForceXYZ");
 
-    mtsInterfaceRequired * required = AddInterfaceRequired("R1");
-    if (required) {
+    mtsInterfaceProvided * provided = AddInterfaceProvided("P1");
+    if (provided) {
+        // TODO
     }
 }
 
@@ -117,6 +118,15 @@ void ForceSensor::Run(void)
 Control::Control(const std::string & name, double period) 
     : mtsTaskPeriodic(name, period, false, 5000)
 {
+    mtsInterfaceRequired * required = AddInterfaceRequired("R1");
+    if (required) {
+        // TODO
+    }
+
+    mtsInterfaceProvided * provided = AddInterfaceProvided("P1");
+    if (provided) {
+        // TODO
+    }
 }
 
 void Control::Run(void)
@@ -130,6 +140,10 @@ void Control::Run(void)
 Workflow::Workflow(const std::string & name, double period) 
     : mtsTaskPeriodic(name, period, false, 5000)
 {
+    mtsInterfaceRequired * required = AddInterfaceRequired("R1");
+    if (required) {
+        // TODO
+    }
 }
 
 void Workflow::Run(void)
