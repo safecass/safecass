@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 19, 2012
-// Last revision: Apr 19, 2014
+// Last revision: Apr 21, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -15,9 +15,9 @@
 
 using namespace SF;
 
-ForceSensor   * GCMHelper::ForceSensorComp = 0;
-Control  * GCMHelper::ControlComp = 0;
-Workflow * GCMHelper::WorkflowComp = 0;
+ForceSensorComp * GCMHelper::ForceSensor = 0;
+ControlComp     * GCMHelper::Control = 0;
+WorkflowComp    * GCMHelper::Workflow = 0;
 mtsManagerLocal * GCMHelper::ComponentManager = 0;
 
 void GCMHelper::cisstInit(void)
@@ -38,17 +38,18 @@ void GCMHelper::cisstInit(void)
 
     // Create and add components to local component manager
 #if 0
-    ForceSensorComp   = new ForceSensor("ForceSensor", 5 * cmn_ms);
-    ControlComp  = new Control("Control", 10 * cmn_ms);
-    WorkflowComp = new Workflow("Workflow", 100 * cmn_ms);
+    ForceSensor = new ForceSensorComp("ForceSensor", 1 * cmn_ms); // 1 kHz
+    Control     = new ControlComp("Control", 10 * cmn_ms);        // 100 Hz
+    Workflow    = new WorkflowComp("Workflow", 40 * cmn_ms);      // 25 Hz
 #else
-    forceSensor = new ForceSensor("ForceSensor", 0.5);
-    control     = new Control("Control", 1);
-    workflow    = new Workflow("Workflow", 1);
+    // for testing
+    ForceSensor = new ForceSensorComp("ForceSensor", 0.5);
+    Control     = new ControlComp("Control", 1);
+    Workflow    = new WorkflowComp("Workflow", 1);
 #endif
-    ComponentManager->AddComponent(forceSensor);
-    ComponentManager->AddComponent(control);
-    ComponentManager->AddComponent(workflow);
+    ComponentManager->AddComponent(ForceSensor);
+    ComponentManager->AddComponent(Control);
+    ComponentManager->AddComponent(Workflow);
 
     // create the tasks, i.e. find the commands
     ComponentManager->CreateAll();
@@ -77,7 +78,7 @@ void GCMHelper::cisstCleanup(void)
 // ForceSensor component
 //
 // Example task that simulates sensor wrapper
-ForceSensor::ForceSensor(const std::string & name, double period) 
+ForceSensorComp::ForceSensorComp(const std::string & name, double period) 
     : mtsTaskPeriodic(name, period, false, 5000)
 {
     ForceX = 0.0;
@@ -92,7 +93,7 @@ ForceSensor::ForceSensor(const std::string & name, double period)
     }
 }
 
-void ForceSensor::Run(void)
+void ForceSensorComp::Run(void)
 {
     ProcessQueuedCommands();
     ProcessQueuedEvents();
@@ -115,7 +116,7 @@ void ForceSensor::Run(void)
 //-------------------------------------------------- 
 // Control component
 //
-Control::Control(const std::string & name, double period) 
+ControlComp::ControlComp(const std::string & name, double period) 
     : mtsTaskPeriodic(name, period, false, 5000)
 {
     mtsInterfaceRequired * required = AddInterfaceRequired("R1");
@@ -129,7 +130,7 @@ Control::Control(const std::string & name, double period)
     }
 }
 
-void Control::Run(void)
+void ControlComp::Run(void)
 {
     std::cout << "C" << std::endl;
 }
@@ -137,7 +138,7 @@ void Control::Run(void)
 //-------------------------------------------------- 
 // Workflow component
 //
-Workflow::Workflow(const std::string & name, double period) 
+WorkflowComp::WorkflowComp(const std::string & name, double period) 
     : mtsTaskPeriodic(name, period, false, 5000)
 {
     mtsInterfaceRequired * required = AddInterfaceRequired("R1");
@@ -146,7 +147,7 @@ Workflow::Workflow(const std::string & name, double period)
     }
 }
 
-void Workflow::Run(void)
+void WorkflowComp::Run(void)
 {
     std::cout << "W" << std::endl;
 }

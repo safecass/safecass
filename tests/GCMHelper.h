@@ -23,7 +23,7 @@ namespace SF {
 //-------------------------------------------------- 
 // ForceSensor component
 //
-class ForceSensor: public mtsTaskPeriodic {
+class ForceSensorComp: public mtsTaskPeriodic {
 protected:
     // scalar type
     double ForceX;
@@ -31,8 +31,8 @@ protected:
     std::vector<double> ForceXYZ;
 
 public:
-    ForceSensor(const std::string & name, double period);
-    ~ForceSensor() {}
+    ForceSensorComp(const std::string & name, double period);
+    ~ForceSensorComp() {}
 
     void Configure(const std::string & CMN_UNUSED(filename) = "") {}
     void Startup(void) {}
@@ -43,12 +43,12 @@ public:
 //-------------------------------------------------- 
 // Control component
 //
-class Control: public mtsTaskPeriodic {
+class ControlComp: public mtsTaskPeriodic {
 protected:
 
 public:
-    Control(const std::string & name, double period);
-    ~Control() {}
+    ControlComp(const std::string & name, double period);
+    ~ControlComp() {}
 
     void Configure(const std::string & CMN_UNUSED(filename) = "") {}
     void Startup(void) {}
@@ -59,12 +59,12 @@ public:
 //-------------------------------------------------- 
 // Workflow (application) component
 //
-class Workflow: public mtsTaskPeriodic {
+class WorkflowComp: public mtsTaskPeriodic {
 protected:
 
 public:
-    Workflow(const std::string & name, double period);
-    ~Workflow() {}
+    WorkflowComp(const std::string & name, double period);
+    ~WorkflowComp() {}
 
     void Configure(const std::string & CMN_UNUSED(filename) = "") {}
     void Startup(void) {}
@@ -74,9 +74,9 @@ public:
 
 class GCMHelper {
 public:
-    static ForceSensor   * ForceSensorComp;
-    static Control  * ControlComp;
-    static Workflow * WorkflowComp;
+    static ForceSensorComp * ForceSensor;
+    static ControlComp     * Control;
+    static WorkflowComp    * Workflow;
 
     static mtsManagerLocal * ComponentManager;
 
