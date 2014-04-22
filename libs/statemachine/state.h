@@ -1,24 +1,27 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: October 26, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-  This file defines a set of states and events of the state machine of 
-  Safety Framwork.  The definition and nomenclature follow Avizienis2004:
-     
-    A. Avizienis, J.-C. Laprie, B. Randell, and C. Landwehr., "Basic concepts and 
-    taxonomy of dependable and secure computing," IEEE Trans. on Dependable and 
-    Secure Computing, 1:11–33, Jan. 2004.
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Oct 26, 2012
+// Last revision: Apr 19, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
+// This file defines the state-based semantics for CASROS, which consists of states, state
+// entry and exist, and state transitions.
+//
+// References:
+// 
+// A. Avizienis, J.-C. Laprie, B. Randell, and C. Landwehr. Basic concepts and taxonomy of 
+// dependable and secure computing. IEEE Trans. on Dependable and Secure Computing, 1:11–33, 
+// Jan. 2004.
+//
+// TODO: SafeComp14 (if accepted)
+//
 #ifndef _state_h
 #define _state_h
 
@@ -53,7 +56,9 @@ namespace SF {
             ERROR_ON_EXIT,
             // failure state
             FAILURE_ON_ENTRY,
-            FAILURE_ON_EXIT
+            FAILURE_ON_EXIT,
+            // total number of state entry/exit types
+            NUMBER_OF_ENTRY_EXIT
         } StateEntryExitType;
 
         /*! State transition events */
@@ -68,7 +73,9 @@ namespace SF {
             ERROR_PROPAGATION,
             FAILURE_DETECTION,
             FAILURE_REMOVAL,
-            FAILURE_STOP
+            FAILURE_STOP,
+            // total number of state transitions
+            NUMBER_OF_TRANSITIONS
         } TransitionType;
 
         const std::string GetString(StateType type);

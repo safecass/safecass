@@ -71,11 +71,13 @@ protected:
         /*! State machine event handler */
         StateEventHandler * EventHandlerInstance;
 
+        // TODO: don't I need to use second argument (fsm instance?)
         template <class Event,class FSM>
         void on_entry(Event const& ,FSM&) {
             if (EventHandlerInstance)
                 EventHandlerInstance->OnStateEntryOrExit(State::STATEMACHINE_ON_ENTRY);
         }
+        // TODO: don't I need to use second argument (fsm instance?)
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) {
             if (EventHandlerInstance)
