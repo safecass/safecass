@@ -1,36 +1,41 @@
-/*
 
-  Safety Framework for Component-based Robotics
-
-  Created on: October 26, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-  The implementation of state machine in the Safety Framework uses
-  the Boost Meta State Machine (MSM) which allows quick and easy implementation 
-  of state machines of very high performance and is available at:
-
-  http://www.boost.org/doc/libs/1_45_0/libs/msm/doc/HTML/index.html 
-
-  (Boost MSM author: Christophe Henry <christophe.j.henry@googlemail.com>)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Oct 26, 2012
+// Last revision: Apr 21, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #include "statemachine.h"
 
 using namespace SF::State;
 
 namespace SF {
 
+StateMachine::StateMachine(void)
+{
+    StateEventHandler * defaultEventHandler = new StateEventHandler;
+
+    Initialize(defaultEventHandler);
+}
+
 StateMachine::StateMachine(StateEventHandler * instance)
 {
-    SFASSERT(instance);
-    State.EventHandlerInstance = instance;
+    if (!instance)
+        SFTHROW("StateMachine: null event handler");
 
+    Initialize(instance);
+}
+
+void StateMachine::Initialize(StateEventHandler * instance)
+{
+    State.EventHandlerInstance = instance;
     State.start();
 }
 
@@ -38,16 +43,20 @@ StateMachine::~StateMachine(void)
 {
     State.stop();
 
-    if (State.EventHandlerInstance) {
+    if (State.EventHandlerInstance)
         delete State.EventHandlerInstance;
-    }
 }
 
 void StateMachine::SetStateEventHandler(StateEventHandler * instance)
 {
-    if (State.EventHandlerInstance) {
-        delete State.EventHandlerInstance;
-    }
+    // Disable event handler temporarily
+    StateEventHandler * currentHandler = State.EventHandlerInstance;
+    State.EventHandlerInstance = 0;
+
+    // MJ: This can be extended to handle multiple event handler instances, if necessary.
+    if (currentHandler)
+        delete currentHandler;
+
     State.EventHandlerInstance = instance;
 }
 

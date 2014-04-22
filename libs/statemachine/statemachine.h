@@ -1,25 +1,21 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: October 23, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-  The implementation of state machine in the Safety Framework uses
-  the Boost Meta State Machine (MSM) which allows quick and easy implementation 
-  of state machines of very high performance and is available at:
-
-  http://www.boost.org/doc/libs/1_45_0/libs/msm/doc/HTML/index.html 
-
-  (Boost MSM author: Christophe Henry <christophe.j.henry@googlemail.com>)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Oct 23, 2012
+// Last revision: Apr 21, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
+// CAROS uses the Boost Meta State Machine (MSM) library to implement the state 
+// cmachine of the generic component model (GCM).  MSM enables quick and easy 
+// cimplementation of state machines of high performance.  For more details, refer 
+// cto http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html 
+//
 #ifndef _statemachine_h
 #define _statemachine_h
 
@@ -180,19 +176,30 @@ protected:
     /*! State machine instance */
     FaultState State;
 
+private:
+    /*! Common initializer */
+    void Initialize(StateEventHandler * eventHandler);
+
 public:
-    StateMachine(StateEventHandler * instance);
+    /*! Default constructor.  An instance of StateEventHandler is internally created and 
+        is used as default event handler. */
+    StateMachine(void);
+
+    /*! Constructor with user-provided state change event handler */
+    StateMachine(StateEventHandler * eventHandler);
+
+    /*! Destructor */
     virtual ~StateMachine(void);
 
+    /*! Process state change events */
     virtual void ProcessEvent(const State::TransitionType transition);
 
-    /*! Returns current state of SF state machine */
+    /*! Return current state */
     State::StateType GetState(void) const;
 
-    /*! Replace default state event handler with user-defined event handler.  This is
-        useful when an application wants to handle state change events.
-        When the previously existing state event handler is swapped out with the new
-        state event handler instance, the previous one is deleted internally. */
+    /*! Replace default state event handler with user-defined event handler.  This
+        provides event hooks for applications, which allow the application layer to 
+        handle state change events.  Any existing state event handler is deleted. */
     void SetStateEventHandler(StateEventHandler * instance);
 
 #if 1
