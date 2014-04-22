@@ -119,7 +119,7 @@ void ForceSensorComp::Run(void)
 ControlComp::ControlComp(const std::string & name, double period) 
     : mtsTaskPeriodic(name, period, false, 5000)
 {
-    mtsInterfaceRequired * required = AddInterfaceRequired("R1");
+    mtsInterfaceRequired * required = AddInterfaceRequired("R1", MTS_OPTIONAL);
     if (required) {
         // TODO
     }
@@ -141,7 +141,7 @@ void ControlComp::Run(void)
 WorkflowComp::WorkflowComp(const std::string & name, double period) 
     : mtsTaskPeriodic(name, period, false, 5000)
 {
-    mtsInterfaceRequired * required = AddInterfaceRequired("R1");
+    mtsInterfaceRequired * required = AddInterfaceRequired("R1", MTS_OPTIONAL);
     if (required) {
         // TODO
     }

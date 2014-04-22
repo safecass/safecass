@@ -24,7 +24,7 @@ protected:
     void setup(void);
     void tear_down(void);
 
-    void test(void);
+    void StateMachineBasics(void);
 
 public:
     SFGCMTest(void);

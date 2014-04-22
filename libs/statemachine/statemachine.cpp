@@ -88,25 +88,4 @@ StateType StateMachine::GetState(void) const
     }
 }
  
-void StateMachine::Test(void)
-{        
-    std::cout <<"\nto fault, back to normal\n";
-    ProcessEvent(State::FAULT_DETECTION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::FAULT_REMOVAL); std::cout << GetString(GetState()) << std::endl;
-
-    std::cout <<"\nto error, back to normal\n";
-    ProcessEvent(State::ERROR_DETECTION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::ERROR_REMOVAL); std::cout << GetString(GetState()) << std::endl;
-
-    std::cout <<"\nto failure, back to normal\n";
-    ProcessEvent(State::FAILURE_DETECTION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::FAILURE_REMOVAL); std::cout << GetString(GetState()) << std::endl;
-
-    std::cout <<"\nto fault, error, failure, and back to normal\n";
-    ProcessEvent(State::FAULT_DETECTION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::FAULT_ACTIVATION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::ERROR_PROPAGATION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::FAILURE_REMOVAL); std::cout << GetString(GetState()) << std::endl;
-}
-
 };

@@ -20,6 +20,7 @@
 #define _statemachine_h
 
 #include "common.h"
+#include "config.h"
 #include "stateEventHandler.h"
 #include <iostream>
 // boost msm
@@ -34,7 +35,8 @@ namespace mpl = ::boost::mpl;
 // Forward declaration of state event handler
 class StateEventHandler;
 
-class SFLIB_EXPORT StateMachine {
+class SFLIB_EXPORT StateMachine 
+{
 protected:
     // Macros to define msm event
 #define MSM_EVENT(_eventName) struct _eventName {};
@@ -204,9 +206,32 @@ public:
         handle state change events.  Any existing state event handler is deleted. */
     void SetStateEventHandler(StateEventHandler * instance);
 
-#if 1
+#if ENABLE_UNIT_TEST
     /*! State machine testing */
-    void Test(void);
+    //void Test(void);
+    // TODO: If multiple event handlers are used, update this method as well.
+    inline int GetCountEntryExit(const State::StateEntryExitType stateEntryExit) {
+        if (State.EventHandlerInstance == 0)
+            return 0;
+        size_t index = static_cast<size_t>(stateEntryExit);
+        return State.EventHandlerInstance->CountEntryExit[index];
+    }
+    int GetCountTransition(const State::TransitionType transition) {
+        if (State.EventHandlerInstance == 0)
+            return 0;
+        size_t index = static_cast<size_t>(transition);
+        return State.EventHandlerInstance->CountTransition[index];
+    }
+    void PrintCounters() {
+        std::cout << "Transition: ";
+        for (int i = 0; i < State.EventHandlerInstance->CountTransition.size(); ++i)
+            std::cout << State.EventHandlerInstance->CountTransition[i] << " | ";
+        std::cout << std::endl;
+        std::cout << "Entry/Exit: ";
+        for (int i = 0; i < State.EventHandlerInstance->CountEntryExit.size(); ++i)
+            std::cout << State.EventHandlerInstance->CountEntryExit[i] << " | ";
+        std::cout << std::endl;
+    }
 #endif
 };
  
