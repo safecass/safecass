@@ -1,15 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : May 16, 2012
+// Last revision: Apr 21, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _utils_h
 #define _utils_h
 
@@ -17,20 +18,29 @@
 
 namespace SF {
 
-// trim from start
+//-------------------------------------------------- 
+// String
+//
+/*! trim from start */
 std::string &ltrim(std::string &s);
 
-// trim from end
+/*! trim from end */
 std::string &rtrim(std::string &s);
 
-// trim from both ends
+/*! trim from both ends */
 std::string &trim(std::string &s);
 
-// to lowercase
+/*! to lowercase */
 void to_lowercase(std::string & s);
 
-// to uppercase 
+/*! to uppercase */
 void to_uppercase(std::string & s);
+
+//-------------------------------------------------- 
+// Time
+//
+/*! Get current UTC time */
+std::string GetCurrentUTCTimeString(void);
 
 };
 

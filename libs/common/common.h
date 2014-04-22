@@ -57,9 +57,6 @@ void GetMiddlewareInfo(StrVecType & info);
 std::string GetCISSTInfo(void);
 #endif
 
-/*! Get current UTC time */
-std::string GetCurrentUTCTimeString(void);
-
 #define STR(faultType) std::string(#faultType)
 
 //! Macro to suppress unused parameter warnings
@@ -116,6 +113,9 @@ std::string GetCurrentUTCTimeString(void);
   #endif
 #endif
 };
+
+// Throw macro
+#define SFTHROW(_msg) throw(std::runtime_error(std::string(_msg)));
 
 #endif // _common_h
 
