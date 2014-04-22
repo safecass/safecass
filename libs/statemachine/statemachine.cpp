@@ -1,4 +1,3 @@
-
 //------------------------------------------------------------------------
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
@@ -14,28 +13,49 @@
 //
 #include "statemachine.h"
 
+#define NONAME "NONAME"
+
 using namespace SF::State;
 
 namespace SF {
 
 StateMachine::StateMachine(void)
 {
-    StateEventHandler * defaultEventHandler = new StateEventHandler;
+    StateEventHandler * defaultEventHandler = new StateEventHandler(NONAME);
 
-    Initialize(defaultEventHandler);
+    Initialize(NONAME, defaultEventHandler);
 }
 
-StateMachine::StateMachine(StateEventHandler * instance)
+
+StateMachine::StateMachine(const std::string & ownerName)
 {
-    if (!instance)
+    StateEventHandler * defaultEventHandler = new StateEventHandler(ownerName);
+
+    Initialize(ownerName, defaultEventHandler);
+}
+
+StateMachine::StateMachine(StateEventHandler * eventHandler)
+{
+    if (!eventHandler)
         SFTHROW("StateMachine: null event handler");
 
-    Initialize(instance);
+    Initialize(NONAME, eventHandler);
 }
 
-void StateMachine::Initialize(StateEventHandler * instance)
+StateMachine::StateMachine(const std::string & ownerName, StateEventHandler * eventHandler)
 {
-    State.EventHandlerInstance = instance;
+    if (!eventHandler)
+        SFTHROW("StateMachine: null event handler");
+
+    Initialize(ownerName, eventHandler);
+}
+
+void StateMachine::Initialize(const std::string & ownerName, StateEventHandler * eventHandler)
+{
+    OwnerName = ownerName;
+
+    State.EventHandlerInstance = eventHandler;
+
     State.start();
 }
 
@@ -77,7 +97,7 @@ void StateMachine::ProcessEvent(const TransitionType transition)
     }
 }
 
-StateType StateMachine::GetState(void) const
+StateType StateMachine::GetCurrentState(void) const
 {
     switch (State.current_state()[0]) {
         case 0: return NORMAL;
@@ -88,4 +108,46 @@ StateType StateMachine::GetState(void) const
     }
 }
  
+#if ENABLE_UNIT_TEST
+int StateMachine::GetCountEntryExit(const State::StateEntryExitType stateEntryExit) const
+{
+    if (State.EventHandlerInstance == 0)
+        return -1;
+
+    size_t index = static_cast<size_t>(stateEntryExit);
+
+    return State.EventHandlerInstance->CountEntryExit[index];
+}
+
+int StateMachine::GetCountTransition(const State::TransitionType transition) const
+{
+    if (State.EventHandlerInstance == 0)
+        return -1;
+
+    size_t index = static_cast<size_t>(transition);
+
+    return State.EventHandlerInstance->CountTransition[index];
+}
+
+void StateMachine::PrintCounters(void) const
+{
+    std::cout << GetCounterStatus() << std::endl;
+}
+
+std::string StateMachine::GetCounterStatus(void) const
+{
+    std::stringstream ss;
+    ss << "Transition: ";
+    for (int i = 0; i < State.EventHandlerInstance->CountTransition.size(); ++i)
+        ss << State.EventHandlerInstance->CountTransition[i] << " | ";
+    ss << std::endl;
+    ss << "Entry/Exit: ";
+    for (int i = 0; i < State.EventHandlerInstance->CountEntryExit.size(); ++i)
+        ss << State.EventHandlerInstance->CountEntryExit[i] << " | ";
+
+    return ss.str();
+}
+
+#endif
+
 };

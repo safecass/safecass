@@ -15,7 +15,21 @@
 
 namespace SF {
 
-StateEventHandler::StateEventHandler(void)
+StateEventHandler::StateEventHandler(void) : OwnerName("NONAME")
+{
+    Initialize();
+}
+
+StateEventHandler::StateEventHandler(const std::string & owner) : OwnerName(owner)
+{
+    Initialize();
+}
+
+StateEventHandler::~StateEventHandler(void)
+{
+}
+
+void StateEventHandler::Initialize(void)
 {
 #if ENABLE_UNIT_TEST
     CountEntryExit.resize(State::NUMBER_OF_ENTRY_EXIT);
@@ -23,15 +37,11 @@ StateEventHandler::StateEventHandler(void)
 #endif
 }
 
-StateEventHandler::~StateEventHandler(void)
-{
-}
-
 void StateEventHandler::OnStateEntryOrExit(const State::StateEntryExitType stateEntryExit)
 {
-    SFLOG_DEBUG << "Base state machine: OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
+    SFLOG_DEBUG << OwnerName << " - Base state machine: OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
     // TODO: remove std debug log later
-    std::cout << "Base state machine: OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
+    std::cout << OwnerName << " - Base state machine: OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
 
 #if ENABLE_UNIT_TEST
     ++CountEntryExit[static_cast<size_t>(stateEntryExit)];
@@ -40,9 +50,9 @@ void StateEventHandler::OnStateEntryOrExit(const State::StateEntryExitType state
 
 void StateEventHandler::OnStateTransition(const State::TransitionType transition)
 {
-    SFLOG_DEBUG << "Base state machine: OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
+    SFLOG_DEBUG << OwnerName << " - Base state machine: OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
     // TODO: remove std debug log later
-    std::cout << "Base state machine: OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
+    std::cout << OwnerName << " - Base state machine: OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
 
 #if ENABLE_UNIT_TEST
     ++CountTransition[static_cast<size_t>(transition)];

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Apr 19, 2014
+// Last revision: Apr 22, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -63,8 +63,12 @@ namespace SF {
 
         /*! State transition events */
         typedef enum {
+            // When component is enabled or disabled
+            // MJ: Should the last state be stored so that it can be restored later when
+            // this statemachine comes back, i.e., ON_ENTRY occurs?
             ON_ENTRY,
             ON_EXIT,
+            // From NORMAL
             FAULT_DETECTION,
             FAULT_REMOVAL,
             FAULT_ACTIVATION,

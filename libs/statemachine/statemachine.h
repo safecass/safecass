@@ -180,17 +180,21 @@ protected:
     /*! State machine instance */
     FaultState State;
 
+    /*! Name of owner of this state machine */
+    std::string OwnerName;
+
 private:
     /*! Common initializer */
-    void Initialize(StateEventHandler * eventHandler);
+    void Initialize(const std::string & ownerName, StateEventHandler * eventHandler);
 
 public:
     /*! Default constructor.  An instance of StateEventHandler is internally created and 
         is used as default event handler. */
     StateMachine(void);
-
-    /*! Constructor with user-provided state change event handler */
+    /*! Constructors */
+    StateMachine(const std::string & ownerName);
     StateMachine(StateEventHandler * eventHandler);
+    StateMachine(const std::string & ownerName, StateEventHandler * eventHandler);
 
     /*! Destructor */
     virtual ~StateMachine(void);
@@ -199,7 +203,10 @@ public:
     virtual void ProcessEvent(const State::TransitionType transition);
 
     /*! Return current state */
-    State::StateType GetState(void) const;
+    State::StateType GetCurrentState(void) const;
+
+    /*! Return onwer name */
+    inline const std::string & GetOwnerName(void) const { return OwnerName; }
 
     /*! Replace default state event handler with user-defined event handler.  This
         provides event hooks for applications, which allow the application layer to 
@@ -210,28 +217,11 @@ public:
     /*! State machine testing */
     //void Test(void);
     // TODO: If multiple event handlers are used, update this method as well.
-    inline int GetCountEntryExit(const State::StateEntryExitType stateEntryExit) {
-        if (State.EventHandlerInstance == 0)
-            return 0;
-        size_t index = static_cast<size_t>(stateEntryExit);
-        return State.EventHandlerInstance->CountEntryExit[index];
-    }
-    int GetCountTransition(const State::TransitionType transition) {
-        if (State.EventHandlerInstance == 0)
-            return 0;
-        size_t index = static_cast<size_t>(transition);
-        return State.EventHandlerInstance->CountTransition[index];
-    }
-    void PrintCounters() {
-        std::cout << "Transition: ";
-        for (int i = 0; i < State.EventHandlerInstance->CountTransition.size(); ++i)
-            std::cout << State.EventHandlerInstance->CountTransition[i] << " | ";
-        std::cout << std::endl;
-        std::cout << "Entry/Exit: ";
-        for (int i = 0; i < State.EventHandlerInstance->CountEntryExit.size(); ++i)
-            std::cout << State.EventHandlerInstance->CountEntryExit[i] << " | ";
-        std::cout << std::endl;
-    }
+    int GetCountEntryExit(const State::StateEntryExitType stateEntryExit) const;
+    int GetCountTransition(const State::TransitionType transition) const;
+
+    void        PrintCounters(void) const;
+    std::string GetCounterStatus(void) const;
 #endif
 };
  

@@ -21,8 +21,15 @@
 namespace SF {
 
 class SFLIB_EXPORT StateEventHandler {
+protected:
+    /*! Name of owner of this state machine */
+    std::string OwnerName;
+
+    void Initialize(void);
+
 public:
     StateEventHandler(void);
+    StateEventHandler(const std::string & owner);
     virtual ~StateEventHandler(void);
 
     virtual void OnStateEntryOrExit(const State::StateEntryExitType stateEntryExit);
