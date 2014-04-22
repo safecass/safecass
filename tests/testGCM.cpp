@@ -22,7 +22,7 @@ using namespace SF;
 SFGCMTest::SFGCMTest(void)
 {
     // test registration
-    TEST_ADD(SFGCMTest::StateMachineBasics);
+    TEST_ADD(SFGCMTest::TestStateMachineBasics);
 
     GCMHelper::cisstInit();
 }
@@ -41,49 +41,9 @@ void SFGCMTest::tear_down()
     std::cout << "tear_down\n" << std::flush;
 }
 
-void SFGCMTest::StateMachineBasics(void)
+void SFGCMTest::TestStateMachineBasics(void)
 {
     StateMachine * sm = GCMHelper::ForceSensor->FaultState;
-    /*
-    std::cout << "###### " 
-        << sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) 
-        << ", " << sm->GetCountTransition(State::ON_ENTRY)
-        << std::endl;
-    sm->print();
-
-            STATEMACHINE_ON_ENTRY,
-            ,
-            // normal state
-            ,
-            ,
-            // fault state
-            ,
-            ,
-            // error state
-            ,
-            ,
-            // failure state
-            ,
-            ,
-            // total number of state entry/exit types
-            NUMBER_OF_ENTRY_EXIT
-        } StateEntryExitType;
-
-        typedef enum {
-            ,
-            ,
-            ,
-            ,
-            ,
-            ,
-            ,
-            ,
-            ,
-            ,
-            ,
-            // total number of state transitions
-            NUMBER_OF_TRANSITIONS
-    */
 
     // initialization: state entry/exit
     TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
@@ -97,8 +57,7 @@ void SFGCMTest::StateMachineBasics(void)
     TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 0);
     TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 0);
     // initialization: transitions
-    TEST_ASSERT(sm->GetCountTransition(State::ON_ENTRY)          == 0);
-    TEST_ASSERT(sm->GetCountTransition(State::ON_EXIT)           == 0);
+    //TEST_ASSERT_MSG(sm->GetCountTransition(State::FAULT_DETECTION)   == 0, sm->GetCounterStatus().c_str());
     TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 0);
     TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 0);
     TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 0);
@@ -109,23 +68,259 @@ void SFGCMTest::StateMachineBasics(void)
     TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 0);
     TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
 
-#if 0
+    TEST_ASSERT(sm->GetCurrentState() == State::NORMAL);
+
     // to fault, back to normal
-    ProcessEvent(State::FAULT_DETECTION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::FAULT_REMOVAL); std::cout << GetString(GetState()) << std::endl;
+    sm->ProcessEvent(State::FAULT_DETECTION);
+    TEST_ASSERT(sm->GetCurrentState() == State::FAULT);
+    {
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_EXIT)  == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_ENTRY)       == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_EXIT)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_EXIT)         == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_ENTRY)        == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_EXIT)         == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 0);
+
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_DETECTION)   == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_REMOVAL)     == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_PROPAGATION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_DETECTION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
+    }
+
+    sm->ProcessEvent(State::FAULT_REMOVAL);
+    TEST_ASSERT(sm->GetCurrentState() == State::NORMAL);
+    {
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_EXIT)  == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_ENTRY)       == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_EXIT)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_ENTRY)        == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_EXIT)         == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 0);
+
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_DETECTION)   == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_REMOVAL)     == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_PROPAGATION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_DETECTION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
+    }
 
     // to error, back to normal
-    ProcessEvent(State::ERROR_DETECTION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::ERROR_REMOVAL); std::cout << GetString(GetState()) << std::endl;
+    sm->ProcessEvent(State::ERROR_DETECTION);
+    TEST_ASSERT(sm->GetCurrentState() == State::ERROR);
+    {
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_EXIT)  == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_ENTRY)       == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_EXIT)        == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_EXIT)         == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 0);
+
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_REMOVAL)     == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_PROPAGATION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_DETECTION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
+    }
+
+    sm->ProcessEvent(State::ERROR_REMOVAL);
+    TEST_ASSERT(sm->GetCurrentState() == State::NORMAL);
+    {
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_EXIT)  == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_ENTRY)       == 3);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_EXIT)        == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 0);
+
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_PROPAGATION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_DETECTION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
+    }
 
     // to failure, back to normal
-    ProcessEvent(State::FAILURE_DETECTION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::FAILURE_REMOVAL); std::cout << GetString(GetState()) << std::endl;
+    sm->ProcessEvent(State::FAILURE_DETECTION);
+    TEST_ASSERT(sm->GetCurrentState() == State::FAILURE);
+    {
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_EXIT)  == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_ENTRY)       == 3);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_EXIT)        == 3);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 0);
+
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_PROPAGATION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_DETECTION) == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
+    }
+
+    sm->ProcessEvent(State::FAILURE_REMOVAL);
+    TEST_ASSERT(sm->GetCurrentState() == State::NORMAL);
+    {
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_EXIT)  == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_ENTRY)       == 4);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_EXIT)        == 3);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 1);
+
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_PROPAGATION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_DETECTION) == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
+    }
 
     // to fault, error, failure, and back to normal
-    ProcessEvent(State::FAULT_DETECTION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::FAULT_ACTIVATION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::ERROR_PROPAGATION); std::cout << GetString(GetState()) << std::endl;
-    ProcessEvent(State::FAILURE_REMOVAL); std::cout << GetString(GetState()) << std::endl;
-#endif
+    sm->ProcessEvent(State::FAULT_DETECTION);
+    TEST_ASSERT(sm->GetCurrentState() == State::FAULT);
+    {
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_EXIT)  == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_ENTRY)       == 4);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_EXIT)        == 4);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_ENTRY)        == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_ENTRY)        == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 1);
+
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 2);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_PROPAGATION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_DETECTION) == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
+    }
+
+    sm->ProcessEvent(State::FAULT_ACTIVATION);
+    TEST_ASSERT(sm->GetCurrentState() == State::ERROR);
+    {
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_EXIT)  == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_ENTRY)       == 4);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_EXIT)        == 4);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_ENTRY)        == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_EXIT)         == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_ENTRY)        == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_EXIT)         == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 1);
+
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 2);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_PROPAGATION) == 0);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_DETECTION) == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
+    }
+
+    sm->ProcessEvent(State::ERROR_PROPAGATION);
+    TEST_ASSERT(sm->GetCurrentState() == State::FAILURE);
+    {
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_EXIT)  == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_ENTRY)       == 4);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_EXIT)        == 4);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_ENTRY)        == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_EXIT)         == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_ENTRY)        == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_EXIT)         == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 1);
+
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 2);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_PROPAGATION) == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_DETECTION) == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
+    }
+
+    sm->ProcessEvent(State::FAILURE_REMOVAL);
+    TEST_ASSERT(sm->GetCurrentState() == State::NORMAL);
+    {
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
+        TEST_ASSERT(sm->GetCountEntryExit(State::STATEMACHINE_ON_EXIT)  == 0);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_ENTRY)       == 5);
+        TEST_ASSERT(sm->GetCountEntryExit(State::NORMAL_ON_EXIT)        == 4);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_ENTRY)        == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAULT_ON_EXIT)         == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_ENTRY)        == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::ERROR_ON_EXIT)         == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_ENTRY)      == 2);
+        TEST_ASSERT(sm->GetCountEntryExit(State::FAILURE_ON_EXIT)       == 2);
+
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_DETECTION)   == 2);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAULT_ACTIVATION)  == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_DETECTION)   == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_REMOVAL)     == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::ERROR_PROPAGATION) == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_DETECTION) == 1);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_REMOVAL)   == 2);
+        TEST_ASSERT(sm->GetCountTransition(State::FAILURE_STOP)      == 0);
+    }
 }

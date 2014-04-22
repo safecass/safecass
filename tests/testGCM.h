@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 18, 2012
-// Last revision: Apr 18, 2014
+// Last revision: Apr 22, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -24,7 +24,7 @@ protected:
     void setup(void);
     void tear_down(void);
 
-    void StateMachineBasics(void);
+    void TestStateMachineBasics(void);
 
 public:
     SFGCMTest(void);
