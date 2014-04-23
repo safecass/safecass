@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
-# Last revision: Apr 15, 2014
+# Last revision: Apr 22, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -58,6 +58,10 @@ set (SF_LIB_FDD_SRC # faults
                     #${LIB_DIR}/fdd/filters/trendVel.h ${LIB_DIR}/fdd/filters/code/trendVel.cpp
                     )
 set (SF_LIB_FDD_INCLUDE_DIR ${LIB_DIR}/fdd ${LIB_DIR}/fdd/filters)
+
+# Generic Component Model (GCM)
+set (SF_LIB_GCM_SRC ${LIB_DIR}/gcm/gcm.h ${LIB_DIR}/gcm/gcm.cpp)
+set (SF_LIB_GCM_INCLUDE_DIR ${LIB_DIR}/gcm)
 
 # adapters
 set (SF_LIB_ADAPTER_BASE_DIR ${LIB_DIR}/adapters)
@@ -152,14 +156,16 @@ set (SF_LIB_SRC ${SF_LIB_COMMON_SRC}
                 ${SF_LIB_MONITOR_SRC} 
                 ${SF_LIB_FDD_SRC}
                 ${SF_LIB_STATEMACHINE_SRC}
-                ${SF_LIB_COMMUNICATOR_SRC})
+                ${SF_LIB_COMMUNICATOR_SRC}
+                ${SF_LIB_GCM_SRC})
 set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} 
                         ${SF_LIB_COMMON_INCLUDE_DIR}
                         ${SF_LIB_SUPERVISOR_INCLUDE_DIR}
                         ${SF_LIB_MONITOR_INCLUDE_DIR}
                         ${SF_LIB_FDD_INCLUDE_DIR}
                         ${SF_LIB_STATEMACHINE_INCLUDE_DIR}
-                        ${SF_LIB_COMMUNICATOR_INCLUDE_DIR})
+                        ${SF_LIB_COMMUNICATOR_INCLUDE_DIR}
+                        ${SF_LIB_GCM_INCLUDE_DIR})
 
 # Set project-wide paths
 configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h)
