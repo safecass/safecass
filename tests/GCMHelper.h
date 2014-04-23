@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 19, 2012
-// Last revision: Apr 19, 2014
+// Last revision: Apr 22, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -17,6 +17,7 @@
 #include <cisstMultiTask/mtsTaskPeriodic.h>
 #include <cisstMultiTask/mtsTaskManager.h>
 #include <cisstMultiTask/mtsInterfaceProvided.h>
+#include <cisstMultiTask/mtsInterfaceRequired.h>
 
 namespace SF {
 
@@ -45,6 +46,9 @@ public:
 //
 class ControlComp: public mtsTaskPeriodic {
 protected:
+    // R1
+    mtsFunctionRead ReadForceX;
+    mtsFunctionRead ReadForceXYZ;
 
 public:
     ControlComp(const std::string & name, double period);

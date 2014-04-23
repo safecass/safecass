@@ -23,6 +23,8 @@ SFGCMTest::SFGCMTest(void)
 {
     // test registration
     TEST_ADD(SFGCMTest::TestStateMachineBasics);
+    TEST_ADD(SFGCMTest::TestStateProductOperator);
+    TEST_ADD(SFGCMTest::TestSafecompScenario);
 
     GCMHelper::cisstInit();
 }
@@ -323,4 +325,151 @@ void SFGCMTest::TestStateMachineBasics(void)
         TEST_ASSERT(sm.GetCountTransition(State::FAILURE_REMOVAL)   == 2);
         TEST_ASSERT(sm.GetCountTransition(State::FAILURE_STOP)      == 0);
     }
+}
+
+void SFGCMTest::TestStateProductOperator(void)
+{
+    State s1, s2;
+    TEST_ASSERT(s1.GetState() == State::NORMAL);
+    TEST_ASSERT(s2.GetState() == State::NORMAL);
+
+    s1.SetState(State::NORMAL);
+    TEST_ASSERT(s1.GetState() == State::NORMAL);
+    s1.SetState(State::FAULT);
+    TEST_ASSERT(s1.GetState() == State::FAULT);
+    s1.SetState(State::ERROR);
+    TEST_ASSERT(s1.GetState() == State::ERROR);
+    s1.SetState(State::FAILURE);
+    TEST_ASSERT(s1.GetState() == State::FAILURE);
+
+    // operator==
+    s1.SetState(State::NORMAL);
+    s2.SetState(State::NORMAL);
+    TEST_ASSERT(s1 == s2);
+    s2.SetState(State::FAULT);
+    TEST_ASSERT(!(s1 == s2));
+    s2.SetState(State::ERROR);
+    TEST_ASSERT(!(s1 == s2));
+    s2.SetState(State::FAILURE);
+    TEST_ASSERT(!(s1 == s2));
+
+    // operator!=
+    s1.SetState(State::NORMAL);
+    s2.SetState(State::FAULT);
+    TEST_ASSERT(s1 != s2);
+    s2.SetState(State::ERROR);
+    TEST_ASSERT(s1 != s2);
+    s2.SetState(State::FAILURE);
+    TEST_ASSERT(s1 != s2);
+
+    // operator>
+    s1.SetState(State::NORMAL); s2.SetState(State::NORMAL);
+    TEST_ASSERT(!(s1 > s2));
+    TEST_ASSERT(!(s2 > s1));
+
+    s1.SetState(State::NORMAL); s2.SetState(State::FAULT);
+    TEST_ASSERT(!(s1 > s2));
+    TEST_ASSERT(s2 > s1);
+
+    s1.SetState(State::NORMAL); s2.SetState(State::ERROR);
+    TEST_ASSERT(!(s1 > s2));
+    TEST_ASSERT(s2 > s1);
+
+    s1.SetState(State::NORMAL); s2.SetState(State::FAILURE);
+    TEST_ASSERT(!(s1 > s2));
+    TEST_ASSERT(s2 > s1);
+
+    s1.SetState(State::FAULT); s2.SetState(State::FAULT);
+    TEST_ASSERT(!(s1 > s2));
+    TEST_ASSERT(!(s2 > s1));
+
+    s1.SetState(State::FAULT); s2.SetState(State::ERROR);
+    TEST_ASSERT(!(s1 > s2));
+    TEST_ASSERT(s2 > s1);
+
+    s1.SetState(State::FAULT); s2.SetState(State::FAILURE);
+    TEST_ASSERT(!(s1 > s2));
+    TEST_ASSERT(s2 > s1);
+
+    s1.SetState(State::ERROR); s2.SetState(State::ERROR);
+    TEST_ASSERT(!(s1 > s2));
+    TEST_ASSERT(!(s2 > s1));
+
+    s1.SetState(State::ERROR); s2.SetState(State::FAILURE);
+    TEST_ASSERT(!(s1 > s2));
+    TEST_ASSERT(s2 > s1);
+
+    s1.SetState(State::FAILURE); s2.SetState(State::FAILURE);
+    TEST_ASSERT(!(s1 > s2));
+    TEST_ASSERT(!(s2 > s1));
+
+    // operator<
+    s1.SetState(State::NORMAL); s2.SetState(State::NORMAL);
+    TEST_ASSERT(!(s1 < s2));
+    TEST_ASSERT(!(s2 < s1));
+
+    s1.SetState(State::NORMAL); s2.SetState(State::FAULT);
+    TEST_ASSERT(s1 < s2);
+    TEST_ASSERT(!(s2 < s1));
+
+    s1.SetState(State::NORMAL); s2.SetState(State::ERROR);
+    TEST_ASSERT(s1 < s2);
+    TEST_ASSERT(!(s2 < s1));
+
+    s1.SetState(State::NORMAL); s2.SetState(State::FAILURE);
+    TEST_ASSERT(s1 < s2);
+    TEST_ASSERT(!(s2 < s1));
+
+    s1.SetState(State::FAULT); s2.SetState(State::FAULT);
+    TEST_ASSERT(!(s1 < s2));
+    TEST_ASSERT(!(s2 < s1));
+
+    s1.SetState(State::FAULT); s2.SetState(State::ERROR);
+    TEST_ASSERT(s1 < s2);
+    TEST_ASSERT(!(s2 < s1));
+
+    s1.SetState(State::FAULT); s2.SetState(State::FAILURE);
+    TEST_ASSERT(s1 < s2);
+    TEST_ASSERT(!(s2 < s1));
+
+    s1.SetState(State::ERROR); s2.SetState(State::ERROR);
+    TEST_ASSERT(!(s1 < s2));
+    TEST_ASSERT(!(s2 < s1));
+
+    s1.SetState(State::ERROR); s2.SetState(State::FAILURE);
+    TEST_ASSERT(s1 < s2);
+    TEST_ASSERT(!(s2 < s1));
+
+    s1.SetState(State::FAILURE); s2.SetState(State::FAILURE);
+    TEST_ASSERT(!(s1 < s2));
+    TEST_ASSERT(!(s2 < s1));
+
+    // operator*
+    s1.SetState(State::NORMAL); s2.SetState(State::NORMAL);   TEST_ASSERT((s1 * s2) == State(State::NORMAL));
+    s1.SetState(State::NORMAL); s2.SetState(State::FAULT);    TEST_ASSERT((s1 * s2) == State(State::FAULT));
+    s1.SetState(State::NORMAL); s2.SetState(State::ERROR);    TEST_ASSERT((s1 * s2) == State(State::ERROR));
+    s1.SetState(State::NORMAL); s2.SetState(State::FAILURE);  TEST_ASSERT((s1 * s2) == State(State::FAILURE));
+    s1.SetState(State::FAULT); s2.SetState(State::NORMAL);    TEST_ASSERT((s1 * s2) == State(State::FAULT));
+    s1.SetState(State::FAULT); s2.SetState(State::FAULT);     TEST_ASSERT((s1 * s2) == State(State::FAULT));
+    s1.SetState(State::FAULT); s2.SetState(State::ERROR);     TEST_ASSERT((s1 * s2) == State(State::ERROR));
+    s1.SetState(State::FAULT); s2.SetState(State::FAILURE);   TEST_ASSERT((s1 * s2) == State(State::FAILURE));
+    s1.SetState(State::ERROR); s2.SetState(State::NORMAL);    TEST_ASSERT((s1 * s2) == State(State::ERROR));
+    s1.SetState(State::ERROR); s2.SetState(State::FAULT);     TEST_ASSERT((s1 * s2) == State(State::ERROR));
+    s1.SetState(State::ERROR); s2.SetState(State::ERROR);     TEST_ASSERT((s1 * s2) == State(State::ERROR));
+    s1.SetState(State::ERROR); s2.SetState(State::FAILURE);   TEST_ASSERT((s1 * s2) == State(State::FAILURE));
+    s1.SetState(State::FAILURE); s2.SetState(State::NORMAL);  TEST_ASSERT((s1 * s2) == State(State::FAILURE));
+    s1.SetState(State::FAILURE); s2.SetState(State::FAULT);   TEST_ASSERT((s1 * s2) == State(State::FAILURE));
+    s1.SetState(State::FAILURE); s2.SetState(State::ERROR);   TEST_ASSERT((s1 * s2) == State(State::FAILURE));
+    s1.SetState(State::FAILURE); s2.SetState(State::FAILURE); TEST_ASSERT((s1 * s2) == State(State::FAILURE));
+
+    // assignment operator
+    s1.SetState(State::NORMAL);
+    s2.SetState(State::FAULT);
+    s1 = s2;
+    TEST_ASSERT(s1 == s2);
+}
+
+void SFGCMTest::TestSafecompScenario(void)
+{
+    //
 }

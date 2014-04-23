@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 19, 2012
-// Last revision: Apr 21, 2014
+// Last revision: Apr 22, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -88,9 +88,10 @@ ForceSensorComp::ForceSensorComp(const std::string & name, double period)
     StateTable.AddData(ForceXYZ, "ForceXYZ");
 
     mtsInterfaceProvided * provided = AddInterfaceProvided("P1");
-    if (provided) {
-        // TODO
-    }
+    SFASSERT(provided);
+
+    provided->AddCommandReadState(StateTable, ForceX, "GetForceX");
+    provided->AddCommandReadState(StateTable, ForceXYZ, "GetForceXYZ");
 }
 
 void ForceSensorComp::Run(void)
@@ -120,14 +121,13 @@ ControlComp::ControlComp(const std::string & name, double period)
     : mtsTaskPeriodic(name, period, false, 5000)
 {
     mtsInterfaceRequired * required = AddInterfaceRequired("R1", MTS_OPTIONAL);
-    if (required) {
-        // TODO
-    }
+    SFASSERT(required);
+    required->AddFunction("GetForceX", ReadForceX);
+    required->AddFunction("GetForceXYZ", ReadForceXYZ);
 
     mtsInterfaceProvided * provided = AddInterfaceProvided("P1");
-    if (provided) {
-        // TODO
-    }
+    SFASSERT(provided);
+    // TODO: STOP and PAUSE event generators
 }
 
 void ControlComp::Run(void)
@@ -142,9 +142,8 @@ WorkflowComp::WorkflowComp(const std::string & name, double period)
     : mtsTaskPeriodic(name, period, false, 5000)
 {
     mtsInterfaceRequired * required = AddInterfaceRequired("R1", MTS_OPTIONAL);
-    if (required) {
-        // TODO
-    }
+    SFASSERT(required);
+    // TODO: STOP and PAUSE event handlers
 }
 
 void WorkflowComp::Run(void)

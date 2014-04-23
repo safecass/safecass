@@ -7,13 +7,11 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Apr 21, 2014
+// Last revision: Apr 22, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "statemachine.h"
-
-using namespace SF::State;
 
 namespace SF {
 
@@ -78,31 +76,31 @@ void StateMachine::SetStateEventHandler(StateEventHandler * instance)
     State.EventHandlerInstance = instance;
 }
 
-void StateMachine::ProcessEvent(const TransitionType transition)
+void StateMachine::ProcessEvent(const State::TransitionType transition)
 {
     switch (transition) {
-    case FAULT_DETECTION:   State.process_event(fault_detection()); break;
-    case FAULT_REMOVAL:     State.process_event(fault_removal()); break;
-    case FAULT_ACTIVATION:  State.process_event(fault_activation()); break;
-    case ERROR_DETECTION:   State.process_event(error_detection()); break;
-    case ERROR_REMOVAL:     State.process_event(error_removal()); break;
-    case ERROR_PROPAGATION: State.process_event(error_propagation()); break;
-    case FAILURE_DETECTION: State.process_event(failure_detection()); break;
-    case FAILURE_REMOVAL:   State.process_event(failure_removal()); break;
-    case FAILURE_STOP:      State.process_event(failure_stop()); break;
+    case State::FAULT_DETECTION:   State.process_event(fault_detection()); break;
+    case State::FAULT_REMOVAL:     State.process_event(fault_removal()); break;
+    case State::FAULT_ACTIVATION:  State.process_event(fault_activation()); break;
+    case State::ERROR_DETECTION:   State.process_event(error_detection()); break;
+    case State::ERROR_REMOVAL:     State.process_event(error_removal()); break;
+    case State::ERROR_PROPAGATION: State.process_event(error_propagation()); break;
+    case State::FAILURE_DETECTION: State.process_event(failure_detection()); break;
+    case State::FAILURE_REMOVAL:   State.process_event(failure_removal()); break;
+    case State::FAILURE_STOP:      State.process_event(failure_stop()); break;
     default:
         return;
     }
 }
 
-StateType StateMachine::GetCurrentState(void) const
+State::StateType StateMachine::GetCurrentState(void) const
 {
     switch (State.current_state()[0]) {
-        case 0: return NORMAL;
-        case 1: return FAULT;
-        case 2: return ERROR;
-        case 3: return FAILURE;
-        default: return INVALID;
+    case 0: return State::NORMAL;
+    case 1: return State::FAULT;
+    case 2: return State::ERROR;
+    case 3: return State::FAILURE;
+    default: return State::INVALID;
     }
 }
  

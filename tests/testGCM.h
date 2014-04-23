@@ -24,8 +24,14 @@ protected:
     void setup(void);
     void tear_down(void);
 
-    /*! Basic correctness test for SF::StateMachine class */
+    /*! Correctness tests against SF::StateMachine class for basic feature implementation */
     void TestStateMachineBasics(void);
+
+    /*! State product operation */
+    void TestStateProductOperator(void);
+
+    /*! Tests of SafeComp14 scenario */
+    void TestSafecompScenario(void);
 
 public:
     SFGCMTest(void);

@@ -137,5 +137,24 @@ void GCM::ProcessEvent_Interface(const SF::State::TransitionType transition)
     // TODO
 }
 
+State::StateType GCM::GetComponentState(const ComponentStateViews view) const
+{
+    SFASSERT(States.ComponentFramework);
+    SFASSERT(States.ComponentApplication);
+
+    switch (view) {
+    case GCM::SYSTEM_VIEW:
+        // TODO: implement state product operator
+    case GCM::FRAMEWORK_VIEW:
+        return States.ComponentFramework->GetCurrentState();
+    case GCM::APPLICATION_VIEW:
+        return States.ComponentApplication->GetCurrentState();
+    }
+}
+
+State::StateType GCM::GetInterfaceState(const std::string & name, const GCM::InterfaceTypes type) const
+{
+    return State::INVALID;
+}
 
 };

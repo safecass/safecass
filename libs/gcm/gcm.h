@@ -21,6 +21,8 @@
 
 #include "common.h"
 #include "statemachine.h"
+#include "state.h"
+
 #include <map>
 
 namespace SF {
@@ -28,6 +30,9 @@ namespace SF {
 class SFLIB_EXPORT GCM
 {
 public:
+    /*! Typedef for component state views */
+    typedef enum { SYSTEM_VIEW, FRAMEWORK_VIEW, APPLICATION_VIEW } ComponentStateViews;
+    /*! Typedef for interface types */
     typedef enum { PROVIDED_INTERFACE, REQUIRED_INTERFACE } InterfaceTypes;
 
     /*! Typedef for map of interfaces (key: interface name, value: statemachine 
@@ -54,7 +59,7 @@ private:
     GCM(void);
 
 public:
-    /*! Constructors with owner.  GCM is initialized based on information about owner 
+    /*! Constructor with owner.  GCM is initialized based on information about owner 
         component specified. */
     GCM(const std::string & componentName);
 
@@ -76,8 +81,12 @@ public:
     //
     // Getters
     //
-    /*! Return name of component that this GCM is associated with */
+    /*! Returns name of component that this GCM is associated with */
     const std::string & GetComponentName(void) const { return ComponentName; }
+    /*! Returns component state */
+    State::StateType GetComponentState(const ComponentStateViews view = SYSTEM_VIEW) const;
+    /*! Returns interface state */
+    State::StateType GetInterfaceState(const std::string & name, const GCM::InterfaceTypes type) const;
 
     //
     // Misc.
