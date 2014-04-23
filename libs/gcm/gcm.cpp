@@ -124,17 +124,35 @@ bool GCM::RemoveInterface(const std::string & name, const GCM::InterfaceTypes ty
 
 void GCM::ProcessEvent_ComponentFramework(const SF::State::TransitionType transition)
 {
-    // TODO
+    SFASSERT(States.ComponentFramework);
+    States.ComponentFramework->ProcessEvent(transition);
 }
 
 void GCM::ProcessEvent_ComponentApplication(const SF::State::TransitionType transition)
 {
-    // TODO
+    SFASSERT(States.ComponentApplication);
+    States.ComponentApplication->ProcessEvent(transition);
 }
 
-void GCM::ProcessEvent_Interface(const SF::State::TransitionType transition)
+void GCM::ProcessEvent_Interface(const std::string & name, const GCM::InterfaceTypes type, 
+                                 const SF::State::TransitionType transition)
 {
-    // TODO
+    InterfaceStateMachinesType::iterator it;
+    if (type == PROVIDED_INTERFACE) {
+        it = States.ProvidedInterfaces.find(name);
+        if (it == States.ProvidedInterfaces.end()) {
+            SFLOG_ERROR << "Failed to handle transition event: " << State::GetString(transition) << std::endl;
+            return;
+        }
+        it->second->ProcessEvent(transition);
+    } else {
+        it = States.RequiredInterfaces.find(name);
+        if (it == States.RequiredInterfaces.end()) {
+            SFLOG_ERROR << "Failed to handle transition event: " << State::GetString(transition) << std::endl;
+            return;
+        }
+        it->second->ProcessEvent(transition);
+    }
 }
 
 State::StateType GCM::GetComponentState(const ComponentStateViews view) const
@@ -142,13 +160,16 @@ State::StateType GCM::GetComponentState(const ComponentStateViews view) const
     SFASSERT(States.ComponentFramework);
     SFASSERT(States.ComponentApplication);
 
+    State stateFrameworkView(States.ComponentFramework->GetCurrentState());
+    State stateApplicationView(States.ComponentApplication->GetCurrentState());
+
     switch (view) {
     case GCM::SYSTEM_VIEW:
-        // TODO: implement state product operator
+        return (stateFrameworkView * stateApplicationView).GetState();
     case GCM::FRAMEWORK_VIEW:
-        return States.ComponentFramework->GetCurrentState();
+        return stateFrameworkView.GetState();
     case GCM::APPLICATION_VIEW:
-        return States.ComponentApplication->GetCurrentState();
+        return stateApplicationView.GetState();
     }
 }
 

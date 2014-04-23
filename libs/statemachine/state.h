@@ -99,11 +99,11 @@ public:
     inline bool operator==(const State & rhs) const {
         return (this->CurrentState == rhs.CurrentState);
     }
-
     inline bool operator!=(const State & rhs) const {
         return !(this->CurrentState == rhs.CurrentState);
     }
 
+    /*! State inequality: Normal < Fault < Error < Failure */
     bool operator> (const State & rhs) const;
     bool operator< (const State & rhs) const;
 
@@ -117,11 +117,10 @@ public:
           Fa  | Fa Fa Fa Fa
      */
     State operator* (const State & rhs) const;
-
     State operator*= (const State & rhs) const;
-
     State & operator= (const State & rhs);
 
+    /*! String representation of states, entry/exit events, and transitions */
     static const std::string GetString(StateType type);
     static const std::string GetString(StateEntryExitType type);
     static const std::string GetString(TransitionType type);

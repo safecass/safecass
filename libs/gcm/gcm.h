@@ -76,7 +76,8 @@ public:
     /*! State change event handlers */
     void ProcessEvent_ComponentFramework(const SF::State::TransitionType transition);
     void ProcessEvent_ComponentApplication(const SF::State::TransitionType transition);
-    void ProcessEvent_Interface(const SF::State::TransitionType transition);
+    void ProcessEvent_Interface(const std::string & name, const GCM::InterfaceTypes type,
+                                const SF::State::TransitionType transition);
 
     //
     // Getters
