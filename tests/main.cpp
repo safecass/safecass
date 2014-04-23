@@ -22,6 +22,7 @@
 
 // test suites
 #include "testJson.h"
+#include "testState.h"
 #if SF_HAS_CISST
 #include "testGCM.h"
 #endif
@@ -86,6 +87,7 @@ int main(int argc, char ** argv)
     // Define test suites
     Test::Suite suite;
     suite.add(auto_ptr<Test::Suite>(new SFUtilTest));
+    suite.add(auto_ptr<Test::Suite>(new SFStateTest));
 #if SF_HAS_CISST
     SFGCMTest * GCMTest = 0;
     try {
