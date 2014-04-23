@@ -55,19 +55,37 @@ GCM::~GCM(void)
 
 void GCM::ToStream(std::ostream & out) const
 {
-    out << "Owner: " << this->ComponentName
-        << std::endl;
+    out << "Owner component: " << this->ComponentName << std::endl;
+    out << "Required interfaces: ";
+    InterfaceStateMachinesType::const_iterator it = States.RequiredInterfaces.begin();
+    for (; it != States.RequiredInterfaces.end(); ++it)
+        out << "\"" << it->first << "\" ";
+    out << std::endl;
+
+    out << "Provided interfaces: ";
+    it = States.ProvidedInterfaces.begin();
+    for (; it != States.ProvidedInterfaces.end(); ++it)
+        out << "\"" << it->first << "\" ";
+    out << std::endl;
 }
 
 bool GCM::AddInterface(const std::string & name, const GCM::InterfaceTypes type)
 {
     if (type == PROVIDED_INTERFACE) {
-        if (States.ProvidedInterfaces.find(name) != States.ProvidedInterfaces.end())
+        if (States.ProvidedInterfaces.find(name) != States.ProvidedInterfaces.end()) {
+#if ENABLE_UNIT_TEST
+            std::cout << *this << std::endl;
+#endif
             return false;
+        }
         States.ProvidedInterfaces.insert(std::make_pair(name, new StateMachine(name)));
     } else {
-        if (States.RequiredInterfaces.find(name) != States.RequiredInterfaces.end())
+        if (States.RequiredInterfaces.find(name) != States.RequiredInterfaces.end()) {
+#if ENABLE_UNIT_TEST
+            std::cout << *this << std::endl;
+#endif
             return false;
+        }
         States.RequiredInterfaces.insert(std::make_pair(name, new StateMachine(name)));
     }
     
