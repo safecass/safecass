@@ -13,8 +13,6 @@
 //
 #include "statemachine.h"
 
-#define NONAME "NONAME"
-
 using namespace SF::State;
 
 namespace SF {

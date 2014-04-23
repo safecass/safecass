@@ -23,6 +23,7 @@
 #include "config.h"
 #include "stateEventHandler.h"
 #include <iostream>
+
 // boost msm
 #include <boost/msm/back/state_machine.hpp> // back-end
 #include <boost/msm/front/state_machine_def.hpp> // front-end
@@ -202,12 +203,18 @@ public:
     /*! Process state change events */
     virtual void ProcessEvent(const State::TransitionType transition);
 
+    //
+    // Getters
+    //
     /*! Return current state */
     State::StateType GetCurrentState(void) const;
 
     /*! Return onwer name */
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
 
+    //
+    // Setters
+    //
     /*! Replace default state event handler with user-defined event handler.  This
         provides event hooks for applications, which allow the application layer to 
         handle state change events.  Any existing state event handler is deleted. */

@@ -117,6 +117,12 @@ std::string GetCISSTInfo(void);
 // Throw macro
 #define SFTHROW(_msg) throw(std::runtime_error(std::string(_msg)));
 
+//--------------------------------------------------
+//  Common macro definitions
+//--------------------------------------------------
+// String definitions
+#define NONAME "NONAME"
+
 #endif // _common_h
 
 // Define which middleware is active

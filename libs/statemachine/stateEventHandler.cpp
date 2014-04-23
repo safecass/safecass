@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Apr 21, 2014
+// Last revision: Apr 22, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -40,8 +40,7 @@ void StateEventHandler::Initialize(void)
 void StateEventHandler::OnStateEntryOrExit(const State::StateEntryExitType stateEntryExit)
 {
     SFLOG_DEBUG << OwnerName << " - Base state machine: OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
-    // TODO: remove std debug log later
-    std::cout << OwnerName << " - Base state machine: OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
+    //std::cout << OwnerName << " - Base state machine: OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
 
 #if ENABLE_UNIT_TEST
     ++CountEntryExit[static_cast<size_t>(stateEntryExit)];
@@ -51,8 +50,7 @@ void StateEventHandler::OnStateEntryOrExit(const State::StateEntryExitType state
 void StateEventHandler::OnStateTransition(const State::TransitionType transition)
 {
     SFLOG_DEBUG << OwnerName << " - Base state machine: OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
-    // TODO: remove std debug log later
-    std::cout << OwnerName << " - Base state machine: OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
+    //std::cout << OwnerName << " - Base state machine: OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
 
 #if ENABLE_UNIT_TEST
     ++CountTransition[static_cast<size_t>(transition)];
