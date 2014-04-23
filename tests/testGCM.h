@@ -24,6 +24,7 @@ protected:
     void setup(void);
     void tear_down(void);
 
+    /*! Basic correctness test for SF::StateMachine class */
     void TestStateMachineBasics(void);
 
 public:
