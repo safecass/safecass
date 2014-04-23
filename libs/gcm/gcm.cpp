@@ -175,7 +175,18 @@ State::StateType GCM::GetComponentState(const ComponentStateViews view) const
 
 State::StateType GCM::GetInterfaceState(const std::string & name, const GCM::InterfaceTypes type) const
 {
-    return State::INVALID;
+    InterfaceStateMachinesType::const_iterator it;
+    if (type == PROVIDED_INTERFACE) {
+        it = States.ProvidedInterfaces.find(name);
+        if (it == States.ProvidedInterfaces.end())
+            return State::INVALID;
+        return it->second->GetCurrentState();
+    } else {
+        it = States.RequiredInterfaces.find(name);
+        if (it == States.RequiredInterfaces.end())
+            return State::INVALID;
+        return it->second->GetCurrentState();
+    }
 }
 
 };

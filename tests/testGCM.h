@@ -7,9 +7,11 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 18, 2012
-// Last revision: Apr 22, 2014
+// Last revision: Apr 23, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
+//
+// Unit tests for the three-component system that SafeComp14 paper describes.
 //
 #ifndef _SFGCMTest_h
 #define _SFGCMTest_h
@@ -24,8 +26,7 @@ protected:
     void setup(void);
     void tear_down(void);
 
-    /*! Tests of SafeComp14 scenario */
-    void TestSafecompScenario(void);
+    void TestInitialStates(void);
 
 public:
     SFGCMTest(void);
