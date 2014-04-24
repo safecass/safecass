@@ -92,3 +92,7 @@ void SFGCMTest::TestInitialStates(void)
         TEST_ASSERT(gcm->GetInterfaceState("P1", GCM::PROVIDED_INTERFACE) == State::NORMAL);
     }
 }
+
+// TODO: test if state product operator works (S=sF*sA)
+// TODO: if interface state changes, does system view change?
+// TODO: if ForceSensor:P1 fails, does state of Control also change?
