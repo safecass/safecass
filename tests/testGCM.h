@@ -27,6 +27,7 @@ protected:
     void tear_down(void);
 
     void TestInitialStates(void);
+    void TestEventPropagation(void);
 
 public:
     SFGCMTest(void);

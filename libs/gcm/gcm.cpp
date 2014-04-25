@@ -134,19 +134,20 @@ void GCM::ProcessEvent_ComponentApplication(const SF::State::TransitionType tran
     States.ComponentApplication->ProcessEvent(transition);
 }
 
-void GCM::ProcessEvent_Interface(const std::string & name, const GCM::InterfaceTypes type, 
-                                 const SF::State::TransitionType transition)
+void GCM::ProcessEvent_Interface(const std::string & interfaceName, 
+                                const GCM::InterfaceTypes interfaceType,
+                                const SF::State::TransitionType transition)
 {
     InterfaceStateMachinesType::iterator it;
-    if (type == PROVIDED_INTERFACE) {
-        it = States.ProvidedInterfaces.find(name);
+    if (interfaceType == PROVIDED_INTERFACE) {
+        it = States.ProvidedInterfaces.find(interfaceName);
         if (it == States.ProvidedInterfaces.end()) {
             SFLOG_ERROR << "Failed to handle transition event: " << State::GetString(transition) << std::endl;
             return;
         }
         it->second->ProcessEvent(transition);
     } else {
-        it = States.RequiredInterfaces.find(name);
+        it = States.RequiredInterfaces.find(interfaceName);
         if (it == States.RequiredInterfaces.end()) {
             SFLOG_ERROR << "Failed to handle transition event: " << State::GetString(transition) << std::endl;
             return;

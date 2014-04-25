@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 18, 2012
-// Last revision: Apr 22, 2014
+// Last revision: Apr 25, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -23,6 +23,7 @@ SFGCMTest::SFGCMTest(void)
 {
     // test registration
     TEST_ADD(SFGCMTest::TestInitialStates);
+    TEST_ADD(SFGCMTest::TestEventPropagation);
 
     GCMHelper::cisstInit();
 }
@@ -93,6 +94,10 @@ void SFGCMTest::TestInitialStates(void)
     }
 }
 
-// TODO: test if state product operator works (S=sF*sA)
-// TODO: if interface state changes, does system view change?
-// TODO: if ForceSensor:P1 fails, does state of Control also change?
+void SFGCMTest::TestEventPropagation(void)
+{
+    // TODO: change each state one by one and see if relevant state changes occur.
+
+    // TODO: if interface state changes, does system view change?
+    // TODO: if ForceSensor:P1 fails, does state of Control also change?
+}
