@@ -29,7 +29,6 @@
 
 namespace SF {
 
-//    namespace State {
 class SFLIB_EXPORT State
 {
 public:
@@ -125,8 +124,6 @@ public:
     static const std::string GetString(StateEntryExitType type);
     static const std::string GetString(TransitionType type);
 };
-
-/*! Human readable output of state */
 
 }; // SF
 

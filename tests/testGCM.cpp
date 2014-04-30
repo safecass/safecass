@@ -23,6 +23,7 @@ SFGCMTest::SFGCMTest(void)
 {
     // test registration
     TEST_ADD(SFGCMTest::TestInitialStates);
+    TEST_ADD(SFGCMTest::TestFilterInstalled);
     TEST_ADD(SFGCMTest::TestEventPropagation);
 
     GCMHelper::cisstInit();
@@ -92,6 +93,10 @@ void SFGCMTest::TestInitialStates(void)
         // interfaces
         TEST_ASSERT(gcm->GetInterfaceState("P1", GCM::PROVIDED_INTERFACE) == State::NORMAL);
     }
+}
+
+void SFGCMTest::TestFilterInstalled(void)
+{
 }
 
 void SFGCMTest::TestEventPropagation(void)
