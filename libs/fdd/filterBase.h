@@ -29,7 +29,7 @@ class HistoryBufferBase;
 class EventPublisherBase;
 
 // Helper macros to ease implementation of Create() function
-#define SF_IMPLEMENT_FACTORY_CREATE(_className)\
+#define SF_DEFINE_FACTORY_CREATE(_className)\
     static FilterBase * Create(const SF::JSON::JSONVALUE & jsonNode) {\
         return new _className(jsonNode);\
     }
@@ -104,16 +104,16 @@ protected:
     //! Typedef for derived classes
     typedef FilterBase BaseType;
 
-    //! UID of this filter
+    //! UID of this filter (copy of FilterUID for this particular filter)
     const FilterIDType UID;
 
     //! Name of this filter
-    std::string Name;
+    const std::string Name;
 
     //! Class name of this filter
     /*! Derived filter is instantiated based on this class name string 
      */
-    std::string ClassName;
+    const std::string ClassName;
 
     //! Category of this filter
     const FilterCategory Category;
@@ -211,10 +211,10 @@ protected:
     FilterBase(void);
 public:
     //! Constructor with explicit arguments
-    FilterBase(const std::string & filterName,
-               FilterCategory      filterCategory,
-               const std::string & targetComponentName,
-               FilteringType       monitoringType);
+    FilterBase(const std::string  & filterName,
+               const FilterCategory filterCategory,
+               const std::string  & targetComponentName,
+               const FilteringType  monitoringType);
     //! Constructor using instance of JSON structure
     FilterBase(const std::string & filterName,
                const JSON::JSONVALUE & jsonNode);

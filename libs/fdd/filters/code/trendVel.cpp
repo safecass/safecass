@@ -94,7 +94,6 @@ void FilterTrendVel::DoFiltering(void)
             } else {
                 std::cout << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
             }
-
         }
 
         // Update local cache
@@ -111,7 +110,7 @@ void FilterTrendVel::DoFiltering(void)
 
         // Filtering algorithm: 1st-order differentiation
         SignalElement::VectorType newInput = InputSignals[0]->GetPlaceholderVector();
-        const SignalElement::TimestampType newTimestamp = InputSignals[0]->GetTimeLastSampleFetched();
+        const TimestampType newTimestamp = InputSignals[0]->GetTimeLastSampleFetched();
         if (!PreviousValue.Initialized) {
             // bypass first input as first output
             OutputSignals[0]->SetPlaceholderVector(newInput);

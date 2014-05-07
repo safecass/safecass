@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: September 3, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Sep 3, 2012
+// Last revision: May 6, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #include "threshold.h"
 #include "dict.h"
 #include "jsonSerializer.h"
@@ -44,15 +43,15 @@ FilterThreshold::FilterThreshold(BaseType::FilterCategory      category,
 FilterThreshold::FilterThreshold(const JSON::JSONVALUE & jsonNode)
     : FilterBase(FilterThreshold::Name, jsonNode),
       NameOfInputSignal(JSON::GetSafeValueString(
-          jsonNode[Dict::Filter::arguments], Dict::Filter::input_signal_name)),
+          jsonNode[Dict::Filter::Arguments], Dict::Filter::InputSignalName)),
       Threshold(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::arguments], Dict::FilterThreshold::threshold)),
+          jsonNode[Dict::Filter::Arguments], Dict::FilterThreshold::threshold)),
       Margin(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::arguments], Dict::FilterThreshold::margin)),
+          jsonNode[Dict::Filter::Arguments], Dict::FilterThreshold::margin)),
       Output0(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::arguments], Dict::FilterThreshold::output0)),
+          jsonNode[Dict::Filter::Arguments], Dict::FilterThreshold::output0)),
       Output1(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::arguments], Dict::FilterThreshold::output1))
+          jsonNode[Dict::Filter::Arguments], Dict::FilterThreshold::output1))
 {
     Initialize();
 }
@@ -81,7 +80,6 @@ FilterThreshold::~FilterThreshold()
 
 bool FilterThreshold::InitFilter(void)
 {
-    // NOP
     return true;
 }
 

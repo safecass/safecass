@@ -46,7 +46,7 @@ protected:
     // MJ: Could use separate API that fetches value history of length 1
     struct {
         bool Initialized; // to mask first output as first input (otherwise, first output becomes invalid)
-        SignalElement::TimestampType Timestamp;
+        TimestampType Timestamp;
         SignalElement::ScalarType Scalar;
         SignalElement::VectorType Vector;
     } PreviousValue;
