@@ -1,52 +1,84 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: May 31, 2013
-
-  Copyright (C) 2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : May 31, 2013
+// Last revision: May 7, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #include "filterFactory.h"
 #include "threshold.h"
+#include "changeDetection.h"
 
 namespace SF {
 
 FilterFactory::FilterFactory(void)
 {
-    // obsolete: replaced with SF_REGISTER_FILTER_TO_FACTORY macro
-    //RegisterFilter(FilterThreshold::Name, FilterThreshold::Create);
+    // Register filters that casros defines.  Application-specific filters should
+    // be registered using SF_REGISTER_FILTER_TO_FACTORY macro, e.g.,
+    // SF_REGISTER_FILTER_TO_FACTORY(FilterMyApplication);
+    RegisterFilter(FilterThreshold::Name, FilterThreshold::Create);
+    RegisterFilter(FilterChangeDetection::Name, FilterChangeDetection::Create);
 }
 
 bool FilterFactory::RegisterFilter(const std::string & filterName, 
                                    FilterBase::CreateFilterFuncType createFunc)
 {
-    if (FactoryMap.find(filterName) != FactoryMap.end())
+    SFLOG_DEBUG << "FilterFactory::RegisterFilter: " << (double*) this << std::endl;
+    SFLOG_DEBUG << "FilterFactory::RegisterFilter: registering filter: \"" << filterName  << "\""
+                << ", " << (double*)createFunc << std::endl;
+
+    if (FactoryMap.find(filterName) != FactoryMap.end()) {
+        SFLOG_DEBUG << "FilterFactory::RegisterFilter: already registered filter: \"" << filterName  << "\"" << std::endl;
         return false;
+    }
 
-    FactoryMap[filterName] = createFunc;
+    FactoryMap.insert(std::make_pair(filterName, createFunc));
 
-    FactoryMapType::const_iterator it = FactoryMap.begin();
-    for (; it != FactoryMap.end(); ++it)
-        SFLOG_DEBUG << "FACTORY MAP: " << it->first << std::endl;
+#if 1
+    FactoryMapType::const_iterator it = FactoryMap.find(filterName);
+    SFASSERT(it != FactoryMap.end());
+
+    SFLOG_DEBUG << "FilterFactory::RegisterFilter: registered filter: \"" << it->first << "\""
+                << ", " << (double*)it->second << std::endl;
+#endif
 
     return true;
 }
 
 FilterBase * FilterFactory::CreateFilter(const std::string & filterName,
-                                         const JSON::JSONVALUE & jsonNode)
+                                         const JSON::JSONVALUE & jsonNode) const
 {
+    SFLOG_DEBUG << "FilterFactory::CreateFilter: " << (double*) this << std::endl;
+    SFLOG_DEBUG << "FilterFactory::CreateFilter: creating filter: \"" << filterName  << "\""
+                << " with JSON: " << jsonNode << std::endl;
+
     FactoryMapType::const_iterator it = FactoryMap.find(filterName);
+    if (it == FactoryMap.end()) {
+        // try again with lower case
+        std::string _filterName(filterName);
+        SF::to_lowercase(_filterName);
+        it = FactoryMap.find(filterName);
+    }
 
-    if (it != FactoryMap.end())
-        return (it->second)(jsonNode);
+    if (it == FactoryMap.end()) {
+        FactoryMapType::const_iterator it2 = FactoryMap.begin();
+        SFLOG_DEBUG << "FACTORY MAP SIZE: " << FactoryMap.size() << std::endl;
+        for (; it2 != FactoryMap.end(); ++it2)
+            SFLOG_DEBUG << "FACTORY MAP: " << it2->first << ", " << (double*)it2->second << std::endl;
 
-    return 0;
+        SFLOG_DEBUG << "FilterFactory::CreateFilter: no filter found: \"" << filterName  << "\"" << std::endl;
+        return 0;
+    }
+
+    SFLOG_DEBUG << "FilterFactory::CreateFilter: filter found: \"" << filterName  << "\"" << std::endl;
+
+    return (it->second)(jsonNode);
 }
 
 };
