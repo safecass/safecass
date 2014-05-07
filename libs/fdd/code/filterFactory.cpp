@@ -30,13 +30,9 @@ bool FilterFactory::RegisterFilter(const std::string & filterName,
 
     FactoryMap[filterName] = createFunc;
 
-    //TEMP
-#if 1
     FactoryMapType::const_iterator it = FactoryMap.begin();
-    for (; it != FactoryMap.end(); ++it) {
-        std::cout << "FACTORY MAP: " << it->first << std::endl;
-    }
-#endif
+    for (; it != FactoryMap.end(); ++it)
+        SFLOG_DEBUG << "FACTORY MAP: " << it->first << std::endl;
 
     return true;
 }

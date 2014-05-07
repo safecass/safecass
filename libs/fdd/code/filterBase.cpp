@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: January 7, 2012
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jan 7, 2012
+// Last revision: May 6, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #include "dict.h"
 #include "utils.h"
 #include "filterBase.h"
@@ -40,10 +39,10 @@ FilterBase::FilterBase(void)
     Initialize();
 }
 
-FilterBase::FilterBase(const std::string & filterName,
-                       FilterCategory      filterCategory,
-                       const std::string & targetComponentName,
-                       FilteringType       monitoringType)
+FilterBase::FilterBase(const std::string  & filterName,
+                       const FilterCategory filterCategory,
+                       const std::string  & targetComponentName,
+                       const FilteringType  monitoringType)
     : UID(++FilterUID),
       Name(filterName),
       ClassName(""),
@@ -62,7 +61,7 @@ FilterBase::FilterBase(const std::string & filterName, const JSON::JSONVALUE & j
       Category( GetFilterCategoryFromString( JSON::GetSafeValueString( jsonNode, Json::category) ) ),
       NameOfTargetComponent( JSON::GetSafeValueString( jsonNode, Json::target_component ) ), 
       Type( GetFilteringTypeFromString(JSON::GetSafeValueString( jsonNode, Json::type ) ) ),
-      LastFilterOfPipeline( JSON::GetSafeValueBool( jsonNode, Filter::last_filter ) )
+      LastFilterOfPipeline( JSON::GetSafeValueBool( jsonNode, Filter::LastFilter) )
 {
     Initialize();
 }

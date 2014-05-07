@@ -27,8 +27,8 @@ SignalElement::SignalElement()
     Init();
 }
 
-SignalElement::SignalElement(const std::string &       signalName, 
-                             SignalElement::SignalType signalType)
+SignalElement::SignalElement(const std::string & signalName, 
+                             const SignalElement::SignalType signalType)
     : Name(signalName),
       Type(signalType),
       HistoryBuffer(0),
@@ -48,12 +48,8 @@ void SignalElement::Init(void)
     PlaceholderScalar = 0.0;
     PlaceholderVector.clear();
 
-    TimeLastSampleFetched =
-#ifdef SF_HAS_CISST
-        0.0;
-#else
-        0; // different middlewares may use different types to represent timestamp
-#endif
+    // TODO: different middlewares may use different types to represent timestamp
+    TimeLastSampleFetched = 0.0;
 }
 
 void SignalElement::SetHistoryBufferInstance(HistoryBufferBase * buffer)
