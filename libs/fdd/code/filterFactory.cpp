@@ -19,7 +19,8 @@ namespace SF {
 
 FilterFactory::FilterFactory(void)
 {
-    RegisterFilter(FilterThreshold::Name, FilterThreshold::Create);
+    // obsolete: replaced with SF_REGISTER_FILTER_TO_FACTORY macro
+    //RegisterFilter(FilterThreshold::Name, FilterThreshold::Create);
 }
 
 bool FilterFactory::RegisterFilter(const std::string & filterName, 
