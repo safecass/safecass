@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 18, 2012
-// Last revision: Apr 25, 2014
+// Last revision: May 5, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -97,6 +97,12 @@ void SFGCMTest::TestInitialStates(void)
 
 void SFGCMTest::TestFilterInstalled(void)
 {
+    // Check if framework filters are installed properly
+    // 1. f_{F}^{1} : exception filter
+    // 2. f_{F}^{2} : thread overrun filter
+
+    // Check if application filters are installed properly
+    // TODO: install app-specific filters
 }
 
 void SFGCMTest::TestEventPropagation(void)

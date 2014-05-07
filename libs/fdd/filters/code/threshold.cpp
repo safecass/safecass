@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 3, 2012
-// Last revision: May 6, 2014
+// Last revision: May 7, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -17,9 +17,13 @@
 #include "eventPublisherBase.h"
 #include "filterFactory.h"
 
-namespace SF {
+using namespace SF;
 
-const std::string FilterThreshold::Name = "FilterThreshold";
+SF_IMPLEMENT_FACTORY(FilterThreshold);
+
+FilterThreshold::FilterThreshold(void)
+{
+}
 
 FilterThreshold::FilterThreshold(BaseType::FilterCategory      category, 
                                  const std::string &           targetComponentName,
@@ -58,9 +62,14 @@ FilterThreshold::FilterThreshold(const JSON::JSONVALUE & jsonNode)
 
 void FilterThreshold::Initialize(void)
 {
+    FilterBase::Initialize();
+
+    // Register this filter to the filter factory
+    // filters that casros provides do not need this; this is only for user-defined filters.
+    //SF_REGISTER_FILTER_TO_FACTORY(FilterThreshold);
+
     // Define inputs
-    SFASSERT(this->AddInputSignal(NameOfInputSignal,
-                                  SignalElement::SCALAR));
+    SFASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
 
     // Define outputs
     const std::string outputSignalName(
@@ -68,11 +77,7 @@ void FilterThreshold::Initialize(void)
                                        FilterThreshold::Name,
                                        this->UID,
                                        0));
-    SFASSERT(this->AddOutputSignal(outputSignalName,
-                                   SignalElement::SCALAR));
-
-    // Register this filter to the filter factory
-    SF_REGISTER_FILTER_TO_FACTORY(FilterThreshold);
+    SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 }
 
 FilterThreshold::~FilterThreshold()
@@ -169,5 +174,3 @@ void FilterThreshold::ToStream(std::ostream & outputStream) const
                  << "Output0: " << Output0 << ", "
                  << "Output1: " << Output1 << std::endl;
 }
-
-};

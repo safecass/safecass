@@ -17,7 +17,12 @@
 
 using namespace SF;
 
-const std::string FilterChangeDetection::Name = "ChangeDetection";
+SF_IMPLEMENT_FACTORY(FilterChangeDetection);
+
+FilterChangeDetection::FilterChangeDetection(void)
+{
+    // This default constructor should not be used.
+}
 
 FilterChangeDetection::FilterChangeDetection(const FilterBase::FilterCategory category, 
                                              const std::string &              targetComponentName,
@@ -28,32 +33,42 @@ FilterChangeDetection::FilterChangeDetection(const FilterBase::FilterCategory ca
       LastValue(0.0),
       Initialized(false)
 {
-    SF_REGISTER_FILTER_TO_FACTORY(FilterChangeDetection);
-
-    // Define inputs
-    // TODO: this filter only supports scalar-type input/output for now.
-    SFASSERT(this->AddInputSignal(inputSignalName, SignalElement::SCALAR));
-
-    // Define outputs
-    const std::string outputSignalName(
-        this->GenerateOutputSignalName(inputSignalName,
-                                       FilterChangeDetection::Name,
-                                       this->UID,
-                                       0));
-    // TODO: this filter only supports scalar-type input/output for now.
-    SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
+    Initialize();
 }
 
 FilterChangeDetection::FilterChangeDetection(const JSON::JSONVALUE & jsonNode)
     : FilterBase(FilterChangeDetection::Name, jsonNode),
       NameOfInputSignal(JSON::GetSafeValueString(
-          jsonNode[Dict::Filter::Arguments], Dict::Filter::InputSignalName))
+          jsonNode[Dict::Filter::Arguments], Dict::Filter::InputSignalName)),
+      LastValue(0.0),
+      Initialized(false)
 {
     Initialize();
 }
 
 FilterChangeDetection::~FilterChangeDetection()
 {
+}
+
+void FilterChangeDetection::Initialize(void)
+{
+    FilterBase::Initialize();
+
+    // filters that casros provides do not need this; this is only for user-defined filters.
+    //SF_REGISTER_FILTER_TO_FACTORY(FilterChangeDetection);
+
+    // Define inputs
+    // TODO: this filter only supports scalar-type input/output for now.
+    SFASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
+
+    // Define outputs
+    const std::string outputSignalName(
+        this->GenerateOutputSignalName(NameOfInputSignal,
+                                       FilterChangeDetection::Name,
+                                       this->UID,
+                                       0));
+    // TODO: this filter only supports scalar-type input/output for now.
+    SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 }
 
 bool FilterChangeDetection::InitFilter(void)
@@ -101,7 +116,6 @@ void FilterChangeDetection::ToStream(std::ostream & outputStream) const
 
     outputStream << "----- Filter-specifics: " << std::endl 
                  << "Signal Type    : SCALAR" << std::endl
-                 << "Last input     : " << LastValue
-                 << "Current reading: " << InputSignals[0]->GetPlaceholderScalar()
-                 << std::endl;
+                 << "Last input     : " << LastValue << std::endl
+                 << "Current reading: " << InputSignals[0]->GetPlaceholderScalar() << std::endl;
 }

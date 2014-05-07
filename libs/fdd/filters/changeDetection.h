@@ -47,6 +47,9 @@ protected:
     /*! If this filter is initialized */
     bool Initialized;
 
+    /*! Initialize this filter */
+    void Initialize(void);
+
     //-------------------------------------------------- 
     //  Methods required by the base class
     //-------------------------------------------------- 
@@ -74,9 +77,6 @@ public:
 
     /*! Returns human readable representation of this filter */
     void ToStream(std::ostream & outputStream) const;
-
-    /*! Name of this group filter */
-    static const std::string Name;
 
     //! For filter factory
     SF_DEFINE_FACTORY_CREATE(FilterChangeDetection);

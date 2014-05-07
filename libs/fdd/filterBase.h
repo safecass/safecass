@@ -30,9 +30,15 @@ class EventPublisherBase;
 
 // Helper macros to ease implementation of Create() function
 #define SF_DEFINE_FACTORY_CREATE(_className)\
+    static const std::string Name;\
     static FilterBase * Create(const SF::JSON::JSONVALUE & jsonNode) {\
         return new _className(jsonNode);\
-    }
+    }\
+    static _className __instance;
+
+#define SF_IMPLEMENT_FACTORY(_className)\
+    const std::string _className::Name = #_className;\
+    SFLIB_EXPORT _className _className::__instance;
 
 #define SF_REGISTER_FILTER_TO_FACTORY(_className)\
     FilterFactory::GetInstance()->RegisterFilter(#_className, &_className::Create);

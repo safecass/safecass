@@ -86,9 +86,6 @@ public:
     //! Returns human readable representation of this filter
     void ToStream(std::ostream & outputStream) const;
 
-    //! Name of this filter
-    static const std::string Name;
-
     //! For filter factory
     SF_DEFINE_FACTORY_CREATE(FilterThreshold);
 };
