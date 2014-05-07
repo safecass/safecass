@@ -1,0 +1,47 @@
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : May 6, 2012
+// Last revision: May 6, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
+// This JSON file defines a set of framework filters that get installed to 
+// each component in the system.  Currently, two filters defined are the
+// exception filter and the overrun filter.  Since this file does not know
+// the name of a target component, the "target_component" field has to be
+// updated accordingly.
+{
+    "filter" : [
+        //-------------------------------------------------
+        // Exception filter
+        //
+        {   // common fields
+            "class_name"       : "FilterChangeDetection",
+            "category"         : "FEATURE",
+            "target_component" : "FIXME",
+            "type"             : "ACTIVE",
+            // This filter does not require any other filter to work, i.e., 
+            // this is the last filter of the filter pipeline.
+            "last_filter"      : true
+        }//,
+        // FIXME
+        //-------------------------------------------------
+        // Overrun filter
+        //
+        //{   // common fields
+        //    "class_name"       : "FilterChangeDetection",
+        //    "category"         : "FEATURE",
+        //    "target_component" : "FIXME",
+        //    "type"             : "ACTIVE",
+        //    // This filter does not require any other filter to work, i.e., 
+        //    // this is the last filter of the filter pipeline.
+        //    "last_filter"      : true
+        //}
+    ]
+}
