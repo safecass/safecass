@@ -26,9 +26,12 @@
             "category"         : "FEATURE",
             "target_component" : "FIXME",
             "type"             : "ACTIVE",
-            // This filter does not require any other filter to work, i.e., 
-            // this is the last filter of the filter pipeline.
-            "last_filter"      : true
+            // This filter is the last filter of the filter pipeline.
+            "last_filter"      : true,
+            // exception filter specific fields
+            "Arguments" : {
+                "InputSignalName"  : "ExceptionCount"
+            }
         }//,
         // FIXME
         //-------------------------------------------------
