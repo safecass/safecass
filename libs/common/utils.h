@@ -20,7 +20,7 @@ namespace SF {
 
 //-------------------------------------------------- 
 // String
-//
+//-------------------------------------------------- 
 /*! trim from start */
 std::string &ltrim(std::string &s);
 
@@ -39,6 +39,11 @@ void to_uppercase(std::string & s);
 //-------------------------------------------------- 
 // Time
 //
+/*! Typedef for representation of timestamp */
+// TODO: refactor time-related semantics within the framework for consistent use of time
+// at higher precision (possibly between different processes).
+typedef double TimestampType;
+
 /*! Get current UTC time */
 std::string GetCurrentUTCTimeString(void);
 
