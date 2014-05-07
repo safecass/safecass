@@ -30,19 +30,19 @@ public:
      */
     virtual void GetNewValueScalar(SignalElement::HistoryBufferIndexType index,
                                    SignalElement::ScalarType & value,
-                                   SignalElement::TimestampType & timestamp) = 0;
+                                   TimestampType & timestamp) = 0;
     virtual void GetNewValueVector(SignalElement::HistoryBufferIndexType index,
                                    SignalElement::VectorType & value,
-                                   SignalElement::TimestampType & timestamp) = 0;
+                                   TimestampType & timestamp) = 0;
 
     //! For passive filtering
     /*! Fetch latest value from history buffer via middleware-specific data 
      *  exchange mechanism (indirect access)
      */
     virtual void GetNewValueScalar(SignalElement::ScalarType & value,
-                                   SignalElement::TimestampType & timestamp) = 0;
+                                   TimestampType & timestamp) = 0;
     virtual void GetNewValueVector(SignalElement::VectorType & value,
-                                   SignalElement::TimestampType & timestamp) = 0;
+                                   TimestampType & timestamp) = 0;
 };
 
 };
