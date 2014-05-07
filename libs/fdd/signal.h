@@ -1,23 +1,23 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: January 7, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jan 7, 2012
+// Last revision: May 6, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _SignalElement_h
 #define _SignalElement_h
 
 #include <vector>
 
 #include "common.h"
+#include "utils.h"
 
 namespace SF {
 
@@ -32,13 +32,10 @@ public:
 
     /*! Typedef for signal type */
     typedef enum {
-        SCALAR, // scalar input
+        SCALAR, // scalar (double)
         VECTOR, // vector of doubles
         CUSTOM  // custom (user-defined) structure
     } SignalType;
-
-    /*! Typedef for timestamp representations */
-    typedef double TimestampType;
 
     /*! Typedef for id of the history buffer that maintains the history of this signal */
     typedef std::string HistoryBufferIDType;
@@ -53,10 +50,10 @@ public:
 
 protected:
     /*! Name of this signal */
-    std::string Name;
+    const std::string Name;
 
     /*! Type of signal */
-    SignalType Type;
+    const SignalType Type;
 
     /*! Instance of history buffer that this filter runs on.  Should be dynamically
         allocated as middleware-specific plug-in (i.e., history buffer accessor adapter) */
@@ -84,8 +81,8 @@ public:
     //  Constructors
     //-------------------------------------------------- 
     SignalElement();
-    SignalElement(const std::string &       signalName, 
-                  SignalElement::SignalType signalType);
+    SignalElement(const std::string &             signalName, 
+                  const SignalElement::SignalType signalType);
     ~SignalElement();
 
     /*! Fetch latest scalar-type value from history buffer */
