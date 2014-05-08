@@ -18,7 +18,6 @@
 
 module SF
 {
-
     interface Control
     {
         void Command(string json);

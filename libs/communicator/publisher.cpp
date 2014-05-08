@@ -55,7 +55,7 @@ bool Publisher::Startup(void)
     try {
         manager = IceStorm::TopicManagerPrx::checkedCast(this->IceCommunicator->propertyToProxy("TopicManager.Proxy"));
     } catch (const Ice::ConnectionRefusedException & e) {
-        SFLOG_ERROR << "Failed to initialize IceStorm.  Check if IceBox is running." << std::endl;
+        SFLOG_ERROR << "Failed to initialize IceStorm.  Check if IceBox is running: " << e.what() << std::endl;
         return false;
     }
 
