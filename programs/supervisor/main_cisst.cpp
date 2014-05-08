@@ -63,12 +63,19 @@ int main(int argc, char *argv[])
     //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
     //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
     
-    // Don't install coordinator for this process because the supervisor is running
-    // in this process.  This should be called BEFORE mtsManagerLocal::GetInstance().
-    //mtsManagerLocal::SkipCoordinatorInstallation();
+    // Casros installs the Safety Coordinator to the process where the Safety Supervisor runs
+    // for symmetry.
+    mtsManagerLocal::InstallSafetyCoordinator();
 
-    // Get instance of the cisst Component Manager
-    mtsManagerLocal * componentManager = mtsManagerLocal::GetInstance();
+    // Get local component manager instance
+    mtsManagerLocal * componentManager;
+    try {
+        componentManager = mtsManagerLocal::GetInstance();
+    } catch (...) {
+        CMN_LOG_INIT_ERROR << "Failed to initialize local component manager" << std::endl;
+        return 1;
+    }
+
     SFLOG_INFO << "Publisher configuration file: " << configPub << std::endl;
     SFLOG_INFO << "Subscriber configuration file: " << configSub << std::endl;
 
