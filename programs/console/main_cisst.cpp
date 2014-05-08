@@ -20,7 +20,7 @@ namespace po = boost::program_options;
 typedef std::vector<std::string> StrVec;
 
 //------------------------------------------------------------ 
-//  Help
+//  help
 //------------------------------------------------------------ 
 void handler_help(const std::vector<std::string> &)
 {
@@ -28,7 +28,7 @@ void handler_help(const std::vector<std::string> &)
 }
 
 //------------------------------------------------------------ 
-//  Filters
+//  filter
 //------------------------------------------------------------ 
 void handler_filter(const std::vector<std::string> &parameters)
 {
@@ -39,7 +39,7 @@ void handler_filter(const std::vector<std::string> &parameters)
 }
 
 //------------------------------------------------------------ 
-//  States
+//  state
 //------------------------------------------------------------ 
 void handler_state(const std::vector<std::string> &parameters)
 {
@@ -49,6 +49,9 @@ void handler_state(const std::vector<std::string> &parameters)
         std::cout << *it << std::endl;
 }
 
+//------------------------------------------------------------ 
+//  exit / quit
+//------------------------------------------------------------ 
 void handler_exit(const std::vector<std::string> &)
 {
     exit(0);

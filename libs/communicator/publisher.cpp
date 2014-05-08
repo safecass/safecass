@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: Apr 19, 2014
+// Last revision: May 7, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -83,9 +83,9 @@ bool Publisher::Startup(void)
     // the mode specified as an argument of this application.
     Ice::ObjectPrx Publisher = topic->getPublisher();
     if (TopicName.compare(Dict::TopicNames::Monitor) == 0) {
-        MonitorSamples = MonitorSamplesPrx::uncheckedCast(Publisher);
+        PublisherData = DataPrx::uncheckedCast(Publisher);
     } else if (TopicName.compare(Dict::TopicNames::Supervisor) == 0) {
-        SupervisorControls = SupervisorControlsPrx::uncheckedCast(Publisher);
+        PublisherControl = ControlPrx::uncheckedCast(Publisher);
     }
 
     BaseType::Startup();
@@ -108,12 +108,12 @@ void Publisher::Publish(const std::string & json)
     PUBLISH_BEGIN;
 
     if (TopicName.compare(Dict::TopicNames::Monitor) == 0) {
-        MonitorSamples->CollectSample(json);
+        PublisherData->CollectSample(json);
     } else if (TopicName.compare(Dict::TopicNames::Supervisor) == 0) {
-        SupervisorControls->ControlCommand(json);
+        PublisherControl->Command(json);
     }
 
-    //MonitorSamples->Event(IceUtil::Time::now().toDateTime());
+    //PublisherData->Event(IceUtil::Time::now().toDateTime());
     //IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 
     PUBLISH_END;

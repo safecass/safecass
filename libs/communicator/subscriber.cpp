@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: Apr 19, 2014
+// Last revision: May 7, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -24,22 +24,26 @@ unsigned int Subscriber::Id = 0;
 
 #define SUBSCRIBER_INFO "Subscriber " << Id << " (\"" << TopicName << "\"): "
 
-class MonitorSamplesI: public MonitorSamples {
+class DataI: public Data {
 protected:
     SFCallback * CallbackInstance;
 public:
-    MonitorSamplesI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
+    DataI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
     void CollectSample(const std::string & json, const Ice::Current &) {
+        CallbackInstance->Callback(json);
+    }
+    // FIXME: how do I know which command json came from?
+    void Response(const std::string & json, const Ice::Current &) {
         CallbackInstance->Callback(json);
     }
 };
 
-class SupervisorControlsI: public SupervisorControls {
+class ControlI: public Control {
 protected:
     SFCallback * CallbackInstance;
 public:
-    SupervisorControlsI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
-    void ControlCommand(const std::string & json, const Ice::Current &) {
+    ControlI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
+    void Command(const std::string & json, const Ice::Current &) {
         CallbackInstance->Callback(json);
     }
 };
@@ -117,9 +121,9 @@ bool Subscriber::Startup(void)
     }
     // [SFUPDATE]
     if (TopicName.compare(Dict::TopicNames::Monitor) == 0) {
-        SubscriberObj = adapter->add(new MonitorSamplesI(CallbackInstance), subId);
+        SubscriberObj = adapter->add(new DataI(CallbackInstance), subId);
     } else if (TopicName.compare(Dict::TopicNames::Supervisor) == 0) {
-        SubscriberObj = adapter->add(new SupervisorControlsI(CallbackInstance), subId);
+        SubscriberObj = adapter->add(new ControlI(CallbackInstance), subId);
     }
 
     IceStorm::QoS qos;
