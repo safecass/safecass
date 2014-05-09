@@ -73,6 +73,8 @@ Subscriber::Subscriber(const std::string & topicName, const std::string & proper
 
 Subscriber::~Subscriber()
 {
+    if (CallbackInstance)
+        delete CallbackInstance;
 }
 
 void Subscriber::Init(void)
