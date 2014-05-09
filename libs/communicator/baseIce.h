@@ -163,6 +163,7 @@ public:
 class SFCallback {
 public:
     SFCallback() {}
+    virtual ~SFCallback() {}
 
     virtual void Callback(const std::string & json) = 0;
 };
