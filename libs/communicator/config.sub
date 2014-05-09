@@ -3,13 +3,13 @@
 # subscriber adapter. These endpoints are where the client receives
 # topic messages from IceStorm.
 #
-control.Subscriber.Endpoints=tcp
-data.Subscriber.Endpoints=tcp
+control.Subscriber.Endpoints=tcp:udp
+data.Subscriber.Endpoints=tcp:udp
 
 #
 # This property is used by the clients to connect to IceStorm.
 #
-TopicManager.Proxy=casros/TopicManager:default -p 10000
+TopicManager.Proxy=casros/TopicManager:default -h localhost -p 10000
 
 #
 # Network Tracing
