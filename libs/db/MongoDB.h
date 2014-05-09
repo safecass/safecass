@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Aug 14, 2012
-// Last revision: Apr 24, 2014
+// Last revision: May 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -35,7 +35,7 @@ public:
 
     //! Convert topic messages from JSON to MongoDB entry format
     static const std::string ConvertTopicMessageToDBEntry(
-        const JSONSerializer::TopicType topic, JSONSerializer & jsonSerializer);
+        const Topic::Type topic, JSONSerializer & jsonSerializer);
 };
 
 };

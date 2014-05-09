@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: May 7, 2014
+// Last revision: May 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -21,15 +21,16 @@
 namespace SF {
 
 class SFLIB_EXPORT Publisher: public BaseIce {
+private:
+    /*! Default constructor should not be used */
+    Publisher(void);
+
 protected:
     /*! typedef for base class */
     typedef BaseIce BaseType;
 
     /*! Publisher id (unique within a process) */
     static unsigned int Id;
-
-    /*! Topic name to which this publisher publishes */
-    const std::string TopicName;
 
     /*! IceStorm publisher proxy */
     DataPrx PublisherData;
@@ -39,15 +40,54 @@ protected:
     void Init(void);
 
 public:
+    //! Constructor
+    /*!
+       Construct publisher objects with a topic name and a default property 
+       file for publisher.
+       \param topicName Name of topic
+       \sa GetDefaultConfigFilePath()
+    */
     Publisher(const std::string & topicName);
+
+    //! Constructor
+    /*!
+        Construct publisher objects with a topic name and a user-specified 
+        IceStorm property file.
+        \param topicName Name of topic
+        \param propertyFileName Path to publisher property file
+    */
     Publisher(const std::string & topicName, const std::string & propertyFileName);
+    
+    //! Destructor
     virtual ~Publisher();
 
+    //! Start up Ice publisher
     bool Startup(void);
-    void Run(void) {}
-    void Publish(const std::string & json);
+
+    //! Publish messages to "Data" topic
+    /*!
+        Publish messages to "Data" topic with a given category.
+        \param category Type of data message.  Defined in topic_def.h
+        \param json Messages encoded in the JSON format
+        \return true if success.  false, otherwise (e.g., invalid category or json string)
+        \sa topic_def.h
+    */
+    bool PublishData(const Topic::Data::CategoryType category, const std::string & json);
+
+    //! Publish messages to "Control" topic
+    /*!
+        Publish messages to "Control" topic with a given category.
+        \param category Type of control message.  Defined in topic_def.h
+        \param json Messages encoded in the JSON format
+        \return true if success.  false, otherwise (e.g., invalid category or json string)
+        \sa topic_def.h
+    */
+    bool PublishControl(const Topic::Control::CategoryType category, const std::string & json);
+    
+    //! Stop the publisher
     void Stop(void);
 
+    //! Returns default publisher configuration file
     static const std::string GetDefaultConfigFilePath(void);
 };
 

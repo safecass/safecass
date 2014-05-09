@@ -24,7 +24,21 @@ typedef std::vector<std::string> StrVec;
 //------------------------------------------------------------ 
 void handler_help(const std::vector<std::string> &)
 {
-    std::cout << "==== help\n";
+    std::stringstream ss;
+
+#define NL << std::endl
+    ss << "CASROS: Component-based Architecture for Safe Robotic Systems" NL NL
+       << "console [command]"NL NL
+       << "Supported commands:"NL
+       << "    help   : "NL
+       << "    filter : "NL
+       << "    state  : "NL
+       << "    exit   : exit console"NL
+       << "    quit   : same as exit'"NL NL
+       << "For more information:"NL
+       << "    CASROS on Github: https://github.com/minyang/casros"NL NL;
+
+    std::cout << ss.str();
 }
 
 //------------------------------------------------------------ 

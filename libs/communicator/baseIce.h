@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: Apr 19, 2014
+// Last revision: May 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -15,7 +15,8 @@
 #define _baseIce_h
 
 #include "common.h"
-//#include "monitor.h"
+#include "topic_def.h"
+
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/Ice.h>
@@ -27,12 +28,26 @@ namespace SF {
 class SFLIB_EXPORT BaseIce
 {
 public:
-    typedef enum { INIT, STARTUP, RUNNING, STOP } CommunicatorStateType;
+    //! Typedef for Ice comminucators
+    typedef enum { INVALID, INIT, READY, RUNNING, STOP } CommunicatorStateType;
+
+private:
+    /*! Current state */
+    CommunicatorStateType State;
+
+    /*! Mutex for state change */
+    IceUtil::Mutex Mutex;
+
+    /*! Default constructor should not be used */
+    BaseIce(void);
 
 protected:
-    //
-    // Resources and methods for Ice proxy
-    //
+    //! Topic name for publish/subscribe
+    const std::string TopicName;
+
+    //! Topic associated with this Ice entity
+    Topic::Type Topic;
+
     /*! Name of property file that configures proxy settings. */
 	std::string IcePropertyFileName;
 
@@ -70,40 +85,45 @@ protected:
     }
     */
 
-    //
-    // Resources and methods for communicator
-    //
-private:
-    /*! Current state */
-    CommunicatorStateType State;
-
-    /*! Mutex for state change */
-    IceUtil::Mutex Mutex;
-
-protected:
     /*! Change or update current state */
     void StateChange(CommunicatorStateType state);
 
     /*! Initialization */
+#if 0
     virtual void Init(void);
     
     bool IsInitialized(void) const;
     bool IsStartup(void) const;
     bool IsRunning(void) const;
     bool IsStopped(void) const;
+    bool IsCleanedUp(void) const;
+#endif
 
 public:
-    BaseIce(const std::string & propertyFileName);
+    //! Constructor
+    BaseIce(const std::string & topicName, const std::string & propertyFileName);
+
+    //! Destructor
     virtual ~BaseIce();
 
-    /*! Prepare publish/subscribe via Ice network */
+    /*! Begin publishing to or subscribing from topic */
+#if 0
     virtual bool Startup(void);
 
-    /*! Start publish/subscribe topic */
-    virtual void Run(void) = 0;
+    // TODO: need to refactor states
+    /*! Begin publishing/subscribing topic */
+    virtual void Start(void);
 
-    /*! Stop publish/subscribe topic */
+    // TODO: need to refactor states
+    /*! Begin publishing to or subscribing from topic */
+    virtual void Run(void);
+
+    // TODO: need to refactor states
+    /*! Finish publishing/subscribing topic */
     virtual void Stop(void);
+
+    virtual void Cleanup(void);
+#endif
 };
 
 

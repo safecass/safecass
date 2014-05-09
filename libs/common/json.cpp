@@ -51,7 +51,8 @@ bool JSON::Read(const char * json)
     // Json syntax validation would be a good plus.
     if (!JSONReader->parse(json, *JSONValues)) {
         std::cout << "JSON::Read - Failed to parse json:\n" 
-                  << JSONReader->getFormatedErrorMessages() << std::endl;
+                  //<< JSONReader->getFormatedErrorMessages() << std::endl;
+                  << json << std::endl;
         Cleanup();
         return false;
     }

@@ -1,21 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: September 17, 2012
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-  References:
-
-  - JsonCpp Documentation: http://jsoncpp.sourceforge.net
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Sep 17, 2012
+// Last revision: May 8, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #include "jsonSerializer.h"
 #include "dict.h"
 
@@ -26,143 +21,97 @@
 #include "eventLocationBase.h"
 #endif
 
-namespace SF {
-
-using namespace SF::Dict::Json;
+using namespace SF;
+//using namespace SF::Dict;
 
 JSONSerializer::JSONSerializer(void)
 {
-    Initialize();
+    JSONBuffer.clear();
 }
 
-void JSONSerializer::Initialize(void)
+JSONSerializer::JSONSerializer(const std::string & json)
 {
-    Common.FilterUID     = 0;
-    Common.Topic         = JSONSerializer::INVALID;
-    Common.EventLocation = 0;
-    Common.Timestamp     = 0;
-
-    Monitor.Type = Monitor::TARGET_INVALID;
-    Monitor.Json.clear();
-
-    Event.Type = Event::INVALID;
-    Event.Json.clear();
+    if (!ParseJSON(json)) {
+        SFLOG_ERROR << "JSONSerializer: failed to parse json: " << std::endl << json << std::endl;
+        SFTHROW("JSONSerializer: failed to parse json");
+    }
 }
 
 JSONSerializer::~JSONSerializer(void)
 {
-    if (Common.EventLocation) {
-        // MJFIXME: Why this crashes???
-        // supervisor(18886,0x111c78000) malloc: *** error for object 0x7fff779c9570:
-        // pointer being freed was not allocated
-        // *** set a breakpoint in malloc_error_break to debug
-        // Abort trap: 6
-        //delete Common.EventLocation;
-    }
-}
-
-const std::string JSONSerializer::GetTopicTypeString(TopicType topicType)
-{
-    switch (topicType) {
-        case MONITOR:    return STR(monitor);
-        case EVENT:      return STR(event);
-        case SUPERVISOR: return STR(supervisor);
-        default:         return STR(INVALID);
-    }
-}
-
-JSONSerializer::TopicType JSONSerializer::GetTopicTypeFromString(const std::string & topicTypeString)
-{
-    if (topicTypeString.compare(STR(monitor)) == 0)    return MONITOR;
-    if (topicTypeString.compare(STR(event)) == 0)      return EVENT;
-    if (topicTypeString.compare(STR(supervisor)) == 0) return SUPERVISOR;
-
-    return INVALID;
-}
-
-void JSONSerializer::SetEventLocation(EventLocationBase * location)
-{
-    if (Common.EventLocation) {
-        delete Common.EventLocation;
-        Common.EventLocation = 0;
-    }
-
-#if SF_HAS_CISST
-    cisstEventLocation * cisstLocation = dynamic_cast<cisstEventLocation *>(location);
-    if (cisstLocation) {
-        Common.EventLocation = new cisstEventLocation;
-        *Common.EventLocation = *cisstLocation;
-    } else {
-        SFLOG_ERROR << "JSONSerializer::SetEventLocation: invalid cisstEventLocation instance" << std::endl;
-        SFASSERT(false);
-    }
-#else
-    // MJ TODO: implement this later
-    SFASSERT(false);
-#endif
 }
 
 const std::string JSONSerializer::GetJSON(void) const
 {
-    JSON::JSONVALUE root;
+    std::stringstream ss;
+    ss << JSONBuffer;
+
+    return ss.str();
+#if 0
+    JSON::JSONVALUE json;
 
     // Common::common
-    {   JSON::JSONVALUE _root;
-        _root[filter_uid] = Common.FilterUID;
-        _root[topic] = GetTopicTypeString(Common.Topic);
-
-        root[common] = _root;
-    }
+    JSON::JSONVALUE jsonValue;
+    jsonValue[topic]      = GetTopicTypeString(Common.Topic);
+    jsonValue[filter_uid] = Common.FilterUID;
+    // EventLocation and Timestamp are populated below as part of localization of event
+    json[common] = jsonValue;
     
     // Common::localization
-    {   JSON::JSONVALUE _root;
-        _root[timestamp] = Common.Timestamp;
-
-        JSON::JSONVALUE __root;
-        if (Common.EventLocation) {
+    JSON::JSONVALUE jsonLocation;
+    if (Common.EventLocation) {
 #if SF_HAS_CISST
-            cisstEventLocation * cisstLocation = dynamic_cast<cisstEventLocation *>(Common.EventLocation);
-            if (cisstLocation) {
-                cisstLocation->ExportToJSON(__root);
-            }
+        cisstEventLocation * cisstLocation = dynamic_cast<cisstEventLocation *>(Common.EventLocation);
+        if (cisstLocation)
+            cisstLocation->ExportToJSON(jsonLocation);
 #else
-            Common.EventLocation->ExportToJSON(__root);
+        Common.EventLocation->ExportToJSON(jsonLocation);
 #endif
-        } else {
-            __root[process]                = "";
-            __root[component]              = "";
-            __root[interface_provided]     = "";
-            __root[interface_required]     = "";
+    } else {
+        jsonLocation[process]                = "";
+        jsonLocation[component]              = "";
+        jsonLocation[interface_provided]     = "";
+        jsonLocation[interface_required]     = "";
 #if SF_HAS_CISST
-            __root[cisst::command]         = "";
-            __root[cisst::function]        = "";
-            __root[cisst::event_generator] = "";
-            __root[cisst::event_handler]   = "";
+        jsonLocation[cisst::command]         = "";
+        jsonLocation[cisst::function]        = "";
+        jsonLocation[cisst::event_generator] = "";
+        jsonLocation[cisst::event_handler]   = "";
 #endif
 
-        }
-        _root[location] = __root;
-        root[localization] = _root;
     }
 
-    // Common::Topic
-    switch (Common.Topic) {
-        case MONITOR:
-            {
-                JSON::JSONVALUE _root(Monitor.Json);
-                _root[type] = Monitor::GetTargetTypeString(Monitor.Type);
+    JSON::JSONVALUE jsonLocalization;
+    jsonLocalization[timestamp] = Common.Timestamp;
+    jsonLocalization[location] = jsonLocation;
+    json[localization] = jsonLocalization;
 
-                root[monitor] = _root;
+    // TODO: selectively combine strings
+
+    // Common::Topic
+
+    JSON::JSONVALUE jsonPayload;
+    switch (Common.Topic) {
+    case Topic::DATA:
+        switch (
+        jsonPayload = Monitor.Json;
+        jsonPayload[category] = 
+
+#if 0
+                JSON::JSONVALUE _json(Monitor.Json);
+                _json[type] = Monitor::GetTargetTypeString(Monitor.Type);
+
+                json[monitor] = _root;
             }
             break;
 
         case EVENT:
             {
-                JSON::JSONVALUE _root(Event.Json);
-                _root[type] = Event::GetEventTypeString(Event.Type);
-                //_root[detector] = Fault.DetectorName;
+                JSON::JSONVALUE _json(Event.Json);
+                _json[type] = Event::GetEventTypeString(Event.Type);
+                //_json[detector] = Fault.DetectorName;
 
-                root[event] = _root;
+                json[event] = _root;
             }
             break;
 
@@ -174,12 +123,15 @@ const std::string JSONSerializer::GetJSON(void) const
 
         default:
             break;
+    case Topic::CONTRO:
     }
+#endif
 
     std::stringstream ss;
-    ss << root;
+    ss << json;
 
     return ss.str();
+#endif
 }
 
 bool JSONSerializer::ParseJSON(const std::string & message)
@@ -189,6 +141,9 @@ bool JSONSerializer::ParseJSON(const std::string & message)
         return false;
     }
 
+    JSONBuffer = json.GetRoot();
+
+#if 0
     Json::Value & values = json.GetRoot();
 
     // Populate common fields
@@ -236,13 +191,15 @@ bool JSONSerializer::ParseJSON(const std::string & message)
     // Populate monitor fields
 
     // Populate fault fields
+#endif
 
     return true;
 }
 
 void JSONSerializer::SetEvent(const SF::Event & event)
 {
-    SetTopicType(JSONSerializer::EVENT);
+    SetTopicType(Topic::DATA);
+    SetCategoryTypeData(Topic::Data::EVENT);
 
     SetEventType(event.GetEventType());
     SetEventName(event.GetName());
@@ -250,4 +207,170 @@ void JSONSerializer::SetEvent(const SF::Event & event)
     SetTimestamp(event.GetTimestamp());
 }
 
-};
+//------------------------------------------------------------ 
+// Accessors for common fields
+//------------------------------------------------------------ 
+void JSONSerializer::SetTopicType(const Topic::Type topicType)
+{
+    switch (topicType) {
+    case Topic::DATA: 
+        JSONBuffer[Dict::Json::topic] = Dict::TopicNames::data;
+        break;
+    case Topic::CONTROL:
+        JSONBuffer[Dict::Json::topic] = Dict::TopicNames::control;
+        break;
+    default:
+        JSONBuffer[Dict::Json::topic] = Dict::TopicNames::invalid;
+        break;
+    }
+}
+
+void JSONSerializer::SetCategoryTypeControl(Topic::Control::CategoryType category)
+{
+    switch (category) {
+    case Topic::Control::COMMAND:
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Control::command;
+        break;
+    default:
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::invalid;
+    }
+}
+
+void JSONSerializer::SetFilterUID(const FilterBase::FilterIDType uid)
+{
+    JSONBuffer[Dict::Json::filter_uid] = uid;
+}
+
+void JSONSerializer::SetEventLocation(EventLocationBase * location)
+{
+    if (!location) {
+        SFLOG_WARNING << "JSONSerializer::SetEventLocation: NULL location instance" << std::endl;
+        return;
+    }
+
+    location->ImportFromJSON(JSONBuffer[Dict::Json::localization][Dict::Json::location]);
+}
+
+void JSONSerializer::SetTimestamp(TimestampType timestamp)
+{
+    JSONBuffer[Dict::Json::localization][Dict::Json::timestamp] = timestamp;
+}
+
+FilterBase::FilterIDType JSONSerializer::GetFilterUID(void) const
+{
+    return JSON::GetSafeValueUInt(JSONBuffer[Dict::Json::common], Dict::Json::filter_uid);
+}
+
+Topic::Type JSONSerializer::GetTopicType(void) const
+{
+    int value = JSON::GetSafeValueInt(JSONBuffer[Dict::Json::common], Dict::Json::topic);
+
+    Topic::Type type = static_cast<Topic::Type>(value);
+
+    return type;
+}
+
+#if SF_HAS_CISST
+const cisstEventLocation & JSONSerializer::GetEventLocation(void) const
+#else
+const EventLocationBase & JSONSerializer::GetEventLocation(void) const
+#endif
+{
+    return EventLocation;
+}
+
+TimestampType JSONSerializer::GetTimestamp(void) const
+{
+    return JSON::GetSafeValueDouble(JSONBuffer[Dict::Json::localization], Dict::Json::timestamp);
+}
+
+//------------------------------------------------------------ 
+// Accessors for Data
+//------------------------------------------------------------ 
+void JSONSerializer::SetCategoryTypeData(Topic::Data::CategoryType category)
+{
+    switch (category) {
+    case Topic::Data::MONITOR:
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Data::monitor;
+        break;
+    case Topic::Data::EVENT:
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Data::event;
+        break;
+    case Topic::Data::LOG:
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Data::log;
+        break;
+    default:
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::invalid;
+    }
+}
+
+//------------------------------------------------------------ 
+// Accessors for Data/Event
+//------------------------------------------------------------ 
+void JSONSerializer::SetEventType(Event::EventType eventType)
+{
+    // FIXME
+    return;
+    //JSONBuffer[Dict::Json::monitor][Dict::Json::type] = Event::EventType
+}
+
+void JSONSerializer::SetEventName(const std::string & name)
+{
+    // FIXME
+    //Event.Name = name;
+}
+
+Event::EventType JSONSerializer::GetEventType(void) const 
+{
+    // FIXME
+    return Event::INVALID;
+}
+
+JSON::JSONVALUE & JSONSerializer::GetEventSpecificJson(void)
+{
+    // FIXME
+    return JSONBuffer;
+}
+
+//------------------------------------------------------------ 
+// Accessors for Data/Monitor
+//------------------------------------------------------------ 
+void JSONSerializer::SetMonitorTargetType(Monitor::TargetType target)
+{
+    // FIXME
+    //Monitor.Type = target;
+}
+
+Monitor::TargetType JSONSerializer::GetMonitorTargetType(void) const
+{
+    // FIXME
+    return Monitor::TARGET_INVALID;
+}
+
+JSON::JSONVALUE & JSONSerializer::GetMonitorFields(void)
+{
+    // FIXME
+    return JSONBuffer;
+}
+
+//------------------------------------------------------------ 
+// Other Getters
+//------------------------------------------------------------ 
+#if 0
+const std::string JSONSerializer::GetTopicTypeString(Topic::Type topicType)
+{
+    switch (topicType) {
+    case Topic::DATA:    return Dict::TopicNames::Data;
+    case Topic::CONTROL: return Dict::TopicNames::Control;
+    default:             return Dict::TopicNames::Invalid;
+    }
+}
+
+Topic::Type JSONSerializer::GetTopicTypeFromString(const std::string & topicTypeString)
+{
+    if (topicTypeString.compare(Dict::TopicNames::Control) == 0) return Topic::CONTROL;
+    if (topicTypeString.compare(Dict::TopicNames::Data) == 0)    return Topic::DATA;
+
+    return Dict::TopicNames::Invalid;
+}
+#endif

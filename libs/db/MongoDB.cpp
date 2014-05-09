@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Aug 31, 2012
-// Last revision: Apr 21, 2014
+// Last revision: May 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -20,9 +20,8 @@
 
 #include <iostream>
 
+using namespace SF;
 using namespace SF::Dict::Json;
-
-namespace SF {
 
 MongoDB::MongoDB(void)
 {}
@@ -30,9 +29,12 @@ MongoDB::MongoDB(void)
 MongoDB::~MongoDB(void)
 {}
 
-const std::string MongoDB::ConvertTopicMessageToDBEntry(const JSONSerializer::TopicType topic, 
-                                                         JSONSerializer & jsonSerializer)
+const std::string MongoDB::ConvertTopicMessageToDBEntry(const Topic::Type topic, 
+                                                        JSONSerializer & jsonSerializer)
 {
+    // FIXME
+    return std::string("FIXME");
+#if 0
     switch (topic) {
         case JSONSerializer::MONITOR:
             return ConvertTopicMessageToDBEntry_Monitor(jsonSerializer);
@@ -43,10 +45,14 @@ const std::string MongoDB::ConvertTopicMessageToDBEntry(const JSONSerializer::To
         default:
             return std::string("SF::MongoDB::ConvertTopicMessageToDBEntry - invalid topic type");
     }
+#endif
 }
 
 const std::string MongoDB::ConvertTopicMessageToDBEntry_Monitor(JSONSerializer & jsonSerializer)
 {
+    // FIXME
+    return std::string("FIXME");
+#if 0
     // Json placeholder for DB entry
     JSON::JSONVALUE entry;
 
@@ -104,11 +110,13 @@ const std::string MongoDB::ConvertTopicMessageToDBEntry_Monitor(JSONSerializer &
     ss << entry;
 
     return ss.str();
+#endif
 }
 
 const std::string MongoDB::ConvertTopicMessageToDBEntry_Event(JSONSerializer & jsonSerializer)
 {
     // FIXME
+    return std::string("FIXME");
 #if 0
     // Json placeholder for DB entry
     JSON::JSONVALUE entry;
@@ -165,7 +173,4 @@ const std::string MongoDB::ConvertTopicMessageToDBEntry_Event(JSONSerializer & j
 
     return ss.str();
 #endif
-    return std::string("FIXME");
-}
-
 }

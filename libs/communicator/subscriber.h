@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: May 7, 2014
+// Last revision: May 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -22,15 +22,16 @@ namespace SF {
 
 // Adapter class: almost empty but pure virtual methods
 class SFLIB_EXPORT Subscriber: public BaseIce {
+private:
+    /*! Default constructor should not be used */
+    Subscriber(void);
+
 protected:
     /*! typedef for base class */
     typedef BaseIce BaseType;
 
     /*! Subscriber id (unique within a process) */
     static unsigned int Id;
-
-    /*! Topic name to which this subscriber subscribes */
-    const std::string TopicName;
 
     /*! Initialization */
     void Init(void);

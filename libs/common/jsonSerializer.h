@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: September 17, 2012
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Sep 17, 2012
+// Last revision: May 8, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _jsonSerializer_h
 #define _jsonSerializer_h
 
@@ -19,116 +18,114 @@
 #include "monitor.h"
 #include "event.h"
 #include "filterBase.h"
+#include "topic_def.h"
+#if SF_HAS_CISST
+#include "cisstEventLocation.h"
+#else
+#include "eventLocation.h"
+#endif
 
 namespace SF {
 
 //! JSON serializer and deserializer
 /** 
     JSONSerializer implements serialization and deserialization of JSON messages
-    for data exchange within Safety Framework.  This class also defines a list of
-    topics avaiable.
+    for data exchange within Safety Framework.
 */
 class SFLIB_EXPORT JSONSerializer {
-public:
-    typedef enum {
-        INVALID,
-        MONITOR,    /*!< monitoring (see SF::Monitor) */
-        EVENT,      /*!< events (e.g., fault, error, failures; see SF::Event) */
-        SUPERVISOR  /*!< supervisory control messages (TODO: SF::Supervisory) */
-    } TopicType;
-
 protected:
-    //! Common Fields
-    struct {
-        //! Filter UID
-        FilterBase::FilterIDType FilterUID;
-        //! Type of topic (enum variable)
-        TopicType Topic;
-        //! Location of event (middleware specific)
-        EventLocationBase * EventLocation;
-        //! Event timestamp
-        double Timestamp;
-    } Common;
+    //! JSON value buffer
+    JSON::JSONVALUE JSONBuffer;
 
-    //! Monitor topic
-    struct {
-        //! Common field
-        Monitor::TargetType Type;
-        //! Monitor-specific values
-        JSON::JSONVALUE Json;
-    } Monitor;
-
-    //! Event topic
-    struct {
-        //! Common fields
-        Event::EventType Type;
-        std::string      Name;
-        //std::string DetectorName;
-        //! Event-specific values
-        JSON::JSONVALUE Json;
-    } Event;
-
-    //! Initialization
-    void Initialize(void);
+#if SF_HAS_CISST
+    cisstEventLocation EventLocation;
+#else
+    EventLocationBase  EventLocation;
+#endif
 
 public:
+    //! Constructor
     JSONSerializer(void);
+    JSONSerializer(const std::string & json);
+
+    //! Destructor
     ~JSONSerializer(void);
 
-    //! Represent all information in JSON format and return JSON string
+    //! Serialize current information into json format and return it as string
     const std::string GetJSON(void) const;
 
     //! Rebuild topic information based on JSON
     bool ParseJSON(const std::string & message);
 
-    //! Populate event topic with SF::Event object
-    void SetEvent(const SF::Event & event);
 
-    /*! \addtogroup Accessors for common fields
-        @{
+    /** @name Accessors for common fields of all topics
+     *  Getters and setters for common fields of all topics
      */
-    //! Common::FilterUID
-    inline FilterBase::FilterIDType GetFilterUID(void) const { return Common.FilterUID; }
-    inline void SetFilterUID(const FilterBase::FilterIDType uid) { Common.FilterUID = uid; }
-    //! Common::Topic
-    inline TopicType GetTopicType(void) const                { return Common.Topic; }
-    inline void      SetTopicType(const TopicType topicType) { Common.Topic = topicType; }
-    //! Common::EventLocation
-    inline EventLocationBase * GetEventLocation(void) const  { return Common.EventLocation; }
-    void                       SetEventLocation(EventLocationBase * location);
-    //! Common::Timestamp
-    inline double GetTimestamp(void) const       { return Common.Timestamp; }
-    inline void   SetTimestamp(double timestamp) { Common.Timestamp = timestamp; }
-    /*! @} */
+    /** @{ */
+    FilterBase::FilterIDType  GetFilterUID(void) const;
+    Topic::Type               GetTopicType(void) const;
+#if SF_HAS_CISST
+    const cisstEventLocation & GetEventLocation(void) const;
+#else
+    const EventLocationBase & GetEventLocation(void) const;
+#endif
+    double                    GetTimestamp(void) const;
+    void SetFilterUID(const FilterBase::FilterIDType uid);
+    void SetTopicType(const Topic::Type topicType);
+    void SetEventLocation(EventLocationBase * location);
+    void SetTimestamp(TimestampType timestamp);
+    /** @} */
 
-    /*! \addtogroup Accessors for Monitor messages
-        @{
+    /** @name Accessors for Control
+     *  Getters and setters for Control messages
      */
-    //! Monitor::Type
-    inline Monitor::TargetType GetMonitorTargetType(void) const                 { return Monitor.Type; }
-    inline void                SetMonitorTargetType(Monitor::TargetType target) { Monitor.Type = target; }
-    //! Returns json container for monitor specific values
-    inline JSON::JSONVALUE &   GetMonitorFields(void) { return Monitor.Json; }
-    /*! @} */
+    /** @{ */
+    void SetCategoryTypeControl(Topic::Control::CategoryType category);
+    /** @} */
 
-    /*! \addtogroup Accessors for Event messages
-        @{
+    /** @name Accessors for Data messages
+     *  Getters and setters for common fields of Data messages
      */
+    /** @{ */
+    void SetCategoryTypeData(Topic::Data::CategoryType category);
+    /** @} */
+
+    /** @name Accessors for Data/Monitor messages
+     *  Getters and setters for Data/Monitor messages
+     */
+    /** @{ */
+    Monitor::TargetType GetMonitorTargetType(void) const;
+    JSON::JSONVALUE &   GetMonitorFields(void);
+    void SetMonitorTargetType(Monitor::TargetType target);
+    /** @} */
+
+    /** @name Accessors for Data with Event
+     *  Getters and setters for Data/Event messages
+     */
+    /** @{ */
     //! Event::Type
-    inline Event::EventType  GetEventType(void) const                 { return Event.Type; }
-    inline void              SetEventType(Event::EventType eventType) { Event.Type = eventType; }
-    inline void              SetEventName(const std::string & name)   { Event.Name = name; }
-    //! Returns json container for event specific values
-    inline JSON::JSONVALUE & GetEventSpecificJson(void) { return Event.Json; }
+    Event::EventType  GetEventType(void) const;
+    JSON::JSONVALUE & GetEventSpecificJson(void);
+    void SetEvent(const SF::Event & event);
+    void SetEventType(Event::EventType eventType);
+    void SetEventName(const std::string & name);
+    /** @} */
 
-    /*! \addtogroup Getters
-        @{
+    /** @name Accessors for Data with Log
+     *  Getters and setters for Data/Log messages
      */
+    /** @{ */
+    /** @} */
+
+    /** @name Getters
+     *  Other getters
+     */
+    /** @{ */
     //! Get string representation of topic type
-    static const std::string GetTopicTypeString(TopicType topicType);
+    //static const std::string GetTopicTypeString(Topic::Type topicType);
     //! Get topic type enum from string
-    static TopicType GetTopicTypeFromString(const std::string & topicTypeString);
-    /*! @} */
+    //static Topic::Type GetTopicTypeFromString(const std::string & topicTypeString);
+    /** @} */
 };
 
 };

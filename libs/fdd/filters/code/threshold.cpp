@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 3, 2012
-// Last revision: May 7, 2014
+// Last revision: May 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -145,7 +145,8 @@ const std::string FilterThreshold::GenerateFDIJSON(double severity, double times
     JSONSerializer serializer;
 
     // Populate common fields
-    serializer.SetTopicType(JSONSerializer::EVENT);
+    serializer.SetTopicType(Topic::DATA);
+    serializer.SetCategoryTypeData(Topic::Data::EVENT);
     serializer.SetEventLocation(EventLocation);
     serializer.SetTimestamp(timestamp);
 

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: May 7, 2014
+// Last revision: May 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -17,23 +17,26 @@
 
 #include <Ice/Application.h>
 
-namespace SF {
+using namespace SF;
 
 // Subscriber id (unique within a process)
 unsigned int Subscriber::Id = 0;
 
-#define SUBSCRIBER_INFO "Subscriber " << Id << " (\"" << TopicName << "\"): "
+#define SUBSCRIBER_INFO "Subscriber " << Id << " (\"" << this->TopicName << "\"): "
 
 class DataI: public Data {
 protected:
     SFCallback * CallbackInstance;
 public:
     DataI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
-    void CollectSample(const std::string & json, const Ice::Current &) {
+    // FIXME: how do I know which command json came from?
+    void Monitor(const std::string & json, const Ice::Current &) {
         CallbackInstance->Callback(json);
     }
-    // FIXME: how do I know which command json came from?
-    void Response(const std::string & json, const Ice::Current &) {
+    void Event(const std::string & json, const Ice::Current &) {
+        CallbackInstance->Callback(json);
+    }
+    void Log(const std::string & json, const Ice::Current &) {
         CallbackInstance->Callback(json);
     }
 };
@@ -48,15 +51,22 @@ public:
     }
 };
 
+Subscriber::Subscriber(void): BaseIce(NONAME, NONAME), CallbackInstance(0)
+{
+    // Default constructor should not be used
+    SFASSERT(false);
+}
+
 Subscriber::Subscriber(const std::string & topicName, SFCallback * callbackInstance)
-    : BaseIce(GetDefaultConfigFilePath()), 
-      TopicName(topicName), CallbackInstance(callbackInstance)
+    : BaseIce(topicName, GetDefaultConfigFilePath()), 
+      CallbackInstance(callbackInstance)
 {
     Init();
 }
 
 Subscriber::Subscriber(const std::string & topicName, const std::string & propertyFileName)
-    : BaseIce(propertyFileName), TopicName(topicName)
+    : BaseIce(topicName, propertyFileName), 
+      CallbackInstance(0)
 {
     Init();
 }
@@ -68,10 +78,9 @@ Subscriber::~Subscriber()
 void Subscriber::Init(void)
 {
     ++Id;
-    BaseType::Init();
 
     SFLOG_INFO << SUBSCRIBER_INFO << "Created with config file: " << this->IcePropertyFileName << std::endl;
-    SFLOG_INFO << SUBSCRIBER_INFO << "Created with topic name: " << TopicName << std::endl;
+    SFLOG_INFO << SUBSCRIBER_INFO << "Created with topic name: " << this->TopicName << std::endl;
 }
 
 bool Subscriber::Startup(void)
@@ -82,7 +91,7 @@ bool Subscriber::Startup(void)
     try {
         manager = IceStorm::TopicManagerPrx::checkedCast(this->IceCommunicator->propertyToProxy("TopicManager.Proxy"));
     } catch (const Ice::ConnectionRefusedException & e) {
-        SFLOG_ERROR << "Failed to initialize IceStorm.  Check if IceBox is running." << std::endl;
+        SFLOG_ERROR << SUBSCRIBER_INFO << "Failed to initialize IceStorm.  Check if IceBox is running." << std::endl;
         return false;
     }
  
@@ -93,22 +102,17 @@ bool Subscriber::Startup(void)
 
     // Retrieve the topic.
     try {   
-        Topic = manager->retrieve(TopicName);
+        Topic = manager->retrieve(this->TopicName);
     } catch(const IceStorm::NoSuchTopic&) {   
         try {   
-            Topic = manager->create(TopicName);
+            Topic = manager->create(this->TopicName);
         } catch(const IceStorm::TopicExists&) {   
             SFLOG_ERROR << SUBSCRIBER_INFO << "Topic not found. Try again." << std::endl;
             return false;
         }   
     }   
 
-    //Ice::ObjectAdapterPtr adapter = IceCommunicator->createObjectAdapter("MonitorSamples.Subscriber");
-    Ice::ObjectAdapterPtr adapter = IceCommunicator->createObjectAdapter("Clock.Subscriber");
-
-    //
-    // Add a servant for the Ice object. If --id is used the identity
-    // comes from the command line, otherwise a UUID is used.
+    // Add a servant for the Ice object using a UUID.
     //
     // id is not directly altered since it is used below to detect
     // whether subscribeAndGetPublisher can raise AlreadySubscribed.
@@ -116,14 +120,21 @@ bool Subscriber::Startup(void)
     std::string id, retryCount;
     Ice::Identity subId;
     subId.name = id;
-    if(subId.name.empty()) {
+    if (subId.name.empty())
         subId.name = IceUtil::generateUUID();
-    }
-    // [SFUPDATE]
-    if (TopicName.compare(Dict::TopicNames::Monitor) == 0) {
-        SubscriberObj = adapter->add(new DataI(CallbackInstance), subId);
-    } else if (TopicName.compare(Dict::TopicNames::Supervisor) == 0) {
+
+    Ice::ObjectAdapterPtr adapter;
+    switch (BaseType::Topic) {
+    case Topic::CONTROL:
+        adapter = IceCommunicator->createObjectAdapter("control.Subscriber");
         SubscriberObj = adapter->add(new ControlI(CallbackInstance), subId);
+        break;
+    case Topic::DATA:
+        adapter = IceCommunicator->createObjectAdapter("data.Subscriber");
+        SubscriberObj = adapter->add(new DataI(CallbackInstance), subId);
+        break;
+    default:
+        SFASSERT(false);
     }
 
     IceStorm::QoS qos;
@@ -131,6 +142,7 @@ bool Subscriber::Startup(void)
         qos["retryCount"] = retryCount;
 
     // set up the proxy
+    // TODO: confirm is ice_datagram() uses UDP instead of TCP..?
     SubscriberObj = SubscriberObj->ice_datagram();
 
     try {
@@ -144,14 +156,14 @@ bool Subscriber::Startup(void)
     }
     adapter->activate();
 
-    BaseType::Startup();
+    //BaseType::Startup();
 
     return true;
 }
 
 void Subscriber::Run(void)
 {
-    BaseType::Run();
+    //BaseType::Run();
 
     Ice::Application::shutdownOnInterrupt();
     IceCommunicator->waitForShutdown();
@@ -160,7 +172,7 @@ void Subscriber::Run(void)
 
     SFLOG_INFO << SUBSCRIBER_INFO << "Unsubscribed from topic" << std::endl;
     
-    BaseType::Stop();
+    //BaseType::Stop();
 }
 
 void Subscriber::Stop(void)
@@ -168,7 +180,7 @@ void Subscriber::Stop(void)
     // Terminating subscriber needs to call shutdown() on the Ice communicator
     IceCommunicator->shutdown();
 
-    BaseType::Stop();
+    //BaseType::Stop();
 }
 
 const std::string Subscriber::GetDefaultConfigFilePath(void)
@@ -178,5 +190,3 @@ const std::string Subscriber::GetDefaultConfigFilePath(void)
 
     return path;
 }
-
-};

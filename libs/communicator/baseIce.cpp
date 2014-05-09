@@ -7,54 +7,71 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: Apr 19, 2014
+// Last revision: May 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "baseIce.h"
+#include "dict.h"
 
-namespace SF {
+using namespace SF;
 
-BaseIce::BaseIce(const std::string & propertyFileName)
-    : IcePropertyFileName(propertyFileName),
+BaseIce::BaseIce(void)
+    : TopicName(NONAME),
+      Topic(Topic::INVALID),
+      IcePropertyFileName(NONAME),
+      State(INVALID)
+{
+    // Default constructor should not be used
+    SFASSERT(false);
+}
+
+BaseIce::BaseIce(const std::string & topicName, const std::string & propertyFileName)
+    : TopicName(topicName),
+      IcePropertyFileName(propertyFileName),
       State(INIT)
 {
-    /* MJ TODO: exception throwing and handling (later)
-    ifstream fp(propertyFileName.c_str());
-    if (!fp.good())
-        throw 
-    */
-        
-    SFLOG_DEBUG << "BaseIce: Ice property file name: " << IcePropertyFileName << std::endl;
+    // Determine type of subscriber depending on topic
+    if (TopicName.compare(SF::Dict::TopicNames::control) == 0)
+        Topic = Topic::CONTROL;
+    else if (TopicName.compare(SF::Dict::TopicNames::data) == 0)
+        Topic = Topic::DATA;
+    else {
+        std::stringstream ss;
+        ss << "Invalid topic name: \"" << topicName << "\"" << std::endl;
+        SFLOG_ERROR << ss.str() << std::endl;
+        SFTHROW(ss.str());
+    }
 }
 
 BaseIce::~BaseIce()
 {
 }
 
+#if 0
 void BaseIce::Init(void) {
     StateChange(INIT);
 }
 
 bool BaseIce::Startup(void) {
-    StateChange(STARTUP);
+    StateChange(READY);
     return true;
 }
 
-void BaseIce::Run(void) {
+void BaseIce::Start(void) {
     StateChange(RUNNING);
 }
 
 void BaseIce::Stop(void) {
+    StateChange(READY);
+}
+
+void BaseIce::Cleanup(void) {
     StateChange(STOP);
 }
 
 bool BaseIce::IsInitialized(void) const {
-    return (State == INIT);
-}
-
-bool BaseIce::IsStartup(void) const {
-    return (State == STARTUP);
+    return (State == READY);
 }
 
 bool BaseIce::IsRunning(void) const {
@@ -62,8 +79,13 @@ bool BaseIce::IsRunning(void) const {
 }
 
 bool BaseIce::IsStopped(void) const {
+    return (State == READY);
+}
+
+bool BaseIce::IsCleanedUp(void) const {
     return (State == STOP);
 }
+#endif
 
 void BaseIce::StateChange(CommunicatorStateType state)
 {
@@ -106,5 +128,3 @@ void BaseIce::IceInitialize(void)
     IceCommunicator = Ice::initialize(IceInitData);
     IceLogger = IceCommunicator->getLogger();
 }
-
-};

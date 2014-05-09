@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: July 8, 2012
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : July 8, 2012
+// Last revision: May 8, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #include "cisstMonitor.h"
 
 #include "dict.h"
@@ -153,7 +152,8 @@ const std::string cisstMonitor::GetJsonForPublish(double sample, double currentT
     cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(this->LocationID);
 
     // Populate common fields
-    serializer.SetTopicType(JSONSerializer::MONITOR);
+    serializer.SetTopicType(Topic::DATA);
+    serializer.SetCategoryTypeData(Topic::Data::MONITOR);
     serializer.SetEventLocation(locationID);
     serializer.SetTimestamp(currentTick);
 

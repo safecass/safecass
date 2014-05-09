@@ -91,12 +91,20 @@ namespace Json {
 };
 
 namespace TopicNames {
-    // For monitoring
-    DEFINE_KEYWORD(Monitor);
-    // For fault detection and diagnosis 
-    DEFINE_KEYWORD(Fault);
-    // For supervisory control and fault management
-    DEFINE_KEYWORD(Supervisor);
+    // names for topics
+    DEFINE_KEYWORD(control);
+    DEFINE_KEYWORD(data);
+    DEFINE_KEYWORD(invalid);
+
+    // names for categories
+    namespace Control {
+        DEFINE_KEYWORD(command);
+    }
+    namespace Data {
+        DEFINE_KEYWORD(monitor);
+        DEFINE_KEYWORD(event);
+        DEFINE_KEYWORD(log);
+    }
 };
 
 namespace MonitorNames {

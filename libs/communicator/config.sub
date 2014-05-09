@@ -1,9 +1,10 @@
 #
-# This property is used to configure the endpoints of the clock
+# This property is used to configure the endpoints of the topic
 # subscriber adapter. These endpoints are where the client receives
 # topic messages from IceStorm.
 #
-Clock.Subscriber.Endpoints=tcp:udp
+control.Subscriber.Endpoints=tcp
+data.Subscriber.Endpoints=tcp
 
 #
 # This property is used by the clients to connect to IceStorm.

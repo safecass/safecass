@@ -90,10 +90,10 @@ void cisstEventLocation::ImportFromJSON(const ::Json::Value & value)
 {
     EventLocationBase::ImportFromJSON(value);
 
-    CommandName        = value.get(cisst::command, "").asString();
-    FunctionName       = value.get(cisst::function, "").asString();
-    EventGeneratorName = value.get(cisst::event_generator, "").asString();
-    EventHandlerName   = value.get(cisst::event_handler, "").asString();
+    CommandName        = JSON::GetSafeValueString(value, cisst::command);
+    FunctionName       = JSON::GetSafeValueString(value, cisst::function);
+    EventGeneratorName = JSON::GetSafeValueString(value, cisst::event_generator);
+    EventHandlerName   = JSON::GetSafeValueString(value, cisst::event_handler);
 }
 
 void cisstEventLocation::ToStream(std::ostream & outputStream) const

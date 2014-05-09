@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : July 31, 2012
-// Last revision: May 7, 2014
+// Last revision: May 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -18,31 +18,26 @@
 
 module SF
 {
+    // interface for the "Control" topic
     interface Control
     {
-        void Command(string json);
+        // for sending control command between Safety Coordinator and/or Safety Supervisor
+        void Command(string arg);
     };
 
+    // interface for the "Data" topic
+    // all string arguments are json-encoded.
     interface Data
     {
         // for monitoring
-        void CollectSample(string json);
+        void Monitor(string arg);
 
-        // Response to FilterInfoRequest
-        void Response(string json);
+        // for reporting events
+        void Event(string arg);
+
+        // for logging
+        void Log(string arg);
     };
-/*
-interface MonitorSamples
-{
-    void CollectSample(string json);
-};
-
-interface SupervisorControls
-{
-    void ControlCommand(string json);
-};
-*/
-
 };
 
 #endif // _MONITOR_ICE

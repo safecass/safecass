@@ -78,10 +78,10 @@ void EventLocationBase::ExportToJSON(::Json::Value & root) const
 
 void EventLocationBase::ImportFromJSON(const ::Json::Value & value)
 {
-    ProcessName           = value.get(process, "").asString();
-    ComponentName         = value.get(component, "").asString();
-    InterfaceProvidedName = value.get(interface_provided, "").asString();
-    InterfaceRequiredName = value.get(interface_required, "").asString();
+    ProcessName           = JSON::GetSafeValueString(value, process);
+    ComponentName         = JSON::GetSafeValueString(value, component);
+    InterfaceProvidedName = JSON::GetSafeValueString(value, interface_provided);
+    InterfaceRequiredName = JSON::GetSafeValueString(value, interface_required);
 }
 
 void EventLocationBase::ToStream(std::ostream & outputStream) const

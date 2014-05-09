@@ -106,6 +106,7 @@ endif()
 # Find ZeroC Ice
 find_package(Ice REQUIRED)
 set (SF_LIB_COMMUNICATOR_SRC ${SF_LIB_COMMUNICATOR_SRC}
+                             ${LIB_DIR}/communicator/topic_def.h
                              ${LIB_DIR}/communicator/baseIce.h
                              ${LIB_DIR}/communicator/baseIce.cpp
                              ${LIB_DIR}/communicator/publisher.h
