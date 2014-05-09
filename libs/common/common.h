@@ -123,6 +123,8 @@ std::string GetCISSTInfo(void);
 // String definitions
 #define NONAME "NONAME"
 
+#define PROBE std::cout << __FILE__ << ":" << __LINE__ << "  "
+
 #endif // _common_h
 
 // Define which middleware is active
