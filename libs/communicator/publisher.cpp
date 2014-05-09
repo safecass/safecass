@@ -112,9 +112,18 @@ bool Publisher::Startup(void)
         SFLOG_ERROR << PUBLISHER_INFO << "Error in publishing events: " << e.what() << std::endl;\
         return false;\
     }\
+    catch (const IceUtil::NullHandleException & e) {\
+        SFLOG_ERROR << PUBLISHER_INFO << "Error in publishing events: " << e.what() << std::endl;\
+        return false;\
+    }\
+    catch (const std::exception & e) {\
+        SFLOG_ERROR << PUBLISHER_INFO << "Error in publishing events: " << e.what() << std::endl;\
+        return false;\
+    }
 
 bool Publisher::PublishData(const Topic::Data::CategoryType category, const std::string & json)
 {
+    PROBE << "json publish: " << json << std::endl;
     PUBLISH_BEGIN
     {
         switch (category) {
