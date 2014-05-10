@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: May 9, 2014
+// Last revision: May 10, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -16,10 +16,25 @@
 #include "subscriber.h"
 #include "dict.h"
 #include "topic_def.h"
-#include "communicator_ice.h"
+#include "accessor.h"
 
 // Ice communicator instances
-extern Communicator * comm;
+extern Accessor * accessor;
+
+void handler_filter_help(void)
+{
+    std::cout << std::endl
+              << "filter [command]" << std::endl
+              << "    help: filter help"  << std::endl
+              << "    list: list of all filters in the entire system" << std::endl;
+}
+
+void handler_filter_list(void)
+{
+    //if (!comm->Publisher->PublishData(SF::Topic::Data::MONITOR, "{ test json }"))
+    //    std::cout << "Failed to publish" << std::endl;
+    std::cout << "list" << std::endl;
+}
 
 //------------------------------------------------------------ 
 //  filter
@@ -34,16 +49,28 @@ extern Communicator * comm;
 //  filter info process [process_name]
 //  filter info process [process_name] component [component_name]
 //------------------------------------------------------------ 
+typedef enum { HELP, LIST } FilterOptionType;
+
 void handler_filter(const std::vector<std::string> & args)
 {
+    FilterOptionType option;
+
     const size_t n = args.size();
+
     if (n == 1)
+        option = HELP;
+    else
+        option = HELP;
+
+    switch (option) {
+    default:
+    case HELP: handler_filter_help(); break;
+    case LIST: handler_filter_list(); break;
+    }
 #if 0
     std::cout << "==== filter\n";
     std::vector<std::string>::const_iterator it = args.begin();
     for (; it != args.end(); ++it)
         std::cout << *it << std::endl;
 #endif
-    if (!comm->Publisher->PublishData(SF::Topic::Data::MONITOR, "{ test json }"))
-        std::cout << "Failed to publish" << std::endl;
 }

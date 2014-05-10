@@ -33,8 +33,8 @@ if (SF_HAS_CISST)
   if (cisst_FOUND_AS_REQUIRED)
     include_directories (${SF_LIB_INCLUDE_DIR})
     add_executable (console main_cisst.cpp
-                            # ZeroC Ice communicator
-                            communicator_ice.h communicator_ice.cpp
+                            # casros network accessor
+                            accessor.h accessor.cpp
                             # command handlers
                             cmd_filter.cpp 
                             cmd_state.cpp)

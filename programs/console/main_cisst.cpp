@@ -12,10 +12,11 @@
 // Github       : https://github.com/minyang/casros
 //
 #include "config.h"
-#include "publisher.h"
-#include "subscriber.h"
-#include "dict.h"
-#include "topic_def.h"
+//#include "publisher.h"
+//#include "subscriber.h"
+//#include "dict.h"
+//#include "topic_def.h"
+#include "accessor.h"
 // Header from the Clipo project; See CMakeLists.txt for more details.
 #include "command_line_interpreter.hpp"
 
@@ -33,8 +34,8 @@ void handler_state(const std::vector<std::string> &args);
 
 // cisst Component Manager
 mtsManagerLocal * componentManager = 0;
-// Ice communicator instances
-Communicator * comm = 0;
+// instance of casros network accessor
+Accessor * accessor = 0;
 
 //------------------------------------------------------------ 
 //  help
@@ -63,7 +64,7 @@ void handler_help(const std::vector<std::string> &)
 //------------------------------------------------------------ 
 void handler_exit(const std::vector<std::string> &)
 {
-    delete comm;
+    delete accessor;
 
     componentManager->KillAll();
     componentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
@@ -107,7 +108,7 @@ int main(int argc, char **argv)
     }
 
     // Create publisher and subscriber
-    comm = new Communicator;
+    accessor = new Accessor;
 
     componentManager->CreateAll();
     componentManager->WaitForStateAll(mtsComponentState::READY);

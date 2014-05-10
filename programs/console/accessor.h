@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: May 9, 2014
+// Last revision: May 10, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -37,9 +37,9 @@ public:
 };
 
 //
-// ZeroC IceStorm Communicator
+// Casros Network Accessor
 //
-class Communicator {
+class Accessor {
 public:
     typedef struct {
         osaThread       Thread;
@@ -59,8 +59,8 @@ protected:
     InternalThreadType ThreadSubscriber;
 
 public:
-    Communicator(void);
-    virtual ~Communicator();
+    Accessor(void);
+    virtual ~Accessor();
 
     void * RunSubscriber(unsigned int CMN_UNUSED(arg));
 };

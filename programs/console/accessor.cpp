@@ -7,11 +7,11 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: May 9, 2014
+// Last revision: May 10, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
-#include "communicator_ice.h"
+#include "accessor.h"
 
 //
 // Subscriber callback
@@ -22,14 +22,14 @@ void ConsoleSubscriberCallback::Callback(const std::string & json)
 }
 
 //
-// ZeroC IceStorm Communicator
+// ZeroC IceStorm Accessor
 //
-Communicator::Communicator(void)
+Accessor::Accessor(void)
 {
     Publisher = new SF::Publisher(SF::Dict::TopicNames::control);
     if (!Publisher->Startup()) {
         std::stringstream ss;
-        ss << "Communicator: Failed to initialize publisher for topic \""
+        ss << "Accessor: Failed to initialize publisher for topic \""
             << SF::Dict::TopicNames::data << "\"";
         cmnThrow(ss.str());
     }
@@ -37,15 +37,15 @@ Communicator::Communicator(void)
     SubscriberCallback = new ConsoleSubscriberCallback;
     Subscriber = new SF::Subscriber(SF::Dict::TopicNames::control, SubscriberCallback);
     //Subscriber = new SF::Subscriber(SF::Dict::TopicNames::data, SubscriberCallback);
-    ThreadSubscriber.Thread.Create<Communicator, unsigned int>(this, &Communicator::RunSubscriber, 0);
+    ThreadSubscriber.Thread.Create<Accessor, unsigned int>(this, &Accessor::RunSubscriber, 0);
     ThreadSubscriber.ThreadEventBegin.Wait();
 }
 
-Communicator::~Communicator()
+Accessor::~Accessor()
 {
     if (Subscriber && ThreadSubscriber.Running) {
         ThreadSubscriber.Running = false;
-        // Terminating subscriber needs to call shutdown() on the Ice communicator
+        // Terminating subscriber needs to call shutdown() on the Ice Accessor
         Subscriber->Stop();
         ThreadSubscriber.ThreadEventEnd.Wait();
 
@@ -57,7 +57,7 @@ Communicator::~Communicator()
 }
 
 
-void * Communicator::RunSubscriber(unsigned int CMN_UNUSED(arg))
+void * Accessor::RunSubscriber(unsigned int CMN_UNUSED(arg))
 {
     ThreadSubscriber.Running = true;
     ThreadSubscriber.ThreadEventBegin.Raise();
@@ -69,11 +69,11 @@ void * Communicator::RunSubscriber(unsigned int CMN_UNUSED(arg))
             std::cout << ".";
         }
     } catch (const Ice::InitializationException & e) {
-        CMN_LOG_RUN_ERROR << "Communicator::RunSubscriber: ice init failed: " << e.what() << std::endl;
+        CMN_LOG_RUN_ERROR << "Accessor::RunSubscriber: ice init failed: " << e.what() << std::endl;
     } catch (const Ice::AlreadyRegisteredException & e) {
-        CMN_LOG_RUN_ERROR << "Communicator::RunSubscriber: ice init failed: " << e.what() << std::endl;
+        CMN_LOG_RUN_ERROR << "Accessor::RunSubscriber: ice init failed: " << e.what() << std::endl;
     } catch (const std::exception & e) {
-        CMN_LOG_RUN_ERROR << "Communicator::RunSubscriber: exception: " << e.what() << std::endl;
+        CMN_LOG_RUN_ERROR << "Accessor::RunSubscriber: exception: " << e.what() << std::endl;
     }
 
     ThreadSubscriber.ThreadEventEnd.Raise();
