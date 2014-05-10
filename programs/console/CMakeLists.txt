@@ -32,7 +32,12 @@ if (SF_HAS_CISST)
 
   if (cisst_FOUND_AS_REQUIRED)
     include_directories (${SF_LIB_INCLUDE_DIR})
-    add_executable (console main_cisst.cpp)
+    add_executable (console main_cisst.cpp
+                            # ZeroC Ice communicator
+                            communicator_ice.h communicator_ice.cpp
+                            # command handlers
+                            cmd_filter.cpp 
+                            cmd_state.cpp)
     cisst_target_link_libraries(console ${REQUIRED_CISST_LIBS})
     target_link_libraries (console ${REQUIRED_SF_LIBS} 
                                    ${SF_LIB_DEPENDENCY_LIBS}

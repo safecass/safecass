@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 7, 2014
-// Last revision: May 7, 2014
+// Last revision: May 9, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -15,6 +15,7 @@
 #include "publisher.h"
 #include "subscriber.h"
 #include "dict.h"
+#include "topic_def.h"
 // Header from the Clipo project; See CMakeLists.txt for more details.
 #include "command_line_interpreter.hpp"
 
@@ -24,88 +25,11 @@ namespace po = boost::program_options;
 
 typedef std::vector<std::string> StrVec;
 
-class ConsoleSubscriberCallback : public SF::SFCallback {
-public:
-    ConsoleSubscriberCallback() {}
-    ~ConsoleSubscriberCallback() {}
-
-    void Callback(const std::string & json) {
-        std::cout << "SUBSCRIBER: " << json << std::endl;
-    }
-};
-
-class Communicator {
-public:
-    typedef struct {
-        osaThread       Thread;
-        osaThreadSignal ThreadEventBegin;
-        osaThreadSignal ThreadEventEnd;
-        bool            Running;
-    } InternalThreadType;
-    
-    /*! Ice publisher and subscriber */
-    SF::Publisher *  Publisher;
-    SF::Subscriber * Subscriber;
-
-    /*! Callback for subscriber */
-    ConsoleSubscriberCallback * SubscriberCallback;
-
-    InternalThreadType ThreadSubscriber;
-
-    Communicator(void) {
-        //Publisher = new SF::Publisher(SF::Dict::TopicNames::data);
-        Publisher = new SF::Publisher(SF::Dict::TopicNames::control);
-        if (!Publisher->Startup()) {
-            std::stringstream ss;
-            ss << "Communicator: Failed to initialize publisher for topic \""
-                << SF::Dict::TopicNames::data << "\"";
-            cmnThrow(ss.str());
-        }
-
-        SubscriberCallback = new ConsoleSubscriberCallback;
-        Subscriber = new SF::Subscriber(SF::Dict::TopicNames::control, SubscriberCallback);
-        ThreadSubscriber.Thread.Create<Communicator, unsigned int>(this, &Communicator::RunSubscriber, 0);
-        ThreadSubscriber.ThreadEventBegin.Wait();
-    }
-
-    ~Communicator() {
-        if (Subscriber && ThreadSubscriber.Running) {
-            ThreadSubscriber.Running = false;
-            // Terminating subscriber needs to call shutdown() on the Ice communicator
-            Subscriber->Stop();
-            ThreadSubscriber.ThreadEventEnd.Wait();
-
-            delete Subscriber;
-            Subscriber = 0;
-            // SubscriberCallback is deleted by Subscriber's destructor.
-        }
-        delete Publisher;
-    }
-
-    void * RunSubscriber(unsigned int CMN_UNUSED(arg))
-    {
-        ThreadSubscriber.Running = true;
-
-        ThreadSubscriber.ThreadEventBegin.Raise();
-
-        try {
-            Subscriber->Startup();
-            while (ThreadSubscriber.Running) {
-                Subscriber->Run();
-            }
-        } catch (const Ice::InitializationException & e) {
-            CMN_LOG_RUN_ERROR << "Communicator::RunSubscriber: ice init failed: " << e.what() << std::endl;
-        } catch (const Ice::AlreadyRegisteredException & e) {
-            CMN_LOG_RUN_ERROR << "Communicator::RunSubscriber: ice init failed: " << e.what() << std::endl;
-        } catch (const std::exception & e) {
-            CMN_LOG_RUN_ERROR << "Communicator::RunSubscriber: exception: " << e.what() << std::endl;
-        }
-
-        ThreadSubscriber.ThreadEventEnd.Raise();
-
-        return 0;
-    }
-};
+//
+// command handlers
+//
+void handler_filter(const std::vector<std::string> & args);
+void handler_state(const std::vector<std::string> &args);
 
 // cisst Component Manager
 mtsManagerLocal * componentManager = 0;
@@ -127,33 +51,11 @@ void handler_help(const std::vector<std::string> &)
        << "    filter : "NL
        << "    state  : "NL
        << "    exit   : exit console"NL
-       << "    quit   : same as exit'"NL NL
+       << "    quit   : exit console'"NL NL
        << "For more information:"NL
        << "    CASROS on Github: https://github.com/minyang/casros"NL NL;
 
     std::cout << ss.str();
-}
-
-//------------------------------------------------------------ 
-//  filter
-//------------------------------------------------------------ 
-void handler_filter(const std::vector<std::string> &parameters)
-{
-    std::cout << "==== filter\n";
-    std::vector<std::string>::const_iterator it = parameters.begin();
-    for (; it != parameters.end(); ++it)
-        std::cout << *it << std::endl;
-}
-
-//------------------------------------------------------------ 
-//  state
-//------------------------------------------------------------ 
-void handler_state(const std::vector<std::string> &parameters)
-{
-    std::cout << "==== state\n";
-    std::vector<std::string>::const_iterator it = parameters.begin();
-    for (; it != parameters.end(); ++it)
-        std::cout << *it << std::endl;
 }
 
 //------------------------------------------------------------ 
