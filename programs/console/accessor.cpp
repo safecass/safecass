@@ -37,18 +37,15 @@ Accessor::Accessor(void)
     SubscriberCallback = new ConsoleSubscriberCallback;
     Subscriber = new SF::Subscriber(SF::Dict::TopicNames::control, SubscriberCallback);
     //Subscriber = new SF::Subscriber(SF::Dict::TopicNames::data, SubscriberCallback);
-    ThreadSubscriber.Thread.Create<Accessor, unsigned int>(this, &Accessor::RunSubscriber, 0);
+    ThreadSubscriber.Thread.Create<Accessor, unsigned int>(this, &Accessor::StartSubscriber, 0);
     ThreadSubscriber.ThreadEventBegin.Wait();
 }
 
 Accessor::~Accessor()
 {
-    if (Subscriber && ThreadSubscriber.Running) {
-        ThreadSubscriber.Running = false;
-        // Terminating subscriber needs to call shutdown() on the Ice Accessor
-        Subscriber->Stop();
-        ThreadSubscriber.ThreadEventEnd.Wait();
+    StopSubscriber();
 
+    if (Subscriber) {
         delete Subscriber;
         // SubscriberCallback is deleted by Subscriber's destructor.
     }
@@ -57,7 +54,7 @@ Accessor::~Accessor()
 }
 
 
-void * Accessor::RunSubscriber(unsigned int CMN_UNUSED(arg))
+void * Accessor::StartSubscriber(unsigned int CMN_UNUSED(arg))
 {
     ThreadSubscriber.Running = true;
     ThreadSubscriber.ThreadEventBegin.Raise();
@@ -69,14 +66,24 @@ void * Accessor::RunSubscriber(unsigned int CMN_UNUSED(arg))
             std::cout << ".";
         }
     } catch (const Ice::InitializationException & e) {
-        CMN_LOG_RUN_ERROR << "Accessor::RunSubscriber: ice init failed: " << e.what() << std::endl;
+        CMN_LOG_RUN_ERROR << "Accessor::StartSubscriber: ice init failed: " << e.what() << std::endl;
     } catch (const Ice::AlreadyRegisteredException & e) {
-        CMN_LOG_RUN_ERROR << "Accessor::RunSubscriber: ice init failed: " << e.what() << std::endl;
+        CMN_LOG_RUN_ERROR << "Accessor::StartSubscriber: ice init failed: " << e.what() << std::endl;
     } catch (const std::exception & e) {
-        CMN_LOG_RUN_ERROR << "Accessor::RunSubscriber: exception: " << e.what() << std::endl;
+        CMN_LOG_RUN_ERROR << "Accessor::StartSubscriber: exception: " << e.what() << std::endl;
     }
 
     ThreadSubscriber.ThreadEventEnd.Raise();
 
     return 0;
+}
+
+void Accessor::StopSubscriber(void)
+{
+    if (Subscriber && ThreadSubscriber.Running) {
+        ThreadSubscriber.Running = false;
+        // Terminating subscriber needs to call shutdown() on the Ice Accessor
+        Subscriber->Stop();
+        ThreadSubscriber.ThreadEventEnd.Wait();
+    }
 }

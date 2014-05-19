@@ -62,7 +62,9 @@ public:
     Accessor(void);
     virtual ~Accessor();
 
-    void * RunSubscriber(unsigned int CMN_UNUSED(arg));
+    // start and stop
+    void * StartSubscriber(unsigned int CMN_UNUSED(arg));
+    void StopSubscriber(void);
 };
 
 #endif // _communicator_ice_h
