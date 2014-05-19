@@ -12,10 +12,6 @@
 // Github       : https://github.com/minyang/casros
 //
 #include "config.h"
-//#include "publisher.h"
-//#include "subscriber.h"
-//#include "dict.h"
-//#include "topic_def.h"
 #include "accessor.h"
 // Header from the Clipo project; See CMakeLists.txt for more details.
 #include "command_line_interpreter.hpp"
@@ -35,7 +31,7 @@ void handler_state(const std::vector<std::string> &args);
 // cisst Component Manager
 mtsManagerLocal * componentManager = 0;
 // instance of casros network accessor
-Accessor * accessor = 0;
+Accessor * casrosAccessor = 0;
 
 //------------------------------------------------------------ 
 //  help
@@ -52,7 +48,7 @@ void handler_help(const std::vector<std::string> &)
        << "    filter : "NL
        << "    state  : "NL
        << "    exit   : exit console"NL
-       << "    quit   : exit console'"NL NL
+       << "    quit   : exit console"NL NL
        << "For more information:"NL
        << "    CASROS on Github: https://github.com/minyang/casros"NL NL;
 
@@ -64,7 +60,7 @@ void handler_help(const std::vector<std::string> &)
 //------------------------------------------------------------ 
 void handler_exit(const std::vector<std::string> &)
 {
-    delete accessor;
+    delete casrosAccessor;
 
     componentManager->KillAll();
     componentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
@@ -108,7 +104,7 @@ int main(int argc, char **argv)
     }
 
     // Create publisher and subscriber
-    accessor = new Accessor;
+    casrosAccessor = new Accessor;
 
     componentManager->CreateAll();
     componentManager->WaitForStateAll(mtsComponentState::READY);
@@ -126,7 +122,7 @@ int main(int argc, char **argv)
         ("quit",   po::value<StrVec>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
         ;
 
-    boost::cli::command_line_interpreter cli(desc, ">");
+    boost::cli::command_line_interpreter cli(desc, "\n>");
     cli.interpret(std::cin);
 
     return 0;

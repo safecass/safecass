@@ -17,15 +17,16 @@
 #include "dict.h"
 #include "topic_def.h"
 #include "accessor.h"
+#include "utils.h"
 
 // Ice communicator instances
-extern Accessor * accessor;
+extern Accessor * casrosAccessor;
 
 void handler_filter_help(void)
 {
     std::cout << std::endl
               << "filter [command]" << std::endl
-              << "    help: filter help"  << std::endl
+              << "    help: show help for filter command"  << std::endl
               << "    list: list of all filters in the entire system" << std::endl;
 }
 
@@ -53,12 +54,29 @@ typedef enum { HELP, LIST } FilterOptionType;
 
 void handler_filter(const std::vector<std::string> & args)
 {
+#if 0
+    std::cout << "==== filter\n";
+    std::vector<std::string>::const_iterator it = args.begin();
+    for (; it != args.end(); ++it)
+        std::cout << *it << std::endl;
+#endif
+
     FilterOptionType option;
 
     const size_t n = args.size();
 
-    if (n == 1)
-        option = HELP;
+    if (n == 1) {
+        // filter command
+        std::string cmd(args[0]);
+        SF::to_lowercase(cmd);
+
+        if (cmd.compare("list") == 0)
+            option = LIST;
+        else if (cmd.compare("help") == 0)
+            option = HELP;
+        else
+            option = HELP;
+    }
     else
         option = HELP;
 
@@ -67,10 +85,4 @@ void handler_filter(const std::vector<std::string> & args)
     case HELP: handler_filter_help(); break;
     case LIST: handler_filter_list(); break;
     }
-#if 0
-    std::cout << "==== filter\n";
-    std::vector<std::string>::const_iterator it = args.begin();
-    for (; it != args.end(); ++it)
-        std::cout << *it << std::endl;
-#endif
 }
