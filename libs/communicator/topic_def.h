@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: May 8, 2014
+// Last revision: May 19, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -22,15 +22,25 @@ namespace Topic {
 
     namespace Control {
         //! Typedef for message categories of "Control" topic
-        typedef enum { COMMAND } CategoryType;
+        typedef enum {
+            // Execute commands to change states or values of the system
+            COMMAND,
+            // Request to fetch current values of the system
+            READ_REQ
+        } CategoryType;
     };
 
     namespace Data {
-        // TODO: remove LOG
         //! Typedef for message categories of "Data" topic
-        typedef enum { MONITOR, EVENT, LOG } CategoryType;
+        typedef enum {
+            // Data stream from monitoring components
+            MONITOR,
+            // Event data from filters
+            EVENT,
+            // Response containing data requested (response to Control/READ message)
+            READ_RES
+        } CategoryType;
     }
-
 };
 
 };

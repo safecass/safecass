@@ -92,18 +92,19 @@ namespace Json {
 
 namespace TopicNames {
     // names for topics
-    DEFINE_KEYWORD(control);
-    DEFINE_KEYWORD(data);
-    DEFINE_KEYWORD(invalid);
+    DEFINE_KEYWORD(CONTROL);
+    DEFINE_KEYWORD(DATA);
+    DEFINE_KEYWORD(INVALID);
 
     // names for categories
     namespace Control {
-        DEFINE_KEYWORD(command);
+        DEFINE_KEYWORD(COMMAND);
+        DEFINE_KEYWORD(READ_REQ);
     }
     namespace Data {
-        DEFINE_KEYWORD(monitor);
-        DEFINE_KEYWORD(event);
-        DEFINE_KEYWORD(log);
+        DEFINE_KEYWORD(MONITOR);
+        DEFINE_KEYWORD(EVENT);
+        DEFINE_KEYWORD(READ_RES);
     }
 };
 
