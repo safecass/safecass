@@ -127,9 +127,9 @@ bool Publisher::PublishData(const Topic::Data::CategoryType category, const std:
     PUBLISH_BEGIN
     {
         switch (category) {
-        case Topic::Data::MONITOR: PublisherData->Monitor(json); break;
-        case Topic::Data::EVENT:   PublisherData->Event(json);   break;
-        case Topic::Data::LOG:     PublisherData->Log(json);     break;
+        case Topic::Data::MONITOR:  PublisherData->Monitor(json); break;
+        case Topic::Data::EVENT:    PublisherData->Event(json);   break;
+        case Topic::Data::READ_RES: PublisherData->ReadRes(json); break;
         default:
             SFLOG_ERROR << PUBLISHER_INFO << "Failed to publish message (invalid data category): " << json << std::endl;
             return false;
@@ -142,12 +142,13 @@ bool Publisher::PublishData(const Topic::Data::CategoryType category, const std:
     return true;
 }
 
-bool Publisher::PublishControl(const Topic::Control::CategoryType  category, const std::string & json)
+bool Publisher::PublishControl(const Topic::Control::CategoryType category, const std::string & json)
 {
     PUBLISH_BEGIN
     {
         switch (category) {
-        case Topic::Control::COMMAND: PublisherControl->Command(json); break;
+        case Topic::Control::COMMAND:  PublisherControl->Command(json); break;
+        case Topic::Control::READ_REQ: PublisherControl->Command(json); break;
         default:
             SFLOG_ERROR << PUBLISHER_INFO << "Failed to publish message (invalid control category): " << json << std::endl;
             return false;

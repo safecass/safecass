@@ -36,7 +36,7 @@ public:
     void Event(const std::string & json, const Ice::Current &) {
         CallbackInstance->Callback(json);
     }
-    void Log(const std::string & json, const Ice::Current &) {
+    void ReadRes(const std::string & json, const Ice::Current &) {
         CallbackInstance->Callback(json);
     }
 };
@@ -47,6 +47,9 @@ protected:
 public:
     ControlI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
     void Command(const std::string & json, const Ice::Current &) {
+        CallbackInstance->Callback(json);
+    }
+    void ReadReq(const std::string & json, const Ice::Current &) {
         CallbackInstance->Callback(json);
     }
 };
@@ -128,11 +131,11 @@ bool Subscriber::Startup(void)
     Ice::ObjectAdapterPtr adapter;
     switch (BaseType::Topic) {
     case Topic::CONTROL:
-        adapter = IceCommunicator->createObjectAdapter("control.Subscriber");
+        adapter = IceCommunicator->createObjectAdapter("CONTROL.Subscriber");
         SubscriberObj = adapter->add(new ControlI(CallbackInstance), subId);
         break;
     case Topic::DATA:
-        adapter = IceCommunicator->createObjectAdapter("data.Subscriber");
+        adapter = IceCommunicator->createObjectAdapter("DATA.Subscriber");
         SubscriberObj = adapter->add(new DataI(CallbackInstance), subId);
         break;
     default:

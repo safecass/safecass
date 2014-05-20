@@ -3,8 +3,8 @@
 # subscriber adapter. These endpoints are where the client receives
 # topic messages from IceStorm.
 #
-control.Subscriber.Endpoints=tcp:udp
-data.Subscriber.Endpoints=tcp:udp
+CONTROL.Subscriber.Endpoints=tcp:udp
+DATA.Subscriber.Endpoints=tcp:udp
 
 #
 # This property is used by the clients to connect to IceStorm.

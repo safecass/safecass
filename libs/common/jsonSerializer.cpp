@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 17, 2012
-// Last revision: May 8, 2014
+// Last revision: May 19, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -214,13 +214,13 @@ void JSONSerializer::SetTopicType(const Topic::Type topicType)
 {
     switch (topicType) {
     case Topic::DATA: 
-        JSONBuffer[Dict::Json::topic] = Dict::TopicNames::data;
+        JSONBuffer[Dict::Json::topic] = Dict::TopicNames::DATA;
         break;
     case Topic::CONTROL:
-        JSONBuffer[Dict::Json::topic] = Dict::TopicNames::control;
+        JSONBuffer[Dict::Json::topic] = Dict::TopicNames::CONTROL;
         break;
     default:
-        JSONBuffer[Dict::Json::topic] = Dict::TopicNames::invalid;
+        JSONBuffer[Dict::Json::topic] = Dict::TopicNames::INVALID;
         break;
     }
 }
@@ -229,10 +229,10 @@ void JSONSerializer::SetCategoryTypeControl(Topic::Control::CategoryType categor
 {
     switch (category) {
     case Topic::Control::COMMAND:
-        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Control::command;
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Control::COMMAND;
         break;
     default:
-        JSONBuffer[Dict::Json::category] = Dict::TopicNames::invalid;
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::INVALID;
     }
 }
 
@@ -291,16 +291,16 @@ void JSONSerializer::SetCategoryTypeData(Topic::Data::CategoryType category)
 {
     switch (category) {
     case Topic::Data::MONITOR:
-        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Data::monitor;
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Data::MONITOR;
         break;
     case Topic::Data::EVENT:
-        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Data::event;
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Data::EVENT;
         break;
-    case Topic::Data::LOG:
-        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Data::log;
+    case Topic::Data::READ_RES:
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::Data::READ_RES;
         break;
     default:
-        JSONBuffer[Dict::Json::category] = Dict::TopicNames::invalid;
+        JSONBuffer[Dict::Json::category] = Dict::TopicNames::INVALID;
     }
 }
 

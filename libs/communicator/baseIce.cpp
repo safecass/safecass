@@ -32,9 +32,9 @@ BaseIce::BaseIce(const std::string & topicName, const std::string & propertyFile
       State(INIT)
 {
     // Determine type of subscriber depending on topic
-    if (TopicName.compare(SF::Dict::TopicNames::control) == 0)
+    if (TopicName.compare(SF::Dict::TopicNames::CONTROL) == 0)
         Topic = Topic::CONTROL;
-    else if (TopicName.compare(SF::Dict::TopicNames::data) == 0)
+    else if (TopicName.compare(SF::Dict::TopicNames::DATA) == 0)
         Topic = Topic::DATA;
     else {
         std::stringstream ss;
