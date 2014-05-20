@@ -7,9 +7,12 @@
 //------------------------------------------------------------------------
 //
 // Created on   : July 31, 2012
-// Last revision: May 8, 2014
+// Last revision: May 19, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
+//
+// This defines the Slice interface for IceStorm.  For more details, refer to
+// libs/communicator/topic_def.h file.
 //
 #ifndef _MONITOR_ICE
 #define _MONITOR_ICE
@@ -19,24 +22,16 @@
 module SF
 {
     // interface for the "Control" topic
-    interface Control
-    {
-        // for sending control command between Safety Coordinator and/or Safety Supervisor
+    interface Control {
         void Command(string arg);
+        void ReadReq(string arg);
     };
 
-    // interface for the "Data" topic
-    // all string arguments are json-encoded.
-    interface Data
-    {
-        // for monitoring
+    // interface for the "Data" topic. All string arguments are json-encoded.
+    interface Data {
         void Monitor(string arg);
-
-        // for reporting events
         void Event(string arg);
-
-        // for logging
-        void Log(string arg);
+        void ReadRes(string arg);
     };
 };
 

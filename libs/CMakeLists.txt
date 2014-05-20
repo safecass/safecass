@@ -117,7 +117,7 @@ set (SF_LIB_COMMUNICATOR_INCLUDE_DIR ${SF_LIB_COMMUNICATOR_INCLUDE_DIR}
                                      ${LIB_DIR}/communicator)
 
 # slice integration
-set (SLICE_FILES communicator messages)
+set (SLICE_FILES messages)
 set (SLICE_INCLUDE_DIR ${ZEROC_SLICE_INCLUDE_DIR})
 foreach (slice_file ${SLICE_FILES})
     set (GENERATED_CPP_FILE "${SF_BUILD_ROOT}/libs/${slice_file}.cpp")
