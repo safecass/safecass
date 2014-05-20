@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: May 10, 2014
+// Last revision: May 19, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -40,6 +40,8 @@ public:
 // Casros Network Accessor
 //
 class Accessor {
+    enum { CONTROL, DATA, NUM_SUBSCRIBERS };
+
 public:
     typedef struct {
         osaThread       Thread;
@@ -49,14 +51,21 @@ public:
     } InternalThreadType;
     
 protected:
-    /*! Ice publisher and subscriber */
-    SF::Publisher *  Publisher;
-    SF::Subscriber * Subscriber;
+    /*! SF publishers and subscribers (currently, casros uses ZeroC Ice)*/
+    struct {
+        SF::Publisher * Control;
+        SF::Publisher * Data;
+    } Publishers;
+
+    struct {
+        SF::Subscriber * Control;
+        SF::Subscriber * Data;
+    } Subscribers;
 
     /*! Callback for subscriber */
     ConsoleSubscriberCallback * SubscriberCallback;
 
-    InternalThreadType ThreadSubscriber;
+    InternalThreadType ThreadSubscriber[NUM_SUBSCRIBERS];
 
 public:
     Accessor(void);
@@ -65,6 +74,10 @@ public:
     // start and stop
     void * StartSubscriber(unsigned int CMN_UNUSED(arg));
     void StopSubscriber(void);
+
+    // request list of all filters installed
+    bool RequestFilterList(const std::string & processName = "",
+                           const std::string & componentName = "") const;
 };
 
 #endif // _communicator_ice_h

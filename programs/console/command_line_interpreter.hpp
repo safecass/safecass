@@ -31,6 +31,15 @@
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
 
+#if 0
+// to support arrow
+#if SF_ON_WINDOWS
+#include <conio.h>
+#else
+#include <curses.h>
+#endif
+#endif
+
 namespace boost { namespace cli {
 
 typedef boost::program_options::options_description commands_description;
@@ -167,6 +176,56 @@ public:
       handle_read_line(command);
       std::cout << m_prompt << std::flush;
     }
+
+    // Ncurses test code
+#if 0
+    int KB_code=0;
+
+    echo();
+    std::cout << __LINE__ << std::endl;
+
+    WINDOW *w;
+    char c;
+
+    w = initscr();
+    cbreak();	/* Line buffering disabled. pass on everything */
+
+   while (true)
+   { 
+       //if (kbhit())
+       {
+           KB_code = getch();
+           if (KB_code == ERR)
+               continue;
+
+           std::cout << "input: " << KB_code << std::endl;
+           switch (KB_code)
+           {
+           case 27://ESC:
+               std::cout << "ESC" << std::endl;
+               break;
+
+           case 75://KB_LEFT:
+               std::cout << "LEFT" << std::endl;
+               break;
+
+           case 77://KB_RIGHT:
+               std::cout << "RIGHT" << std::endl;
+               break;
+
+           case 72://KB_UP:
+               std::cout << "UP" << std::endl;
+               break;
+
+           case 80://KB_DOWN:
+               std::cout << "DOWN" << std::endl;
+               break;
+
+           }        
+
+       }
+   }
+#endif
   }
 
   typedef char *(*realine_function_pointer_t)(const char *);

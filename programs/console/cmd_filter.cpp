@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: May 10, 2014
+// Last revision: May 19, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -32,9 +32,17 @@ void handler_filter_help(void)
 
 void handler_filter_list(void)
 {
-    //if (!comm->Publisher->PublishData(SF::Topic::Data::MONITOR, "{ test json }"))
-    //    std::cout << "Failed to publish" << std::endl;
-    std::cout << "list" << std::endl;
+    if (!casrosAccessor) {
+        std::cerr << "ERROR: accessor is not initialized" << std::endl;
+        return;
+    }
+
+    if (!casrosAccessor->RequestFilterList()) {
+        std::cerr << "ERROR: failed to request filter list" << std::endl;
+        return;
+    }
+
+    std::cout << "requested filter list" << std::endl;
 }
 
 //------------------------------------------------------------ 

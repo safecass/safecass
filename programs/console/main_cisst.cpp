@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 7, 2014
-// Last revision: May 9, 2014
+// Last revision: May 19, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -92,8 +92,8 @@ int main(int argc, char **argv)
     //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
     //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
 
-    // TODO: add option to enable/disable SC
-    mtsManagerLocal::InstallSafetyCoordinator();
+    // console doesn't require Safety Coordinator to run
+    //mtsManagerLocal::InstallSafetyCoordinator();
 
     // Get local component manager instance
     try {

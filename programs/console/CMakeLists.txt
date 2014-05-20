@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : May 7, 2014
-# Last revision: May 7, 2014
+# Last revision: May 19, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -29,6 +29,7 @@ if (SF_HAS_CISST)
 
   # find cisst and make sure the required libraries have been compiled
   find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES} QUIET)
+  #find_package (Curses REQUIRED QUIET)
 
   if (cisst_FOUND_AS_REQUIRED)
     include_directories (${SF_LIB_INCLUDE_DIR})
@@ -41,7 +42,7 @@ if (SF_HAS_CISST)
     cisst_target_link_libraries(console ${REQUIRED_CISST_LIBS})
     target_link_libraries (console ${REQUIRED_SF_LIBS} 
                                    ${SF_LIB_DEPENDENCY_LIBS}
-                                   ${BOOST_LIB_PROGRAM_OPTION})
+                                   ${BOOST_LIB_PROGRAM_OPTION})# ncurses)
   else ()
     cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
   endif ()
