@@ -23,6 +23,8 @@
 #include <cisstOSAbstraction/osaThread.h>
 #include <cisstOSAbstraction/osaThreadSignal.h>
 
+namespace SF {
+
 class cisstAccessor {
 public:
     typedef struct {
@@ -64,6 +66,11 @@ public:
     // start and stop
     void * StartSubscriber(unsigned int CMN_UNUSED(arg));
     void StopSubscriber(void);
+
+    //! Getters
+    SF::SFCallback * GetSubscriberCallback(SF::Topic::Type topicType);
 };
+
+}; // SF
 
 #endif // _cisst_ice_casros_accessor_h

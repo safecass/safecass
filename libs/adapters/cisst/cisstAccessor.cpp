@@ -13,6 +13,8 @@
 //
 #include "cisstAccessor.h"
 
+using namespace SF;
+
 cisstAccessor::cisstAccessor(bool enablePublisherControl,  bool enablePublisherData,
                              bool enableSubscriberControl, bool enableSubscriberData,
                              SF::SFCallback * cbSubscriberControl,
@@ -124,5 +126,17 @@ void cisstAccessor::StopSubscriber(void)
         // Terminating subscriber needs to call shutdown() on the Ice cisstAccessor
         Subscribers.Data->Stop();
         ThreadSubscribers[SF::Topic::DATA].ThreadEventEnd.Wait();
+    }
+}
+
+SF::SFCallback * cisstAccessor::GetSubscriberCallback(SF::Topic::Type topicType)
+{
+    switch (topicType) {
+    case SF::Topic::CONTROL:
+        return SubscriberCallbacks.Control;
+    case SF::Topic::DATA:
+        return SubscriberCallbacks.Data;
+    default:
+        return 0;
     }
 }

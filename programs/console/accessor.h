@@ -30,7 +30,7 @@ public:
     void Callback(const std::string & json);
 };
 
-class AccessorConsole : public cisstAccessor {
+class AccessorConsole : public SF::cisstAccessor {
 public:
     AccessorConsole(void);
     ~AccessorConsole() {}

@@ -22,6 +22,9 @@
 
 namespace SF {
 
+// TODO: casros accessor is not included here.  If accessor is implemented without cisst,
+// it should be moved to this base class.
+
 // Adapter class: almost empty but pure virtual methods
 class SFLIB_EXPORT Coordinator {
 public:

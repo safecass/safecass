@@ -27,9 +27,9 @@ void ConsoleSubscriberCallback::Callback(const std::string & json)
 // CASROS accessor for console
 //
 AccessorConsole::AccessorConsole(void)
-    : cisstAccessor(true, false, false, true, 
-                    0,//new ConsoleSubscriberCallback(SF::Dict::TopicNames::CONTROL),
-                    new ConsoleSubscriberCallback(SF::Dict::TopicNames::DATA))
+    : SF::cisstAccessor(true, false, false, true, 
+                        0,//new ConsoleSubscriberCallback(SF::Dict::TopicNames::CONTROL),
+                        new ConsoleSubscriberCallback(SF::Dict::TopicNames::DATA))
 {
 }
 
