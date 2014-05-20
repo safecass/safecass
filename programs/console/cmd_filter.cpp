@@ -19,8 +19,7 @@
 #include "accessor.h"
 #include "utils.h"
 
-// Ice communicator instances
-extern Accessor * casrosAccessor;
+extern AccessorConsole * casrosAccessor;
 
 void handler_filter_help(void)
 {

@@ -31,7 +31,7 @@ void handler_state(const std::vector<std::string> &args);
 // cisst Component Manager
 mtsManagerLocal * componentManager = 0;
 // instance of casros network accessor
-Accessor * casrosAccessor = 0;
+AccessorConsole * casrosAccessor = 0;
 
 //------------------------------------------------------------ 
 //  help
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     }
 
     // Create publisher and subscriber
-    casrosAccessor = new Accessor;
+    casrosAccessor = new AccessorConsole;
 
     componentManager->CreateAll();
     componentManager->WaitForStateAll(mtsComponentState::READY);

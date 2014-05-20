@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: May 19, 2014
+// Last revision: May 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -18,7 +18,12 @@ namespace SF {
 
 namespace Topic {
     //! Typedef for topics in use
-    typedef enum { INVALID, CONTROL, DATA } Type;
+    typedef enum {
+        CONTROL = 0,
+        DATA,
+        TOTAL_TOPIC_COUNT,
+        INVALID
+    } Type;
 
     namespace Control {
         //! Typedef for message categories of "Control" topic

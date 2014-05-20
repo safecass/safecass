@@ -70,7 +70,9 @@ if (SF_HAS_CISST)
   set (SF_LIB_ADAPTER_CISST_SRC ${SF_LIB_ADAPTER_DIR}/cisstMonitor.h
                                 ${SF_LIB_ADAPTER_DIR}/cisstMonitor.cpp
                                 ${SF_LIB_ADAPTER_DIR}/cisstEventLocation.h
-                                ${SF_LIB_ADAPTER_DIR}/cisstEventLocation.cpp)
+                                ${SF_LIB_ADAPTER_DIR}/cisstEventLocation.cpp
+                                ${SF_LIB_ADAPTER_DIR}/cisstAccessor.h
+                                ${SF_LIB_ADAPTER_DIR}/cisstAccessor.cpp)
 
   set (SF_LIB_MONITOR_INCLUDE_DIR ${SF_LIB_MONITOR_INCLUDE_DIR} ${SF_LIB_ADAPTER_DIR})
   set (SF_LIB_MONITOR_SRC ${SF_LIB_MONITOR_SRC} ${SF_LIB_ADAPTER_CISST_SRC})
@@ -216,7 +218,7 @@ add_library(SFLib ${LIB_TYPE} ${SF_LIB_SRC})
 target_link_libraries(SFLib ${SF_LIB_DEPENDENCY_LIBS})
 
 if (SF_HAS_CISST)# AND NOT ENABLE_G2LOG)
-  set (REQUIRED_CISST_LIBS cisstCommon)
+  set (REQUIRED_CISST_LIBS cisstCommon cisstOSAbstraction)
 
   # find cisst and make sure the required libraries have been compiled
   find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES} QUIET)
