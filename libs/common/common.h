@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 2, 2012
-// Last revision: Apr 19, 2014
+// Last revision: May 19, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -60,11 +60,20 @@ std::string GetCISSTInfo(void);
 #define STR(faultType) std::string(#faultType)
 
 //! Macro to suppress unused parameter warnings
+/*
 #if SF_ON_WINDOWS
   #define UNUSED(argument) MARKED_AS_UNUSED ## argument
 #else // for gcc or clang compiler
   #define UNUSED(argument) MARKED_AS_UNUSED ## argument __attribute__((unused))
 #endif
+*/
+#ifndef UNUSED
+#if defined(__GNUC__) || defined(__clang__)
+    #define UNUSED(arg) UNUSED_##arg __attribute__((unused))
+#elif SF_ON_WINDOWS
+    #define UNUSED(arg) UNUSED_##arg
+#endif
+#endif // UNUSED
 
 //--------------------------------------------------
 //  Common macro definitions
