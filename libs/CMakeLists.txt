@@ -189,8 +189,7 @@ if (ENABLE_G2LOG)
   find_package (G2LOG REQUIRED)
   if (G2LOG_FOUND)
     message ("g2log found")
-    set (CMAKE_CXX_FLAGS "-std=c++11")
-    set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
+    set (SF_CXX_FLAGS "-std=c++11")
     set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${G2LOG_INCLUDE_DIR})
     set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} ${G2LOG_LIBRARIES})
     # suppress warnings
@@ -234,3 +233,16 @@ endif (SF_HAS_CISST)# AND NOT ENABLE_G2LOG)
 # Set variables in the parent scope
 set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} PARENT_SCOPE)
 set (SF_LIB_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} PARENT_SCOPE)
+
+#set (SF_CXX_FLAGS ${SF_CXX_FLAGS} "-Wno-unused-parameter")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SF_CXX_FLAGS}")
+
+# Disable annoying warnings
+if (SF_ON_WINDOWS)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
+
+add_definitions(-Wno-write-strings)  # deprecated conversion from string constant to char *
+add_definitions(-Wno-pointer-arith)  # NULL used in arithmetic
+add_definitions(-Wconversion-null)   # converting to non-pointer type 'char' from NULL
+#add_definitions(-Wunused-parameter)

@@ -27,7 +27,8 @@ public:
     ConsoleSubscriberCallback(const std::string & topic) : TopicName(topic) {}
     ~ConsoleSubscriberCallback() {}
 
-    void Callback(const std::string & json);
+    void CallbackControl(SF::Topic::Control::CategoryType category, const std::string & json);
+    void CallbackData   (SF::Topic::Data::CategoryType    category, const std::string & json);
 };
 
 class AccessorConsole : public SF::cisstAccessor {

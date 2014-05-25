@@ -129,7 +129,31 @@ void cisstAccessor::StopSubscriber(void)
     }
 }
 
-SF::SFCallback * cisstAccessor::GetSubscriberCallback(SF::Topic::Type topicType)
+SF::Publisher * cisstAccessor::GetPublisher(SF::Topic::Type topicType) const
+{
+    switch (topicType) {
+    case SF::Topic::CONTROL:
+        return Publishers.Control;
+    case SF::Topic::DATA:
+        return Publishers.Data;
+    default:
+        return 0;
+    }
+}
+
+SF::Subscriber * cisstAccessor::GetSubscriber(SF::Topic::Type topicType) const
+{
+    switch (topicType) {
+    case SF::Topic::CONTROL:
+        return Subscribers.Control;
+    case SF::Topic::DATA:
+        return Subscribers.Data;
+    default:
+        return 0;
+    }
+}
+
+SF::SFCallback * cisstAccessor::GetSubscriberCallback(SF::Topic::Type topicType) const
 {
     switch (topicType) {
     case SF::Topic::CONTROL:

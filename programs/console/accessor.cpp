@@ -12,15 +12,34 @@
 // Github       : https://github.com/minyang/casros
 //
 #include "accessor.h"
-// Header from the Clipo project; See CMakeLists.txt for more details.
-//#include "command_line_interpreter.hpp"
 
 //
 // Subscriber callback
 //
-void ConsoleSubscriberCallback::Callback(const std::string & json)
+void ConsoleSubscriberCallback::CallbackControl(SF::Topic::Control::CategoryType category, const std::string & json)
 {
-    PROBE << "[ " << TopicName << " ] received: " << json << std::endl;
+    SFASSERT(false);
+}
+
+void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType category, const std::string & json)
+{
+    std::string categoryName;
+    switch (category) {
+    case SF::Topic::Data::MONITOR:
+        categoryName = "MONITOR";
+        break;
+    case SF::Topic::Data::EVENT:
+        categoryName = "EVENT";
+        break;
+    case SF::Topic::Data::READ_RES:
+        categoryName = "READ_RES";
+        break;
+    default:
+        categoryName = "INVALID";
+        break;
+    }
+
+    PROBE << "[ " << TopicName << " | " << categoryName << " ] received: " << json << std::endl;
 }
 
 //

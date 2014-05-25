@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: May 8, 2014
+// Last revision: May 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -29,15 +29,14 @@ protected:
     SFCallback * CallbackInstance;
 public:
     DataI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
-    // FIXME: how do I know which command json came from?
     void Monitor(const std::string & json, const Ice::Current &) {
-        CallbackInstance->Callback(json);
+        CallbackInstance->CallbackData(Topic::Data::MONITOR, json);
     }
     void Event(const std::string & json, const Ice::Current &) {
-        CallbackInstance->Callback(json);
+        CallbackInstance->CallbackData(Topic::Data::EVENT, json);
     }
     void ReadRes(const std::string & json, const Ice::Current &) {
-        CallbackInstance->Callback(json);
+        CallbackInstance->CallbackData(Topic::Data::READ_RES, json);
     }
 };
 
@@ -47,10 +46,10 @@ protected:
 public:
     ControlI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
     void Command(const std::string & json, const Ice::Current &) {
-        CallbackInstance->Callback(json);
+        CallbackInstance->CallbackControl(Topic::Control::COMMAND, json);
     }
     void ReadReq(const std::string & json, const Ice::Current &) {
-        CallbackInstance->Callback(json);
+        CallbackInstance->CallbackControl(Topic::Control::READ_REQ, json);
     }
 };
 

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 17, 2012
-// Last revision: May 8, 2014
+// Last revision: May 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -30,7 +30,7 @@ namespace SF {
 //! JSON serializer and deserializer
 /** 
     JSONSerializer implements serialization and deserialization of JSON messages
-    for data exchange within Safety Framework.
+    for data exchange within CASROS.
 */
 class SFLIB_EXPORT JSONSerializer {
 protected:

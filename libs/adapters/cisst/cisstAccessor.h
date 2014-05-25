@@ -68,7 +68,9 @@ public:
     void StopSubscriber(void);
 
     //! Getters
-    SF::SFCallback * GetSubscriberCallback(SF::Topic::Type topicType);
+    SF::Publisher * GetPublisher(SF::Topic::Type topicType) const;
+    SF::Subscriber * GetSubscriber(SF::Topic::Type topicType) const;
+    SF::SFCallback * GetSubscriberCallback(SF::Topic::Type topicType) const;
 };
 
 }; // SF

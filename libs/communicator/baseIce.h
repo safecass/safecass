@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: May 8, 2014
+// Last revision: May 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -155,17 +155,18 @@ public:
     }
 };
 
-/*! Callback class to pass data for subscriber.  When a subscriber receives an event
-    notification, an event payload is delievered to the cisst framework via this 
-    callback class.  The cisst plug-ins for the safety framework -- specifically
-    mtsSafetySupervisor and mtsMonitorComponent -- should provide callback handler
-    classes which derive from this class. */
+/*! Callback for subscriber.  When a subscriber receives messages from the topic
+    that it has subscribed for, this callback is called by the communication layer 
+    (IceStorm at this moment). */
 class SFCallback {
 public:
-    SFCallback() {}
+    SFCallback(void) {}
     virtual ~SFCallback() {}
 
-    virtual void Callback(const std::string & json) = 0;
+    virtual void CallbackControl(Topic::Control::CategoryType category, 
+                                 const std::string & json) = 0;
+    virtual void CallbackData(Topic::Data::CategoryType category, 
+                              const std::string & json) = 0;
 };
 
 };
