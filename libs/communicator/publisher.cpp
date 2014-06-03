@@ -123,7 +123,7 @@ bool Publisher::Startup(void)
 
 bool Publisher::PublishData(const Topic::Data::CategoryType category, const std::string & json)
 {
-    PROBE << "json publish: " << json << std::endl;
+    _PROBE << "json publish: " << json << std::endl;
     PUBLISH_BEGIN
     {
         switch (category) {

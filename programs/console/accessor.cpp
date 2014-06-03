@@ -39,7 +39,7 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
         break;
     }
 
-    PROBE << "[ " << TopicName << " | " << categoryName << " ] received: " << json << std::endl;
+    _PROBE << "[ " << TopicName << " | " << categoryName << " ] received: " << json << std::endl;
 }
 
 //
