@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "common.h"
-#include "utils.h"
+#include "common/utils.h" // to prevent naming conflict with other packages
 
 namespace SF {
 
