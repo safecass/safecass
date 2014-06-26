@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Apr 22, 2014
+// Last revision: Jun 25, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -34,10 +34,13 @@ class SFLIB_EXPORT State
 public:
     /*! States */
     typedef enum {
+        // actual states
         NORMAL,
-        FAULT,
+        WARNING,
         ERROR,
+        // projected state
         FAILURE,
+        // invalid state
         INVALID
     } StateType;
 
@@ -49,15 +52,15 @@ public:
         // normal state
         NORMAL_ON_ENTRY,
         NORMAL_ON_EXIT,
-        // fault state
-        FAULT_ON_ENTRY,
-        FAULT_ON_EXIT,
+        // warning state
+        WARNING_ON_ENTRY,
+        WARNING_ON_EXIT,
         // error state
         ERROR_ON_ENTRY,
         ERROR_ON_EXIT,
         // failure state
-        FAILURE_ON_ENTRY,
-        FAILURE_ON_EXIT,
+        //FAILURE_ON_ENTRY,
+        //FAILURE_ON_EXIT,
         // total number of state entry/exit types
         NUMBER_OF_ENTRY_EXIT
     } StateEntryExitType;
@@ -69,16 +72,15 @@ public:
         // this statemachine comes back, i.e., ON_ENTRY occurs?
         ON_ENTRY,
         ON_EXIT,
-        // From NORMAL
-        FAULT_DETECTION,
-        FAULT_REMOVAL,
-        FAULT_ACTIVATION,
-        ERROR_DETECTION,
-        ERROR_REMOVAL,
-        ERROR_PROPAGATION,
-        FAILURE_DETECTION,
-        FAILURE_REMOVAL,
-        FAILURE_STOP,
+        //
+        NORMAL_TO_ERROR,
+        ERROR_TO_NORMAL,
+        //
+        NORMAL_TO_WARNING,
+        WARNING_TO_NORMAL,
+        //
+        WARNING_TO_ERROR,
+        ERROR_TO_WARNING,
         // total number of state transitions
         NUMBER_OF_TRANSITIONS
     } TransitionType;
@@ -102,18 +104,17 @@ public:
         return !(this->CurrentState == rhs.CurrentState);
     }
 
-    /*! State inequality: Normal < Fault < Error < Failure */
+    /*! State inequality: NORMAL < WARNING < ERROR */
     bool operator> (const State & rhs) const;
     bool operator< (const State & rhs) const;
 
-    /*! State Product Operation (N: Normal, F: Fault, E: Error, Fa: Failure)
+    /*! State Product Operation (N: Normal, W: Warning, E: Error)
      
-        s1\s2 | N  F  E  Fa
-        ------|------------
-          N   | N  F  E  Fa
-          F   | F  F  E  Fa
-          E   | E  E  E  Fa
-          Fa  | Fa Fa Fa Fa
+        s1\s2 | N  W  E
+        ------|---------
+          N   | N  W  E 
+          W   | W  W  E 
+          E   | E  E  E 
      */
     State operator* (const State & rhs) const;
     State operator*= (const State & rhs) const;

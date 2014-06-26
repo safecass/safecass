@@ -7,14 +7,14 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 23, 2012
-// Last revision: Apr 21, 2014
+// Last revision: Jun 25, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 // CAROS uses the Boost Meta State Machine (MSM) library to implement the state 
 // cmachine of the generic component model (GCM).  MSM enables quick and easy 
 // cimplementation of state machines of high performance.  For more details, refer 
-// cto http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html 
+// to http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html 
 //
 #ifndef _statemachine_h
 #define _statemachine_h
@@ -41,15 +41,12 @@ class SFLIB_EXPORT StateMachine
 protected:
     // Macros to define msm event
 #define MSM_EVENT(_eventName) struct _eventName {};
-    MSM_EVENT(fault_detection);
-    MSM_EVENT(fault_removal);
-    MSM_EVENT(fault_activation);
-    MSM_EVENT(error_detection);
-    MSM_EVENT(error_removal);
-    MSM_EVENT(error_propagation);
-    MSM_EVENT(failure_detection);
-    MSM_EVENT(failure_removal);
-    MSM_EVENT(failure_stop);
+    MSM_EVENT(evt_N2W);
+    MSM_EVENT(evt_N2E);
+    MSM_EVENT(evt_W2N);
+    MSM_EVENT(evt_W2E);
+    MSM_EVENT(evt_E2N);
+    MSM_EVENT(evt_E2W);
 #if 0
     // A "complicated" event type that carries some data.
 	enum DiskTypeEnum
@@ -70,17 +67,15 @@ protected:
 #endif
 
     // Define msm front-end (the FSM structure)
-    struct FaultState_: public msm::front::state_machine_def<FaultState_> {
+    struct GCMStateMachine_: public msm::front::state_machine_def<GCMStateMachine_> {
         /*! State machine event handler */
         StateEventHandler * EventHandlerInstance;
 
-        // TODO: don't I need to use second argument (fsm instance?)
         template <class Event,class FSM>
         void on_entry(Event const& ,FSM&) {
             if (EventHandlerInstance)
                 EventHandlerInstance->OnStateEntryOrExit(State::STATEMACHINE_ON_ENTRY);
         }
-        // TODO: don't I need to use second argument (fsm instance?)
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) {
             if (EventHandlerInstance)
@@ -98,12 +93,12 @@ protected:
             template <class Event,class FSM>
             void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::NORMAL_ON_EXIT); }
         };
-        struct Fault: public msm::front::state<> 
+        struct Warning: public msm::front::state<> 
         {
             template <class Event,class FSM>
-            void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::FAULT_ON_ENTRY); }
+            void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::WARNING_ON_ENTRY); }
             template <class Event,class FSM>
-            void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::FAULT_ON_EXIT); }
+            void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::WARNING_ON_EXIT); }
         };
         struct Error: public msm::front::state<> 
         {
@@ -111,13 +106,6 @@ protected:
             void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::ERROR_ON_ENTRY); }
             template <class Event,class FSM>
             void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::ERROR_ON_EXIT); }
-        };
-        struct Failure: public msm::front::state<> 
-        {
-            template <class Event,class FSM>
-            void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::FAILURE_ON_ENTRY); }
-            template <class Event,class FSM>
-            void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::FAILURE_ON_EXIT); }
         };
 #undef ON_STATE_ENTRY_EXIT
 
@@ -128,58 +116,45 @@ protected:
 #define ON_STATE_TRANSITION_ACTION(_transition)\
         if (EventHandlerInstance)\
             EventHandlerInstance->OnStateTransition(_transition);
-        void fault_detected(fault_detection const&)     { ON_STATE_TRANSITION_ACTION(State::FAULT_DETECTION); }
-        void back_to_normal(fault_removal const&)       { ON_STATE_TRANSITION_ACTION(State::FAULT_REMOVAL); }
-        void fault_activated(fault_activation const&)   { ON_STATE_TRANSITION_ACTION(State::FAULT_ACTIVATION); }
-        void error_detected(error_detection const&)     { ON_STATE_TRANSITION_ACTION(State::ERROR_DETECTION); }
-        void back_to_normal(error_removal const&)       { ON_STATE_TRANSITION_ACTION(State::ERROR_REMOVAL); }
-        void error_propagated(error_propagation const&) { ON_STATE_TRANSITION_ACTION(State::ERROR_PROPAGATION); }
-        void failure_detected(failure_detection const&) { ON_STATE_TRANSITION_ACTION(State::FAILURE_DETECTION); }
-        void back_to_normal(failure_removal const&)     { ON_STATE_TRANSITION_ACTION(State::FAILURE_REMOVAL); }
-        // MJ TODO
-        void terminated(failure_stop const&)            { ON_STATE_TRANSITION_ACTION(State::FAILURE_STOP); }
-        // MJ TODO
-        void deactivated(failure_stop const&)           { ON_STATE_TRANSITION_ACTION(State::FAILURE_STOP); }
+        void on_N2W(evt_N2W const&) { ON_STATE_TRANSITION_ACTION(State::NORMAL_TO_WARNING); }
+        void on_N2E(evt_N2E const&) { ON_STATE_TRANSITION_ACTION(State::NORMAL_TO_ERROR); }
+        void on_W2N(evt_W2N const&) { ON_STATE_TRANSITION_ACTION(State::WARNING_TO_NORMAL); }
+        void on_W2E(evt_W2E const&) { ON_STATE_TRANSITION_ACTION(State::WARNING_TO_ERROR); }
+        void on_E2N(evt_E2N const&) { ON_STATE_TRANSITION_ACTION(State::ERROR_TO_NORMAL); }
+        void on_E2W(evt_E2W const&) { ON_STATE_TRANSITION_ACTION(State::ERROR_TO_WARNING); }
 #undef ON_STATE_TRANSITION_ACTION
 
-        // Transition table for FaultState
-        typedef FaultState_ fs; // to make transition table cleaner
+        // Transition table for GCMStateMachine
+        typedef GCMStateMachine_ fs; // to make transition table cleaner
 
         struct transition_table : mpl::vector<
-            //    Start     Event               Next      Action				 Guard
-            //  +---------+-------------------+---------+----------------------+---------------+
-          a_row < Normal  , fault_detection   , Fault   , &fs::fault_detected                  >,
-          a_row < Normal  , error_detection   , Error   , &fs::error_detected                  >,
-          a_row < Normal  , failure_detection , Failure , &fs::failure_detected                >,
-            //  +---------+-------------------+---------+----------------------+---------------+
-          a_row < Fault   , fault_activation  , Error   , &fs::fault_activated                 >,
-          a_row < Fault   , fault_removal     , Normal  , &fs::back_to_normal                  >,
-            //  +---------+-------------------+---------+----------------------+---------------+
-          a_row < Error   , error_propagation , Failure , &fs::error_propagated                >,
-          a_row < Error   , error_removal     , Normal  , &fs::back_to_normal                  >,
-            //  +---------+-------------------+---------+----------------------+---------------+
-          a_row < Failure , failure_removal   , Normal  , &fs::back_to_normal                  >
-          // TODO: Next state needs to be fixed
-          //a_row < Failure , failure_stop      , Failure , &fs::terminated                      >, 
-          // TODO: Next state needs to be fixed
-          //a_row < Failure , failure_stop      , Failure , &fs::deactivated                     >
-            //  +---------+-------------------+---------+----------------------+---------------+
+            //    Start     Event     Next      Action		   Guard
+            //  +---------+---------+---------+--------------+--------+
+          a_row < Normal  , evt_N2W , Warning , &fs::on_N2W>,
+          a_row < Normal  , evt_N2E , Error   , &fs::on_N2E>,
+            //  +---------+---------+---------+--------------+--------+
+          a_row < Warning , evt_W2E , Error   , &fs::on_W2E>,
+          a_row < Warning , evt_W2N , Normal  , &fs::on_W2N>,
+            //  +---------+---------+---------+--------------+--------+
+          a_row < Error   , evt_E2N , Normal  , &fs::on_E2N>,
+          a_row < Error   , evt_E2W , Warning , &fs::on_E2W>
+            //  +---------+---------+---------+--------------+--------+
         > {};
 
         // Replaces the default no-transition response.
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
         {
-            std::cout << ">>> SM: no transition from state " << state
-                << " on event " << typeid(e).name() << std::endl;
+            SFLOG_ERROR << "GCMStateMachine: no transition from state " << state
+                        << " on event " << typeid(e).name() << std::endl;
         }
     };
 
     // Pick a back-end
-    typedef msm::back::state_machine<FaultState_> FaultState;
+    typedef msm::back::state_machine<GCMStateMachine_> GCMStateMachine;
 
     /*! State machine instance */
-    FaultState State;
+    GCMStateMachine State;
 
     /*! Name of owner of this state machine */
     std::string OwnerName;
