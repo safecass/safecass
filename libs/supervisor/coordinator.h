@@ -115,7 +115,7 @@ public:
                          const GCM::InterfaceTypes type);
 
     // Get state information in its entirety
-    const std::string GetStateSnapshot(void) const;
+    const std::string GetStateSnapshot(const std::string & componentName = "*") const;
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const Coordinator & coordinator)

@@ -15,6 +15,8 @@
 #include "config.h"
 #include "dict.h"
 
+#define DEBUGLOG 0
+
 namespace SF {
 
 // Publisher id (unique within a process)
@@ -123,7 +125,7 @@ bool Publisher::Startup(void)
 
 bool Publisher::PublishData(const Topic::Data::CategoryType category, const std::string & json)
 {
-    _PROBE << "json publish: " << json << std::endl;
+    //_PROBE << "json publish: " << json << std::endl;
     PUBLISH_BEGIN
     {
         switch (category) {

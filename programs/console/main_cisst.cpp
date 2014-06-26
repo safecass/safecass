@@ -40,11 +40,9 @@ void handler_help(const std::vector<std::string> &)
     ss << "CASROS console utility" NL NL
        << "USAGE: console [command]"NL NL
        << "commands:"NL
-       << "    help   : "NL
-       << "    filter : "NL
-       << "    state  : "NL
-       << "    exit   : exit console"NL
-       << "    quit   : exit console"NL NL
+       << "    state"NL
+       << "    help      : show this help"NL
+       << "    exit/quit : exit console"NL
        << "For more information:"NL
        << "    CASROS on Github: https://github.com/minyang/casros"NL NL;
 

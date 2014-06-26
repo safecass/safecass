@@ -13,7 +13,7 @@
 //
 #include "accessor.h"
 
-#include <cisstMultiTask/mtsManagerLocal.h>
+#include <cisstOSAbstraction/osaSleep.h>
 
 //
 // Subscriber callback
@@ -57,7 +57,9 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
         break;
     }
 
-    _PROBE << "[ topic: " << TopicName << ", category: " << categoryName << " ] received: " << json << std::endl;
+    SFLOG_INFO << "[ topic: " << TopicName << ", category: " << categoryName << " ] received: " << json << std::endl;
+
+    std::cout << json << std::endl;
 }
 
 //
@@ -73,8 +75,8 @@ AccessorConsole::AccessorConsole(void)
 {
 }
 
-bool AccessorConsole::RequestFilterList(const std::string & processName, 
-                                        const std::string & UNUSED(componentName)) const
+bool AccessorConsole::RequestFilterList(const std::string & safetyCoordinatorName,
+                                        const std::string & CMN_UNUSED(componentName)) const
 {
     // TODO
     if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, 
@@ -87,16 +89,20 @@ bool AccessorConsole::RequestFilterList(const std::string & processName,
     return true;
 }
 
-bool AccessorConsole::RequestStateList(const std::string & processName) const
+bool AccessorConsole::RequestStateList(const std::string & safetyCoordinatorName,
+                                       const std::string & componentName) const
 {
     std::stringstream ss;
-    ss << "{ \"target\": { \"safety_coordinator\": \"*\", \"component\": \"*\" }, "
+    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
+          "\"component\": \"" << componentName << "\" }, "
           "\"request\": \"state_list\" }";
     if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
         std::cerr << "AccessorConsole: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
         return false;
     }
 
-    std::cout << "Requested list of states" << std::endl;
+    std::cout << "requested list of states" << std::endl;
+    osaSleep(0.5);
+
     return true;
 }

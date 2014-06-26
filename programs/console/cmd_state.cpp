@@ -28,17 +28,18 @@ void handler_state_help(void)
     std::cout << std::endl
               << "state [command]" << std::endl
               << "    help: show help for state command"  << std::endl
-              << "    list: list of all states in the system" << std::endl;
+              << "    list: show all states in the system" << std::endl;
 }
 
-void handler_state_list(void)
+void handler_state_list(const std::string & safetyCoordinatorName,
+                        const std::string & componentName)
 {
     if (!casrosAccessor) {
         std::cerr << "ERROR: accessor is not initialized" << std::endl;
         return;
     }
 
-    if (!casrosAccessor->RequestStateList()) {
+    if (!casrosAccessor->RequestStateList(safetyCoordinatorName, componentName)) {
         std::cerr << "ERROR: failed to request state information" << std::endl;
         return;
     }
@@ -60,20 +61,33 @@ typedef enum { HELP, LIST } StateOptionType;
 void handler_state(const std::vector<std::string> &args)
 {
     StateOptionType option;
+    std::string safetyCoordinatorName, componentName;
 
     const size_t n = args.size();
 
-    if (n == 1) {
-        // state command
-        std::string cmd(args[0]);
-        SF::to_lowercase(cmd);
+    std::string cmd(args[0]);
+    SF::to_lowercase(cmd);
+    if (cmd.compare("list") == 0) {
+        option = LIST;
+        safetyCoordinatorName = "*";
+        componentName = "*";
+    }
+    else if (cmd.compare("help") == 0)
+        option = HELP;
+    else
+        option = HELP;
 
-        if (cmd.compare("list") == 0)
-            option = LIST;
-        else if (cmd.compare("help") == 0)
-            option = HELP;
-        else
-            option = HELP;
+    if (n == 1) {
+        safetyCoordinatorName = "*";
+        componentName = "*";
+    }
+    else if (n == 2) {
+        safetyCoordinatorName = args[1];
+        componentName = "*";
+    }
+    else if (n == 3) {
+        safetyCoordinatorName = args[1];
+        componentName = args[2];
     }
     else
         option = HELP;
@@ -81,6 +95,6 @@ void handler_state(const std::vector<std::string> &args)
     switch (option) {
     default:
     case HELP: handler_state_help(); break;
-    case LIST: handler_state_list(); break;
+    case LIST: handler_state_list(safetyCoordinatorName, componentName); break;
     }
 }

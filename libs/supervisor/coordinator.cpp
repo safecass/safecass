@@ -143,7 +143,7 @@ bool Coordinator::RemoveInterface(const std::string & componentName,
     return gcm->RemoveInterface(interfaceName, type);
 }
 
-const std::string Coordinator::GetStateSnapshot(void) const
+const std::string Coordinator::GetStateSnapshot(const std::string & componentName) const
 {
     std::stringstream ss;
 
@@ -164,10 +164,15 @@ const std::string Coordinator::GetStateSnapshot(void) const
     ss << " ], ";
 
     // individual component
+    bool first = true;
     it = MapGCM.begin();
     for (; it != itEnd; ++it) {
         GCM * gcm = it->second;
-        if (it != MapGCM.begin())
+        if (componentName.compare("*") != 0) {
+            if (componentName.compare(it->second->GetComponentName()) != 0)
+                continue;
+        }
+        if (!first)
             ss << ", ";
         // component name and component states
         ss << "\"" << it->second->GetComponentName() << "\": { "
@@ -191,11 +196,13 @@ const std::string Coordinator::GetStateSnapshot(void) const
                 ss << ", ";\
             ss << static_cast<int>(gcm->GetInterfaceState(names[i], _type));\
         }\
-        ss << " ] }";
+        ss << " ] } ";
         GET_INTERFACE_STATE(GCM::PROVIDED_INTERFACE, "s_P");
         ss << ", ";
         GET_INTERFACE_STATE(GCM::REQUIRED_INTERFACE, "s_R");
-        ss << "}";
+        ss << "} ";
+
+        first = false;
     }
 
     return ss.str();
