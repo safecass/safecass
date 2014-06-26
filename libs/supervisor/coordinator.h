@@ -1,22 +1,22 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: July 14, 2012
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : July 14, 2012
+// Last revision: June 25, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _coordinator_h
 #define _coordinator_h
 
 #include "common.h"
 #include "monitor.h"
+#include "gcm.h"
 
 #include <map>
 
@@ -34,10 +34,20 @@ public:
      */
     typedef std::map<std::string, std::string> MonitorTargetMapType;
 
+    // Dictionary to convert numeric component id to its name or vice versa
+    typedef std::map<unsigned int, std::string> ComponentIdToNameMapType;
+    typedef std::map<std::string, unsigned int> ComponentNameToIdMapType;
+
+    // Container to manage the entire set of states of the current process
+    typedef std::map<unsigned int, GCM*> GCMMapType;
+
 protected:
     // Monitor map
     //! Map of monitoring targets
-    MonitorTargetMapType MonitorTargetMap;
+    MonitorTargetMapType MapMonitorTarget;
+
+    // component id counter
+    unsigned int ComponentIdCounter;
 
     /*! \addtogroup Management of monitoring targets
      * @{
@@ -52,6 +62,13 @@ protected:
     //! Print out monitoring targets
     void PrintMonitoringTargets(std::ostream & outputStream) const;
     /* @} */
+
+    // Dictionaries to convert numeric component id to its name or vice versa
+    ComponentIdToNameMapType MapComponentIdToName;
+    ComponentNameToIdMapType MapComponentNameToId;
+
+    // Container to manage the entire set of states of the current process
+    GCMMapType MapGCM;
 
 public:
     //! Constructor
@@ -74,15 +91,29 @@ public:
     /*! \param outputStream output stream
         \param includeLocation target location is printed if yes (default: yes)
     */
-    //virtual void ToStream(std::ostream & outputStream) const;
+    virtual void ToStream(std::ostream & outputStream) const;
+
+    // Add component. Returns non-zero component id for success, zero for failure.
+    unsigned int AddComponent(const std::string & componentName);
+    // Get component id using its name
+    unsigned int GetComponentId(const std::string & componentName) const;
+    // Get component name using its id
+    const std::string GetComponentName(unsigned int componentId) const;
+
+    // Add interface
+    bool AddInterface(const std::string & componentName, 
+                      const std::string & interfaceName,
+                      const GCM::InterfaceTypes type);
+    bool RemoveInterface(const std::string & componentName, 
+                         const std::string & interfaceName,
+                         const GCM::InterfaceTypes type);
 };
 
-#if 0
-inline std::ostream & operator << (std::ostream & outputStream, const Coordinator & coordinator) {
+inline std::ostream & operator << (std::ostream & outputStream, const Coordinator & coordinator)
+{
     coordinator.ToStream(outputStream);
     return outputStream;
 }
-#endif
 
 };
 

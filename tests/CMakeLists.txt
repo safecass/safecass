@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Apr 18, 2014
+# Last revision: Jun 25, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -39,9 +39,9 @@ if (SF_HAS_CISST)
 
   set (UNIT_TEST_INCLUDE_DIR ${INCLUDE_DIR} ${INCLUDE_DIR} ${cisst_INCLUDE_DIR})
   set (UNIT_TEST_SRC ${UNIT_TEST_SRC} 
-                     testGCM.h testGCM.cpp
-                     testState.h testState.cpp
-                     GCMHelper.h GCMHelper.cpp)
+                     #testGCM.h testGCM.cpp
+                     #GCMHelper.h GCMHelper.cpp
+                     testState.h testState.cpp)
 endif (SF_HAS_CISST)
 
 # Define project settings

@@ -20,6 +20,10 @@
 #include "cpptest.h"
 #include <boost/program_options.hpp>
 
+// disable obsolete tests for GCM
+#undef SF_HAS_CISST
+#define SF_HAS_CISST 0
+
 // test suites
 #include "testJson.h"
 #include "testState.h"
