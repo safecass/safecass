@@ -13,9 +13,9 @@
 //
 #include "coordinator.h"
 
-namespace SF {
+using namespace SF;
 
-Coordinator::Coordinator(): ComponentIdCounter(0)
+Coordinator::Coordinator(const std::string & name): Name(name), ComponentIdCounter(0)
 {}
 
 Coordinator::~Coordinator()
@@ -143,4 +143,60 @@ bool Coordinator::RemoveInterface(const std::string & componentName,
     return gcm->RemoveInterface(interfaceName, type);
 }
 
-};
+const std::string Coordinator::GetStateSnapshot(void) const
+{
+    std::stringstream ss;
+
+    // header
+    ss << "{ ";
+    ss << "\"safety_coordinator\": \"" << Name << "\", ";
+    ss << "\"cmd\": \"state_list\",";
+
+    // component list
+    ss << "\"components\": [ ";
+    GCMMapType::const_iterator it = MapGCM.begin();
+    const GCMMapType::const_iterator itEnd = MapGCM.end();
+    for (; it != itEnd; ++it) {
+        if (it != MapGCM.begin())
+            ss << ", ";
+        ss << "\"" << it->second->GetComponentName() << "\"";
+    }
+    ss << " ], ";
+
+    // individual component
+    it = MapGCM.begin();
+    for (; it != itEnd; ++it) {
+        GCM * gcm = it->second;
+        if (it != MapGCM.begin())
+            ss << ", ";
+        // component name and component states
+        ss << "\"" << it->second->GetComponentName() << "\": { "
+              "\"s\": " << static_cast<int>(gcm->GetComponentState(GCM::SYSTEM_VIEW)) << ", "
+              "\"s_F\": " << static_cast<int>(gcm->GetComponentState(GCM::FRAMEWORK_VIEW)) << ", "
+              "\"s_A\": " << static_cast<int>(gcm->GetComponentState(GCM::APPLICATION_VIEW)) << ", ";
+        StrVecType names;
+        // provided interface states
+#define GET_INTERFACE_STATE(_type, _key)\
+        names.clear();\
+        it->second->GetNamesOfInterfaces(_type, names);\
+        ss << "\"" _key "\": { \"interfaces\": [ ";\
+        for (size_t i = 0; i < names.size(); ++i) {\
+            if (i != 0)\
+                ss << ", ";\
+            ss << "\"" << names[i] << "\"";\
+        }\
+        ss << " ], \"states\": [ ";\
+        for (size_t i = 0; i < names.size(); ++i) {\
+            if (i != 0)\
+                ss << ", ";\
+            ss << static_cast<int>(gcm->GetInterfaceState(names[i], _type));\
+        }\
+        ss << " ] }";
+        GET_INTERFACE_STATE(GCM::PROVIDED_INTERFACE, "s_P");
+        ss << ", ";
+        GET_INTERFACE_STATE(GCM::REQUIRED_INTERFACE, "s_R");
+        ss << "}";
+    }
+
+    return ss.str();
+}

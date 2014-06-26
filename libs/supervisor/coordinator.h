@@ -42,6 +42,9 @@ public:
     typedef std::map<unsigned int, GCM*> GCMMapType;
 
 protected:
+    // Name of this coordinator
+    const std::string Name;
+
     // Monitor map
     //! Map of monitoring targets
     MonitorTargetMapType MapMonitorTarget;
@@ -70,9 +73,12 @@ protected:
     // Container to manage the entire set of states of the current process
     GCMMapType MapGCM;
 
+protected:
+    // Don't allow to create this object without its name
+    Coordinator();
 public:
     //! Constructor
-    Coordinator();
+    Coordinator(const std::string & name);
     //! Destructor
     virtual ~Coordinator();
 
@@ -107,6 +113,9 @@ public:
     bool RemoveInterface(const std::string & componentName, 
                          const std::string & interfaceName,
                          const GCM::InterfaceTypes type);
+
+    // Get state information in its entirety
+    const std::string GetStateSnapshot(void) const;
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const Coordinator & coordinator)

@@ -35,7 +35,7 @@ public:
     /*! States */
     typedef enum {
         // actual states
-        NORMAL,
+        NORMAL = 0,
         WARNING,
         ERROR,
         // projected state
