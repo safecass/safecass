@@ -175,7 +175,7 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         if (!first)
             ss << ", ";
         // component name and component states
-        ss << "\"" << it->second->GetComponentName() << "\": { "
+        ss << "\n\"" << it->second->GetComponentName() << "\": { "
               "\"s\": " << static_cast<int>(gcm->GetComponentState(GCM::SYSTEM_VIEW)) << ", "
               "\"s_F\": " << static_cast<int>(gcm->GetComponentState(GCM::FRAMEWORK_VIEW)) << ", "
               "\"s_A\": " << static_cast<int>(gcm->GetComponentState(GCM::APPLICATION_VIEW)) << ", ";
