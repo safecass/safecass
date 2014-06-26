@@ -40,10 +40,10 @@ public:
     ~AccessorConsole() {}
 
     // request list of all filters installed
-    bool RequestFilterList(const std::string & processName = "",
+    bool RequestFilterList(const std::string & processName = "*",
                            const std::string & componentName = "") const;
     // request list of all states in the Safety Coordinator
-    bool RequestStateList(const std::string & processName) const;
+    bool RequestStateList(const std::string & processName = "*") const;
 };
 
 #endif // _accessor_console_h

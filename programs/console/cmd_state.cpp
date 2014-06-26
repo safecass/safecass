@@ -19,6 +19,8 @@
 #include "accessor.h"
 #include "utils.h"
 
+#define DEBUGLOG 0
+
 extern AccessorConsole * casrosAccessor;
 
 void handler_state_help(void)
@@ -41,7 +43,9 @@ void handler_state_list(void)
         return;
     }
 
+#if DEBUGLOG
     std::cout << "requested list of states" << std::endl;
+#endif
 }
 
 

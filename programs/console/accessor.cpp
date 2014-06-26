@@ -7,17 +7,35 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: May 20, 2014
+// Last revision: Jun 26, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "accessor.h"
+
+#include <cisstMultiTask/mtsManagerLocal.h>
 
 //
 // Subscriber callback
 //
 void ConsoleSubscriberCallback::CallbackControl(SF::Topic::Control::CategoryType category, const std::string & json)
 {
+    /*
+    std::string categoryName;
+    switch (category) {
+    case SF::Topic::Control::COMMAND:
+        categoryName = "COMMAND";
+        break;
+    case SF::Topic::Control::READ_REQ:
+        categoryName = "READ_REQ";
+        break;
+    default:
+        categoryName = "INVALID";
+        break;
+    }
+
+    _PROBE << "[ topic \"" << TopicName << "\", category \"" << categoryName << "\" ] received: " << json << std::endl;
+    */
     SFASSERT(false);
 }
 
@@ -39,20 +57,23 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
         break;
     }
 
-    _PROBE << "[ " << TopicName << " | " << categoryName << " ] received: " << json << std::endl;
+    _PROBE << "[ topic: " << TopicName << ", category: " << categoryName << " ] received: " << json << std::endl;
 }
 
 //
 // CASROS accessor for console
 //
 AccessorConsole::AccessorConsole(void)
-    : SF::cisstAccessor(true, false, false, true, 
+    : SF::cisstAccessor(true,  // enablePublisherControl
+                        false, // enablePublisherData
+                        false,  // enableSubscriberControl
+                        true,  // enableSubscriberData
                         0,//new ConsoleSubscriberCallback(SF::Dict::TopicNames::CONTROL),
                         new ConsoleSubscriberCallback(SF::Dict::TopicNames::DATA))
 {
 }
 
-bool AccessorConsole::RequestFilterList(const std::string & UNUSED(processName), 
+bool AccessorConsole::RequestFilterList(const std::string & processName, 
                                         const std::string & UNUSED(componentName)) const
 {
     // TODO
@@ -68,12 +89,14 @@ bool AccessorConsole::RequestFilterList(const std::string & UNUSED(processName),
 
 bool AccessorConsole::RequestStateList(const std::string & processName) const
 {
-    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, 
-            "{ \"target\": \"*\", \"cmd\": \"filter_list\" }")) 
-    {
-        std::cerr << "AccessorConsole: Failed to publish message (Control::READ_REQ)" << std::endl;
+    std::stringstream ss;
+    ss << "{ \"target\": { \"safety_coordinator\": \"*\", \"component\": \"*\" }, "
+          "\"request\": \"state_list\" }";
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+        std::cerr << "AccessorConsole: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
         return false;
     }
 
+    std::cout << "Requested list of states" << std::endl;
     return true;
 }

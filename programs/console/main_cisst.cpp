@@ -16,8 +16,6 @@
 // Header from the Clipo project; See CMakeLists.txt for more details.
 #include "command_line_interpreter.hpp"
 
-#include <cisstMultiTask/mtsManagerLocal.h>
-
 namespace po = boost::program_options;
 
 typedef std::vector<std::string> StrVec;
@@ -28,8 +26,6 @@ typedef std::vector<std::string> StrVec;
 void handler_filter(const std::vector<std::string> & args);
 void handler_state(const std::vector<std::string> &args);
 
-// cisst Component Manager
-mtsManagerLocal * componentManager = 0;
 // instance of casros network accessor
 AccessorConsole * casrosAccessor = 0;
 
@@ -62,10 +58,6 @@ void handler_exit(const std::vector<std::string> &)
 {
     delete casrosAccessor;
 
-    componentManager->KillAll();
-    componentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
-    componentManager->Cleanup();
-
     exit(0);
 }
 
@@ -84,32 +76,8 @@ int main(int argc, char **argv)
     std::cout << "Log file: \"" << logger.logFileName() << "\"\n" << std::endl;
 #endif
 
-    // cisst logger setup
-    cmnLogger::SetMask(CMN_LOG_ALLOW_ALL);
-    cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
-    cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
-    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
-    //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
-
-    mtsManagerLocal::InstallSafetyCoordinator();
-
-    // Get local component manager instance
-    try {
-        componentManager = mtsManagerLocal::GetInstance();
-    } catch (...) {
-        CMN_LOG_INIT_ERROR << "Failed to initialize local component manager" << std::endl;
-        return 1;
-    }
-
     // Create publisher and subscriber
     casrosAccessor = new AccessorConsole;
-
-    componentManager->CreateAll();
-    componentManager->WaitForStateAll(mtsComponentState::READY);
-
-    componentManager->StartAll();
-    componentManager->WaitForStateAll(mtsComponentState::ACTIVE);
 
     // Instantiate interpreter
     boost::cli::commands_description desc;
@@ -121,7 +89,7 @@ int main(int argc, char **argv)
         ("quit",   po::value<StrVec>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
         ;
 
-    boost::cli::command_line_interpreter cli(desc, "\n>");
+    boost::cli::command_line_interpreter cli(desc, ">");
     cli.interpret(std::cin);
 
     return 0;

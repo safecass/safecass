@@ -15,16 +15,14 @@
 # features to inspect running systems, but also enables interacting with the
 # system with casros.
 #
-# This project uses the Clipo project, a command line interpreter based on the
-# boost Program Option library in C++, as its front-end.  The Clipo project 
-# website URL is: 
-#
-#   https://code.google.com/p/clipo
+# This project uses the Clipo project as the front-end, a command line interpreter 
+# based on the boost Program Option library in C++.  The Clipo project URL is
+# https://code.google.com/p/clipo .
 # 
 project(console)
 
 if (SF_HAS_CISST)
-  set (REQUIRED_CISST_LIBS cisstCommon cisstVector cisstOSAbstraction cisstMultiTask)
+  set (REQUIRED_CISST_LIBS cisstCommon cisstOSAbstraction)
   set (REQUIRED_SF_LIBS SFLib)
 
   # find cisst and make sure the required libraries have been compiled

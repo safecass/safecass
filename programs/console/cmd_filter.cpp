@@ -19,6 +19,8 @@
 #include "accessor.h"
 #include "utils.h"
 
+#define DEBUGLOG 0
+
 extern AccessorConsole * casrosAccessor;
 
 void handler_filter_help(void)
@@ -41,7 +43,9 @@ void handler_filter_list(void)
         return;
     }
 
+#if DEBUGLOG
     std::cout << "requested filter list" << std::endl;
+#endif
 }
 
 //------------------------------------------------------------ 
