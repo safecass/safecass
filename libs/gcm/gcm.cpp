@@ -122,6 +122,26 @@ bool GCM::RemoveInterface(const std::string & name, const GCM::InterfaceTypes ty
     return true;
 }
 
+StrVecType GCM::GetNamesOfInterfaces(InterfaceTypes type) const
+{
+    const InterfaceStateMachinesType & interfaces = 
+        (type == PROVIDED_INTERFACE ? States.ProvidedInterfaces : States.RequiredInterfaces);
+
+    StrVecType names;
+
+    InterfaceStateMachinesType::const_iterator it = interfaces.begin();
+    const InterfaceStateMachinesType::const_iterator itEnd = interfaces.end();
+    for (; it != itEnd; ++it)
+        names.push_back(it->first);
+
+    return names;
+}
+
+void GCM::GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const
+{
+    names = GetNamesOfInterfaces(type);
+}
+    
 void GCM::ProcessEvent_ComponentFramework(const SF::State::TransitionType transition)
 {
     SFASSERT(States.ComponentFramework);

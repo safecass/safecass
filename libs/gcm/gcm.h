@@ -89,6 +89,9 @@ public:
     State::StateType GetComponentState(const ComponentStateViews view = SYSTEM_VIEW) const;
     /*! Returns interface state */
     State::StateType GetInterfaceState(const std::string & name, const GCM::InterfaceTypes type) const;
+    /*! Returns names of interfaces */
+    StrVecType GetNamesOfInterfaces(InterfaceTypes type) const;
+    void       GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const;
 
     //
     // Misc.
