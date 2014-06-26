@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: May 20, 2014
+// Last revision: Jun 25, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -31,6 +31,9 @@ public:
     void CallbackData   (SF::Topic::Data::CategoryType    category, const std::string & json);
 };
 
+//
+// CASROS accessors
+//
 class AccessorConsole : public SF::cisstAccessor {
 public:
     AccessorConsole(void);
@@ -39,6 +42,8 @@ public:
     // request list of all filters installed
     bool RequestFilterList(const std::string & processName = "",
                            const std::string & componentName = "") const;
+    // request list of all states in the Safety Coordinator
+    bool RequestStateList(const std::string & processName) const;
 };
 
 #endif // _accessor_console_h

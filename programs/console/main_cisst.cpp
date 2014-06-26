@@ -92,8 +92,7 @@ int main(int argc, char **argv)
     //cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ALL);
     //cmnLogger::SetMaskClassMatching("mts", CMN_LOG_ALLOW_ALL);
 
-    // console doesn't require Safety Coordinator to run
-    //mtsManagerLocal::InstallSafetyCoordinator();
+    mtsManagerLocal::InstallSafetyCoordinator();
 
     // Get local component manager instance
     try {

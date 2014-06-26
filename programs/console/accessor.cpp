@@ -55,6 +55,19 @@ AccessorConsole::AccessorConsole(void)
 bool AccessorConsole::RequestFilterList(const std::string & UNUSED(processName), 
                                         const std::string & UNUSED(componentName)) const
 {
+    // TODO
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, 
+            "{ \"target\": \"*\", \"cmd\": \"filter_list\" }")) 
+    {
+        std::cerr << "AccessorConsole: Failed to publish message (Control::READ_REQ)" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool AccessorConsole::RequestStateList(const std::string & processName) const
+{
     if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, 
             "{ \"target\": \"*\", \"cmd\": \"filter_list\" }")) 
     {
