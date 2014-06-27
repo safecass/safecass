@@ -69,8 +69,16 @@ void Coordinator::PrintMonitoringTargets(std::ostream & outputStream) const
 
 unsigned int Coordinator::AddComponent(const std::string & componentName)
 {
-    if (MapComponentNameToId.find(componentName) != MapComponentNameToId.end())
+    if (MapComponentNameToId.find(componentName) != MapComponentNameToId.end()) {
+        std::stringstream ss;
+        ss << "Coordinator::AddComponent: component \"" << componentName 
+           << "\" already registered [ ";
+        ComponentNameToIdMapType::const_iterator it = MapComponentNameToId.begin();
+        for (; it != MapComponentNameToId.end(); ++it)
+            ss << it->first << " ";
+        SFLOG_ERROR << ss.str() << std::endl;
         return 0;
+    }
 
     unsigned int cid = ++ComponentIdCounter;
     MapComponentNameToId[componentName] = cid;
@@ -147,35 +155,43 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
 {
     std::stringstream ss;
 
-    // header
     ss << "{ ";
-    ss << "\"safety_coordinator\": \"" << Name << "\", ";
-    ss << "\"cmd\": \"state_list\",";
 
-    // component list
-    ss << "\"components\": [ ";
-    GCMMapType::const_iterator it = MapGCM.begin();
+    GCMMapType::const_iterator it;
     const GCMMapType::const_iterator itEnd = MapGCM.end();
-    for (; it != itEnd; ++it) {
-        if (it != MapGCM.begin())
-            ss << ", ";
-        ss << "\"" << it->second->GetComponentName() << "\"";
+
+    bool allComponents = (componentName.compare("*") == 0);
+    if (allComponents) {
+        // header
+        ss << "\"safety_coordinator\": \"" << Name << "\", ";
+        ss << "\"cmd\": \"state_list\",";
+
+        // component list
+        ss << "\"components\": [ ";
+        it = MapGCM.begin();
+        for (; it != itEnd; ++it) {
+            if (it != MapGCM.begin())
+                ss << ", ";
+            ss << "\"" << it->second->GetComponentName() << "\"";
+        }
+        ss << " ], ";
     }
-    ss << " ], ";
 
     // individual component
     bool first = true;
     it = MapGCM.begin();
     for (; it != itEnd; ++it) {
         GCM * gcm = it->second;
-        if (componentName.compare("*") != 0) {
+        if (!allComponents) {
             if (componentName.compare(it->second->GetComponentName()) != 0)
                 continue;
         }
         if (!first)
             ss << ", ";
         // component name and component states
-        ss << "\n\"" << it->second->GetComponentName() << "\": { "
+        if (allComponents)
+            ss << "\n";
+        ss << "\"" << it->second->GetComponentName() << "\": { "
               "\"s\": " << static_cast<int>(gcm->GetComponentState(GCM::SYSTEM_VIEW)) << ", "
               "\"s_F\": " << static_cast<int>(gcm->GetComponentState(GCM::FRAMEWORK_VIEW)) << ", "
               "\"s_A\": " << static_cast<int>(gcm->GetComponentState(GCM::APPLICATION_VIEW)) << ", ";
@@ -200,10 +216,12 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         GET_INTERFACE_STATE(GCM::PROVIDED_INTERFACE, "s_P");
         ss << ", ";
         GET_INTERFACE_STATE(GCM::REQUIRED_INTERFACE, "s_R");
-        ss << "} ";
+#undef GET_INTERFACE_STATE
 
         first = false;
     }
+
+    ss << "}" << std::endl;
 
     return ss.str();
 }
