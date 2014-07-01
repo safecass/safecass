@@ -47,15 +47,15 @@ FilterThreshold::FilterThreshold(BaseType::FilterCategory      category,
 FilterThreshold::FilterThreshold(const JSON::JSONVALUE & jsonNode)
     : FilterBase(FilterThreshold::Name, jsonNode),
       NameOfInputSignal(JSON::GetSafeValueString(
-          jsonNode[Dict::Filter::Arguments], Dict::Filter::InputSignalName)),
+          jsonNode[Dict::Filter::argument], Dict::Filter::input_signal)),
       Threshold(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::Arguments], Dict::FilterThreshold::threshold)),
+          jsonNode[Dict::Filter::argument], Dict::FilterThreshold::threshold)),
       Margin(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::Arguments], Dict::FilterThreshold::margin)),
+          jsonNode[Dict::Filter::argument], Dict::FilterThreshold::margin)),
       Output0(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::Arguments], Dict::FilterThreshold::output0)),
+          jsonNode[Dict::Filter::argument], Dict::FilterThreshold::output0)),
       Output1(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::Arguments], Dict::FilterThreshold::output1))
+          jsonNode[Dict::Filter::argument], Dict::FilterThreshold::output1))
 {
     Initialize();
 }

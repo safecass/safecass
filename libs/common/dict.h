@@ -120,9 +120,9 @@ namespace FaultNames {
 
 // Filters and filter-specific keywords
 namespace Filter {
-    DEFINE_KEYWORD(Arguments);
-    DEFINE_KEYWORD(InputSignalName);
-    DEFINE_KEYWORD(LastFilter);
+    DEFINE_KEYWORD(argument);
+    DEFINE_KEYWORD(input_signal);
+    DEFINE_KEYWORD(last_filter);
 };
 
 namespace FilterThreshold {

@@ -14,6 +14,7 @@
 #include "filterFactory.h"
 #include "threshold.h"
 #include "changeDetection.h"
+#include "onOff.h"
 
 namespace SF {
 
@@ -22,8 +23,13 @@ FilterFactory::FilterFactory(void)
     // Register filters that casros defines.  Application-specific filters should
     // be registered using SF_REGISTER_FILTER_TO_FACTORY macro, e.g.,
     // SF_REGISTER_FILTER_TO_FACTORY(FilterMyApplication);
-    RegisterFilter(FilterThreshold::Name, FilterThreshold::Create);
-    RegisterFilter(FilterChangeDetection::Name, FilterChangeDetection::Create);
+
+#define REGISTER_FILTER(_name)\
+    RegisterFilter(_name::Name, _name::Create);
+    REGISTER_FILTER(FilterThreshold);
+    REGISTER_FILTER(FilterChangeDetection);
+    REGISTER_FILTER(FilterOnOff);
+#undef REGISTER_FILTER
 }
 
 bool FilterFactory::RegisterFilter(const std::string & filterName, 
@@ -72,7 +78,7 @@ FilterBase * FilterFactory::CreateFilter(const std::string & filterName,
         for (; it2 != FactoryMap.end(); ++it2)
             SFLOG_DEBUG << "FACTORY MAP: " << it2->first << ", " << (double*)it2->second << std::endl;
 
-        SFLOG_DEBUG << "FilterFactory::CreateFilter: no filter found: \"" << filterName  << "\"" << std::endl;
+        SFLOG_ERROR << "FilterFactory::CreateFilter: no filter found: \"" << filterName  << "\"" << std::endl;
         return 0;
     }
 

@@ -122,7 +122,7 @@ protected:
     const std::string ClassName;
 
     //! Category of this filter
-    const FilterCategory Category;
+    //const FilterCategory Category;
 
     //! Name of target component
     // TODO: this can be replaced with MonitorTarget structure(?)
@@ -261,7 +261,7 @@ public:
     //-------------------------------------------------- 
     inline FilterIDType        GetFilterUID(void) const { return UID; }
     inline const std::string & GetFilterName(void) const { return Name; }
-    inline FilterCategory      GetFilterCategory(void) const { return Category; }
+    //inline FilterCategory      GetFilterCategory(void) const { return Category; }
     inline const std::string & GetNameOfTargetComponent(void) const { return NameOfTargetComponent; }
     inline FilteringType       GetFilteringType(void) const { return Type; }
     inline bool IsLastFilterOfPipeline(void) const { return LastFilterOfPipeline; }
@@ -319,9 +319,9 @@ public:
         @{
      */
     //! Convert filter category to string
-    static const std::string GetFilterCategoryString(const FilterCategory type);
+    //static const std::string GetFilterCategoryString(const FilterCategory type);
     //! Convert string to filter category
-    static FilterCategory GetFilterCategoryFromString(const std::string & str);
+    //static FilterCategory GetFilterCategoryFromString(const std::string & str);
 
     //! Convert filtering type to string
     static const std::string GetFilteringTypeString(const FilteringType type);

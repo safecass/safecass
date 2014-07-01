@@ -31,7 +31,7 @@ const std::string InvalidSignalName = "INVALID_SIGNAL";
 FilterBase::FilterBase(void)
     : UID(InvalidFilterUID),
       Name("NONAME"),
-      Category(INVALID),
+      //Category(INVALID),
       NameOfTargetComponent("NONAME"), 
       Type(ACTIVE),
       LastFilterOfPipeline(false)
@@ -46,7 +46,7 @@ FilterBase::FilterBase(const std::string  & filterName,
     : UID(++FilterUID),
       Name(filterName),
       ClassName(""),
-      Category(filterCategory),
+      //Category(filterCategory),
       NameOfTargetComponent(targetComponentName), 
       Type(monitoringType),
       LastFilterOfPipeline(false)
@@ -58,10 +58,10 @@ FilterBase::FilterBase(const std::string & filterName, const JSON::JSONVALUE & j
     : UID(++FilterUID),
       Name(filterName),
       ClassName( JSON::GetSafeValueString( jsonNode, Json::class_name)),
-      Category( GetFilterCategoryFromString( JSON::GetSafeValueString( jsonNode, Json::category) ) ),
+      //Category( GetFilterCategoryFromString( JSON::GetSafeValueString( jsonNode, Json::category) ) ),
       NameOfTargetComponent( JSON::GetSafeValueString( jsonNode, Json::target_component ) ), 
       Type( GetFilteringTypeFromString(JSON::GetSafeValueString( jsonNode, Json::type ) ) ),
-      LastFilterOfPipeline( JSON::GetSafeValueBool( jsonNode, Filter::LastFilter) )
+      LastFilterOfPipeline( JSON::GetSafeValueBool( jsonNode, Filter::last_filter) )
 {
     Initialize();
 }
@@ -259,8 +259,9 @@ std::string FilterBase::ToString(void) const
 void FilterBase::ToStream(std::ostream & outputStream) const
 {
     outputStream << "[" << UID << "] "
-                 << "Name: \"" << Name << "\", "
-                 << "Category: ";
+                 << "Name: \"" << Name << "\"";//, ";
+                 //<< "Category: ";
+#if 0
     switch (Category) {
     case INVALID:        outputStream << "INVALID"; break; 
     case FEATURE:        outputStream << "FEATURE"; break; 
@@ -270,6 +271,7 @@ void FilterBase::ToStream(std::ostream & outputStream) const
     case FAULT_DETECTOR: outputStream << "FAULT_DETECTOR"; break; 
     default:             SFASSERT(false);
     }
+#endif
     outputStream << ", ";
     outputStream << "Target component: \"" << NameOfTargetComponent << "\", "
                  << "Filtering type: " << (Type == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
@@ -294,6 +296,7 @@ void FilterBase::ToStream(std::ostream & outputStream) const
 //-----------------------------------------------
 // Misc. Getters
 //-----------------------------------------------
+#if 0
 static const std::string STR_FILTER_INVALID        = "INVALID";
 static const std::string STR_FILTER_FEATURE        = "FEATURE";
 static const std::string STR_FILTER_FEATURE_VECTOR = "FEATURE_VECTOR";
@@ -325,6 +328,7 @@ FilterBase::FilterCategory FilterBase::GetFilterCategoryFromString(const std::st
 
     return INVALID;
 }
+#endif
 
 const std::string FilterBase::GetFilteringTypeString(const FilteringType type)
 {

@@ -13,9 +13,14 @@
 //
 // This JSON file defines a set of framework filters that get installed to 
 // each component in the system.  Currently, two filters defined are the
-// exception filter and the overrun filter.  Since this file does not know
-// the name of a target component, the "target_component" field has to be
-// updated accordingly.
+// exception filter and the overrun filter.  At this point, the names of 
+// target components are unknown, but they will be replaced by the framework
+// later when it deploys these framework filters.
+//
+// Note that these two filters are installed ONLY mtsTask-type components.
+// If this design changes, mtsManagerLocal::AddComponent() should be updated
+// accordingly (look for InstallFrameworkFilters() method).
+//
 {
     "filter" : [
         //-------------------------------------------------
@@ -23,30 +28,26 @@
         //
         {   // common fields
             "class_name"       : "FilterChangeDetection",
-            "category"         : "FEATURE",
             "target_component" : "will_be_overwritten_by_casros_when_deployed",
             "type"             : "ACTIVE",
-            // This filter is the last filter of the filter pipeline.
-            "last_filter"      : true,
             // exception filter specific fields
-            "Arguments" : {
-                "InputSignalName" : "ExceptionCount"
-            }
+            "argument" : {
+                "input_signal" : "ExceptionCount"
+            },
+            "last_filter"      : true
         },
         //-------------------------------------------------
         // Overrun filter
         //
         {   // common fields
             "class_name"       : "FilterChangeDetection",
-            "category"         : "FEATURE",
             "target_component" : "will_be_overwritten_by_casros_when_deployed",
             "type"             : "ACTIVE",
-            // This filter is the last filter of the filter pipeline.
-            "last_filter"      : true,
             // exception filter specific fields
-            "Arguments" : {
-                "InputSignalName" : "OverrunCount"
-            }
+            "argument" : {
+                "input_signal" : "OverrunCount"
+            },
+            "last_filter"      : true
         }
     ]
 }
