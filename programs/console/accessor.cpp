@@ -83,7 +83,7 @@ bool AccessorConsole::RequestFilterList(const std::string & safetyCoordinatorNam
           "\"component\": \"" << componentName << "\" }, "
           "\"request\": \"filter_list\" }";
     if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
-        std::cerr << "AccessorConsole: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        std::cerr << "RequestFilterList: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
         return false;
     }
 
@@ -101,11 +101,38 @@ bool AccessorConsole::RequestStateList(const std::string & safetyCoordinatorName
           "\"component\": \"" << componentName << "\" }, "
           "\"request\": \"state_list\" }";
     if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
-        std::cerr << "AccessorConsole: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        std::cerr << "RequestStateList: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
         return false;
     }
 
     std::cout << "requested list of states" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}
+
+bool AccessorConsole::RequestFilterFaultInject(const std::string & safetyCoordinatorName,
+                                               const SF::FilterBase::FilterIDType fuid,
+                                               const std::vector<double> inputs) const
+{
+    std::stringstream ss;
+    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
+          "\"fuid\": " << fuid << " }, "
+          "\"request\": \"filter_inject\", "
+          "\"input\": [ ";
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        if (i != 0)
+            ss << ", ";
+        ss << inputs[i];
+    }
+    ss << " ] }";
+
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+        std::cerr << "RequestFilterFaultInject: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        return false;
+    }
+
+    std::cout << "requested input injection" << std::endl;
     osaSleep(0.5);
 
     return true;

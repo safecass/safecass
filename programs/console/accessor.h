@@ -15,6 +15,7 @@
 #define _accessor_console_h
 
 #include "cisstAccessor.h"
+#include "filterBase.h"
 
 //
 // Callback class for subscribers
@@ -45,6 +46,10 @@ public:
     // request list of all states in the Safety Coordinator
     bool RequestStateList(const std::string & safetyCoordinatorName = "*",
                           const std::string & componentName = "*") const;
+    // request fault injection
+    bool RequestFilterFaultInject(const std::string & safetyCoordinatorName,
+                                  const SF::FilterBase::FilterIDType fuid,
+                                  const std::vector<double> inputs) const;
 };
 
 #endif // _accessor_console_h

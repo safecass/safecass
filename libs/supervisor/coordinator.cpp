@@ -273,14 +273,17 @@ const std::string Coordinator::GetFilterList(const std::string & componentName) 
     // TODO: json encoding
     std::stringstream ss;
 
-    //typedef std::map<FilterBase::FilterIDType, SF::FilterBase*> FiltersType;
-    //// key: component name, value: filter container
-    //typedef std::map<std::string, FiltersType*> FilterMapType;
+    bool allComponents = (componentName.compare("*") == 0);
+
     FilterMapType::const_iterator it = MapFilter.begin();
     const FilterMapType::const_iterator itEnd = MapFilter.end();
     for (; it != itEnd; ++it) {
         FiltersType * filters = it->second;
         SFASSERT(filters);
+
+        if (!allComponents)
+            if (it->first.compare(componentName) != 0)
+                continue;
 
         ss << "Component: \"" << it->first << "\"" << std::endl;
 
@@ -291,4 +294,31 @@ const std::string Coordinator::GetFilterList(const std::string & componentName) 
     }
 
     return ss.str();
+}
+
+bool Coordinator::InjectInputToFilter(FilterBase::FilterIDType fuid, const DoubleVecType & inputs)
+{
+    typedef std::map<FilterBase::FilterIDType, SF::FilterBase*> FiltersType;
+    // key: component name, value: filter container
+    typedef std::map<std::string, FiltersType*> FilterMapType;
+
+    FilterMapType::const_iterator it = MapFilter.begin();
+    const FilterMapType::const_iterator itEnd = MapFilter.end();
+    for (; it != itEnd; ++it) {
+        FiltersType * filters = it->second;
+        SFASSERT(filters);
+
+        FiltersType::const_iterator it2 = filters->find(fuid);
+        if (it2 == filters->end())
+            continue;
+
+        FilterBase * filter = it2->second;
+        SFASSERT(filter);
+
+        filter->InjectInput(inputs);
+
+        return true;
+    }
+
+    return false;
 }

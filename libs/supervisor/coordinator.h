@@ -148,6 +148,8 @@ public:
     bool AddFilter(const std::string & componentName, FilterBase * filter);
     // Get information about all the filters installed on the component specified
     const std::string GetFilterList(const std::string & componentName = "*") const;
+    // Get information about all the filters installed on the component specified
+    bool InjectInputToFilter(FilterBase::FilterIDType fuid, const DoubleVecType & inputs);
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const Coordinator & coordinator)

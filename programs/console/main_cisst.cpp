@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 7, 2014
-// Last revision: May 19, 2014
+// Last revision: Jul 1, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -40,9 +40,10 @@ void handler_help(const std::vector<std::string> &)
     ss << "CASROS console utility" NL NL
        << "USAGE: console [command]"NL NL
        << "commands:"NL
-       << "    state"NL
        << "    help      : show this help"NL
-       << "    exit/quit : exit console"NL
+       << "    state"NL
+       << "    filter"NL
+       << "    exit/quit : exit console"NL NL
        << "For more information:"NL
        << "    CASROS on Github: https://github.com/minyang/casros"NL NL;
 
