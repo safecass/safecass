@@ -200,28 +200,25 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
 #define GET_INTERFACE_STATE(_type, _key)\
         names.clear();\
         it->second->GetNamesOfInterfaces(_type, names);\
-        ss << "\"" _key "\": { \"interfaces\": [ ";\
+        ss << "\"" _key "\": [ ";\
         for (size_t i = 0; i < names.size(); ++i) {\
             if (i != 0)\
                 ss << ", ";\
-            ss << "\"" << names[i] << "\"";\
-        }\
-        ss << " ], \"states\": [ ";\
-        for (size_t i = 0; i < names.size(); ++i) {\
-            if (i != 0)\
-                ss << ", ";\
+            ss << "{ \"" << names[i] << "\": ";\
             ss << static_cast<int>(gcm->GetInterfaceState(names[i], _type));\
+            ss << " }";\
         }\
-        ss << " ] } ";
+        ss << " ]";
         GET_INTERFACE_STATE(GCM::PROVIDED_INTERFACE, "s_P");
         ss << ", ";
         GET_INTERFACE_STATE(GCM::REQUIRED_INTERFACE, "s_R");
 #undef GET_INTERFACE_STATE
+        ss << " }";
 
         first = false;
     }
 
-    ss << "}" << std::endl;
+    ss << " }" << std::endl;
 
     return ss.str();
 }
