@@ -19,7 +19,9 @@ Coordinator::Coordinator(const std::string & name): Name(name), ComponentIdCount
 {}
 
 Coordinator::~Coordinator()
-{}
+{
+    // TODO: cleanup: FilterMapType
+}
 
 void Coordinator::ToStream(std::ostream & outputStream) const
 {
@@ -219,6 +221,74 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
     }
 
     ss << " }" << std::endl;
+
+    return ss.str();
+}
+
+bool Coordinator::AddFilter(const std::string & componentName, FilterBase * filter)
+{
+    // check if component is added
+    unsigned int cid = GetComponentId(componentName);
+    if (cid == 0) {
+        SFLOG_ERROR << "AddFilter: Component \"" << componentName << "\" not found" << std::endl;
+        return false;
+    }
+
+    SFASSERT(filter);
+
+    if (!filter->InitFilter()) {
+        SFLOG_ERROR << "AddFilter: failed to initialize filter: " << *filter << std::endl;
+        return false;
+    }
+
+    FilterBase::FilterIDType uid = filter->GetFilterUID();
+    FilterMapType::iterator it = MapFilter.find(componentName);
+    if (it == MapFilter.end()) {
+        FiltersType * newList = new FiltersType;
+        newList->insert(std::make_pair(uid, filter));
+        MapFilter[componentName] = newList;
+    } else {
+        it->second->insert(std::make_pair(uid, filter));
+    }
+
+    SFLOG_INFO << "AddFilter: successfully added filter \"" << *filter << "\" to component \"" << componentName << "\"" << std::endl;
+
+    return true;
+}
+
+Coordinator::FiltersType * Coordinator::GetFilters(const std::string & componentName) const
+{
+    unsigned int cid = GetComponentId(componentName);
+    if (cid == 0) {
+        SFLOG_ERROR << "GetFilters: Component \"" << componentName << "\" not found" << std::endl;
+        return 0;
+    }
+
+    FilterMapType::const_iterator it = MapFilter.find(componentName);
+    return (it == MapFilter.end() ? 0 : it->second);
+}
+
+const std::string Coordinator::GetFilterList(const std::string & componentName) const
+{
+    // TODO: json encoding
+    std::stringstream ss;
+
+    //typedef std::map<FilterBase::FilterIDType, SF::FilterBase*> FiltersType;
+    //// key: component name, value: filter container
+    //typedef std::map<std::string, FiltersType*> FilterMapType;
+    FilterMapType::const_iterator it = MapFilter.begin();
+    const FilterMapType::const_iterator itEnd = MapFilter.end();
+    for (; it != itEnd; ++it) {
+        FiltersType * filters = it->second;
+        SFASSERT(filters);
+
+        ss << "Component: \"" << it->first << "\"" << std::endl;
+
+        FiltersType::const_iterator it2 = filters->begin();
+        const FiltersType::const_iterator itEnd2 = filters->end();
+        for (; it2 != itEnd2; ++it2)
+            ss << "\t" << *it2->second << std::endl;
+    }
 
     return ss.str();
 }

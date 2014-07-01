@@ -17,15 +17,16 @@
 #include "common.h"
 #include "monitor.h"
 #include "gcm.h"
+#include "filterBase.h"
 
 #include <map>
+//#include <queue>
 
 namespace SF {
 
 // TODO: casros accessor is not included here.  If accessor is implemented without cisst,
 // it should be moved to this base class.
 
-// Adapter class: almost empty but pure virtual methods
 class SFLIB_EXPORT Coordinator {
 public:
     //! Typedef for map of monitoring targets
@@ -38,8 +39,22 @@ public:
     typedef std::map<unsigned int, std::string> ComponentIdToNameMapType;
     typedef std::map<std::string, unsigned int> ComponentNameToIdMapType;
 
-    // Container to manage the entire set of states of the current process
+    // STATES: Container to manage the entire set of states of the current process
     typedef std::map<unsigned int, GCM*> GCMMapType;
+    
+    // TODO: EVENTS 
+    // key: event name, value: severity
+    //typedef std::map<std::string, unsigned int> EventsType;
+    // key: component name, value: event container
+    //typedef std::map<std::string, EventsType> EventMapType;
+
+    // FILTERS
+    typedef std::map<FilterBase::FilterIDType, SF::FilterBase*> FiltersType;
+    // key: component name, value: filter container
+    typedef std::map<std::string, FiltersType*> FilterMapType;
+
+    // TODO: CONNECTIONS
+    // - do this with graph
 
 protected:
     // Name of this coordinator
@@ -70,8 +85,14 @@ protected:
     ComponentIdToNameMapType MapComponentIdToName;
     ComponentNameToIdMapType MapComponentNameToId;
 
-    // Container to manage the entire set of states of the current process
+    // STATES
     GCMMapType MapGCM;
+    // EVENTS
+    //EventMapType MapEvent;
+    // FILTERS
+    FilterMapType MapFilter;
+    // CONNECTIONS
+    // TODO
 
 protected:
     // Don't allow to create this object without its name
@@ -99,13 +120,15 @@ public:
     */
     virtual void ToStream(std::ostream & outputStream) const;
 
+    //
+    // STATES
+    //
     // Add component. Returns non-zero component id for success, zero for failure.
     unsigned int AddComponent(const std::string & componentName);
     // Get component id using its name
     unsigned int GetComponentId(const std::string & componentName) const;
     // Get component name using its id
     const std::string GetComponentName(unsigned int componentId) const;
-
     // Add interface
     bool AddInterface(const std::string & componentName, 
                       const std::string & interfaceName,
@@ -113,9 +136,18 @@ public:
     bool RemoveInterface(const std::string & componentName, 
                          const std::string & interfaceName,
                          const GCM::InterfaceTypes type);
-
-    // Get state information in its entirety
+    // Get state information of the entire system
     const std::string GetStateSnapshot(const std::string & componentName = "*") const;
+
+    //
+    // FILTERS
+    //
+    // Get all filters installed on the component specified
+    FiltersType * GetFilters(const std::string & componentName) const;
+    // Add filter instance
+    bool AddFilter(const std::string & componentName, FilterBase * filter);
+    // Get information about all the filters installed on the component specified
+    const std::string GetFilterList(const std::string & componentName = "*") const;
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const Coordinator & coordinator)
