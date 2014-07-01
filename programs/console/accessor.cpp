@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Jun 26, 2014
+// Last revision: Jul 1, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -76,15 +76,19 @@ AccessorConsole::AccessorConsole(void)
 }
 
 bool AccessorConsole::RequestFilterList(const std::string & safetyCoordinatorName,
-                                        const std::string & CMN_UNUSED(componentName)) const
+                                        const std::string & componentName) const
 {
-    // TODO
-    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, 
-            "{ \"target\": \"*\", \"cmd\": \"filter_list\" }")) 
-    {
-        std::cerr << "AccessorConsole: Failed to publish message (Control::READ_REQ)" << std::endl;
+    std::stringstream ss;
+    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
+          "\"component\": \"" << componentName << "\" }, "
+          "\"request\": \"filter_list\" }";
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+        std::cerr << "AccessorConsole: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
         return false;
     }
+
+    std::cout << "requested list of filters" << std::endl;
+    osaSleep(0.5);
 
     return true;
 }

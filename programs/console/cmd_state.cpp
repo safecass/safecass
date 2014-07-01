@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Jun 25, 2014
+// Last revision: Jul 1, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -18,8 +18,6 @@
 #include "topic_def.h"
 #include "accessor.h"
 #include "utils.h"
-
-#define DEBUGLOG 0
 
 extern AccessorConsole * casrosAccessor;
 
@@ -43,10 +41,6 @@ void handler_state_list(const std::string & safetyCoordinatorName,
         std::cerr << "ERROR: failed to request state information" << std::endl;
         return;
     }
-
-#if DEBUGLOG
-    std::cout << "requested list of states" << std::endl;
-#endif
 }
 
 

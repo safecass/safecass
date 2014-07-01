@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Jun 26, 2014
+// Last revision: Jul 1, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -41,7 +41,7 @@ public:
 
     // request list of all filters installed
     bool RequestFilterList(const std::string & safetyCoordinatorName = "*",
-                          const std::string & componentName = "*") const;
+                           const std::string & componentName = "*") const;
     // request list of all states in the Safety Coordinator
     bool RequestStateList(const std::string & safetyCoordinatorName = "*",
                           const std::string & componentName = "*") const;

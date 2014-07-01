@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: May 19, 2014
+// Last revision: Jul 1, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -19,8 +19,6 @@
 #include "accessor.h"
 #include "utils.h"
 
-#define DEBUGLOG 0
-
 extern AccessorConsole * casrosAccessor;
 
 void handler_filter_help(void)
@@ -28,24 +26,21 @@ void handler_filter_help(void)
     std::cout << std::endl
               << "filter [command]" << std::endl
               << "    help: show help for filter command"  << std::endl
-              << "    list: list of all filters in the entire system" << std::endl;
+              << "    list: show all filters in the system" << std::endl;
 }
 
-void handler_filter_list(void)
+void handler_filter_list(const std::string & safetyCoordinatorName,
+                         const std::string & componentName)
 {
     if (!casrosAccessor) {
         std::cerr << "ERROR: accessor is not initialized" << std::endl;
         return;
     }
 
-    if (!casrosAccessor->RequestFilterList()) {
+    if (!casrosAccessor->RequestFilterList(safetyCoordinatorName, componentName)) {
         std::cerr << "ERROR: failed to request filter list" << std::endl;
         return;
     }
-
-#if DEBUGLOG
-    std::cout << "requested filter list" << std::endl;
-#endif
 }
 
 //------------------------------------------------------------ 
@@ -53,40 +48,39 @@ void handler_filter_list(void)
 //
 //  filter help
 //  filter list
-//
-//  filter propedit fuid enable
-//  filter propedit fuid disable
-//  filter propedit fuid debug [on|off]
-//  filter info fuid [filter_uid]
-//  filter info process [process_name]
-//  filter info process [process_name] component [component_name]
 //------------------------------------------------------------ 
 typedef enum { HELP, LIST } FilterOptionType;
 
 void handler_filter(const std::vector<std::string> & args)
 {
-#if 0
-    std::cout << "==== filter\n";
-    std::vector<std::string>::const_iterator it = args.begin();
-    for (; it != args.end(); ++it)
-        std::cout << *it << std::endl;
-#endif
-
     FilterOptionType option;
+    std::string safetyCoordinatorName, componentName;
 
     const size_t n = args.size();
 
-    if (n == 1) {
-        // filter command
-        std::string cmd(args[0]);
-        SF::to_lowercase(cmd);
+    std::string cmd(args[0]);
+    SF::to_lowercase(cmd);
+    if (cmd.compare("list") == 0) {
+        option = LIST;
+        safetyCoordinatorName = "*";
+        componentName = "*";
+    }
+    else if (cmd.compare("help") == 0)
+        option = HELP;
+    else
+        option = HELP;
 
-        if (cmd.compare("list") == 0)
-            option = LIST;
-        else if (cmd.compare("help") == 0)
-            option = HELP;
-        else
-            option = HELP;
+    if (n == 1) {
+        safetyCoordinatorName = "*";
+        componentName = "*";
+    }
+    else if (n == 2) {
+        safetyCoordinatorName = args[1];
+        componentName = "*";
+    }
+    else if (n == 3) {
+        safetyCoordinatorName = args[1];
+        componentName = args[2];
     }
     else
         option = HELP;
@@ -94,6 +88,6 @@ void handler_filter(const std::vector<std::string> & args)
     switch (option) {
     default:
     case HELP: handler_filter_help(); break;
-    case LIST: handler_filter_list(); break;
+    case LIST: handler_filter_list(safetyCoordinatorName, componentName); break;
     }
 }
