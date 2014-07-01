@@ -59,11 +59,10 @@ protected:
 
 public:
     //! Default constructor
-    FilterChangeDetection(const FilterBase::FilterCategory category, 
-                          const std::string &              targetComponentName,
-                          const FilterBase::FilteringType  monitoringType,
+    FilterChangeDetection(const std::string &             targetComponentName,
+                          const FilterBase::FilteringType monitoringType,
                           // below are filter-specific arguments
-                          const std::string &              inputSignalName);
+                          const std::string &             inputSignalName);
     //! Constructor using JSON
     FilterChangeDetection(const JSON::JSONVALUE & jsonNode);
 

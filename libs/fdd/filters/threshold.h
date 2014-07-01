@@ -54,8 +54,7 @@ protected:
 
 public:
     //! Constructor with explicit arguments
-    FilterThreshold(BaseType::FilterCategory      category, 
-                    const std::string &           targetComponentName,
+    FilterThreshold(const std::string &           targetComponentName,
                     SF::FilterBase::FilteringType monitoringType,
                     // below are filter-specific arguments
                     const std::string &           inputSignalName,

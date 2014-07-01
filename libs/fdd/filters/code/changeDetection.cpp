@@ -24,11 +24,10 @@ FilterChangeDetection::FilterChangeDetection(void)
     // This default constructor should not be used.
 }
 
-FilterChangeDetection::FilterChangeDetection(const FilterBase::FilterCategory category, 
-                                             const std::string &              targetComponentName,
+FilterChangeDetection::FilterChangeDetection(const std::string &              targetComponentName,
                                              const FilterBase::FilteringType  monitoringType,
                                              const std::string &              inputSignalName)
-    : FilterBase(FilterChangeDetection::Name, category, targetComponentName, monitoringType),
+    : FilterBase(FilterChangeDetection::Name, targetComponentName, monitoringType),
       NameOfInputSignal(inputSignalName),
       LastValue(0.0),
       Initialized(false)

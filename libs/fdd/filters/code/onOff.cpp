@@ -24,11 +24,10 @@ FilterOnOff::FilterOnOff(void)
     // This default constructor should not be used.
 }
 
-FilterOnOff::FilterOnOff(const FilterBase::FilterCategory category, 
-                         const std::string &              targetComponentName,
+FilterOnOff::FilterOnOff(const std::string &              targetComponentName,
                          const FilterBase::FilteringType  monitoringType,
                          const std::string &              inputSignalName)
-  : FilterBase(FilterOnOff::Name, category, targetComponentName, monitoringType),
+  : FilterBase(FilterOnOff::Name, targetComponentName, monitoringType),
     NameOfInputSignal(inputSignalName),
     LastValue(0.0),
     Initialized(false)
@@ -91,10 +90,9 @@ void FilterOnOff::RunFilter(void)
         return;
     }
 
-    // Filtering algorithm: if the current input is different from local cache,
-    // determine non-zero output.  If they are the same, output is zero.
+    // Filtering algorithm: if the new input is different from the local cache,
+    // output becomes non-zero.  If they are the same, output is zero.
     SignalElement::ScalarType newInput = InputSignals[0]->GetPlaceholderScalar();
-
     if (newInput == LastValue) {
         OutputSignals[0]->SetPlaceholderScalar(0.0);
         return;
@@ -109,7 +107,7 @@ void FilterOnOff::RunFilter(void)
 
     // Debug log if enabled
     if (this->PrintDebugLog)
-        std::cout << *this << std::endl;
+        std::cout << *this << std::endl << std::flush;
 }
 
 void FilterOnOff::ToStream(std::ostream & outputStream) const

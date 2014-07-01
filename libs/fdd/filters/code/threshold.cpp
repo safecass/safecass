@@ -25,8 +25,7 @@ FilterThreshold::FilterThreshold(void)
 {
 }
 
-FilterThreshold::FilterThreshold(BaseType::FilterCategory      category, 
-                                 const std::string &           targetComponentName,
+FilterThreshold::FilterThreshold(const std::string &           targetComponentName,
                                  SF::FilterBase::FilteringType monitoringType,
                                  // filter-specific arguments
                                  const std::string &           inputSignalName,
@@ -34,7 +33,7 @@ FilterThreshold::FilterThreshold(BaseType::FilterCategory      category,
                                  SignalElement::ScalarType     margin,
                                  SignalElement::ScalarType     output0,
                                  SignalElement::ScalarType     output1)
-    : FilterBase(FilterThreshold::Name, category, targetComponentName, monitoringType),
+    : FilterBase(FilterThreshold::Name, targetComponentName, monitoringType),
       NameOfInputSignal(inputSignalName),
       Threshold(threshold),
       Margin(margin),
@@ -146,7 +145,6 @@ const std::string FilterThreshold::GenerateFDIJSON(double severity, double times
 
     // Populate common fields
     serializer.SetTopicType(Topic::DATA);
-    serializer.SetCategoryTypeData(Topic::Data::EVENT);
     serializer.SetEventLocation(EventLocation);
     serializer.SetTimestamp(timestamp);
 

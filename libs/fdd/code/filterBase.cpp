@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: May 6, 2014
+// Last revision: Jul 1, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -22,16 +22,16 @@ using namespace Dict;
 
 FilterBase::FilterIDType FilterBase::FilterUID = 0;
 
-const FilterBase::FilterIDType InvalidFilterUID = -1;
+const FilterBase::FilterIDType FilterBase::INVALID_FILTER_UID = 0;
+
 const std::string InvalidSignalName = "INVALID_SIGNAL";
 
 //-------------------------------------------------- 
 //  Constructors and Destructor
 //-------------------------------------------------- 
 FilterBase::FilterBase(void)
-    : UID(InvalidFilterUID),
+    : UID(INVALID_FILTER_UID),
       Name("NONAME"),
-      //Category(INVALID),
       NameOfTargetComponent("NONAME"), 
       Type(ACTIVE),
       LastFilterOfPipeline(false)
@@ -40,13 +40,11 @@ FilterBase::FilterBase(void)
 }
 
 FilterBase::FilterBase(const std::string  & filterName,
-                       const FilterCategory filterCategory,
                        const std::string  & targetComponentName,
                        const FilteringType  monitoringType)
     : UID(++FilterUID),
       Name(filterName),
       ClassName(""),
-      //Category(filterCategory),
       NameOfTargetComponent(targetComponentName), 
       Type(monitoringType),
       LastFilterOfPipeline(false)
@@ -58,7 +56,6 @@ FilterBase::FilterBase(const std::string & filterName, const JSON::JSONVALUE & j
     : UID(++FilterUID),
       Name(filterName),
       ClassName( JSON::GetSafeValueString( jsonNode, Json::class_name)),
-      //Category( GetFilterCategoryFromString( JSON::GetSafeValueString( jsonNode, Json::category) ) ),
       NameOfTargetComponent( JSON::GetSafeValueString( jsonNode, Json::target_component ) ), 
       Type( GetFilteringTypeFromString(JSON::GetSafeValueString( jsonNode, Json::type ) ) ),
       LastFilterOfPipeline( JSON::GetSafeValueBool( jsonNode, Filter::last_filter) )
@@ -259,20 +256,7 @@ std::string FilterBase::ToString(void) const
 void FilterBase::ToStream(std::ostream & outputStream) const
 {
     outputStream << "[" << UID << "] "
-                 << "Name: \"" << Name << "\"";//, ";
-                 //<< "Category: ";
-#if 0
-    switch (Category) {
-    case INVALID:        outputStream << "INVALID"; break; 
-    case FEATURE:        outputStream << "FEATURE"; break; 
-    case FEATURE_VECTOR: outputStream << "FEATURE_VECTOR"; break; 
-    case SYMPTOM:        outputStream << "SYMPTOM"; break; 
-    case SYMPTOM_VECTOR: outputStream << "SYMPTOM_VECTOR"; break; 
-    case FAULT_DETECTOR: outputStream << "FAULT_DETECTOR"; break; 
-    default:             SFASSERT(false);
-    }
-#endif
-    outputStream << ", ";
+                 << "Name: \"" << Name << "\", ";
     outputStream << "Target component: \"" << NameOfTargetComponent << "\", "
                  << "Filtering type: " << (Type == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
                  << "State: " << GetFilterStateString(FilterState);
@@ -291,45 +275,14 @@ void FilterBase::ToStream(std::ostream & outputStream) const
     for (size_t i = 0; i < OutputSignals.size(); ++i) {
         outputStream << "[" << i << "] " << (*OutputSignals[i]) << std::endl;
     }
+    // Input queue
+    outputStream << "----- Input queue:" << std::endl
+                 << ShowInputQueue() << std::endl;
 }
 
 //-----------------------------------------------
 // Misc. Getters
 //-----------------------------------------------
-#if 0
-static const std::string STR_FILTER_INVALID        = "INVALID";
-static const std::string STR_FILTER_FEATURE        = "FEATURE";
-static const std::string STR_FILTER_FEATURE_VECTOR = "FEATURE_VECTOR";
-static const std::string STR_FILTER_SYMPTOM        = "SYMPTOM";
-static const std::string STR_FILTER_SYMPTOM_VECTOR = "SYMPTOM_VECTOR";
-static const std::string STR_FILTER_FAULT_DETECTOR = "FAULT_DETECTOR";
-
-const std::string FilterBase::GetFilterCategoryString(const FilterCategory type)
-{
-    if (type == FEATURE)        return STR_FILTER_FEATURE;
-    if (type == FEATURE_VECTOR) return STR_FILTER_FEATURE_VECTOR;
-    if (type == SYMPTOM)        return STR_FILTER_SYMPTOM;
-    if (type == SYMPTOM_VECTOR) return STR_FILTER_SYMPTOM_VECTOR;
-    if (type == FAULT_DETECTOR) return STR_FILTER_FAULT_DETECTOR;
-
-    return Dict::INVALID;
-}
-
-FilterBase::FilterCategory FilterBase::GetFilterCategoryFromString(const std::string & str)
-{
-    std::string _str(str);
-    to_uppercase(_str);
-
-    if (_str.compare(STR_FILTER_FEATURE) == 0)        return FEATURE;
-    if (_str.compare(STR_FILTER_FEATURE_VECTOR) == 0) return FEATURE_VECTOR;
-    if (_str.compare(STR_FILTER_SYMPTOM) == 0)        return SYMPTOM;
-    if (_str.compare(STR_FILTER_SYMPTOM_VECTOR) == 0) return SYMPTOM_VECTOR;
-    if (_str.compare(STR_FILTER_FAULT_DETECTOR) == 0) return FAULT_DETECTOR;
-
-    return INVALID;
-}
-#endif
-
 const std::string FilterBase::GetFilteringTypeString(const FilteringType type)
 {
     if (type == ACTIVE)  return Dict::ACTIVE;
@@ -395,6 +348,29 @@ bool FilterBase::SetEventDetected(const std::string & json)
     // 3. call the other SetEventDetected method
 
     return false; // FIXME
+}
+
+void FilterBase::InjectInput(SignalElement::ScalarType input)
+{
+    InputQueue.push_back(input);
+}
+
+void FilterBase::InjectInput(const DoubleVecType & inputs)
+{
+    InputQueue.insert(InputQueue.end(), inputs.begin(), inputs.end());
+}
+
+const std::string FilterBase::ShowInputQueue(void) const
+{
+    if (InputQueue.size() == 0)
+        return "null input queue";
+
+    std::stringstream ss;
+
+    for (size_t i = 0; i < InputQueue.size(); ++i)
+        ss << InputQueue[i] << " ";
+
+    return ss.str();
 }
 
 };

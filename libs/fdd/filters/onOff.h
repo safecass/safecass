@@ -63,11 +63,10 @@ protected:
 
 public:
     //! Default constructor
-    FilterOnOff(const FilterBase::FilterCategory category, 
-                const std::string &              targetComponentName,
-                const FilterBase::FilteringType  monitoringType,
+    FilterOnOff(const std::string &             targetComponentName,
+                const FilterBase::FilteringType monitoringType,
                 // below are filter-specific arguments
-                const std::string &              inputSignalName);
+                const std::string &             inputSignalName);
     //! Constructor using JSON
     FilterOnOff(const JSON::JSONVALUE & jsonNode);
 

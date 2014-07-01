@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: January 7, 2012
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jan 7, 2012
+// Last revision: Jul 1, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _FilterBase_h
 #define _FilterBase_h
 
@@ -65,6 +64,7 @@ public:
         PASSIVE  /*!< passive filtering */
     } FilteringType;
 
+#if 0
     /*! \enum SF::FilterBase::FilterCategory 
      * Typedef for filter categories 
      */
@@ -76,6 +76,7 @@ public:
         SYMPTOM_VECTOR, /*!< collection of symptoms */
         FAULT_DETECTOR  /*!< fault detector */
     } FilterCategory;
+#endif
 
     //! Typedef for inputs
     /*! A filtering algorithm may require more than one input signal.
@@ -143,6 +144,9 @@ protected:
     //! Event that this filter detected, which needs to be handled (or removed)
     Event * EventDetected;
 
+    //! Queue for fault injection
+    DoubleVecType InputQueue;
+
     //-------------------------------------------------- 
     //  Filter Inputs and Outputs
     //-------------------------------------------------- 
@@ -184,13 +188,6 @@ protected:
     //-------------------------------------------------- 
     //  Middleware-specific Instances (cisst)
     //-------------------------------------------------- 
-    // REMOVE THE BELOW STRUCTURE IF I DON'T USE IT
-    //! Instance of history buffer that this filter runs on
-    /*! Dynamically allocated as middleware-specific plug-in (i.e., history buffer accessor 
-        adapter)
-    */
-    //HistoryBufferBase * HistoryBuffer; // am I using this??? Probably not...
-
     //! Event publisher to propagate events to the Safety Framework
     /*! Dynamically allocated as middleware-specific plug-in (event propagation 
         accessor adapter)
@@ -218,7 +215,6 @@ protected:
 public:
     //! Constructor with explicit arguments
     FilterBase(const std::string  & filterName,
-               const FilterCategory filterCategory,
                const std::string  & targetComponentName,
                const FilteringType  monitoringType);
     //! Constructor using instance of JSON structure
@@ -227,17 +223,6 @@ public:
     //! Destructor
     virtual ~FilterBase();
 
-#if 0 // MJ: future improvements
-    /*! Add input signal to this filter.  A placeholder of appropriate type 
-        is created internally to fetch new values from the state table. */
-    bool AddInput(const std::string & componentName, const std::string & signalName);
-    // TODO: push_back (name), prepare placeholder to fetch new input values from state table
-
-    // TODO: add an option to expose an output to the standardized provided interface.
-    // This can be useful if the monitoring component wants to fetch output values when a filter 
-    // is attached to the source component.
-    bool AddOutput(const std::string & signalName); 
-#endif
     //-------------------------------------------------- 
     //  Pure virtual methods
     //-------------------------------------------------- 
@@ -257,11 +242,22 @@ public:
     inline void DeclareLastFilterOfPipeline(void) { LastFilterOfPipeline = true; }
 
     //-------------------------------------------------- 
+    //  Fault injection
+    //-------------------------------------------------- 
+    // Queue of next inputs.  If this queue is empty, the filter runs with the actual
+    // values.  If not, the filter dequeues an element (FIFO) to use it as the next input.
+    // This feature is particularly useful for unit-testing or fault injection.
+    // TODO: The current implementation assumes that the total number of inputs is 1.
+    // This should be extended to support multiple-input cases.
+    void InjectInput(SignalElement::ScalarType input);
+    void InjectInput(const DoubleVecType & inputs);
+    const std::string ShowInputQueue(void) const;
+
+    //-------------------------------------------------- 
     //  Getters and Setters
     //-------------------------------------------------- 
     inline FilterIDType        GetFilterUID(void) const { return UID; }
     inline const std::string & GetFilterName(void) const { return Name; }
-    //inline FilterCategory      GetFilterCategory(void) const { return Category; }
     inline const std::string & GetNameOfTargetComponent(void) const { return NameOfTargetComponent; }
     inline FilteringType       GetFilteringType(void) const { return Type; }
     inline bool IsLastFilterOfPipeline(void) const { return LastFilterOfPipeline; }
@@ -308,6 +304,7 @@ public:
      */
     void SetEventLocationInstance(EventLocationBase * location);
 
+
     //! Enable or disable internal debug log
     inline void EnableDebugLog(bool enable = true) { PrintDebugLog = enable; }
 
@@ -315,14 +312,10 @@ public:
     virtual std::string ToString(void) const;
     virtual void        ToStream(std::ostream & outputStream) const;
 
+
     /*! \addtogroup Misc. Getters
         @{
      */
-    //! Convert filter category to string
-    //static const std::string GetFilterCategoryString(const FilterCategory type);
-    //! Convert string to filter category
-    //static FilterCategory GetFilterCategoryFromString(const std::string & str);
-
     //! Convert filtering type to string
     static const std::string GetFilteringTypeString(const FilteringType type);
     //! Convert string to filtering type
@@ -332,6 +325,11 @@ public:
     static const std::string GetFilterStateString(const FilterStateType state);
     //! Convert string to filter state
     static FilterStateType GetFilterStateFromString(const std::string & str);
+    /* @} */
+
+
+    // invalid filter UID
+    static const FilterIDType INVALID_FILTER_UID;
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const FilterBase & filter)
