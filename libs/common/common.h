@@ -40,7 +40,11 @@ namespace SF {
 //--------------------------------------------------
 //  Common type definitions
 //--------------------------------------------------
-typedef std::vector<std::string> StrVecType;
+typedef std::vector<int>          IntVecType;
+typedef std::vector<unsigned int> UIntVecType;
+typedef std::vector<float>        FloatVecType;
+typedef std::vector<double>       DoubleVecType;
+typedef std::vector<std::string>  StrVecType;
 
 typedef unsigned int SamplingRateType;   // f (Hz)
 typedef double       SamplingPeriodType; // T (=1/f)
