@@ -82,6 +82,10 @@ void FilterOnOff::RunFilter(void)
     if (!FilterBase::RefreshSamples())
         return;
 
+    // Debug log if enabled
+    if (this->PrintDebugLog)
+        std::cout << *this << std::endl << std::flush;
+
     // Filtering algorithm: if the new input is different from the local cache,
     // output becomes non-zero.  If they are the same, output is zero.
     SignalElement::ScalarType newInput = InputSignals[0]->GetPlaceholderScalar();
@@ -94,12 +98,6 @@ void FilterOnOff::RunFilter(void)
     OutputSignals[0]->SetPlaceholderScalar(newInput ? 1.0 : -1.0);
     // Update local cache
     LastValue = newInput;
-    // TODO: revise event publisher to use Safety Coordinator instead of cisst event
-    //if (LastFilterOfPipeline) {}
-
-    // Debug log if enabled
-    //if (this->PrintDebugLog)
-        std::cout << *this << std::endl << std::flush;
 }
 
 void FilterOnOff::ToStream(std::ostream & outputStream) const
