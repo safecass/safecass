@@ -49,7 +49,7 @@ public:
     // request fault injection
     bool RequestFilterFaultInject(const std::string & safetyCoordinatorName,
                                   const SF::FilterBase::FilterIDType fuid,
-                                  const std::vector<double> inputs) const;
+                                  const SF::DoubleVecType & inputs) const;
 };
 
 #endif // _accessor_console_h

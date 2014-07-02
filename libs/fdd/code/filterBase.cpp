@@ -16,9 +16,9 @@
 #include "filterBase.h"
 #include "eventPublisherBase.h"
 
-namespace SF {
+#include <iomanip>
 
-using namespace Dict;
+using namespace SF;
 
 FilterBase::FilterIDType FilterBase::FilterUID = 0;
 
@@ -55,10 +55,10 @@ FilterBase::FilterBase(const std::string  & filterName,
 FilterBase::FilterBase(const std::string & filterName, const JSON::JSONVALUE & jsonNode)
     : UID(++FilterUID),
       Name(filterName),
-      ClassName( JSON::GetSafeValueString( jsonNode, Json::class_name)),
-      NameOfTargetComponent( JSON::GetSafeValueString( jsonNode, Json::target_component ) ), 
-      Type( GetFilteringTypeFromString(JSON::GetSafeValueString( jsonNode, Json::type ) ) ),
-      LastFilterOfPipeline( JSON::GetSafeValueBool( jsonNode, Filter::last_filter) )
+      ClassName( JSON::GetSafeValueString( jsonNode, Dict::Json::class_name)),
+      NameOfTargetComponent( JSON::GetSafeValueString( jsonNode, Dict::Json::target_component ) ), 
+      Type( GetFilteringTypeFromString(JSON::GetSafeValueString( jsonNode, Dict::Json::type ) ) ),
+      LastFilterOfPipeline( JSON::GetSafeValueBool( jsonNode, Dict::Filter::last_filter) )
 {
     Initialize();
 }
@@ -118,6 +118,33 @@ bool FilterBase::AddOutputSignal(const std::string &      signalName,
     OutputSignals.push_back(newSignal);
 
     SFLOG_DEBUG << "AddOutputSignal: Successfully added output signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
+
+    return true;
+}
+
+bool FilterBase::RefreshSamples(void)
+{
+    if (!IsEnabled())
+        return false;
+
+    // If the input queue for fault injection is not emtpy, dequeue one element from the
+    // queue and use it as the next input.
+    // TODO: currently, this deals with only ONE input signal.  This should be extended to
+    // multiple input signals to support multiple inputs.
+    if (InputQueue.size() > 0) {
+        SignalElement::ScalarType injectedInputScalar = InputQueue.front();
+        InputQueue.pop();
+        InputSignals[0]->SetPlaceholderScalar(injectedInputScalar);
+    } else {
+        // Fetch new value from history buffer
+        if (!InputSignals[0]->FetchNewValueScalar((this->Type == FilterBase::ACTIVE))) {
+            SFLOG_ERROR << "failed to read input from history buffer" << std::endl;
+            this->Enable(false); // suppress further error messages due to the same issue
+            // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
+            // is usable.  There should be explicit call to Enable(true).
+            return false;
+        }
+    }
 
     return true;
 }
@@ -276,8 +303,7 @@ void FilterBase::ToStream(std::ostream & outputStream) const
         outputStream << "[" << i << "] " << (*OutputSignals[i]) << std::endl;
     }
     // Input queue
-    outputStream << "----- Input queue:" << std::endl
-                 << ShowInputQueue() << std::endl;
+    outputStream << "----- Input queue: " << ShowInputQueue() << std::endl;
 }
 
 //-----------------------------------------------
@@ -352,25 +378,34 @@ bool FilterBase::SetEventDetected(const std::string & json)
 
 void FilterBase::InjectInput(SignalElement::ScalarType input)
 {
-    InputQueue.push_back(input);
+    InputQueue.push(input);
 }
 
-void FilterBase::InjectInput(const DoubleVecType & inputs)
+void FilterBase::InjectInput(const std::vector<SignalElement::ScalarType> & inputs)
 {
-    InputQueue.insert(InputQueue.end(), inputs.begin(), inputs.end());
+    for (size_t i = 0; i < inputs.size(); ++i)
+        InputQueue.push(inputs[i]);
+}
+
+void FilterBase::InjectInput(const std::list<SignalElement::ScalarType> & inputs)
+{
+    std::list<SignalElement::ScalarType>::const_iterator it = inputs.begin();
+    for (; it != inputs.end(); ++it)
+        InputQueue.push(*it);
 }
 
 const std::string FilterBase::ShowInputQueue(void) const
 {
     if (InputQueue.size() == 0)
-        return "null input queue";
+        return "null";
 
     std::stringstream ss;
 
-    for (size_t i = 0; i < InputQueue.size(); ++i)
-        ss << InputQueue[i] << " ";
+    InputQueueType copy(InputQueue);
+    while (!copy.empty()) {
+        ss << std::setprecision(5) << copy.front() << " ";
+        copy.pop();
+    }
 
     return ss.str();
 }
-
-};

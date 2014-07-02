@@ -79,16 +79,8 @@ void FilterOnOff::CleanupFilter(void)
 
 void FilterOnOff::RunFilter(void)
 {
-    if (!this->IsEnabled() || !Initialized) return;
-
-    // Fetch new value from history buffer
-    if (!InputSignals[0]->FetchNewValueScalar((this->Type == FilterBase::ACTIVE))) {
-        SFLOG_ERROR << "FilterOnOff: failed to read input from history buffer" << std::endl;
-        this->Enable(false); // suppress further error messages due to the same issue
-        // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
-        // is usable.  There should be explicit call to Enable(true).
+    if (!FilterBase::RefreshSamples())
         return;
-    }
 
     // Filtering algorithm: if the new input is different from the local cache,
     // output becomes non-zero.  If they are the same, output is zero.
@@ -106,7 +98,7 @@ void FilterOnOff::RunFilter(void)
     //if (LastFilterOfPipeline) {}
 
     // Debug log if enabled
-    if (this->PrintDebugLog)
+    //if (this->PrintDebugLog)
         std::cout << *this << std::endl << std::flush;
 }
 

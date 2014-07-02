@@ -81,16 +81,8 @@ void FilterChangeDetection::CleanupFilter(void)
 
 void FilterChangeDetection::RunFilter(void)
 {
-    if (!this->IsEnabled()) return;
-
-    // Fetch new value from history buffer
-    if (!InputSignals[0]->FetchNewValueScalar((this->Type == FilterBase::ACTIVE))) {
-        SFLOG_ERROR << "FilterChangeDetection: failed to read input from history buffer" << std::endl;
-        this->Enable(false); // suppress further error messages due to the same issue
-        // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
-        // is usable.  There should be explicit call to Enable(true).
+    if (!FilterBase::RefreshSamples())
         return;
-    }
 
     // Filtering algorithm: if the current input is different from local cache,
     // output is 1; otherwise, 0.

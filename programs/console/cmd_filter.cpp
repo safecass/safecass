@@ -47,7 +47,7 @@ void handler_filter_list(const std::string & safetyCoordinatorName,
 
 void handler_filter_inject(const std::string & safetyCoordinatorName,
                            const SF::FilterBase::FilterIDType fuid,
-                           const std::vector<double> inputs)
+                           const SF::DoubleVecType & inputs)
 {
     if (!casrosAccessor) {
         std::cerr << "ERROR: accessor is not initialized" << std::endl;

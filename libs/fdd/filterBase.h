@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <queue> // for fault injection
 
 #include "signal.h"
 #include "eventLocationBase.h"
@@ -64,20 +65,6 @@ public:
         PASSIVE  /*!< passive filtering */
     } FilteringType;
 
-#if 0
-    /*! \enum SF::FilterBase::FilterCategory 
-     * Typedef for filter categories 
-     */
-    typedef enum {
-        INVALID,        /*!< invalid filter is not processed */
-        FEATURE,        /*!< raw measurement processed */
-        FEATURE_VECTOR, /*!< collection of features */
-        SYMPTOM,        /*!< feature vectors processed */
-        SYMPTOM_VECTOR, /*!< collection of symptoms */
-        FAULT_DETECTOR  /*!< fault detector */
-    } FilterCategory;
-#endif
-
     //! Typedef for inputs
     /*! A filtering algorithm may require more than one input signal.
      *  Each input signal is represented as SignalElement and this container maintains
@@ -101,6 +88,9 @@ public:
                        no new event can be detected */
     } FilterStateType;
 
+    // typedef for fault injection
+    typedef std::queue<SignalElement::ScalarType> InputQueueType;
+
 private:
     //! UID of this filters
     /*! Multiple filters of the same type may be deployed
@@ -122,9 +112,6 @@ protected:
      */
     const std::string ClassName;
 
-    //! Category of this filter
-    //const FilterCategory Category;
-
     //! Name of target component
     // TODO: this can be replaced with MonitorTarget structure(?)
     const std::string NameOfTargetComponent;
@@ -145,7 +132,7 @@ protected:
     Event * EventDetected;
 
     //! Queue for fault injection
-    DoubleVecType InputQueue;
+    InputQueueType InputQueue;
 
     //-------------------------------------------------- 
     //  Filter Inputs and Outputs
@@ -161,6 +148,10 @@ protected:
     //! Add output signal to this filter (used by derived filters)
     bool AddOutputSignal(const std::string &       signalName, 
                         SignalElement::SignalType  signalType);
+
+    //! Refresh samples.  Returns false if the filter is disabled or it is of passive type.
+    // IMPORTANT: All derived classes must call this method inside its RunFilter() method.
+    bool RefreshSamples(void);
 
     //! Generate output signal name
     /*! Prefix: Name of input signal or input-specific word
@@ -249,8 +240,10 @@ public:
     // This feature is particularly useful for unit-testing or fault injection.
     // TODO: The current implementation assumes that the total number of inputs is 1.
     // This should be extended to support multiple-input cases.
+    // TODO: add support for vector-type input
     void InjectInput(SignalElement::ScalarType input);
-    void InjectInput(const DoubleVecType & inputs);
+    void InjectInput(const std::vector<SignalElement::ScalarType> & inputs);
+    void InjectInput(const std::list<SignalElement::ScalarType> & inputs);
     const std::string ShowInputQueue(void) const;
 
     //-------------------------------------------------- 

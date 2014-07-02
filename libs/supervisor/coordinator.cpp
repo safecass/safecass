@@ -298,10 +298,6 @@ const std::string Coordinator::GetFilterList(const std::string & componentName) 
 
 bool Coordinator::InjectInputToFilter(FilterBase::FilterIDType fuid, const DoubleVecType & inputs)
 {
-    typedef std::map<FilterBase::FilterIDType, SF::FilterBase*> FiltersType;
-    // key: component name, value: filter container
-    typedef std::map<std::string, FiltersType*> FilterMapType;
-
     FilterMapType::const_iterator it = MapFilter.begin();
     const FilterMapType::const_iterator itEnd = MapFilter.end();
     for (; it != itEnd; ++it) {
