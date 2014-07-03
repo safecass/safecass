@@ -1,20 +1,64 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: July 7, 2012
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jul 7, 2012
+// Last revision: Jul 3, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _event_h
 #define _event_h
 
+#include "state.h"
+
+namespace SF {
+
+class SFLIB_EXPORT Event
+{
+public:
+    typedef std::vector<State::TransitionType> TransitionsType;
+
+protected:
+    const std::string             Name;
+    const unsigned int            Severity;
+    const TransitionsType         Transitions;
+    const State::StateMachineType SMType;
+    const std::string             SMTypeId;
+
+public:
+    Event(const std::string     & name,
+          unsigned int            severity,
+          const TransitionsType & transitions,
+          State::StateMachineType smType,
+          const std::string     & smTypeId = "");
+
+    virtual ~Event() {}
+
+    inline const std::string       GetName(void) const               { return Name; }
+    inline unsigned int            GetSeverity(void) const           { return Severity; }
+    inline const TransitionsType & GetTransitions(void) const        { return Transitions; }
+    inline State::StateMachineType GetStateMachineType(void) const   { return SMType; }
+    inline const std::string       GetStateMachineTypeId(void) const { return SMTypeId; }
+
+    // Returns human readable outputs
+    virtual void ToStream(std::ostream & outputStream) const;
+};
+
+inline std::ostream & operator << (std::ostream & outputStream, const Event & event)
+{
+    event.ToStream(outputStream);
+    return outputStream;
+}
+
+};
+
+
+#if 0 // obsolete implementation
 #include "common.h"
 #include "eventLocationBase.h"
 
@@ -116,5 +160,6 @@ public:
 };
 
 };
+#endif
 
 #endif // _event_h

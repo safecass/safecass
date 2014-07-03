@@ -1,17 +1,60 @@
-/*
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jul 7, 2012
+// Last revision: Jul 2, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
+#include "event.h"
 
-  Safety Framework for Component-based Robotics
+using namespace SF;
 
-  Created on: July 24, 2012
+Event::Event(const std::string     & name,
+             unsigned int            severity,
+             const TransitionsType & transitions,
+             State::StateMachineType smType,
+             const std::string     & smTypeId)
+    : Name(name), Severity(severity), Transitions(transitions),
+      SMType(smType), SMTypeId(smTypeId)
+{
+}
 
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
+void Event::ToStream(std::ostream & os) const
+{
+    os << Name << ": " << Severity << ", [ ";
 
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
+    for (size_t i = 0; i < Transitions.size(); ++i) {
+        switch (Transitions[i]) {
+        case State::NORMAL_TO_ERROR  : os << "N2E "; break;
+        case State::ERROR_TO_NORMAL  : os << "E2N "; break;
+        case State::NORMAL_TO_WARNING: os << "N2W "; break;
+        case State::WARNING_TO_NORMAL: os << "W2N "; break;
+        case State::WARNING_TO_ERROR : os << "W2E "; break;
+        case State::ERROR_TO_WARNING : os << "E2W "; break;
+        default:                       os << "INVALID ";
+        }
+    }
+    os << "], ";
 
-*/
+    switch (SMType) {
+    case State::STATEMACHINE_FRAMEWORK: os << "s_F"; break;
+    case State::STATEMACHINE_APP:       os << "s_A"; break;
+    case State::STATEMACHINE_PROVIDED:  os << "s_P"; break;
+    case State::STATEMACHINE_REQUIRED:  os << "s_R"; break;
+    default:                            os << "INVALID"; break;
+    }
 
+    if (SMTypeId.size())
+        os << ", Id: \"" << SMTypeId << "\"";
+}
+
+#if 0 // obsolete implementation
 #include "event.h"
 #include "utils.h"
 
@@ -106,3 +149,4 @@ Event::FaultType Event::GetFaultTypeFromString(const std::string & str)
 }
 
 };
+#endif
