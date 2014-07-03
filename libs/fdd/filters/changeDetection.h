@@ -53,6 +53,7 @@ protected:
     //-------------------------------------------------- 
     //  Methods required by the base class
     //-------------------------------------------------- 
+    bool ConfigureFilter(const JSON::JSONVALUE & jsonNode);
     bool InitFilter(void);
     void RunFilter(void); //< Implements filtering algorithm to detect change
     void CleanupFilter(void);

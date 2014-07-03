@@ -59,6 +59,13 @@ FilterThreshold::FilterThreshold(const JSON::JSONVALUE & jsonNode)
     Initialize();
 }
 
+bool FilterThreshold::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
+{
+    _PROBE << "IMPLEMENT THIS" << std::endl;
+
+    return true;
+}
+
 void FilterThreshold::Initialize(void)
 {
     FilterBase::Initialize();

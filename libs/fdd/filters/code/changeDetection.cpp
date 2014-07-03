@@ -49,6 +49,13 @@ FilterChangeDetection::~FilterChangeDetection()
 {
 }
 
+bool FilterChangeDetection::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
+{
+    _PROBE << "IMPLEMENT THIS" << std::endl;
+
+    return true;
+}
+
 void FilterChangeDetection::Initialize(void)
 {
     FilterBase::Initialize();

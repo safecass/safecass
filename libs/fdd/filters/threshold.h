@@ -68,6 +68,7 @@ public:
     ~FilterThreshold();
 
     //! Implements pure virtual methods including thresholding algorithm
+    bool ConfigureFilter(const JSON::JSONVALUE & jsonNode);
     bool InitFilter(void);
     void RunFilter(void);
     void CleanupFilter(void);
