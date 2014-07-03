@@ -507,3 +507,45 @@ const std::string Coordinator::GetEventList(const std::string & componentName) c
     return ss.str();
 }
 
+const Event * Coordinator::GetEvent(const std::string & componentName, const std::string & eventName) const
+{
+    EventMapType::const_iterator it = MapEvent.find(componentName);
+    if (it == MapEvent.end())
+        return 0;
+
+    EventsType::const_iterator it2 = it->second->find(eventName);
+    if (it2 == it->second->end())
+        return 0;
+
+    return it2->second;
+}
+
+const Event * Coordinator::GetEvent(const std::string & eventName) const
+{
+    EventMapType::const_iterator it = MapEvent.begin();
+    const EventMapType::const_iterator itEnd = MapEvent.end();
+    for (; it != itEnd; ++it) {
+        EventsType::const_iterator it2 = it->second->find(eventName);
+        if (it2 == it->second->end())
+            continue;
+        else
+            return it2->second;
+    }
+    return 0;
+}
+
+bool Coordinator::FindEvent(const std::string & componentName, const std::string & eventName) const
+{
+    return (GetEvent(componentName, eventName) != 0);
+}
+
+bool Coordinator::FindEvent(const std::string & eventName) const
+{
+    return (GetEvent(eventName) != 0);
+}
+
+void Coordinator::OnEvent(const std::string & eventName)
+{
+    std::cout << "SafetyCoordinator received event \"" << eventName << "\" : "
+              << *GetEvent(eventName) << std::endl;
+}

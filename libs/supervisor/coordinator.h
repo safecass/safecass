@@ -42,7 +42,7 @@ public:
     // STATES: Container to manage the entire set of states of the current process
     typedef std::map<unsigned int, GCM*> GCMMapType;
     
-    // TODO: EVENTS 
+    // EVENTS 
     // key: event name
     typedef std::map<std::string, Event*> EventsType;
     // key: component name
@@ -162,8 +162,16 @@ public:
     bool AddEventFromJSON(const std::string & jsonString);
     // Add event using file containing JSON string
     bool AddEventFromJSONFile(const std::string & jsonFileName);
+    // Given an event name, check if event exists
+    bool FindEvent(const std::string & componentName, const std::string & eventName) const;
+    bool FindEvent(const std::string & eventName) const;
+    // Given an event name, returns event instance
+    const Event * GetEvent(const std::string & componentName, const std::string & eventName) const;
+    const Event * GetEvent(const std::string & eventName) const;
     // Get information about all the events installed on the component specified
     const std::string GetEventList(const std::string & componentName = "*") const;
+    // Generate event
+    void OnEvent(const std::string & eventName);
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const Coordinator & coordinator)
