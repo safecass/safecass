@@ -73,6 +73,9 @@ void FilterBase::Initialize(void)
     // initially disabled.
     FilterState   = FilterBase::DISABLED;
     EventDetected = 0;
+
+    // For event generation and broadcasting
+    SafetyCoordinator = 0;
 }
 
 FilterBase::~FilterBase()

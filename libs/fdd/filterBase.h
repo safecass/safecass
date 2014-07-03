@@ -43,6 +43,8 @@ class EventPublisherBase;
 #define SF_REGISTER_FILTER_TO_FACTORY(_className)\
     FilterFactory::GetInstance()->RegisterFilter(#_className, &_className::Create);
 
+class Coordinator;
+
 class SFLIB_EXPORT FilterBase
 {
 public:
@@ -134,6 +136,9 @@ protected:
     //! Queue for fault injection
     InputQueueType InputQueue;
 
+    // For event generation and broadcasting
+    Coordinator * SafetyCoordinator;
+
     //-------------------------------------------------- 
     //  Filter Inputs and Outputs
     //-------------------------------------------------- 
@@ -217,6 +222,9 @@ public:
     //-------------------------------------------------- 
     //  Pure virtual methods
     //-------------------------------------------------- 
+    //! Configure filter-specific arguments
+    virtual bool ConfigureFilter(const JSON::JSONVALUE & jsonNode) = 0;
+
     //! Initialize filter
     virtual bool InitFilter(void) = 0;
 
@@ -297,9 +305,11 @@ public:
      */
     void SetEventLocationInstance(EventLocationBase * location);
 
-
     //! Enable or disable internal debug log
     inline void EnableDebugLog(bool enable = true) { PrintDebugLog = enable; }
+
+    // TODO: Set instance of Safety Coordinator 
+    inline void SetSafetyCoordinator(Coordinator * instance) { SafetyCoordinator = instance; }
 
     //! Returns human readable outputs
     virtual std::string ToString(void) const;
