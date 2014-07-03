@@ -84,6 +84,15 @@ public:
         // total number of state transitions
         NUMBER_OF_TRANSITIONS
     } TransitionType;
+
+    // State machine types
+    typedef enum {
+        STATEMACHINE_FRAMEWORK,
+        STATEMACHINE_APP,
+        STATEMACHINE_PROVIDED,
+        STATEMACHINE_REQUIRED,
+        STATEMACHINE_INVALID
+    } StateMachineType;
     
 protected:
     StateType CurrentState;

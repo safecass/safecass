@@ -13,6 +13,8 @@
 //
 #include "coordinator.h"
 
+#define _VERBOSE 1
+
 using namespace SF;
 
 Coordinator::Coordinator(const std::string & name): Name(name), ComponentIdCounter(0)
@@ -20,7 +22,7 @@ Coordinator::Coordinator(const std::string & name): Name(name), ComponentIdCount
 
 Coordinator::~Coordinator()
 {
-    // TODO: cleanup: FilterMapType
+    // TODO: cleanup: FilterMapType, EventMapType
 }
 
 void Coordinator::ToStream(std::ostream & outputStream) const
@@ -318,3 +320,190 @@ bool Coordinator::InjectInputToFilter(FilterBase::FilterIDType fuid, const Doubl
 
     return false;
 }
+
+bool Coordinator::AddEvent(const std::string & componentName, Event * event)
+{
+    // check if component is added
+    unsigned int cid = GetComponentId(componentName);
+    if (cid == 0) {
+        SFLOG_ERROR << "AddEvent: Component \"" << componentName << "\" not found" << std::endl;
+        return false;
+    }
+
+    SFASSERT(event);
+
+    const std::string eventName = event->GetName();
+    EventMapType::iterator it = MapEvent.find(componentName);
+    if (it == MapEvent.end()) {
+        EventsType * newList = new EventsType;
+        newList->insert(std::make_pair(eventName, event));
+        MapEvent[componentName] = newList;
+    } else {
+        it->second->insert(std::make_pair(eventName, event));
+    }
+
+    SFLOG_INFO << "AddFilter: successfully added event \"" << eventName << "\" to component \"" << componentName << "\"" << std::endl;
+
+    return true;
+}
+
+bool Coordinator::AddEvents(const std::string & componentName, const JSON::JSONVALUE & events)
+{
+    if (events.isNull() || events.size() == 0) {
+        SFLOG_ERROR << "AddEvents: No event specification found in json: " << JSON::GetJSONString(events) << std::endl;
+        return false;
+    }
+
+    // Figure out how many events are defined, and create and register event instances
+    std::string  eventName, smId;
+    unsigned int severity;
+    SF::Event    *event = 0;
+    for (size_t i = 0; i < events.size(); ++i) {
+        // event name
+        eventName = SF::JSON::GetSafeValueString(events[i], "name");
+        if (eventName.size() == 0) {
+            SFLOG_ERROR << "AddEvents: null event name. JSON: " << events[i] << std::endl;
+            return false;
+        }
+        // severity (1: lowest priority, ..., 255: highest priority)
+        severity = SF::JSON::GetSafeValueUInt(events[i], "severity");
+        if ((severity == 0) || (severity > 255)) {
+            SFLOG_ERROR << "AddEvents: Invalid severity: " << severity << ", JSON: " << events[i] << std::endl;
+            return false;
+        }
+        // state transition
+        std::string tname;
+        State::TransitionType t;
+        Event::TransitionsType ts;
+
+        const JSON::JSONVALUE & ts_json = events[i]["state_transition"];
+        for (size_t j = 0; j < ts_json.size(); ++j) {
+            tname = ts_json[j].asString();
+            if (tname.compare("N2E") == 0)
+                t = State::NORMAL_TO_ERROR;
+            else if (tname.compare("E2N") == 0)
+                t = State::ERROR_TO_NORMAL;
+            else if (tname.compare("N2W") == 0)
+                t = State::NORMAL_TO_WARNING;
+            else if (tname.compare("W2N") == 0)
+                t = State::WARNING_TO_NORMAL;
+            else if (tname.compare("W2E") == 0)
+                t = State::WARNING_TO_ERROR;
+            else if (tname.compare("E2W") == 0)
+                t = State::ERROR_TO_WARNING;
+            else {
+                SFLOG_ERROR << "AddEvents: Invalid transition: " << tname << ", JSON: " << ts_json[i] << std::endl;
+                return false;
+            }
+            ts.push_back(t);
+        }
+        // state_machine: type
+        State::StateMachineType smType;
+        const std::string type = SF::JSON::GetSafeValueString(events[i]["state_machine"], "type");
+        if (type.compare("s_F") == 0)
+            smType = State::STATEMACHINE_FRAMEWORK;
+        else if (type.compare("s_A") == 0)
+            smType = State::STATEMACHINE_APP;
+        else if (type.compare("s_P") == 0)
+            smType = State::STATEMACHINE_PROVIDED;
+        else if (type.compare("s_R") == 0)
+            smType = State::STATEMACHINE_REQUIRED;
+        else {
+            SFLOG_ERROR << "AddEvents: Invalid state machine type: " << type << ", JSON: " << events[i] << std::endl;
+            return false;
+        }
+        // state_machine: id 
+        if (smType == State::STATEMACHINE_PROVIDED || smType == State::STATEMACHINE_REQUIRED) {
+            smId = JSON::GetSafeValueString(events[i]["state_machine"], "id");
+        }
+        
+        // create event instance
+        event = new Event(eventName, severity, ts, smType, smId);
+        if (!AddEvent(componentName, event)) {
+            SFLOG_ERROR << "AddEvents: Failed to add event \"" << eventName << "\"" << std::endl;
+            delete event;
+            return false;
+        }
+#if _VERBOSE
+        SFLOG_INFO << "[" << (i + 1) << "/" << events.size() << "] "
+                   << "Successfully installed event: \"" << event->GetName() << "\"" << std::endl;
+#endif
+   }
+
+    return true;
+}
+
+bool Coordinator::AddEventFromJSON(const std::string & jsonString)
+{
+    // Construct JSON structure from JSON string
+    SF::JSON json;
+    if (!json.Read(jsonString.c_str())) {
+        SFLOG_ERROR << "AddEventFromJSON: Failed to read json string: " << jsonString << std::endl;
+        return false;
+    }
+
+    const SF::JSON::JSONVALUE events = json.GetRoot()["event"];
+    const std::string componentName = JSON::GetSafeValueString(json.GetRoot(), "component");
+    bool ret = AddEvents(componentName, events);
+    if (!ret) {
+        SFLOG_ERROR << "AddEventFromJSON: Failed to add events from JSON: " << jsonString << std::endl;
+        return false;
+    }
+
+#if _VERBOSE
+    SFLOG_INFO << "AddEventFromJSON: Successfully added events from JSON: " << jsonString << std::endl;
+#endif
+
+    return true;
+}
+
+bool Coordinator::AddEventFromJSONFile(const std::string & jsonFileName)
+{
+    // Construct JSON structure from JSON file
+    SF::JSON json;
+    if (!json.ReadFromFile(jsonFileName)) {
+        SFLOG_ERROR << "AddEventFromJSONFile: Failed to read json file: " << jsonFileName << std::endl;
+        return false;
+    }
+
+    bool ret = AddEventFromJSON(SF::JSON::GetJSONString(json.GetRoot()));
+    if (!ret) {
+        SFLOG_ERROR << "AddEventFromJSONFile: Failed to add events from JSON file: " << jsonFileName << std::endl;
+        return false;
+    }
+
+#if _VERBOSE
+    SFLOG_INFO << "AddEventFromJSONFile: Successfully added events from JSON file: " << jsonFileName << std::endl;
+#endif
+
+    return true;
+}
+
+const std::string Coordinator::GetEventList(const std::string & componentName) const
+{
+    // TODO: json encoding
+    std::stringstream ss;
+
+    bool allComponents = (componentName.compare("*") == 0);
+
+    EventMapType::const_iterator it = MapEvent.begin();
+    const EventMapType::const_iterator itEnd = MapEvent.end();
+    for (; it != itEnd; ++it) {
+        EventsType * events = it->second;
+        SFASSERT(events);
+
+        if (!allComponents)
+            if (it->first.compare(componentName) != 0)
+                continue;
+
+        ss << "Component: \"" << it->first << "\"" << std::endl;
+
+        EventsType::const_iterator it2 = events->begin();
+        const EventsType::const_iterator itEnd2 = events->end();
+        for (; it2 != itEnd2; ++it2)
+            ss << "\t" << *it2->second << std::endl;
+    }
+
+    return ss.str();
+}
+

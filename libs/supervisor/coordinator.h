@@ -43,13 +43,13 @@ public:
     typedef std::map<unsigned int, GCM*> GCMMapType;
     
     // TODO: EVENTS 
-    // key: event name, value: severity
-    //typedef std::map<std::string, unsigned int> EventsType;
-    // key: component name, value: event container
-    //typedef std::map<std::string, EventsType> EventMapType;
+    // key: event name
+    typedef std::map<std::string, Event*> EventsType;
+    // key: component name
+    typedef std::map<std::string, EventsType*> EventMapType;
 
     // FILTERS
-    typedef std::map<FilterBase::FilterIDType, SF::FilterBase*> FiltersType;
+    typedef std::map<FilterBase::FilterIDType, FilterBase*> FiltersType;
     // key: component name, value: filter container
     typedef std::map<std::string, FiltersType*> FilterMapType;
 
@@ -88,7 +88,7 @@ protected:
     // STATES
     GCMMapType MapGCM;
     // EVENTS
-    //EventMapType MapEvent;
+    EventMapType MapEvent;
     // FILTERS
     FilterMapType MapFilter;
     // CONNECTIONS
@@ -150,6 +150,20 @@ public:
     const std::string GetFilterList(const std::string & componentName = "*") const;
     // Get information about all the filters installed on the component specified
     bool InjectInputToFilter(FilterBase::FilterIDType fuid, const DoubleVecType & inputs);
+
+    //
+    // EVENTS
+    //
+    // Add event using event instance
+    bool AddEvent(const std::string & componentName, Event * event);
+    // Add event using JSON array object
+    bool AddEvents(const std::string & componentName, const JSON::JSONVALUE & events);
+    // Add event using JSON string
+    bool AddEventFromJSON(const std::string & jsonString);
+    // Add event using file containing JSON string
+    bool AddEventFromJSONFile(const std::string & jsonFileName);
+    // Get information about all the events installed on the component specified
+    const std::string GetEventList(const std::string & componentName = "*") const;
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const Coordinator & coordinator)
