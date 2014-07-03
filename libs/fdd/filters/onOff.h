@@ -15,6 +15,7 @@
 #define _FilterOnOff_h
 
 #include "filterBase.h"
+#include "event.h"
 
 namespace SF {
 
@@ -48,6 +49,12 @@ protected:
     /*! Local cache of the last value */
     SignalElement::ScalarType LastValue;
 
+    // Output when event is on.  Allocated by ConfigureFilter() via JSON
+    std::string EventNameOn;
+    std::string EventNameOff;
+
+    // Output when event becomes off
+
     /*! If this filter is initialized */
     bool Initialized;
 
@@ -57,6 +64,7 @@ protected:
     //-------------------------------------------------- 
     //  Methods required by the base class
     //-------------------------------------------------- 
+    bool ConfigureFilter(const JSON::JSONVALUE & jsonNode);
     bool InitFilter(void);
     void RunFilter(void); //< Implements filtering algorithm
     void CleanupFilter(void);
