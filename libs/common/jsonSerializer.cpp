@@ -196,16 +196,16 @@ bool JSONSerializer::ParseJSON(const std::string & message)
     return true;
 }
 
-void JSONSerializer::SetEvent(const SF::Event & event)
-{
-    SetTopicType(Topic::DATA);
-    SetCategoryTypeData(Topic::Data::EVENT);
+//void JSONSerializer::SetEvent(const SF::Event & event)
+//{
+    //SetTopicType(Topic::DATA);
+    //SetCategoryTypeData(Topic::Data::EVENT);
 
-    SetEventType(event.GetEventType());
-    SetEventName(event.GetName());
-    SetEventLocation(event.GetLocation());
-    SetTimestamp(event.GetTimestamp());
-}
+    //SetEventType(event.GetEventType());
+    //SetEventName(event.GetName());
+    //SetEventLocation(event.GetLocation());
+    //SetTimestamp(event.GetTimestamp());
+//}
 
 //------------------------------------------------------------ 
 // Accessors for common fields
@@ -307,6 +307,7 @@ void JSONSerializer::SetCategoryTypeData(Topic::Data::CategoryType category)
 //------------------------------------------------------------ 
 // Accessors for Data/Event
 //------------------------------------------------------------ 
+#if 0
 void JSONSerializer::SetEventType(Event::EventType eventType)
 {
     // FIXME
@@ -331,6 +332,7 @@ JSON::JSONVALUE & JSONSerializer::GetEventSpecificJson(void)
     // FIXME
     return JSONBuffer;
 }
+#endif
 
 //------------------------------------------------------------ 
 // Accessors for Data/Monitor

@@ -104,11 +104,11 @@ public:
      */
     /** @{ */
     //! Event::Type
-    Event::EventType  GetEventType(void) const;
-    JSON::JSONVALUE & GetEventSpecificJson(void);
-    void SetEvent(const SF::Event & event);
-    void SetEventType(Event::EventType eventType);
-    void SetEventName(const std::string & name);
+    //Event::EventType  GetEventType(void) const;
+    //JSON::JSONVALUE & GetEventSpecificJson(void);
+    //void SetEvent(const SF::Event & event);
+    //void SetEventType(Event::EventType eventType);
+    //void SetEventName(const std::string & name);
     /** @} */
 
     /** @name Accessors for Data with Log
