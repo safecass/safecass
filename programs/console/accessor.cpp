@@ -95,24 +95,6 @@ bool AccessorConsole::RequestFilterList(const std::string & safetyCoordinatorNam
     return true;
 }
 
-bool AccessorConsole::RequestStateList(const std::string & safetyCoordinatorName,
-                                       const std::string & componentName) const
-{
-    std::stringstream ss;
-    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
-          "\"component\": \"" << componentName << "\" }, "
-          "\"request\": \"state_list\" }";
-    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
-        std::cerr << "RequestStateList: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
-        return false;
-    }
-
-    std::cout << "requested list of states" << std::endl;
-    osaSleep(0.5);
-
-    return true;
-}
-
 bool AccessorConsole::RequestFilterFaultInject(const std::string & safetyCoordinatorName,
                                                const SF::FilterBase::FilterIDType fuid,
                                                const SF::DoubleVecType & inputs) const
@@ -135,6 +117,43 @@ bool AccessorConsole::RequestFilterFaultInject(const std::string & safetyCoordin
     }
 
     std::cout << "requested input injection" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}
+
+bool AccessorConsole::RequestStateList(const std::string & safetyCoordinatorName,
+                                       const std::string & componentName) const
+{
+    std::stringstream ss;
+    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
+          "\"component\": \"" << componentName << "\" }, "
+          "\"request\": \"state_list\" }";
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+        std::cerr << "RequestStateList: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        return false;
+    }
+
+    std::cout << "requested list of states" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}
+
+
+bool AccessorConsole::RequestEventList(const std::string & safetyCoordinatorName,
+                                       const std::string & componentName) const
+{
+    std::stringstream ss;
+    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
+          "\"component\": \"" << componentName << "\" }, "
+          "\"request\": \"event_list\" }";
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+        std::cerr << "RequestStateList: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        return false;
+    }
+
+    std::cout << "requested list of events" << std::endl;
     osaSleep(0.5);
 
     return true;
