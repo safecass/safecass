@@ -22,7 +22,9 @@ SignalElement::SignalElement()
     : Name("NONAME"),
       Type(SCALAR),
       HistoryBuffer(0),
-      HistoryBufferIndex(INVALID_HISTORY_BUFFER_INDEX)
+      HistoryBufferIndex(INVALID_HISTORY_BUFFER_INDEX),
+      TimeLastSampleFetched(0.0),
+      PlaceholderScalar(0.0)
 {
     Init();
 }
@@ -32,7 +34,9 @@ SignalElement::SignalElement(const std::string & signalName,
     : Name(signalName),
       Type(signalType),
       HistoryBuffer(0),
-      HistoryBufferIndex(INVALID_HISTORY_BUFFER_INDEX)
+      HistoryBufferIndex(INVALID_HISTORY_BUFFER_INDEX),
+      TimeLastSampleFetched(0.0),
+      PlaceholderScalar(0.0)
 {
     Init();
 }
