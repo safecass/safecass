@@ -544,8 +544,21 @@ bool Coordinator::FindEvent(const std::string & eventName) const
     return (GetEvent(eventName) != 0);
 }
 
-void Coordinator::OnEvent(const std::string & eventName)
+bool Coordinator::OnEvent(const std::string & eventName)
 {
-    std::cout << "SafetyCoordinator received event \"" << eventName << "\" : "
-              << *GetEvent(eventName) << std::endl;
+    // check if event is registered
+    const Event * e = GetEvent(eventName);
+    if (!e) {
+        SFLOG_ERROR << "Coordinator: event \"" << eventName << "\" is not registered" << std::endl;
+        return false;
+    }
+
+    // TODO: if registered, update ALL state machines
+    // TODO: Propagate state changes/events to connected components
+
+    //SFLOG_DEBUG << "Coordinator received event \"" << eventName << "\" : "
+    //            << *GetEvent(eventName) << std::endl;
+
+    return OnEventHandler(e);
 }
+

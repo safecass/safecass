@@ -170,8 +170,11 @@ public:
     const Event * GetEvent(const std::string & eventName) const;
     // Get information about all the events installed on the component specified
     const std::string GetEventList(const std::string & componentName = "*") const;
-    // Generate event
-    void OnEvent(const std::string & eventName);
+    // Called by filter when event is generated.  Internally calls OnEventHandler()
+    bool OnEvent(const std::string & eventName);
+    // Called by OnEvent() to inform the derived class (e.g., mtsSafetyCoordinator in case
+    // of cisst) of the event
+    virtual bool OnEventHandler(const Event * e) = 0;
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const Coordinator & coordinator)
