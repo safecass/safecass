@@ -26,8 +26,8 @@ FilterFactory::FilterFactory(void)
 
 #define REGISTER_FILTER(_name)\
     RegisterFilter(_name::Name, _name::Create);
-    REGISTER_FILTER(FilterThreshold);
-    REGISTER_FILTER(FilterChangeDetection);
+    //REGISTER_FILTER(FilterThreshold);
+    //REGISTER_FILTER(FilterChangeDetection);
     REGISTER_FILTER(FilterOnOff);
 #undef REGISTER_FILTER
 }

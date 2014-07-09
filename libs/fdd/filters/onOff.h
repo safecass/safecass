@@ -35,11 +35,16 @@ namespace SF {
 
 class SFLIB_EXPORT FilterOnOff: public FilterBase
 {
+public:
+    typedef enum { ONSET, OFFSET } EVENT_TYPE;
+
 protected:
     // Filter should be instantiated with explicit arguments
     FilterOnOff();
 
     void Initialize(void);
+
+    const std::string GenerateEventInfo(EVENT_TYPE eventType) const;
 
     //--------------------------------------------------
     //  Filter-specific parameters
@@ -65,10 +70,11 @@ protected:
 
 public:
     //! Constructor
-    FilterOnOff(const std::string &             targetComponentName,
-                const FilterBase::FilteringType monitoringType,
-                // below are filter-specific arguments
-                const std::string &             inputSignalName);
+    FilterOnOff(FilterBase::FilteringType monitoringType,
+                State::StateMachineType   targetStateMachineType,
+                const std::string &       targetComponentName,
+                const std::string &       targetInterfaceName,
+                const std::string &       inputSignalName);
     //! Constructor using JSON
     FilterOnOff(const JSON::JSONVALUE & jsonNode);
     //! Destructor

@@ -195,6 +195,8 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         // component name and component states
         if (allComponents)
             ss << "\n";
+
+        // MJTODO: replace this manual build-up with SF::JSON
         ss << "\"" << it->second->GetComponentName() << "\": { "
               "\"s\": " << static_cast<int>(gcm->GetComponentState(GCM::SYSTEM_VIEW)) << ", "
               "\"s_F\": " << static_cast<int>(gcm->GetComponentState(GCM::FRAMEWORK_VIEW)) << ", "
@@ -229,6 +231,29 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
 
 bool Coordinator::AddFilter(const std::string & componentName, FilterBase * filter)
 {
+    // TODO: "target" of filter
+#if 0
+    // state_machine: type
+    State::StateMachineType smType;
+    const std::string type = SF::JSON::GetSafeValueString(events[i]["state_machine"], "type");
+    if (type.compare("s_F") == 0)
+        smType = State::STATEMACHINE_FRAMEWORK;
+    else if (type.compare("s_A") == 0)
+        smType = State::STATEMACHINE_APP;
+    else if (type.compare("s_P") == 0)
+        smType = State::STATEMACHINE_PROVIDED;
+    else if (type.compare("s_R") == 0)
+        smType = State::STATEMACHINE_REQUIRED;
+    else {
+        SFLOG_ERROR << "AddEvents: Invalid state machine type: " << type << ", JSON: " << events[i] << std::endl;
+        return false;
+    }
+    // state_machine: id 
+    if (smType == State::STATEMACHINE_PROVIDED || smType == State::STATEMACHINE_REQUIRED) {
+        smId = JSON::GetSafeValueString(events[i]["state_machine"], "id");
+    }
+#endif
+        
     // check if component is added
     unsigned int cid = GetComponentId(componentName);
     if (cid == 0) {
@@ -398,28 +423,9 @@ bool Coordinator::AddEvents(const std::string & componentName, const JSON::JSONV
             }
             ts.push_back(t);
         }
-        // state_machine: type
-        State::StateMachineType smType;
-        const std::string type = SF::JSON::GetSafeValueString(events[i]["state_machine"], "type");
-        if (type.compare("s_F") == 0)
-            smType = State::STATEMACHINE_FRAMEWORK;
-        else if (type.compare("s_A") == 0)
-            smType = State::STATEMACHINE_APP;
-        else if (type.compare("s_P") == 0)
-            smType = State::STATEMACHINE_PROVIDED;
-        else if (type.compare("s_R") == 0)
-            smType = State::STATEMACHINE_REQUIRED;
-        else {
-            SFLOG_ERROR << "AddEvents: Invalid state machine type: " << type << ", JSON: " << events[i] << std::endl;
-            return false;
-        }
-        // state_machine: id 
-        if (smType == State::STATEMACHINE_PROVIDED || smType == State::STATEMACHINE_REQUIRED) {
-            smId = JSON::GetSafeValueString(events[i]["state_machine"], "id");
-        }
-        
+
         // create event instance
-        event = new Event(eventName, severity, ts, smType, smId);
+        event = new Event(eventName, severity, ts);
         if (!AddEvent(componentName, event)) {
             SFLOG_ERROR << "AddEvents: Failed to add event \"" << eventName << "\"" << std::endl;
             delete event;
@@ -545,8 +551,10 @@ bool Coordinator::FindEvent(const std::string & eventName) const
     return (GetEvent(eventName) != 0);
 }
 
-bool Coordinator::OnEvent(const std::string & eventName)
+bool Coordinator::OnEvent(const std::string & event)
 {
+    _PROBE << "event: " << event << std::endl;
+#if 0
     // check if event is registered
     const Event * e = GetEvent(eventName);
     if (!e) {
@@ -561,5 +569,7 @@ bool Coordinator::OnEvent(const std::string & eventName)
     //            << *GetEvent(eventName) << std::endl;
 
     return OnEventHandler(e);
+#endif
+    return true;
 }
 

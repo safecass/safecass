@@ -21,7 +21,11 @@ using namespace SF;
 SF_IMPLEMENT_FACTORY(FilterOnOff);
 
 FilterOnOff::FilterOnOff(void)
-    : FilterBase(FilterOnOff::Name, NONAME, FilterBase::ACTIVE),
+    : FilterBase(FilterOnOff::Name,  // filter name
+                 FilterBase::ACTIVE, // filtering type (active vs. passive)
+                 State::STATEMACHINE_INVALID, // type of state machine
+                 NONAME,             // target component name
+                 NONAME),            // target interface name
       NameOfInputSignal(NONAME),
       LastValue(0),
       EventNameOn(NONAME),
@@ -31,10 +35,16 @@ FilterOnOff::FilterOnOff(void)
     Initialize();
 }
 
-FilterOnOff::FilterOnOff(const std::string &             targetComponentName,
-                         const FilterBase::FilteringType monitoringType,
-                         const std::string &             inputSignalName)
-    : FilterBase(FilterOnOff::Name, targetComponentName, monitoringType),
+FilterOnOff::FilterOnOff(FilterBase::FilteringType monitoringType,
+                         State::StateMachineType   targetStateMachineType,
+                         const std::string &       targetComponentName,
+                         const std::string &       targetInterfaceName,
+                         const std::string &       inputSignalName)
+    : FilterBase(FilterOnOff::Name,
+                 monitoringType,
+                 targetStateMachineType,
+                 targetComponentName,
+                 targetInterfaceName),
       NameOfInputSignal(inputSignalName),
       LastValue(0),
       EventNameOn(NONAME),
@@ -45,8 +55,7 @@ FilterOnOff::FilterOnOff(const std::string &             targetComponentName,
 
 FilterOnOff::FilterOnOff(const JSON::JSONVALUE & jsonNode)
     : FilterBase(FilterOnOff::Name, jsonNode),
-      NameOfInputSignal(JSON::GetSafeValueString(
-          jsonNode[Dict::Filter::argument], Dict::Filter::input_signal)),
+      NameOfInputSignal(JSON::GetSafeValueString(jsonNode["argument"], "input_signal")),
       LastValue(0),
       EventNameOn(NONAME),
       EventNameOff(NONAME)
@@ -114,16 +123,17 @@ void FilterOnOff::RunFilter(void)
 
     // value changes; edge is detected
     double newOutput;
+    SFASSERT(SafetyCoordinator);
     if (newInput == 0) {
         // offset event
-        SFASSERT(SafetyCoordinator);
-        SafetyCoordinator->OnEvent(EventNameOff);
+        const std::string evt = GenerateEventInfo(FilterOnOff::OFFSET);
+        SafetyCoordinator->OnEvent(evt);
         newOutput = 0.0;
     } else {
         if (LastValue == 0) {
             // onset event
-            SFASSERT(SafetyCoordinator);
-            SafetyCoordinator->OnEvent(EventNameOn);
+            const std::string evt = GenerateEventInfo(FilterOnOff::ONSET);
+            SafetyCoordinator->OnEvent(evt);
             newOutput = 1.0;
         }
     }
@@ -146,3 +156,20 @@ void FilterOnOff::ToStream(std::ostream & outputStream) const
                  << "Event off name : " << EventNameOff << std::endl
                  << std::endl;
 }
+
+const std::string FilterOnOff::GenerateEventInfo(EVENT_TYPE eventType) const
+{
+    // TODO: define event JSON spec
+    JSON json;
+    JSON::JSONVALUE & root = json.GetRoot();
+    root["event"]["name"] = ((eventType == FilterOnOff::ONSET) ? EventNameOn : EventNameOff);
+    /*
+    // TODO: integrate boost time/date library
+    root["event"]["timestamp"] = 1234.5678;
+    root["event"]["location"]["component"] = NameOfTargetComponent;
+    root["event"]["location"]["component"] = NameOfTargetComponent;
+    */
+
+    return JSON::GetJSONString(root);
+}
+

@@ -114,12 +114,6 @@ public:
      */
     virtual void OnFaultEvent(const std::string & json) = 0;
 
-    //! For human-readable logging and debugging
-    /*! \param outputStream output stream
-        \param includeLocation target location is printed if yes (default: yes)
-    */
-    virtual void ToStream(std::ostream & outputStream) const;
-
     //
     // STATES
     //
@@ -170,11 +164,18 @@ public:
     const Event * GetEvent(const std::string & eventName) const;
     // Get information about all the events installed on the component specified
     const std::string GetEventList(const std::string & componentName = "*") const;
-    // Called by filter when event is generated.  Internally calls OnEventHandler()
-    bool OnEvent(const std::string & eventName);
+    // Called by filter when event is generated.  Event information such as timestamp,
+    // location, and severity is encoded in JSON.
+    bool OnEvent(const std::string & event);
     // Called by OnEvent() to inform the derived class (e.g., mtsSafetyCoordinator in case
     // of cisst) of the event
     virtual bool OnEventHandler(const Event * e) = 0;
+
+    //! For human-readable logging and debugging
+    /*! \param outputStream output stream
+        \param includeLocation target location is printed if yes (default: yes)
+    */
+    virtual void ToStream(std::ostream & outputStream) const;
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const Coordinator & coordinator)

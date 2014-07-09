@@ -22,31 +22,67 @@
 // accordingly (look for InstallFrameworkFilters() method).
 //
 {
+    "event": [
+        {   // name of event
+            "name"            : "EVT_THREAD_EXCEPTION",
+            // severity (1-255)
+            // 1: lowest priority, ..., 255: highest priority
+            // 1-200: For application events
+            // 201-255: Reserved for framework events
+            //
+            // TODO: define and implement severity context; not used for now
+            //"severity"        : 255,
+            "state_transition": [ "N2E" ]
+        },
+        {   "name"            : "/EVT_THREAD_EXCEPTION",
+            "state_transition": [ "E2N" ]
+        },
+        {   "name"            : "EVT_THREAD_OVERRUN",
+            // TODO: depending on how severe overrun is, next state can be warning.
+            "state_transition": [ "N2E" ]
+        },
+        {   "name"            : "/EVT_THREAD_OVERRUN",
+            // TODO: depending on how severe overrun is, next restored state can be
+            "state_transition": [ "E2N" ]
+        }
+    ],
     "filter" : [
-        //-------------------------------------------------
         // Exception filter
-        //
         {   // common fields
-            "class_name"       : "FilterChangeDetection",
-            "target_component" : "will_be_overwritten_by_casros_when_deployed",
+            "class_name"       : "FilterOnOff",
+            //"target_component" : "", 
+            "target"           : {
+                // type of state machine associated with this filter
+                // s_F: framework state
+                // s_A: application state
+                // s_P: provided interface state
+                // s_R: required interface state
+                "type"         : "s_F",
+                "component"    : ""  // will be overwritten by casros when deployed
+            },
             "type"             : "ACTIVE",
-            // exception filter specific fields
+            //"debug"            : true,
+            // filter specific fields
             "argument" : {
                 "input_signal" : "ExceptionCount",
                 // name of event to be generated
-                "event"        : "EVT_THREAD_EXCEPTION_DETECTED"
+                "event_on"     : "EVT_THREAD_EXCEPTION",
+                "event_off"    : "/EVT_THREAD_EXCEPTION"
             },
             "last_filter"      : true
         },
-        //-------------------------------------------------
+        // TODO: change filter class to FilterThreshold (onoff: for testing)
         // Overrun filter
-        //
-        {   "class_name"       : "FilterChangeDetection",
-            "target_component" : "will_be_overwritten_by_casros_when_deployed",
+        {   "class_name"       : "FilterOnOff",
+            "target"           : {
+                "type"         : "s_F",
+                "component"    : ""  // will be overwritten by casros when deployed
+            },
             "type"             : "ACTIVE",
             "argument" : {
                 "input_signal" : "OverrunCount",
-                "event"        : "EVT_THREAD_OVERRUN_DETECTED"
+                "event_on"     : "EVT_THREAD_OVERRUN",
+                "event_off"    : "/EVT_THREAD_OVERRUN"
             },
             "last_filter"      : true
         }

@@ -32,21 +32,23 @@ const std::string InvalidSignalName = "INVALID_SIGNAL";
 FilterBase::FilterBase(void)
     : UID(INVALID_FILTER_UID),
       Name("NONAME"),
-      NameOfTargetComponent("NONAME"), 
-      Type(ACTIVE),
+      FilterTarget(CreateFilterTarget(NONAME, NONAME, NONAME)),
+      FilterType(ACTIVE),
       LastFilterOfPipeline(false)
 {
     Initialize();
 }
 
-FilterBase::FilterBase(const std::string  & filterName,
-                       const std::string  & targetComponentName,
-                       const FilteringType  monitoringType)
+FilterBase::FilterBase(const std::string     & filterName,
+                       FilteringType           filteringType,
+                       State::StateMachineType targetStateMachineType,
+                       const std::string     & targetComponentName,
+                       const std::string     & targetInterfaceName)
     : UID(++FilterUID),
       Name(filterName),
+      FilterTarget(CreateFilterTarget(targetStateMachineType, targetComponentName, targetInterfaceName)),
       Initialized(false),
-      NameOfTargetComponent(targetComponentName), 
-      Type(monitoringType),
+      FilterType(filteringType),
       LastFilterOfPipeline(false)
 {
     Initialize();
@@ -55,12 +57,59 @@ FilterBase::FilterBase(const std::string  & filterName,
 FilterBase::FilterBase(const std::string & filterName, const JSON::JSONVALUE & jsonNode)
     : UID(++FilterUID),
       Name(filterName),
+      FilterTarget(CreateFilterTarget(JSON::GetSafeValueString(jsonNode["target"], "type"),
+                                      JSON::GetSafeValueString(jsonNode["target"], "component"),
+                                      JSON::GetSafeValueString(jsonNode["target"], "interface"))),
       Initialized(false),
-      NameOfTargetComponent( JSON::GetSafeValueString( jsonNode, Dict::Json::target_component ) ), 
-      Type( GetFilteringTypeFromString(JSON::GetSafeValueString( jsonNode, Dict::Json::type ) ) ),
-      LastFilterOfPipeline( JSON::GetSafeValueBool( jsonNode, Dict::Filter::last_filter) )
+      FilterType(GetFilteringTypeFromString(JSON::GetSafeValueString(jsonNode, Dict::Json::type))),
+      LastFilterOfPipeline(JSON::GetSafeValueBool(jsonNode, Dict::Filter::last_filter))
 {
+    const std::string targetStateMachineType = JSON::GetSafeValueString(jsonNode["target"], "type");
+    const std::string targetComponentName    = JSON::GetSafeValueString(jsonNode["target"], "component");
+    const std::string targetInterfaceName    = JSON::GetSafeValueString(jsonNode["target"], "interface");
+
     Initialize();
+}
+
+FilterBase::FilterTargetType FilterBase::CreateFilterTarget(State::StateMachineType targetStateMachineType,
+                                                            const std::string     & targetComponentName,
+                                                            const std::string     & targetInterfaceName)
+{
+    FilterTargetType t;
+
+    t.StateMachineType = targetStateMachineType;
+    t.ComponentName    = targetComponentName;
+    if (t.StateMachineType == State::STATEMACHINE_PROVIDED || t.StateMachineType == State::STATEMACHINE_REQUIRED)
+        t.InterfaceName = targetInterfaceName;
+    else
+        t.InterfaceName = State::STATEMACHINE_INVALID;
+
+    return t;
+}
+
+FilterBase::FilterTargetType FilterBase::CreateFilterTarget(const std::string & targetStateMachineTypeName,
+                                                            const std::string & targetComponentName,
+                                                            const std::string & targetInterfaceName)
+{
+    FilterTargetType t;
+
+    State::StateMachineType targetStateMachineType;
+    if (targetStateMachineTypeName.compare("s_F") == 0)
+        targetStateMachineType = State::STATEMACHINE_FRAMEWORK;
+    else if (targetStateMachineTypeName.compare("s_A") == 0)
+        targetStateMachineType = State::STATEMACHINE_APP;
+    else if (targetStateMachineTypeName.compare("s_P") == 0)
+        targetStateMachineType = State::STATEMACHINE_PROVIDED;
+    else if (targetStateMachineTypeName.compare("s_R") == 0)
+        targetStateMachineType = State::STATEMACHINE_REQUIRED;
+    else
+        targetStateMachineType = State::STATEMACHINE_INVALID;
+
+    t.StateMachineType = targetStateMachineType;
+    t.ComponentName    = targetComponentName;
+    t.InterfaceName    = targetInterfaceName;
+
+    return t;
 }
 
 void FilterBase::Initialize(void)
@@ -144,7 +193,7 @@ bool FilterBase::RefreshSamples(void)
         InputSignals[0]->SetPlaceholderScalar(injectedInputScalar);
     } else {
         // Fetch new value from history buffer
-        if (!InputSignals[0]->FetchNewValueScalar((this->Type == FilterBase::ACTIVE))) {
+        if (!InputSignals[0]->FetchNewValueScalar((FilterType == FilterBase::ACTIVE))) {
             SFLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
             this->Enable(false); // suppress further error messages due to the same issue
             // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
@@ -165,11 +214,6 @@ std::string FilterBase::GenerateOutputSignalName(const std::string & prefix,
     ss << prefix << ":" << root1 << ":" << root2 << ":" << suffix;
 
     return ss.str();
-}
-
-const std::string FilterBase::GenerateFDIJSON(double severity, double timestamp) const
-{
-    return std::string("n/a (not implemented)");
 }
 
 bool FilterBase::IsDisabled(void) const {
@@ -285,32 +329,6 @@ std::string FilterBase::ToString(void) const
     ToStream(ss);
 
     return ss.str();
-}
-
-void FilterBase::ToStream(std::ostream & outputStream) const
-{
-    outputStream << "[" << UID << "] "
-                 << "Name: \"" << Name << "\", ";
-    outputStream << "Target component: \"" << NameOfTargetComponent << "\", "
-                 << "Filtering type: " << (Type == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
-                 << "State: " << GetFilterStateString(FilterState);
-    outputStream << ", Event location: " << (EventLocation ? "Available" : "n/a");
-    if (LastFilterOfPipeline)
-        outputStream << ", Event publisher: " << (EventPublisher ? "installed" : "n/a");
-    outputStream << std::endl;
-
-    // Input signals
-    outputStream << "----- Input Signals:" << std::endl;
-    for (size_t i = 0; i < InputSignals.size(); ++i) {
-        outputStream << "[" << i << "] " << (*InputSignals[i]) << std::endl;
-    }
-    // Output signals
-    outputStream << "----- Output Signals:" << std::endl;
-    for (size_t i = 0; i < OutputSignals.size(); ++i) {
-        outputStream << "[" << i << "] " << (*OutputSignals[i]) << std::endl;
-    }
-    // Input queue
-    outputStream << "----- Input queue: " << ShowInputQueue() << std::endl;
 }
 
 //-----------------------------------------------
@@ -440,3 +458,46 @@ const std::string FilterBase::ShowInputQueue(void) const
 
     return ss.str();
 }
+
+const std::string FilterBase::GenerateEventInfo(void) const
+{
+    // MJTEMP
+    return "FilterBase::GenerateEventInfo:TODO";
+}
+
+void FilterBase::ToStream(std::ostream & outputStream) const
+{
+    outputStream << "[" << UID << "] "
+                 << "Name: \"" << Name << "\", ";
+    outputStream << "Target: \"";
+    switch (FilterTarget.StateMachineType) {
+    case State::STATEMACHINE_FRAMEWORK: outputStream << "s_F"; break;
+    case State::STATEMACHINE_APP:       outputStream << "s_A"; break;
+    case State::STATEMACHINE_PROVIDED:  outputStream << "s_P"; break;
+    case State::STATEMACHINE_REQUIRED:  outputStream << "s_R"; break;
+    case State::STATEMACHINE_INVALID:   outputStream << "INVALID"; break;
+    }
+    outputStream << "\", component: \"" << FilterTarget.ComponentName
+                 << "\", interface: \"" << FilterTarget.InterfaceName
+                 << "\", ";
+    outputStream << "Filter type: " << (FilterType == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
+                 << "State: " << GetFilterStateString(FilterState);
+    outputStream << ", Event location: " << (EventLocation ? "Available" : "n/a");
+    if (LastFilterOfPipeline)
+        outputStream << ", Event publisher: " << (EventPublisher ? "installed" : "n/a");
+    outputStream << std::endl;
+
+    // Input signals
+    outputStream << "----- Input Signals:" << std::endl;
+    for (size_t i = 0; i < InputSignals.size(); ++i) {
+        outputStream << "[" << i << "] " << (*InputSignals[i]) << std::endl;
+    }
+    // Output signals
+    outputStream << "----- Output Signals:" << std::endl;
+    for (size_t i = 0; i < OutputSignals.size(); ++i) {
+        outputStream << "[" << i << "] " << (*OutputSignals[i]) << std::endl;
+    }
+    // Input queue
+    outputStream << "----- Input queue: " << ShowInputQueue() << std::endl;
+}
+

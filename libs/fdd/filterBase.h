@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: Jul 1, 2014
+// Last revision: Jul 9, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -50,6 +50,14 @@ class SFLIB_EXPORT FilterBase
 public:
     //! Typedef of numerical representation of unique filter id
     typedef unsigned int FilterIDType;
+
+    // Target information that this filter is associated with.  This information is used
+    // to find a state machine instance when an event is generated.
+    typedef struct {
+        State::StateMachineType StateMachineType;
+        std::string             ComponentName;
+        std::string             InterfaceName;
+    } FilterTargetType;
 
     //! Typedef for filtering type
     /*! ACTIVE:  filter is processed by the target component and thus the execution time of 
@@ -99,6 +107,14 @@ private:
      */
     static FilterIDType FilterUID;
 
+    FilterTargetType CreateFilterTarget(State::StateMachineType targetStateMachineType,
+                                        const std::string     & targetComponentName,
+                                        const std::string     & targetInterfaceName);
+
+    FilterTargetType CreateFilterTarget(const std::string & targetStateMachineTypeName,
+                                        const std::string & targetComponentName,
+                                        const std::string & targetInterfaceName);
+
 protected:
     //! Typedef for derived classes
     typedef FilterBase BaseType;
@@ -110,11 +126,11 @@ protected:
     const std::string Name;
 
     //! Name of target component
-    // TODO: this can be replaced with MonitorTarget structure(?)
-    const std::string NameOfTargetComponent;
+    //const std::string NameOfTargetComponent;
+    const FilterTargetType FilterTarget;
 
     //! Filtering type (active or passive)
-    const FilteringType Type;
+    const FilteringType FilterType;
 
     //! If this filter is initialized
     bool Initialized;
@@ -180,7 +196,10 @@ protected:
         - Fault time (temporal localization)
         - Fault severity
     */
-    virtual const std::string GenerateFDIJSON(double severity, double timestamp) const;
+    //virtual const std::string GenerateFDIJSON(double severity, double timestamp) const;
+
+    // Encode event information in JSON format
+    virtual const std::string GenerateEventInfo(void) const;
 
     //-------------------------------------------------- 
     //  Middleware-specific Instances (cisst)
@@ -208,11 +227,13 @@ protected:
     FilterBase(void);
 public:
     //! Constructor with explicit arguments
-    FilterBase(const std::string  & filterName,
-               const std::string  & targetComponentName,
-               const FilteringType  monitoringType);
-    //! Constructor using instance of JSON structure
-    FilterBase(const std::string & filterName,
+    FilterBase(const std::string     & filterName,
+               FilteringType           filteringType,
+               State::StateMachineType targetStateMachineType,
+               const std::string     & targetComponentName,
+               const std::string     & targetInterfaceName);
+    //! Constructor using JSON
+    FilterBase(const std::string     & filterName,
                const JSON::JSONVALUE & jsonNode);
     //! Destructor
     virtual ~FilterBase();
@@ -257,8 +278,9 @@ public:
     //-------------------------------------------------- 
     inline FilterIDType        GetFilterUID(void) const { return UID; }
     inline const std::string & GetFilterName(void) const { return Name; }
-    inline const std::string & GetNameOfTargetComponent(void) const { return NameOfTargetComponent; }
-    inline FilteringType       GetFilteringType(void) const { return Type; }
+    inline const FilterTargetType & GetFilterTarget(void) const { return FilterTarget; }
+    inline const std::string & GetNameOfTargetComponent(void) const { return FilterTarget.ComponentName; }
+    inline FilteringType       GetFilteringType(void) const { return FilterType; }
     inline bool IsLastFilterOfPipeline(void) const { return LastFilterOfPipeline; }
 
     // queries for filter state 

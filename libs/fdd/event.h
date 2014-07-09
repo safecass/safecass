@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Jul 3, 2014
+// Last revision: Jul 9, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -27,23 +27,23 @@ protected:
     const std::string             Name;
     const unsigned int            Severity;
     const TransitionsType         Transitions;
-    const State::StateMachineType SMType;
-    const std::string             SMTypeId;
+    //const State::StateMachineType SMType;
+    //const std::string             SMTypeId;
 
 public:
     Event(const std::string     & name,
           unsigned int            severity,
-          const TransitionsType & transitions,
-          State::StateMachineType smType,
-          const std::string     & smTypeId = "");
+          const TransitionsType & transitions);
+          //State::StateMachineType smType,
+          //const std::string     & smTypeId = "");
 
     virtual ~Event() {}
 
     inline const std::string       GetName(void) const               { return Name; }
     inline unsigned int            GetSeverity(void) const           { return Severity; }
     inline const TransitionsType & GetTransitions(void) const        { return Transitions; }
-    inline State::StateMachineType GetStateMachineType(void) const   { return SMType; }
-    inline const std::string       GetStateMachineTypeId(void) const { return SMTypeId; }
+    //inline State::StateMachineType GetStateMachineType(void) const   { return SMType; }
+    //inline const std::string       GetStateMachineTypeId(void) const { return SMTypeId; }
 
     // Returns human readable outputs
     virtual void ToStream(std::ostream & outputStream) const;

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Jul 2, 2014
+// Last revision: Jul 9, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -17,11 +17,11 @@ using namespace SF;
 
 Event::Event(const std::string     & name,
              unsigned int            severity,
-             const TransitionsType & transitions,
-             State::StateMachineType smType,
-             const std::string     & smTypeId)
-    : Name(name), Severity(severity), Transitions(transitions),
-      SMType(smType), SMTypeId(smTypeId)
+             const TransitionsType & transitions)
+             //State::StateMachineType smType,
+             //const std::string     & smTypeId)
+    : Name(name), Severity(severity), Transitions(transitions)
+      //SMType(smType), SMTypeId(smTypeId)
 {
 }
 
@@ -42,6 +42,7 @@ void Event::ToStream(std::ostream & os) const
     }
     os << "], ";
 
+    /*
     switch (SMType) {
     case State::STATEMACHINE_FRAMEWORK: os << "s_F"; break;
     case State::STATEMACHINE_APP:       os << "s_A"; break;
@@ -52,6 +53,7 @@ void Event::ToStream(std::ostream & os) const
 
     if (SMTypeId.size())
         os << ", Id: \"" << SMTypeId << "\"";
+    */
 }
 
 #if 0 // obsolete implementation
