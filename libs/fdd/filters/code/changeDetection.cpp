@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 6, 2014
-// Last revision: May 6, 2014
+// Last revision: Jul 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -22,6 +22,7 @@ SF_IMPLEMENT_FACTORY(FilterChangeDetection);
 FilterChangeDetection::FilterChangeDetection(void)
 {
     // This default constructor should not be used.
+    Initialize();
 }
 
 FilterChangeDetection::FilterChangeDetection(const std::string &              targetComponentName,
@@ -29,8 +30,7 @@ FilterChangeDetection::FilterChangeDetection(const std::string &              ta
                                              const std::string &              inputSignalName)
     : FilterBase(FilterChangeDetection::Name, targetComponentName, monitoringType),
       NameOfInputSignal(inputSignalName),
-      LastValue(0.0),
-      Initialized(false)
+      LastValue(0.0)
 {
     Initialize();
 }
@@ -39,8 +39,7 @@ FilterChangeDetection::FilterChangeDetection(const JSON::JSONVALUE & jsonNode)
     : FilterBase(FilterChangeDetection::Name, jsonNode),
       NameOfInputSignal(JSON::GetSafeValueString(
           jsonNode[Dict::Filter::argument], Dict::Filter::input_signal)),
-      LastValue(0.0),
-      Initialized(false)
+      LastValue(0.0)
 {
     Initialize();
 }
@@ -49,22 +48,12 @@ FilterChangeDetection::~FilterChangeDetection()
 {
 }
 
-bool FilterChangeDetection::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
-{
-    _PROBE << "IMPLEMENT THIS" << std::endl;
-
-    return true;
-}
-
 void FilterChangeDetection::Initialize(void)
 {
-    FilterBase::Initialize();
-
     // filters that casros provides do not need this; this is only for user-defined filters.
     //SF_REGISTER_FILTER_TO_FACTORY(FilterChangeDetection);
 
     // Define inputs
-    // TODO: this filter only supports scalar-type input/output for now.
     SFASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
 
     // Define outputs
@@ -73,12 +62,20 @@ void FilterChangeDetection::Initialize(void)
                                        FilterChangeDetection::Name,
                                        this->UID,
                                        0));
-    // TODO: this filter only supports scalar-type input/output for now.
     SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
+}
+
+bool FilterChangeDetection::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
+{
+    EventName = JSON::GetSafeValueString(jsonNode["argument"], "event");
+
+    return true;
 }
 
 bool FilterChangeDetection::InitFilter(void)
 {
+    this->Initialized = true;
+
     return true;
 }
 
@@ -91,6 +88,10 @@ void FilterChangeDetection::RunFilter(void)
     if (!FilterBase::RefreshSamples())
         return;
 
+    // Debug log if enabled
+    if (this->PrintDebugLog)
+        std::cout << *this << std::endl;
+
     // Filtering algorithm: if the current input is different from local cache,
     // output is 1; otherwise, 0.
     SignalElement::ScalarType newInput = InputSignals[0]->GetPlaceholderScalar();
@@ -102,10 +103,6 @@ void FilterChangeDetection::RunFilter(void)
 
     // TODO: check if event publisher works
     //if (LastFilterOfPipeline) {}
-
-    // Debug log if enabled
-    if (this->PrintDebugLog)
-        std::cout << *this << std::endl;
 }
 
 void FilterChangeDetection::ToStream(std::ostream & outputStream) const
@@ -115,5 +112,5 @@ void FilterChangeDetection::ToStream(std::ostream & outputStream) const
     outputStream << "----- Filter-specifics: " << std::endl 
                  << "Signal Type    : SCALAR" << std::endl
                  << "Last input     : " << LastValue << std::endl
-                 << "Current reading: " << InputSignals[0]->GetPlaceholderScalar() << std::endl;
+                 << "Next reading   : " << InputSignals[0]->GetPlaceholderScalar() << std::endl;
 }

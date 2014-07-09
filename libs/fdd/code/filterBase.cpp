@@ -44,7 +44,7 @@ FilterBase::FilterBase(const std::string  & filterName,
                        const FilteringType  monitoringType)
     : UID(++FilterUID),
       Name(filterName),
-      ClassName(""),
+      Initialized(false),
       NameOfTargetComponent(targetComponentName), 
       Type(monitoringType),
       LastFilterOfPipeline(false)
@@ -55,7 +55,7 @@ FilterBase::FilterBase(const std::string  & filterName,
 FilterBase::FilterBase(const std::string & filterName, const JSON::JSONVALUE & jsonNode)
     : UID(++FilterUID),
       Name(filterName),
-      ClassName( JSON::GetSafeValueString( jsonNode, Dict::Json::class_name)),
+      Initialized(false),
       NameOfTargetComponent( JSON::GetSafeValueString( jsonNode, Dict::Json::target_component ) ), 
       Type( GetFilteringTypeFromString(JSON::GetSafeValueString( jsonNode, Dict::Json::type ) ) ),
       LastFilterOfPipeline( JSON::GetSafeValueBool( jsonNode, Dict::Filter::last_filter) )
@@ -127,6 +127,10 @@ bool FilterBase::AddOutputSignal(const std::string &      signalName,
 
 bool FilterBase::RefreshSamples(void)
 {
+    if (!Initialized) {
+        SFLOG_WARNING << "FilterBase: Filter is not properly initialized: " << *this << std::endl;
+        return false;
+    }
     if (!IsEnabled())
         return false;
 
@@ -141,10 +145,10 @@ bool FilterBase::RefreshSamples(void)
     } else {
         // Fetch new value from history buffer
         if (!InputSignals[0]->FetchNewValueScalar((this->Type == FilterBase::ACTIVE))) {
-            SFLOG_ERROR << "failed to read input from history buffer" << std::endl;
+            SFLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
             this->Enable(false); // suppress further error messages due to the same issue
             // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
-            // is usable.  There should be explicit call to Enable(true).
+            // is usable.  There should be another way(s) to enable this filter again.
             return false;
         }
     }
@@ -381,7 +385,31 @@ bool FilterBase::SetEventDetected(const std::string & json)
 
 void FilterBase::InjectInput(SignalElement::ScalarType input)
 {
+#if 1
+    SFLOG_ERROR << "InjectInput: injecting " << input << " to filter id " << UID << std::endl;
+    SFLOG_ERROR << "BEFORE: ";
+
+    std::stringstream ss;
+    InputQueueType copy(InputQueue);
+    while (!copy.empty()) {
+        ss << copy.front() << " ";
+        copy.pop();
+    }
+    SFLOG_ERROR << ss.str() << std::endl;
+#endif
+
     InputQueue.push(input);
+
+#if 1
+    SFLOG_ERROR << "AFTER: ";
+    ss.str("");
+    copy = InputQueue;
+    while (!copy.empty()) {
+        ss << copy.front() << " ";
+        copy.pop();
+    }
+    SFLOG_ERROR << ss.str() << std::endl;
+#endif
 }
 
 void FilterBase::InjectInput(const std::vector<SignalElement::ScalarType> & inputs)

@@ -61,8 +61,8 @@ FilterBase * FilterFactory::CreateFilter(const std::string & filterName,
                                          const JSON::JSONVALUE & jsonNode) const
 {
     SFLOG_DEBUG << "FilterFactory::CreateFilter: " << (double*) this << std::endl;
-    SFLOG_DEBUG << "FilterFactory::CreateFilter: creating filter: \"" << filterName  << "\""
-                << " with JSON: " << jsonNode << std::endl;
+    SFLOG_DEBUG << "FilterFactory::CreateFilter: creating filter: \"" << filterName  << "\"" << std::endl;
+                //<< " with JSON: " << jsonNode << std::endl;
 
     FactoryMapType::const_iterator it = FactoryMap.find(filterName);
     if (it == FactoryMap.end()) {

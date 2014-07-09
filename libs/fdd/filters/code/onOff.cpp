@@ -21,8 +21,14 @@ using namespace SF;
 SF_IMPLEMENT_FACTORY(FilterOnOff);
 
 FilterOnOff::FilterOnOff(void)
+    : FilterBase(FilterOnOff::Name, NONAME, FilterBase::ACTIVE),
+      NameOfInputSignal(NONAME),
+      LastValue(0),
+      EventNameOn(NONAME),
+      EventNameOff(NONAME)
 {
-    // This default constructor should not be used.
+    // This default constructor should not be used by user
+    Initialize();
 }
 
 FilterOnOff::FilterOnOff(const std::string &             targetComponentName,
@@ -30,10 +36,9 @@ FilterOnOff::FilterOnOff(const std::string &             targetComponentName,
                          const std::string &             inputSignalName)
     : FilterBase(FilterOnOff::Name, targetComponentName, monitoringType),
       NameOfInputSignal(inputSignalName),
-      LastValue(0.0),
+      LastValue(0),
       EventNameOn(NONAME),
-      EventNameOff(NONAME),
-      Initialized(false)
+      EventNameOff(NONAME)
 {
     Initialize();
 }
@@ -42,10 +47,9 @@ FilterOnOff::FilterOnOff(const JSON::JSONVALUE & jsonNode)
     : FilterBase(FilterOnOff::Name, jsonNode),
       NameOfInputSignal(JSON::GetSafeValueString(
           jsonNode[Dict::Filter::argument], Dict::Filter::input_signal)),
-      LastValue(0.0),
+      LastValue(0),
       EventNameOn(NONAME),
-      EventNameOff(NONAME),
-      Initialized(false)
+      EventNameOff(NONAME)
 {
     Initialize();
 }
@@ -54,18 +58,8 @@ FilterOnOff::~FilterOnOff()
 {
 }
 
-bool FilterOnOff::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
-{
-    EventNameOn  = JSON::GetSafeValueString(jsonNode["argument"], "event_on");
-    EventNameOff = JSON::GetSafeValueString(jsonNode["argument"], "event_off");
-    
-    return true;
-}
-
 void FilterOnOff::Initialize(void)
 {
-    FilterBase::Initialize();
-
     // filters that casros provides do not need this; this is only for user-defined filters.
     //SF_REGISTER_FILTER_TO_FACTORY(FilterOnOff);
 
@@ -81,9 +75,17 @@ void FilterOnOff::Initialize(void)
     SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 }
 
+bool FilterOnOff::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
+{
+    EventNameOn  = JSON::GetSafeValueString(jsonNode["argument"], "event_on");
+    EventNameOff = JSON::GetSafeValueString(jsonNode["argument"], "event_off");
+    
+    return true;
+}
+
 bool FilterOnOff::InitFilter(void)
 {
-    InputSignals[0]->SetPlaceholderScalar(0.0);
+    this->Initialized = true;
 
     return true;
 }
@@ -101,33 +103,33 @@ void FilterOnOff::RunFilter(void)
     if (this->PrintDebugLog)
         std::cout << *this << std::endl << std::flush;
 
-    // Filtering algorithm: if the new input is different from the local cache,
-    // output becomes non-zero.  If they are the same, output is zero.
-    SignalElement::ScalarType newInput = InputSignals[0]->GetPlaceholderScalar();
+    // Filtering algorithm: 
+    // Output is 1 if the new input is different from the previous value and 
+    // the input is non-zero (edge-trigerred).  Otherwise, output is zero.
+    int newInput = (int) InputSignals[0]->GetPlaceholderScalar();
     if (newInput == LastValue) {
         OutputSignals[0]->SetPlaceholderScalar(0.0);
         return;
     }
 
     // value changes; edge is detected
-    if (newInput == 0.0) {
-        if (!SafetyCoordinator)
-            SFLOG_ERROR << "NULL Safety Coordinator: OFF event is discarded" << std::endl;
-        else
-            SafetyCoordinator->OnEvent(EventNameOff);
+    double newOutput;
+    if (newInput == 0) {
+        // offset event
+        SFASSERT(SafetyCoordinator);
+        SafetyCoordinator->OnEvent(EventNameOff);
+        newOutput = 0.0;
     } else {
-        if (LastValue == 0.0) {
-            std::cout << "####### New input: " << newInput << std::endl;
-            // Inform Safety Coordinator of the ON event
-            if (!SafetyCoordinator)
-                SFLOG_ERROR << "NULL Safety Coordinator: ON event is discarded" << std::endl;
-            else
-                SafetyCoordinator->OnEvent(EventNameOn);
+        if (LastValue == 0) {
+            // onset event
+            SFASSERT(SafetyCoordinator);
+            SafetyCoordinator->OnEvent(EventNameOn);
+            newOutput = 1.0;
         }
     }
 
     // Set output
-    OutputSignals[0]->SetPlaceholderScalar(newInput ? 1.0 : -1.0);
+    OutputSignals[0]->SetPlaceholderScalar(newOutput);
     // Update local cache
     LastValue = newInput;
 }
@@ -139,7 +141,7 @@ void FilterOnOff::ToStream(std::ostream & outputStream) const
     outputStream << "----- Filter-specifics: " << std::endl 
                  << "Signal Type    : SCALAR" << std::endl
                  << "Last input     : " << LastValue << std::endl
-                 << "Current reading: " << InputSignals[0]->GetPlaceholderScalar() << std::endl
+                 << "Next reading   : " << InputSignals[0]->GetPlaceholderScalar() << std::endl
                  << "Event on name  : " << EventNameOn << std::endl
                  << "Event off name : " << EventNameOff << std::endl
                  << std::endl;

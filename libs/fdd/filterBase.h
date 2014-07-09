@@ -109,17 +109,15 @@ protected:
     //! Name of this filter
     const std::string Name;
 
-    //! Class name of this filter
-    /*! Derived filter is instantiated based on this class name string 
-     */
-    const std::string ClassName;
-
     //! Name of target component
     // TODO: this can be replaced with MonitorTarget structure(?)
     const std::string NameOfTargetComponent;
 
     //! Filtering type (active or passive)
     const FilteringType Type;
+
+    //! If this filter is initialized
+    bool Initialized;
 
     //! Is this filter the last filter (of FDD pipeline)?
     bool LastFilterOfPipeline;
@@ -138,6 +136,9 @@ protected:
 
     // For event generation and broadcasting
     Coordinator * SafetyCoordinator;
+
+    //! Initialize this filter
+    virtual void Initialize(void);
 
     //-------------------------------------------------- 
     //  Filter Inputs and Outputs
@@ -196,9 +197,6 @@ protected:
      *  from this class can be used.
      */
     EventLocationBase * EventLocation;
-
-    //! Initialize internal variables
-    void Initialize(void);
 
     //-------------------------------------------------- 
     //  Constructors and Destructor

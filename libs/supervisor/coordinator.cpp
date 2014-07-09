@@ -13,7 +13,7 @@
 //
 #include "coordinator.h"
 
-#define _VERBOSE 1
+#define _VERBOSE 0
 
 using namespace SF;
 
@@ -253,7 +253,8 @@ bool Coordinator::AddFilter(const std::string & componentName, FilterBase * filt
         it->second->insert(std::make_pair(uid, filter));
     }
 
-    SFLOG_INFO << "AddFilter: successfully added filter \"" << *filter << "\" to component \"" << componentName << "\"" << std::endl;
+    SFLOG_INFO << "AddFilter: successfully added filter \"" << filter->GetFilterName() 
+               << "\" to component \"" << componentName << "\"" << std::endl;
 
     return true;
 }

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 6, 2014
-// Last revision: May 6, 2014
+// Last revision: Jul 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -34,21 +34,19 @@ protected:
     // Filter should be instantiated with explicit arguments
     FilterChangeDetection();
 
+    void Initialize(void);
+
     //--------------------------------------------------
     //  Filter-specific parameters
     //--------------------------------------------------
     // TODO: These could be moved down to the base class..?
     /*! Name of input signal */
     const std::string NameOfInputSignal;
+    // Name of output event
+    std::string EventName;
 
     /*! Local cache of the last value */
     SignalElement::ScalarType LastValue;
-
-    /*! If this filter is initialized */
-    bool Initialized;
-
-    /*! Initialize this filter */
-    void Initialize(void);
 
     //-------------------------------------------------- 
     //  Methods required by the base class

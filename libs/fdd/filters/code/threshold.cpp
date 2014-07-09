@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 3, 2012
-// Last revision: May 8, 2014
+// Last revision: Jul 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -22,7 +22,15 @@ using namespace SF;
 SF_IMPLEMENT_FACTORY(FilterThreshold);
 
 FilterThreshold::FilterThreshold(void)
+    : FilterBase(FilterThreshold::Name, NONAME, FilterBase::ACTIVE),
+      NameOfInputSignal(NONAME),
+      Threshold(0.0),
+      Margin(0.0),
+      Output0(0.0),
+      Output1(0.0),
+      EventName(NONAME)
 {
+    Initialize();
 }
 
 FilterThreshold::FilterThreshold(const std::string &           targetComponentName,
@@ -38,7 +46,8 @@ FilterThreshold::FilterThreshold(const std::string &           targetComponentNa
       Threshold(threshold),
       Margin(margin),
       Output0(output0),
-      Output1(output1)
+      Output1(output1),
+      EventName(NONAME)
 {
     Initialize();
 }
@@ -59,17 +68,12 @@ FilterThreshold::FilterThreshold(const JSON::JSONVALUE & jsonNode)
     Initialize();
 }
 
-bool FilterThreshold::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
+FilterThreshold::~FilterThreshold()
 {
-    _PROBE << "IMPLEMENT THIS" << std::endl;
-
-    return true;
 }
 
 void FilterThreshold::Initialize(void)
 {
-    FilterBase::Initialize();
-
     // Register this filter to the filter factory
     // filters that casros provides do not need this; this is only for user-defined filters.
     //SF_REGISTER_FILTER_TO_FACTORY(FilterThreshold);
@@ -86,12 +90,22 @@ void FilterThreshold::Initialize(void)
     SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 }
 
-FilterThreshold::~FilterThreshold()
-{}
+bool FilterThreshold::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
+{
+    EventName = JSON::GetSafeValueString(jsonNode["argument"], "event");
+
+    return true;
+}
 
 bool FilterThreshold::InitFilter(void)
 {
+    this->Initialized = true;
+
     return true;
+}
+
+void FilterThreshold::FilterThreshold::CleanupFilter(void)
+{
 }
 
 void FilterThreshold::RunFilter(void)
@@ -99,6 +113,10 @@ void FilterThreshold::RunFilter(void)
     if (!FilterBase::RefreshSamples())
         return;
 
+    //
+    // TODO: UPDATE THIS FILTERING ALGORITHM!!!
+    //
+#if 0
     // Filtering algorithm: thresholding with margin
     if (InputSignals[0]->GetPlaceholderScalar() > Threshold + Margin) {
         // Generate event if necessary (MJ: this may need to be done only for
@@ -126,13 +144,10 @@ void FilterThreshold::RunFilter(void)
         std::cout << this->GetFilterName() << "\t" << InputSignals[0]->GetName() << ": " 
             << InputSignals[0]->GetPlaceholderScalar() << " => " << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
     }
+#endif
 }
 
-void FilterThreshold::FilterThreshold::CleanupFilter(void)
-{
-    // NOP
-}
-
+#if 0
 const std::string FilterThreshold::GenerateFDIJSON(double severity, double timestamp) const
 {
     if (!EventLocation) {
@@ -162,14 +177,16 @@ const std::string FilterThreshold::GenerateFDIJSON(double severity, double times
 
     return serializer.GetJSON();
 }
+#endif
 
 void FilterThreshold::ToStream(std::ostream & outputStream) const
 {
     BaseType::ToStream(outputStream);
 
     outputStream << "----- Filter-specifics: " << std::endl
-                 << "Threshold: " << Threshold << ", "
-                 << "Margin: " << Margin << ", "
-                 << "Output0: " << Output0 << ", "
-                 << "Output1: " << Output1 << std::endl;
+                 << "Threshold: " << Threshold << std::endl
+                 << "Margin   : " << Margin << std::endl
+                 << "Output0  : " << Output0 << std::endl
+                 << "Output1  : " << Output1 << std::endl
+                 << std::endl;
 }

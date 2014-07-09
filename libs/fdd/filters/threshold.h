@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 3, 2012
-// Last revision: May 6, 2014
+// Last revision: Jul 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -35,11 +35,13 @@ protected:
     //! Default constructor: Filter should be created with explicit arguments
     FilterThreshold(void);
 
+    void Initialize(void);
+
     //--------------------------------------------------
     //  Filter-specific parameters
     //--------------------------------------------------
     //! Name of input signal
-    std::string NameOfInputSignal;
+    const std::string NameOfInputSignal;
     //! Threshold
     SignalElement::ScalarType Threshold;
     //! Threshold margin
@@ -49,8 +51,16 @@ protected:
     //! Output when input exceeds threshold specified
     SignalElement::ScalarType Output1;
 
-    //! initialize internal variables (called by constructor)
-    void Initialize(void);
+    // Name of output event generated when input exceeds threshold
+    std::string EventName;
+
+    //-------------------------------------------------- 
+    //  Methods required by the base class
+    //-------------------------------------------------- 
+    bool ConfigureFilter(const JSON::JSONVALUE & jsonNode);
+    bool InitFilter(void);
+    void RunFilter(void);
+    void CleanupFilter(void);
 
 public:
     //! Constructor with explicit arguments
@@ -62,26 +72,20 @@ public:
                     SignalElement::ScalarType     margin,
                     SignalElement::ScalarType     output0,
                     SignalElement::ScalarType     output1);
-    //! Constructor using instance of JSON structure
+    //! Constructor using JSON
     FilterThreshold(const JSON::JSONVALUE & jsonNode);
     //! Destructor
     ~FilterThreshold();
 
-    //! Implements pure virtual methods including thresholding algorithm
-    bool ConfigureFilter(const JSON::JSONVALUE & jsonNode);
-    bool InitFilter(void);
-    void RunFilter(void);
-    void CleanupFilter(void);
-
     //! Implements string representation of fault diagnosis and identification
-    const std::string GenerateFDIJSON(double severity, double timestamp) const;
+    //const std::string GenerateFDIJSON(double severity, double timestamp) const;
 
     //! Getters
     inline const std::string & GetNameOfInputSignal(void) const { return NameOfInputSignal; }
-    inline SignalElement::ScalarType GetThreshold(void) const { return Threshold; }
-    inline SignalElement::ScalarType GetMargin(void) const { return Margin; }
-    inline SignalElement::ScalarType GetOutput0(void) const { return Output0; }
-    inline SignalElement::ScalarType GetOutput1(void) const { return Output1; }
+    inline SignalElement::ScalarType GetThreshold(void) const   { return Threshold; }
+    inline SignalElement::ScalarType GetMargin(void) const      { return Margin; }
+    inline SignalElement::ScalarType GetOutput0(void) const     { return Output0; }
+    inline SignalElement::ScalarType GetOutput1(void) const     { return Output1; }
 
     //! Returns human readable representation of this filter
     void ToStream(std::ostream & outputStream) const;

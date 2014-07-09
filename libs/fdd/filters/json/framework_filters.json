@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 6, 2012
-// Last revision: May 8, 2014
+// Last revision: Jul 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -32,20 +32,21 @@
             "type"             : "ACTIVE",
             // exception filter specific fields
             "argument" : {
-                "input_signal" : "ExceptionCount"
+                "input_signal" : "ExceptionCount",
+                // name of event to be generated
+                "event"        : "EVT_THREAD_EXCEPTION_DETECTED"
             },
             "last_filter"      : true
         },
         //-------------------------------------------------
         // Overrun filter
         //
-        {   // common fields
-            "class_name"       : "FilterChangeDetection",
+        {   "class_name"       : "FilterChangeDetection",
             "target_component" : "will_be_overwritten_by_casros_when_deployed",
             "type"             : "ACTIVE",
-            // exception filter specific fields
             "argument" : {
-                "input_signal" : "OverrunCount"
+                "input_signal" : "OverrunCount",
+                "event"        : "EVT_THREAD_OVERRUN_DETECTED"
             },
             "last_filter"      : true
         }

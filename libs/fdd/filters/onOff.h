@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jun 30, 2014
-// Last revision: Jun 30, 2014
+// Last revision: Jul 8, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -27,7 +27,6 @@ namespace SF {
    Input : x(t) (double scalar)
 
    Output: 1  if x(t) is different from x(t-1) and x(t) is non-zero
-           -1 if x(t) is different from x(t-1) and x(t) is zero
            0  otherwise
 
    If output is non-zero, i.e., change in the input is detected, an event associated
@@ -40,26 +39,21 @@ protected:
     // Filter should be instantiated with explicit arguments
     FilterOnOff();
 
+    void Initialize(void);
+
     //--------------------------------------------------
     //  Filter-specific parameters
     //--------------------------------------------------
     /*! Name of input signal */
     const std::string NameOfInputSignal;
 
-    /*! Local cache of the last value */
-    SignalElement::ScalarType LastValue;
+    // Local cache of the last value. Note the type is integer, not double.
+    int LastValue;
 
-    // Output when event is on.  Allocated by ConfigureFilter() via JSON
+    // Name of output event for event onset.  Defined by JSON.
     std::string EventNameOn;
+    // Name of output event for event offset.  Defined by JSON.
     std::string EventNameOff;
-
-    // Output when event becomes off
-
-    /*! If this filter is initialized */
-    bool Initialized;
-
-    /*! Initialize this filter */
-    void Initialize(void);
 
     //-------------------------------------------------- 
     //  Methods required by the base class
@@ -70,14 +64,13 @@ protected:
     void CleanupFilter(void);
 
 public:
-    //! Default constructor
+    //! Constructor
     FilterOnOff(const std::string &             targetComponentName,
                 const FilterBase::FilteringType monitoringType,
                 // below are filter-specific arguments
                 const std::string &             inputSignalName);
     //! Constructor using JSON
     FilterOnOff(const JSON::JSONVALUE & jsonNode);
-
     //! Destructor
     ~FilterOnOff();
 

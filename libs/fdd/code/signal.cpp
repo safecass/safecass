@@ -18,7 +18,7 @@ namespace SF {
 
 const SignalElement::HistoryBufferIndexType SignalElement::INVALID_HISTORY_BUFFER_INDEX = -1;
 
-SignalElement::SignalElement()
+SignalElement::SignalElement(void)
     : Name("NONAME"),
       Type(SCALAR),
       HistoryBuffer(0),
