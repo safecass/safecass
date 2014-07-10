@@ -109,8 +109,8 @@ void FilterOnOff::RunFilter(void)
         return;
 
     // Debug log if enabled
-    if (this->PrintDebugLog)
-        std::cout << *this << std::endl << std::flush;
+    //if (this->PrintDebugLog)
+    //    std::cout << *this << std::endl << std::flush;
 
     // Filtering algorithm: 
     // Output is 1 if the new input is different from the previous value and 
@@ -118,11 +118,13 @@ void FilterOnOff::RunFilter(void)
     //int newInput = (int) InputSignals[0]->GetPlaceholderScalar();
     double i = InputSignals[0]->GetPlaceholderScalar();
     int newInput = (int) i;
-    // MJTEMP {{
-    if (newInput != 0) {
-        SFLOG_ERROR << "FilterOnOff: new input: " << i << ", " << newInput << std::endl;
+
+    if (this->PrintDebugLog) {
+        if (newInput != 0)
+            std::cout << "FilterOnOff [ \"" << FilterTarget.ComponentName << "\":\""
+                << FilterTarget.InterfaceName << "\" ] : " << newInput << std::endl << std::flush;
     }
-    // }}
+
     if (newInput == LastValue) {
         OutputSignals[0]->SetPlaceholderScalar(0.0);
         return;
