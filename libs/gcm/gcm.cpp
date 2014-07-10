@@ -155,8 +155,8 @@ void GCM::ProcessEvent_ComponentApplication(const SF::State::TransitionType tran
 }
 
 void GCM::ProcessEvent_Interface(const std::string & interfaceName, 
-                                const GCM::InterfaceTypes interfaceType,
-                                const SF::State::TransitionType transition)
+                                 const GCM::InterfaceTypes interfaceType,
+                                 const SF::State::TransitionType transition)
 {
     InterfaceStateMachinesType::iterator it;
     if (interfaceType == PROVIDED_INTERFACE) {

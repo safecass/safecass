@@ -6,8 +6,8 @@
 //
 //------------------------------------------------------------------------
 //
-// Created on   : July 14, 2012
-// Last revision: June 25, 2014
+// Created on   : Jul 14, 2012
+// Last revision: Jul 10, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -40,18 +40,15 @@ public:
     typedef std::map<std::string, unsigned int> ComponentNameToIdMapType;
 
     // STATES: Container to manage the entire set of states of the current process
-    typedef std::map<unsigned int, GCM*> GCMMapType;
+    typedef std::map<unsigned int, GCM*> GCMMapType; // key: component id
     
-    // EVENTS 
-    // key: event name
-    typedef std::map<std::string, Event*> EventsType;
-    // key: component name
-    typedef std::map<std::string, EventsType*> EventMapType;
+    // EVENTS
+    typedef std::map<std::string, Event*> EventsType; // key: event name
+    typedef std::map<std::string, EventsType*> EventMapType; // key: component name
 
     // FILTERS
     typedef std::map<FilterBase::FilterIDType, FilterBase*> FiltersType;
-    // key: component name, value: filter container
-    typedef std::map<std::string, FiltersType*> FilterMapType;
+    typedef std::map<std::string, FiltersType*> FilterMapType; // key: component name
 
     // TODO: CONNECTIONS
     // - do this with graph
@@ -93,6 +90,8 @@ protected:
     FilterMapType MapFilter;
     // CONNECTIONS
     // TODO
+
+    GCM * GetGCMInstance(const std::string & componentName) const;
 
 protected:
     // Don't allow to create this object without its name

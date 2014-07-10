@@ -13,9 +13,6 @@
 //
 // This class implements the Generic Component Model (GCM).
 //
-// Reference:
-// TODO: add SafeComp14 paper
-//
 #ifndef _gcm_h
 #define _gcm_h
 
@@ -29,6 +26,8 @@ namespace SF {
 
 class SFLIB_EXPORT GCM
 {
+    friend class Coordinator;
+
 public:
     /*! Typedef for component state views */
     typedef enum { SYSTEM_VIEW, FRAMEWORK_VIEW, APPLICATION_VIEW } ComponentStateViews;

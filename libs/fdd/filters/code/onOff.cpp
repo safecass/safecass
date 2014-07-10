@@ -115,7 +115,14 @@ void FilterOnOff::RunFilter(void)
     // Filtering algorithm: 
     // Output is 1 if the new input is different from the previous value and 
     // the input is non-zero (edge-trigerred).  Otherwise, output is zero.
-    int newInput = (int) InputSignals[0]->GetPlaceholderScalar();
+    //int newInput = (int) InputSignals[0]->GetPlaceholderScalar();
+    double i = InputSignals[0]->GetPlaceholderScalar();
+    int newInput = (int) i;
+    // MJTEMP {{
+    if (newInput != 0) {
+        SFLOG_ERROR << "FilterOnOff: new input: " << i << ", " << newInput << std::endl;
+    }
+    // }}
     if (newInput == LastValue) {
         OutputSignals[0]->SetPlaceholderScalar(0.0);
         return;
@@ -159,17 +166,16 @@ void FilterOnOff::ToStream(std::ostream & outputStream) const
 
 const std::string FilterOnOff::GenerateEventInfo(EVENT_TYPE eventType) const
 {
-    // TODO: define event JSON spec
     JSON json;
     JSON::JSONVALUE & root = json.GetRoot();
     root["event"]["name"] = ((eventType == FilterOnOff::ONSET) ? EventNameOn : EventNameOff);
-    /*
     // TODO: integrate boost time/date library
-    root["event"]["timestamp"] = 1234.5678;
-    root["event"]["location"]["component"] = NameOfTargetComponent;
-    root["event"]["location"]["component"] = NameOfTargetComponent;
-    */
+    root["event"]["timestamp"] = 1234.5678; // TEMP
+    root["event"]["target"]["type"]      = this->FilterTarget.StateMachineType;
+    root["event"]["target"]["component"] = this->FilterTarget.ComponentName;
+    root["event"]["target"]["interface"] = this->FilterTarget.InterfaceName;
+    root["event"]["severity"] = 255; // TEMP
+    root["event"]["fuid"] = this->UID;
 
     return JSON::GetJSONString(root);
 }
-

@@ -20,12 +20,12 @@
 // dependable and secure computing. IEEE Trans. on Dependable and Secure Computing, 1:11–33, 
 // Jan. 2004.
 //
-// TODO: SafeComp14 (if accepted)
-//
 #ifndef _state_h
 #define _state_h
 
 #include "common.h"
+
+#define TOTAL_NUMBER_OF_STATES 3
 
 namespace SF {
 
@@ -82,7 +82,9 @@ public:
         WARNING_TO_ERROR,
         ERROR_TO_WARNING,
         // total number of state transitions
-        NUMBER_OF_TRANSITIONS
+        NUMBER_OF_TRANSITIONS,
+        // invalid transition
+        INVALID_TRANSITION
     } TransitionType;
 
     // State machine types
@@ -134,6 +136,7 @@ public:
     static const std::string GetString(StateEntryExitType type);
     static const std::string GetString(TransitionType type);
 };
+
 
 }; // SF
 

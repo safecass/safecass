@@ -553,23 +553,98 @@ bool Coordinator::FindEvent(const std::string & eventName) const
 
 bool Coordinator::OnEvent(const std::string & event)
 {
-    _PROBE << "event: " << event << std::endl;
-#if 0
-    // check if event is registered
-    const Event * e = GetEvent(eventName);
-    if (!e) {
-        SFLOG_ERROR << "Coordinator: event \"" << eventName << "\" is not registered" << std::endl;
+    // Construct JSON instance from JSON-encoded string
+    JSON json;
+    if (!json.Read(event.c_str())) {
+        SFLOG_ERROR << "Coordinator::OnEvent: Failed to read json string: " << event << std::endl;
         return false;
     }
 
-    // TODO: if registered, update ALL state machines
-    // TODO: Propagate state changes/events to connected components
+    const JSON::JSONVALUE & jsonEvent = json.GetRoot()["event"];
 
-    //SFLOG_DEBUG << "Coordinator received event \"" << eventName << "\" : "
-    //            << *GetEvent(eventName) << std::endl;
+    const FilterBase::FilterIDType fuid = JSON::GetSafeValueUInt(jsonEvent, "fuid");
+    const unsigned int severity         = JSON::GetSafeValueUInt(jsonEvent, "severity");
+    const std::string eventName         = JSON::GetSafeValueString(jsonEvent, "name");
+    const TimestampType timestamp       = JSON::GetSafeValueDouble(jsonEvent, "timestamp");
 
-    return OnEventHandler(e);
+    const State::StateMachineType targetStateMachineType = 
+        static_cast<State::StateMachineType>(JSON::GetSafeValueUInt(jsonEvent["target"], "type"));
+    const std::string targetComponentName = JSON::GetSafeValueString(jsonEvent["target"], "component");
+    const std::string targetInterfaceName = JSON::GetSafeValueString(jsonEvent["target"], "interface");
+
+#if _VERBOSE
+    SFLOG_ERROR << "fuid: " << fuid << std::endl
+                << "severity: " << severity << std::endl
+                << "name: " << eventName << std::endl
+                << "timestamp: " << timestamp << std::endl
+                << "targetStateMachineType: " << targetStateMachineType << std::endl
+                << "targetComponentName: " << targetComponentName << std::endl
+                << "targetInterfaceName: " << targetInterfaceName << std::endl;
 #endif
-    return true;
+
+    // check if event is registered
+    const Event * e = GetEvent(eventName);
+    if (!e) {
+        SFLOG_ERROR << "OnEvent: event \"" << eventName << "\" is not registered" << std::endl;
+        return false;
+    }
+
+    // Get state machine associated with the event, determine necessary transition 
+    // based on the current state of the state machine. This state change may have
+    // impact on other states.
+
+    // Get state machine associated with the event
+    GCM * gcm = GetGCMInstance(targetComponentName);
+    StateMachine * sm = 0;
+    GCM::InterfaceStateMachinesType::const_iterator it;
+    switch (targetStateMachineType) {
+    case State::STATEMACHINE_FRAMEWORK:
+        sm = gcm->States.ComponentFramework;
+        break;
+    case State::STATEMACHINE_APP:
+        sm = gcm->States.ComponentApplication;
+        break;
+    case State::STATEMACHINE_PROVIDED:
+        it = gcm->States.ProvidedInterfaces.find(targetInterfaceName);
+        if (it != gcm->States.ProvidedInterfaces.end())
+            sm = it->second;
+        break;
+    case State::STATEMACHINE_REQUIRED:
+        it = gcm->States.RequiredInterfaces.find(targetInterfaceName);
+        if (it != gcm->States.RequiredInterfaces.end())
+            sm = it->second;
+        break;
+    case State::STATEMACHINE_INVALID:
+        SFLOG_ERROR << "OnEvent: event \"" << eventName << "\" has no valid state machine information." << std::endl;
+        return false;
+    }
+
+    // Get current state
+    const State::StateType currentState = sm->GetCurrentState();
+    // Look for possible transitions from the current state
+    const State::TransitionType transition = e->GetTransition(currentState);
+
+    // Get transition associated with the event
+    // NOTE: This assumes that an event can define only one state transition because
+    // this makes things simpler and easier to handle.  However, if an event can have
+    // more than one event associated with the event, we need to figure out which
+    // transition should be chosen.
+    sm->ProcessEvent(transition);
+
+    //
+    // TODO: Propagate state changes/events to connected components
+    //
+
+    // Call event hook for middleware
+    return OnEventHandler(e);
+}
+
+GCM * Coordinator::GetGCMInstance(const std::string & componentName) const
+{
+    Coordinator::GCMMapType::const_iterator it = MapGCM.find(GetComponentId(componentName));
+    if (it == MapGCM.end())
+        return 0;
+    else
+        return it->second;
 }
 

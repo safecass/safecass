@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Jul 9, 2014
+// Last revision: Jul 10, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -18,11 +18,61 @@ using namespace SF;
 Event::Event(const std::string     & name,
              unsigned int            severity,
              const TransitionsType & transitions)
-             //State::StateMachineType smType,
-             //const std::string     & smTypeId)
     : Name(name), Severity(severity), Transitions(transitions)
-      //SMType(smType), SMTypeId(smTypeId)
 {
+    memset(TransitionMask, 0, TOTAL_NUMBER_OF_STATES * TOTAL_NUMBER_OF_STATES);
+#define N 0
+#define W 1
+#define E 2
+    // Counters to check if this event has multiple next states for one current state
+    int fromN = 0, fromW = 0, fromE = 0;
+    for (size_t i = 0; i < Transitions.size(); ++i) {
+        switch (Transitions[i]) {
+        case State::NORMAL_TO_WARNING: TransitionMask[N][W] = true; ++fromN; break;
+        case State::NORMAL_TO_ERROR  : TransitionMask[N][E] = true; ++fromN; break;
+        case State::WARNING_TO_NORMAL: TransitionMask[W][N] = true; ++fromW; break;
+        case State::WARNING_TO_ERROR : TransitionMask[W][E] = true; ++fromW; break;
+        case State::ERROR_TO_WARNING : TransitionMask[E][W] = true; ++fromE; break;
+        case State::ERROR_TO_NORMAL  : TransitionMask[E][N] = true; ++fromE; break;
+        default: continue;
+        }
+    }
+    if (fromN >= 2 || fromW >= 2 || fromE >= 2) {
+        SFLOG_ERROR << "Event transition error: event \"" << Name << "\" has multiple next states" << std::endl;
+        SFLOG_ERROR << (int) TransitionMask[N][N] << " " << (int) TransitionMask[N][W] << " " << (int) TransitionMask[N][E] << std::endl;
+        SFLOG_ERROR << (int) TransitionMask[W][N] << " " << (int) TransitionMask[W][W] << " " << (int) TransitionMask[W][E] << std::endl;
+        SFLOG_ERROR << (int) TransitionMask[E][N] << " " << (int) TransitionMask[E][W] << " " << (int) TransitionMask[E][E] << std::endl;
+        throw("Event error");
+    }
+#undef N
+#undef W
+#undef E
+}
+
+State::TransitionType Event::GetTransition(State::StateType currentState) const
+{
+    switch (currentState) {
+    case State::NORMAL:
+        if (TransitionMask[State::NORMAL][State::WARNING])
+            return State::NORMAL_TO_WARNING;
+        else if (TransitionMask[State::NORMAL][State::ERROR])
+            return State::NORMAL_TO_ERROR;
+        break;
+    case State::WARNING:
+        if (TransitionMask[State::WARNING][State::NORMAL])
+            return State::WARNING_TO_NORMAL;
+        else if (TransitionMask[State::WARNING][State::ERROR])
+            return State::WARNING_TO_ERROR;
+        break;
+    case State::ERROR:
+        if (TransitionMask[State::ERROR][State::NORMAL])
+            return State::ERROR_TO_NORMAL;
+        else if (TransitionMask[State::ERROR][State::WARNING])
+            return State::ERROR_TO_WARNING;
+        break;
+    default:
+        return State::INVALID_TRANSITION;
+    }
 }
 
 void Event::ToStream(std::ostream & os) const
@@ -41,114 +91,4 @@ void Event::ToStream(std::ostream & os) const
         }
     }
     os << "], ";
-
-    /*
-    switch (SMType) {
-    case State::STATEMACHINE_FRAMEWORK: os << "s_F"; break;
-    case State::STATEMACHINE_APP:       os << "s_A"; break;
-    case State::STATEMACHINE_PROVIDED:  os << "s_P"; break;
-    case State::STATEMACHINE_REQUIRED:  os << "s_R"; break;
-    default:                            os << "INVALID"; break;
-    }
-
-    if (SMTypeId.size())
-        os << ", Id: \"" << SMTypeId << "\"";
-    */
 }
-
-#if 0 // obsolete implementation
-#include "event.h"
-#include "utils.h"
-
-namespace SF {
-
-Event::Event(void)
-    : Type(Event::INVALID), 
-      TypeFault(Event::FAULT_INVALID), 
-      TypeError(Event::ERROR_INVALID), 
-      TypeFailure(Event::FAILURE_INVALID), 
-      Name("undefined"), Location(0), Timestamp(0)
-{}
-
-Event::Event(EventType           type, 
-             FaultType           typeFault,
-             const std::string & name,
-             EventLocationBase * location,
-             double              timestamp)
-    : Type(type),
-      TypeError(Event::ERROR_INVALID), 
-      TypeFault(typeFault), 
-      TypeFailure(Event::FAILURE_INVALID), 
-      Name(name), Location(location), Timestamp(timestamp)
-{}
-
-Event::Event(EventType           type, 
-             ErrorType           typeError,
-             const std::string & name,
-             EventLocationBase * location,
-             double              timestamp)
-    : Type(type),
-      TypeError(typeError), 
-      TypeFault(Event::FAULT_INVALID), 
-      TypeFailure(Event::FAILURE_INVALID), 
-      Name(name), Location(location), Timestamp(timestamp)
-{}
-
-Event::Event(EventType           type, 
-             FailureType         typeFailure,
-             const std::string & name,
-             EventLocationBase * location,
-             double              timestamp)
-    : Type(type), 
-      TypeFault(Event::FAULT_INVALID), 
-      TypeError(Event::ERROR_INVALID), 
-      TypeFailure(typeFailure), 
-      Name(name), Location(location), Timestamp(timestamp)
-{}
-
-const std::string Event::GetEventTypeString(EventType event)
-{
-    switch (event) {
-        case FAULT:   return STR(FAULT);
-        case ERROR:   return STR(ERROR);
-        case FAILURE: return STR(FAILURE);
-        default:      return STR(INVALID);
-    }
-}
-
-const std::string Event::GetFaultTypeString(FaultType fault)
-{
-    switch (fault) {
-        case FAULT_COMPONENT_PERIOD:  return STR(COMPONENT_PERIOD);
-        case FAULT_COMPONENT_OVERRUN: return STR(COMPONENT_OVERRUN);
-        case FAULT_APPLICATION:       return STR(APPLICATION);
-        default:                      return STR(INVALID);
-    }
-}
-
-Event::EventType Event::GetEventTypeFromString(const std::string & str)
-{
-    std::string _str(str);
-    to_uppercase(_str);
-
-    if (_str.compare(STR(FAULT)) == 0)   return FAULT;
-    if (_str.compare(STR(ERROR)) == 0)   return ERROR;
-    if (_str.compare(STR(FAILURE)) == 0) return FAILURE;
-
-    return INVALID;
-}
-
-Event::FaultType Event::GetFaultTypeFromString(const std::string & str)
-{
-    std::string _str(str);
-    to_uppercase(_str);
-
-    if (_str.compare(STR(COMPONENT_PERIOD)) == 0)  return FAULT_COMPONENT_PERIOD;
-    if (_str.compare(STR(COMPONENT_OVERRUN)) == 0) return FAULT_COMPONENT_OVERRUN;
-    if (_str.compare(STR(APPLICATION)) == 0)       return FAULT_APPLICATION;
-
-    return FAULT_INVALID;
-}
-
-};
-#endif

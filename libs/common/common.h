@@ -93,9 +93,9 @@ std::string GetCISSTInfo(void);
   #if SF_HAS_CISST
     #define SFLOG_INFO    CMN_LOG_RUN_VERBOSE
     #define SFLOG_DEBUG   CMN_LOG_RUN_DEBUG
-    #define SFLOG_WARNING CMN_LOG_RUN_WARNING
-    #define SFLOG_ERROR   CMN_LOG_RUN_ERROR
-    #define SFLOG_FATAL   CMN_LOG_INIT_ERROR
+    #define SFLOG_WARNING CMN_LOG_RUN_WARNING << __FILE__ << ":" << __LINE__ << " "
+    #define SFLOG_ERROR   CMN_LOG_RUN_ERROR << __FILE__ << ":" << __LINE__ << " "
+    #define SFLOG_FATAL   CMN_LOG_INIT_ERROR << __FILE__ << ":" << __LINE__ << " "
   #else
     #define SFLOG_INFO    std::cout << "INFO   : "
     #define SFLOG_DEBUG   std::cout << "DEBUG  : "

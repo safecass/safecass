@@ -32,6 +32,7 @@
             //
             // TODO: define and implement severity context; not used for now
             //"severity"        : 255,
+            // Each event can define ONLY ONE transition.
             "state_transition": [ "N2E" ]
         },
         {   "name"            : "/EVT_THREAD_EXCEPTION",
