@@ -29,6 +29,11 @@ supervisorQtComponent::supervisorQtComponent(const std::string & componentName):
     QUrl startURL = QUrl(url.str().c_str());
     supervisorWidget.webViewMonitor->setUrl(startURL);
 
+    url.str("");
+    url << "file://" << SF_SOURCE_ROOT_DIR << "/programs/supervisor/Qt/html/states.html";
+    startURL = QUrl(url.str().c_str());
+    supervisorWidget.webViewMonitorState->setUrl(startURL);
+
     MainWindow.setCentralWidget(&CentralWidget);
     MainWindow.setWindowTitle(QString::fromStdString(componentName));
     MainWindow.show();
