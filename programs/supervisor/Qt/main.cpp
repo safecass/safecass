@@ -17,12 +17,18 @@ int main(int argc, char *argv[])
     // create a Qt user interface
     QApplication application(argc, argv);
 
+    // Get local component manager instance
+    mtsManagerLocal::InstallSafetyCoordinator();
+    mtsManagerLocal * componentManager;
+    try {
+        componentManager = mtsManagerLocal::GetInstance();
+    } catch (...) {
+        CMN_LOG_INIT_ERROR << "Failed to initialize local component manager" << std::endl;
+        return 1;
+    }
+
     // create the components with their respective UIs
     supervisorQtComponent * supervisor = new supervisorQtComponent("supervisor");
-
-    // add the components to the component manager
-    mtsComponentManager::InstallSafetyCoordinator();
-    mtsComponentManager * componentManager = mtsComponentManager::GetInstance();
     componentManager->AddComponent(supervisor);
 
     // connect the components, e.g. RequiredInterface -> ProvidedInterface
@@ -45,7 +51,7 @@ int main(int argc, char *argv[])
     // kill all components and perform cleanup
     componentManager->KillAll();
     componentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
-
     componentManager->Cleanup();
+
     return 0;
 }

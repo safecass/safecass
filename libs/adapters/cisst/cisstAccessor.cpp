@@ -75,16 +75,18 @@ cisstAccessor::~cisstAccessor()
 {
     StopSubscriber();
 
-    if (Publishers.Control)
-        delete Publishers.Control;
-    if (Publishers.Data)
-        delete Publishers.Data;
+#define DELETE_INSTANCE(_obj)\
+    if (_obj) {\
+        delete _obj;\
+        _obj = 0;\
+    }
+
+    DELETE_INSTANCE(Publishers.Control);
+    DELETE_INSTANCE(Publishers.Data);
 
     // SubscriberCallback is deleted by Subscriber's destructor.
-    if (Subscribers.Control)
-        delete Subscribers.Control;
-    if (Subscribers.Data)
-        delete Subscribers.Data;
+    DELETE_INSTANCE(Subscribers.Control);
+    DELETE_INSTANCE(Subscribers.Data);
 }
 
 void * cisstAccessor::StartSubscriber(unsigned int idx)

@@ -623,17 +623,10 @@ bool Coordinator::OnEvent(const std::string & event)
     const State::StateType currentState = sm->GetCurrentState();
     // Look for possible transitions from the current state
     const State::TransitionType transition = e->GetTransition(currentState);
-
-    // Get transition associated with the event
-    // NOTE: This assumes that an event can define only one state transition because
-    // this makes things simpler and easier to handle.  However, if an event can have
-    // more than one event associated with the event, we need to figure out which
-    // transition should be chosen.
+    // Make transition
     sm->ProcessEvent(transition);
 
-    //
     // TODO: Propagate state changes/events to connected components
-    //
 
     // Call event hook for middleware
     return OnEventHandler(e);
