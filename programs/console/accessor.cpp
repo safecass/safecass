@@ -59,7 +59,7 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
         break;
     }
 
-    SFLOG_INFO << "[ topic: " << TopicName << ", category: " << categoryName << " ] received: " << json << std::endl;
+    SFLOG_INFO << "[ topic: " << TopicName << ", category: " << categoryName << " ] received " << std::endl;
 
     std::cout << json << std::endl;
 }
