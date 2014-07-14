@@ -7,7 +7,7 @@
 #include <QObject>
 
 #include "ui_viewerQtWidget.h"
-#include "jsCppBridge.h"
+#include "QtJsBridge/jsCppBridge.h"
 
 class viewerQtComponent : public QObject, public mtsComponent
 {
