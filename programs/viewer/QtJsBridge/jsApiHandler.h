@@ -29,7 +29,8 @@ public slots:
 
 public slots:
     QString OnEvent(const QString & json);
+    QString GetStateJSON(void);
 
 public:
-    void JSAlert(const QString & json);
+    void UpdateJSONState(const QString & json);
 };

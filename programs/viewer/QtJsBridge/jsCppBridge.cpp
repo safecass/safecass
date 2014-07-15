@@ -30,11 +30,11 @@ QJsCppBridge::QJsCppBridge(QWebFrame * webFrame): WebFrame(webFrame)
 
     JsApiHandler = new QJsApiHandler;
     JsApiProxy   = new QJsApiProxy(WebFrame);
+    //StateJSON    = new QJsCppBridge::QObjectString;
 }
 
 QJsCppBridge::~QJsCppBridge()
 {
-    WebFrame = 0;
     if (JsApiHandler) {
         delete JsApiHandler;
         JsApiHandler = 0;
@@ -49,8 +49,9 @@ QJsCppBridge::~QJsCppBridge()
 // It can be used as var result = jsHandler.onEvent("parameter data");
 void QJsCppBridge::bridge_javascriptWindowObjectCleared()
 {
-    if (WebFrame)
+    if (WebFrame) {
         WebFrame->addToJavaScriptWindowObject("jsHandler", JsApiHandler);
+    }
 }
 
 void QJsCppBridge::bridge_loadFinished(bool b)
@@ -60,8 +61,17 @@ void QJsCppBridge::bridge_loadFinished(bool b)
         qDebug() << "QJsCppBridge::bridge_loadFinished - call";
         QString result = JsApiProxy->OnEvent("Initialization completes!");
         qDebug() << result;
-
-        std::cout << "abcdefg\n";
-        JsApiHandler->JSAlert("abcdefg");
     }
 }
+
+/*void QJsCppBridge::SetStateJSON(const std::string & json)*/
+//{
+    //StateJSON->
+//}
+
+////
+////
+////
+//void QJsCppBridge::QObjectString::SetString(const std::string & str)
+//{
+/*}*/

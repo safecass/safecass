@@ -23,8 +23,8 @@ QJsApiProxy::QJsApiProxy(QWebFrame * webFrame): WebFrame(webFrame)
 QString QJsApiProxy::OnEvent(const QString & para)
 {
     if (WebFrame) {
-        //static QString functionSignature = "onEventStub(%1)";
-        static QString functionSignature = "alert('%1')";
+        static QString functionSignature = "onEventStub(%1)";
+        //static QString functionSignature = "alert('%1')";
         QString functionInvoke = functionSignature.arg(para);
         QVariant result = WebFrame->evaluateJavaScript(functionInvoke);
         qDebug() << "QJsApiProxy: " << functionInvoke;
