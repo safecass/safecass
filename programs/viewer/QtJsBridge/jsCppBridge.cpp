@@ -30,7 +30,8 @@ QJsCppBridge::QJsCppBridge(QWebFrame * webFrame): WebFrame(webFrame)
 
     JsApiHandler = new QJsApiHandler;
     JsApiProxy   = new QJsApiProxy(WebFrame);
-    //StateJSON    = new QJsCppBridge::QObjectString;
+
+    QJsApiHandler::SetInstance(JsApiHandler);
 }
 
 QJsCppBridge::~QJsCppBridge()

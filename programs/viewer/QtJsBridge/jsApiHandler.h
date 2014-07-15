@@ -14,6 +14,7 @@
 #pragma once
 
 #include <QObject>
+#include <string>
 
 class QJsApiHandler: public QObject
 {
@@ -22,7 +23,7 @@ class QJsApiHandler: public QObject
 signals:
     void Success(QString json);
     void Error(QString json);
-    void Update(QString json);
+    void Refresh(void);
 
 public slots:
     void Request(QString json);
@@ -32,5 +33,6 @@ public slots:
     QString GetStateJSON(void);
 
 public:
-    void UpdateJSONState(const QString & json);
+    static void SetInstance(QJsApiHandler * instance);
+    static void UpdateJSONState(const std::string & json);
 };

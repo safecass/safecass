@@ -229,6 +229,10 @@ function brightness(rgb) {
     //location.reload(true);
   }
 
+  function Refresh() {
+    location.reload();
+  }
+
   function onEventStub(para) {
     alert('onEventStub: ' + para);
     //ShowResult(para);
@@ -240,7 +244,7 @@ function brightness(rgb) {
       alert('no jsHandler found');
       return;
     } else {
-      jsHandler.Update.connect(updateStateJSON);
+      jsHandler.Refresh.connect(Refresh);
     }
   }
 </script>

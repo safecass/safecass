@@ -12,6 +12,7 @@
 // Github       : https://github.com/minyang/casros
 //
 #include "accessor.h"
+#include "QtJsBridge/jsApiHandler.h"
 
 #include <iomanip>
 
@@ -127,7 +128,7 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
             {
                 outInterfaceProvidedRoot["name"] = "s_A Provided";
                 // TODO: calculate state product to decide state color code ("s_P")
-                outInterfaceProvidedRoot["color"] = "cyan"; // TODO
+                outInterfaceProvidedRoot["color"] = "yellow"; // TODO
 
                 // for each interface
                 const JSON::JSONVALUE inPrvInterfaces = inComponent["s_P"];
@@ -184,10 +185,9 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
 
     // get json-encoded string for state viewer
     const std::string outJson = SF::JSON::GetJSONString(root);
-    //std::cout << outJson << std::endl;
 
-    // pass outJson to JS
-    // refresh
+    // refresh state chart
+    QJsApiHandler::UpdateJSONState(outJson);
 }
 
 //
