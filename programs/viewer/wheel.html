@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>Coffee Flavour Wheel</title>
+<title>System State Viewer</title>
 <meta name="description" content="A visualisation of coffee flavours.">
 <style>
 @import url(style.css);
@@ -31,10 +31,62 @@ p#intro {
 }
 </style>
 
+<script type="text/javascript">
+  bCallEvent = true;
+  function DoSearch(id) {
+    alert('DoSearch called: ' + id);
+    //var para = document.getElementById(id).value;
+    if (typeof jsHandler != 'undefined') {
+      if (bCallEvent) {
+        var ret = jsHandler.OnEvent('33333');//para);
+        ShowResult(ret);
+      }
+      else {
+        jsHandler.Success.connect(ShowResult);
+        //jsHandler.Request.connect(para);
+        alert('jsHandler connect');
+      }
+    }
+    else {
+      ShowResult("ERROR: No JS Handler.");
+    }
+    bCallEvent = !bCallEvent;
+  }
+
+  function ShowResult(para) {
+    alert('C++ called: ' + para);
+  }
+
+  function myShowResult(arg) {
+    alert('myShowResult: ' + arg);
+  }
+
+  function onEventStub(para) {
+    alert('onEventStub: ' + para);
+    //ShowResult(para);
+    return "3";//para + "- JS";
+  }
+
+  function connect_qt() {
+    if (typeof jsHandler == 'undefined') {
+      alert('no jsHandler found');
+      return;
+    }
+    jsHandler.Update.connect(myShowResult);
+    //jsHandler.Request.connect(para);
+    alert('connect_qt');
+  }
+</script>
+
+<body onload='connect_qt()'>
+  <button onclick='DoSearch(123);' style='height:30px; width:200px;'>DoSearch</button>
+</body>
+
 <h1>System State Viewer</h1>
 <div id="vis"><img src="full.png"></div>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
+
 var width = 640,
     height = width,
     radius = width / 2,
@@ -145,7 +197,6 @@ function isParentOf(p, c) {
 }
 
 function color(d) {
-  /*
   if (d.children) {
     // There is a maximum of two children!
     var colors = d.children.map(color),
@@ -154,7 +205,6 @@ function color(d) {
     // L*a*b* might be better here...
     return d3.hsl((a.h + b.h) / 2, a.s * 1.2, a.l / 1.2);
   }
-  */
   return d.color || "#fff";
 }
 
@@ -182,38 +232,3 @@ function brightness(rgb) {
 <script>
   if (top != self) top.location.replace(location);
 </script>
-
-<script type="text/javascript">// <![CDATA[
-  bCallEvent = true;
-  function DoSearch(id) {
-    //var para = document.getElementById(id).value;
-    if (typeof jsHandler != 'undefined') {
-      if (bCallEvent) {
-        var ret = jsHandler.OnEvent('33333');//para);
-        ShowResult(ret);
-      }
-      else {
-        jsHandler.Success.connect(ShowResult);
-        jsHandler.Request(para);
-      }
-    }
-    else {
-      ShowResult("ERROR: No JS Handler.");
-    }
-    bCallEvent = !bCallEvent;
-  }
-
-  function onEventStub(para) {
-    alert('onEventStub: ' + para);
-    //ShowResult(para);
-    return "OK";
-  }
-
-  function ShowResult(para) {
-    alert('C++ called: ' + para);
-  }
-// ]]></script>
-
-<button onclick='DoSearch();' style='height:30px; width:200px;'>DoSearch</button>
-
-

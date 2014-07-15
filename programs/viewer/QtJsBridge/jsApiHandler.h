@@ -22,10 +22,14 @@ class QJsApiHandler: public QObject
 signals:
     void Success(QString json);
     void Error(QString json);
+    void Update(QString json);
 
 public slots:
     void Request(QString json);
 
 public slots:
     QString OnEvent(const QString & json);
+
+public:
+    void JSAlert(const QString & json);
 };

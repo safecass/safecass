@@ -12,6 +12,8 @@
 // Github       : https://github.com/minyang/casros
 //
 #include <QtWebKit/QWebFrame>
+#include <QDebug>
+#include <iostream>
 #include "jsCppBridge.h"
 #include "jsApiHandler.h"
 #include "JsApiProxy.h"
@@ -53,7 +55,13 @@ void QJsCppBridge::bridge_javascriptWindowObjectCleared()
 
 void QJsCppBridge::bridge_loadFinished(bool b)
 {
+    qDebug() << "QJsCppBridge::bridge_loadFinished: " << (int)b;
     if (JsApiProxy) {
+        qDebug() << "QJsCppBridge::bridge_loadFinished - call";
         QString result = JsApiProxy->OnEvent("Initialization completes!");
+        qDebug() << result;
+
+        std::cout << "abcdefg\n";
+        JsApiHandler->JSAlert("abcdefg");
     }
 }

@@ -30,7 +30,8 @@ public slots:
     void bridge_javascriptWindowObjectCleared();
     void bridge_loadFinished(bool b);
 
-private:
+//private:
+public:
     QWebFrame     * WebFrame;
     QJsApiHandler * JsApiHandler;
     QJsApiProxy   * JsApiProxy;

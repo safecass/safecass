@@ -20,6 +20,11 @@ void QJsApiHandler::Request(QString json)
     emit Success(result);
 }
 
+void QJsApiHandler::JSAlert(const QString & json)
+{
+    emit Update(json);
+}
+
 QString QJsApiHandler::OnEvent(const QString & json)
 {
     return "OK from C++, " + json;

@@ -123,6 +123,7 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
             // outputs for provided interface
             SF::JSON outInterfaceProvided;
             SF::JSON::JSONVALUE & outInterfaceProvidedRoot = outInterfaceProvided.GetRoot();
+            size_t cntProvided = 0;
             {
                 outInterfaceProvidedRoot["name"] = "s_A Provided";
                 // TODO: calculate state product to decide state color code ("s_P")
@@ -130,7 +131,8 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
 
                 // for each interface
                 const JSON::JSONVALUE inPrvInterfaces = inComponent["s_P"];
-                for (size_t k = 0; k < inPrvInterfaces.size(); ++k) {
+                cntProvided = inPrvInterfaces.size();
+                for (size_t k = 0; k < cntProvided; ++k) {
                     // input for provided interface
                     const JSON::JSONVALUE inPrvInterface = inPrvInterfaces[k];
                     // output for provided interface
@@ -144,11 +146,13 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
                     outInterfaceProvidedRoot["children"][k] = outInterfaceProvidedEachRoot;
                 }
             }
-            outComponentRoot["children"][j++] = outInterfaceProvidedRoot;
+            if (cntProvided)
+                outComponentRoot["children"][j++] = outInterfaceProvidedRoot;
 
             // outputs for required interface
             SF::JSON outInterfaceRequired;
             SF::JSON::JSONVALUE & outInterfaceRequiredRoot = outInterfaceRequired.GetRoot();
+            size_t cntRequired = 0;
             {
                 outInterfaceRequiredRoot["name"] = "s_A Required";
                 // TODO: calculate state product to decide state color code ("s_R")
@@ -156,7 +160,8 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
 
                 // for each interface
                 const JSON::JSONVALUE inReqInterfaces = inComponent["s_R"];
-                for (size_t k = 0; k < inReqInterfaces.size(); ++k) {
+                cntRequired = inReqInterfaces.size();
+                for (size_t k = 0; k < cntRequired; ++k) {
                     // input for provided interface
                     const JSON::JSONVALUE inReqInterface = inReqInterfaces[k];
                     // output for provided interface
@@ -170,18 +175,19 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
                     outInterfaceRequiredRoot["children"][k] = outInterfaceRequiredEachRoot;
                 }
             }
-            outComponentRoot["children"][j++] = outInterfaceRequiredRoot;
+            if (cntRequired)
+                outComponentRoot["children"][j++] = outInterfaceRequiredRoot;
         }
         outSCroot["children"][i] = outComponentRoot;
     }
     root[cntSafetyCoordinator++] = outSCroot;
 
-    // pass c++ object to javascript var: QtWebKit Bridge
-    // http://qt-project.org/doc/qt-4.8/qtwebkit-bridge.html
-    
-    // d3 data read from javascript object: doable!
+    // get json-encoded string for state viewer
+    const std::string outJson = SF::JSON::GetJSONString(root);
+    //std::cout << outJson << std::endl;
 
-    // TODO: redraw
+    // pass outJson to JS
+    // refresh
 }
 
 //

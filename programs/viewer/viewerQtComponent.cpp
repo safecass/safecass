@@ -2,7 +2,8 @@
 #include <cisstMultiTask/mtsInterfaceRequired.h>
 
 #include "config.h"
-#include "QtJsBridge/jsCppBridge.h"
+#include "QtJsBridge/JsApiProxy.h"
+#include "QtJsBridge/JsApiHandler.h"
 
 #include <QUrl>
 #include <QWebFrame>
@@ -39,8 +40,8 @@ viewerQtComponent::viewerQtComponent(const std::string & componentName):
     MainWindow.setWindowTitle(QString::fromStdString(componentName));
     MainWindow.show();
 
-    frame->evaluateJavaScript("alert('test');");
-    //Bridge->JsApiProxy->OnEvent("aaa bbb cc dd");
+    //Bridge->JsApiProxy->Success();
+    //frame->evaluateJavaScript("ShowResult('viewerQtComponent');");
 
     /*
     // trigger void command

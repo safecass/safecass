@@ -165,21 +165,14 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
     const GCMMapType::const_iterator itEnd = MapGCM.end();
 
     bool allComponents = (componentName.compare("*") == 0);
-    if (allComponents) {
+    //if (allComponents) {
         // header
         ss << "\"safety_coordinator\": \"" << Name << "\", ";
-        ss << "\"cmd\": \"state_list\",";
+        ss << "\"cmd\": \"state_list\", ";
+   // }
 
-        // component list
-        ss << "\"components\": [ ";
-        it = MapGCM.begin();
-        for (; it != itEnd; ++it) {
-            if (it != MapGCM.begin())
-                ss << ", ";
-            ss << "\"" << it->second->GetComponentName() << "\"";
-        }
-        ss << " ], ";
-    }
+    // component list
+    ss << "\"components\": [ ";
 
     // individual component
     bool first = true;
@@ -193,14 +186,14 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         if (!first)
             ss << ", ";
         // component name and component states
-        if (allComponents)
-            ss << "\n";
+        //if (allComponents)
+            //ss << "\n";
 
         // MJTODO: replace this manual build-up with SF::JSON
-        ss << "\"" << it->second->GetComponentName() << "\": { "
-              "\"s\": " << static_cast<int>(gcm->GetComponentState(GCM::SYSTEM_VIEW)) << ", "
-              "\"s_F\": " << static_cast<int>(gcm->GetComponentState(GCM::FRAMEWORK_VIEW)) << ", "
-              "\"s_A\": " << static_cast<int>(gcm->GetComponentState(GCM::APPLICATION_VIEW)) << ", ";
+        ss << "{ \"name\": \"" << it->second->GetComponentName() << "\", "
+           << "\"s\": " << static_cast<int>(gcm->GetComponentState(GCM::SYSTEM_VIEW)) << ", "
+           << "\"s_F\": " << static_cast<int>(gcm->GetComponentState(GCM::FRAMEWORK_VIEW)) << ", "
+           << "\"s_A\": " << static_cast<int>(gcm->GetComponentState(GCM::APPLICATION_VIEW)) << ", ";
         StrVecType names;
         // provided interface states
 #define GET_INTERFACE_STATE(_type, _key)\
@@ -210,8 +203,8 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         for (size_t i = 0; i < names.size(); ++i) {\
             if (i != 0)\
                 ss << ", ";\
-            ss << "{ \"" << names[i] << "\": ";\
-            ss << static_cast<int>(gcm->GetInterfaceState(names[i], _type));\
+            ss << "{ \"name\": \"" << names[i] << "\", ";\
+            ss << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], _type));\
             ss << " }";\
         }\
         ss << " ]";
@@ -223,7 +216,7 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
 
         first = false;
     }
-
+    ss << " ] ";
     ss << " }" << std::endl;
 
     return ss.str();
