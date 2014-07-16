@@ -7,13 +7,14 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Jun 25, 2014
+// Last revision: Jul 15, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "statemachine.h"
+#include "event.h"
 
-namespace SF {
+using namespace SF;
 
 StateMachine::StateMachine(void)
 {
@@ -48,10 +49,10 @@ StateMachine::StateMachine(const std::string & ownerName, StateEventHandler * ev
 
 void StateMachine::Initialize(const std::string & ownerName, StateEventHandler * eventHandler)
 {
+    PendingEvent = 0;
     OwnerName = ownerName;
 
     State.EventHandlerInstance = eventHandler;
-
     State.start();
 }
 
@@ -76,8 +77,29 @@ void StateMachine::SetStateEventHandler(StateEventHandler * instance)
     State.EventHandlerInstance = instance;
 }
 
-void StateMachine::ProcessEvent(const State::TransitionType transition)
+/*
+void StateMachine::SetPendingEvent(Event * e)
 {
+    PendingEvent = e;
+
+    SFLOG_INFO << "StateMachine::SetPendingEvent: set pending event: " << *e << std::endl;
+}
+
+void StateMachine::ClearPendingEvent(void)
+{
+    if (!PendingEvent)
+        return;
+
+    SFLOG_INFO << "StateMachine::SetPendingEvent: reset pending event: " << *PendingEvent << std::endl;
+
+    PendingEvent = 0;
+}
+*/
+
+void StateMachine::ProcessEvent(const State::TransitionType transition, const Event * event)
+{
+    SFASSERT(event);
+
     switch (transition) {
     case State::NORMAL_TO_WARNING: State.process_event(evt_N2W()); break;
     case State::NORMAL_TO_ERROR:   State.process_event(evt_N2E()); break;
@@ -139,7 +161,4 @@ std::string StateMachine::GetCounterStatus(void) const
 
     return ss.str();
 }
-
 #endif
-
-};

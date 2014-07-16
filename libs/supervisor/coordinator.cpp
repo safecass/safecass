@@ -586,40 +586,18 @@ bool Coordinator::OnEvent(const std::string & event)
     // based on the current state of the state machine. This state change may have
     // impact on other states.
 
-    // Get state machine associated with the event
+    // Process state transition and get json string that includes the changes
     GCM * gcm = GetGCMInstance(targetComponentName);
-    StateMachine * sm = 0;
-    GCM::InterfaceStateMachinesType::const_iterator it;
-    switch (targetStateMachineType) {
-    case State::STATEMACHINE_FRAMEWORK:
-        sm = gcm->States.ComponentFramework;
-        break;
-    case State::STATEMACHINE_APP:
-        sm = gcm->States.ComponentApplication;
-        break;
-    case State::STATEMACHINE_PROVIDED:
-        it = gcm->States.ProvidedInterfaces.find(targetInterfaceName);
-        if (it != gcm->States.ProvidedInterfaces.end())
-            sm = it->second;
-        break;
-    case State::STATEMACHINE_REQUIRED:
-        it = gcm->States.RequiredInterfaces.find(targetInterfaceName);
-        if (it != gcm->States.RequiredInterfaces.end())
-            sm = it->second;
-        break;
-    case State::STATEMACHINE_INVALID:
-        SFLOG_ERROR << "OnEvent: event \"" << eventName << "\" has no valid state machine information." << std::endl;
+    if (!gcm) {
+        SFLOG_ERROR << "OnEvent: no GCM instance found for component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
 
-    // Get current state
-    const State::StateType currentState = sm->GetCurrentState();
-    // Look for possible transitions from the current state
-    const State::TransitionType transition = e->GetTransition(currentState);
-    // Make transition
-    sm->ProcessEvent(transition);
+    const std::string jsonStateChange = 
+        gcm->ProcessStateTransition(targetStateMachineType, e, targetComponentName, targetInterfaceName);
 
-    // TODO: Propagate state changes/events to connected components
+    // TODO: propagate state changes/events to connected interfaces ("projected state")
+    // TODO: how to propagate service state changes to other processes? (should exploit connection information)
 
     // Call event hook for middleware
     return OnEventHandler(e);

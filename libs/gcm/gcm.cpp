@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Apr 22, 2014
+// Last revision: Jul 15, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -15,8 +15,6 @@
 #include "config.h"
 #include <cisstMultiTask/mtsComponent.h>
 #include <cisstMultiTask/mtsManagerLocal.h>
-
-namespace SF {
 
 using namespace SF;
 
@@ -141,7 +139,74 @@ void GCM::GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const
 {
     names = GetNamesOfInterfaces(type);
 }
-    
+
+const std::string GCM::ProcessStateTransition(State::StateMachineType type,
+                                              const Event *           event,
+                                              const std::string &     componentName,
+                                              const std::string &     interfaceName)
+{
+    StateMachine * sm = 0;
+    bool interfaceStateChange = false;
+
+    if (type == State::STATEMACHINE_FRAMEWORK || type == State::STATEMACHINE_APP) {
+        sm = (type == State::STATEMACHINE_FRAMEWORK ? States.ComponentFramework : States.ComponentApplication);
+    } else if (type == State::STATEMACHINE_PROVIDED || type == State::STATEMACHINE_REQUIRED) {
+        interfaceStateChange = true;
+        InterfaceStateMachinesType & interfaceStateMachines =
+            (type == State::STATEMACHINE_PROVIDED ? States.ProvidedInterfaces : States.RequiredInterfaces);
+
+        GCM::InterfaceStateMachinesType::const_iterator it;
+        it = interfaceStateMachines.find(interfaceName);
+        if (it == interfaceStateMachines.end()) {
+            SFLOG_ERROR << "GCM::ProcessStateTransition: no interface found: \"" << interfaceName << "\"" << std::endl;
+            return "";
+        }
+        sm = it->second;
+    } else {
+        SFLOG_ERROR << "GCM::ProcessStateTransition: invalid state machine type" << std::endl;
+        return "";
+    }
+
+    // Get current state
+    const State::StateType currentState = sm->GetCurrentState();
+    // Look for possible transitions from the current state
+    const State::TransitionType transition = event->GetTransition(currentState);
+    if (transition == State::INVALID_TRANSITION) {
+        SFLOG_ERROR << "GCM::ProcessStateTransition: invalid transition" << std::endl;
+        return "";
+    }
+    // Make transition
+    sm->ProcessEvent(transition, event);
+
+    // Get next state after state transition
+    const State::StateType nextState = sm->GetCurrentState();
+    // Do nothing if the current state remains the same
+    if (currentState == nextState)
+        return "";
+
+    bool recovery = (State(nextState) < State(currentState));
+    // "Getting better" case
+    if (recovery) {
+        //
+    }
+    // "Getting worse" case
+    else {
+        //
+    }
+
+
+    // Make subsequent transitions resulted from the transition and propagate state changes/events 
+    // to its parent element
+
+    if (interfaceStateChange) {
+        // TODO
+    }
+
+    // TODO: build up JSON string
+    return "TODO: BUILD UP JSON";
+}
+
+#if 0
 void GCM::ProcessEvent_ComponentFramework(const SF::State::TransitionType transition)
 {
     SFASSERT(States.ComponentFramework);
@@ -175,6 +240,7 @@ void GCM::ProcessEvent_Interface(const std::string & interfaceName,
         it->second->ProcessEvent(transition);
     }
 }
+#endif
 
 State::StateType GCM::GetComponentState(const ComponentStateViews view) const
 {
@@ -210,4 +276,18 @@ State::StateType GCM::GetInterfaceState(const std::string & name, const GCM::Int
     }
 }
 
-};
+State::StateType GCM::GetInterfaceState(const GCM::InterfaceTypes type) const
+{
+    const InterfaceStateMachinesType & interfaces = 
+        (type == PROVIDED_INTERFACE ? States.ProvidedInterfaces : States.RequiredInterfaces);
+
+    InterfaceStateMachinesType::const_iterator it = interfaces.begin();
+    const InterfaceStateMachinesType::const_iterator itEnd = interfaces.end();
+
+    State finalState(it->second->GetCurrentState());
+    ++it;
+    for (; it != itEnd; ++it)
+        finalState = finalState * it->second->GetCurrentState();
+
+    return finalState.GetState();
+}

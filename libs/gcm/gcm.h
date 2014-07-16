@@ -19,6 +19,7 @@
 #include "common.h"
 #include "statemachine.h"
 #include "state.h"
+#include "event.h"
 
 #include <map>
 
@@ -72,25 +73,26 @@ public:
     /*! Remove interface */
     bool RemoveInterface(const std::string & name, const GCM::InterfaceTypes type);
 
-    /*! State change event handlers */
-    void ProcessEvent_ComponentFramework(const SF::State::TransitionType transition);
-    void ProcessEvent_ComponentApplication(const SF::State::TransitionType transition);
-    void ProcessEvent_Interface(const std::string & interfaceName, 
-                                const GCM::InterfaceTypes interfaceType,
-                                const SF::State::TransitionType transition);
+    // Process state transition event and returns json string that presents state changes
+    const std::string ProcessStateTransition(State::StateMachineType type,
+                                             const Event *           event,
+                                             const std::string &     componentName,
+                                             const std::string &     interfaceName = "");
 
     //
     // Getters
     //
     /*! Returns name of component that this GCM is associated with */
     const std::string & GetComponentName(void) const { return ComponentName; }
+    /*! Returns names of interfaces */
+    StrVecType GetNamesOfInterfaces(InterfaceTypes type) const;
+    void       GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const;
     /*! Returns component state */
     State::StateType GetComponentState(const ComponentStateViews view = SYSTEM_VIEW) const;
     /*! Returns interface state */
     State::StateType GetInterfaceState(const std::string & name, const GCM::InterfaceTypes type) const;
-    /*! Returns names of interfaces */
-    StrVecType GetNamesOfInterfaces(InterfaceTypes type) const;
-    void       GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const;
+    /*! Returns projected interface state */
+    State::StateType GetInterfaceState(const GCM::InterfaceTypes type) const;
 
     //
     // Misc.

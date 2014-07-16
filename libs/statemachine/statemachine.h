@@ -7,11 +7,11 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 23, 2012
-// Last revision: Jun 25, 2014
+// Last revision: Jul 15, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
-// CAROS uses the Boost Meta State Machine (MSM) library to implement the state 
+// CASROS uses the Boost Meta State Machine (MSM) library to implement the state 
 // cmachine of the generic component model (GCM).  MSM enables quick and easy 
 // cimplementation of state machines of high performance.  For more details, refer 
 // to http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html 
@@ -33,8 +33,7 @@ namespace SF {
 namespace msm = ::boost::msm;
 namespace mpl = ::boost::mpl;
 
-// Forward declaration of state event handler
-class StateEventHandler;
+class Event;
 
 class SFLIB_EXPORT StateMachine 
 {
@@ -100,7 +99,7 @@ protected:
             template <class Event,class FSM>
             void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::WARNING_ON_EXIT); }
         };
-        struct Error: public msm::front::state<> 
+        struct Error: public msm::front::state<>
         {
             template <class Event,class FSM>
             void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::ERROR_ON_ENTRY); }
@@ -156,6 +155,9 @@ protected:
     /*! State machine instance */
     GCMStateMachine State;
 
+    // Active event that caused transition last time.  NULL in NORMAL state, non-NULL otherwise
+    Event * PendingEvent;
+
     /*! Name of owner of this state machine */
     std::string OwnerName;
 
@@ -176,7 +178,17 @@ public:
     virtual ~StateMachine(void);
 
     /*! Process state change events */
-    virtual void ProcessEvent(const State::TransitionType transition);
+    virtual void ProcessEvent(const State::TransitionType transition, const Event * event);
+
+    ////
+    //// Pending Event
+    ////
+    //// Get pending event object
+    //const Event * GetPendingEvent(void) const { return PendingEvent; }
+    //// Set pending event
+    //void SetPendingEvent(Event * e);
+    //// Reset or clear pending event
+    //void ClearPendingEvent(void);
 
     //
     // Getters
