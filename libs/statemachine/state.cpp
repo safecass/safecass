@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Jun 25, 2014
+// Last revision: Jul 16, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -22,7 +22,7 @@ State::State(State::StateType state) : CurrentState(state)
 {}
 
 #define STRINGFY(_state) case _state: return #_state;
-const std::string State::GetString(const StateType type)
+const std::string State::GetStringState(const StateType type)
 {
     switch (type) {
         STRINGFY(NORMAL);
@@ -33,7 +33,7 @@ const std::string State::GetString(const StateType type)
     }
 }
 
-const std::string State::GetString(const StateEntryExitType type)
+const std::string State::GetStringEntryExit(const StateEntryExitType type)
 {
     switch (type) {
         STRINGFY(NORMAL_ON_ENTRY);
@@ -46,7 +46,7 @@ const std::string State::GetString(const StateEntryExitType type)
     }
 }
 
-const std::string State::GetString(const TransitionType type)
+const std::string State::GetStringTransition(const TransitionType type)
 {
     switch (type) {
         STRINGFY(NORMAL_TO_ERROR);

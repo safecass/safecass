@@ -193,10 +193,12 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         ss << "{ \"name\": \"" << it->second->GetComponentName() << "\", "
            << "\"s\": " << static_cast<int>(gcm->GetComponentState(GCM::SYSTEM_VIEW)) << ", "
            << "\"s_F\": " << static_cast<int>(gcm->GetComponentState(GCM::FRAMEWORK_VIEW)) << ", "
-           << "\"s_A\": " << static_cast<int>(gcm->GetComponentState(GCM::APPLICATION_VIEW)) << ", ";
+           << "\"s_A\": " << static_cast<int>(gcm->GetComponentState(GCM::APPLICATION_VIEW)) << ", "
+           << "\"s_P\": " << static_cast<int>(gcm->GetInterfaceState(GCM::PROVIDED_INTERFACE)) << ", "
+           << "\"s_R\": " << static_cast<int>(gcm->GetInterfaceState(GCM::REQUIRED_INTERFACE)) << ", ";
         StrVecType names;
         // provided interface states
-#define GET_INTERFACE_STATE(_type, _key)\
+#define GET_EACH_INTERFACE_STATE(_type, _key)\
         names.clear();\
         it->second->GetNamesOfInterfaces(_type, names);\
         ss << "\"" _key "\": [ ";\
@@ -208,10 +210,10 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
             ss << " }";\
         }\
         ss << " ]";
-        GET_INTERFACE_STATE(GCM::PROVIDED_INTERFACE, "s_P");
+        GET_EACH_INTERFACE_STATE(GCM::PROVIDED_INTERFACE, "interfaces_provided");
         ss << ", ";
-        GET_INTERFACE_STATE(GCM::REQUIRED_INTERFACE, "s_R");
-#undef GET_INTERFACE_STATE
+        GET_EACH_INTERFACE_STATE(GCM::REQUIRED_INTERFACE, "interfaces_required");
+#undef GET_EACH_INTERFACE_STATE
         ss << " }";
 
         first = false;
@@ -598,6 +600,15 @@ bool Coordinator::OnEvent(const std::string & event)
 
     // TODO: propagate state changes/events to connected interfaces ("projected state")
     // TODO: how to propagate service state changes to other processes? (should exploit connection information)
+
+    // MJTEMP
+    if (jsonStateChange.size() > 0) {
+        std::stringstream ss;
+        ss << "{ \"target\": { \"safety_coordinator\": \"*\", "
+              "\"component\": \"*\" }, "
+              "\"request\": \"state_list\" }";
+        this->PublishStateChangeMessage(ss.str());
+    }
 
     // Call event hook for middleware
     return OnEventHandler(e);

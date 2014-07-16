@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Jul 15, 2014
+// Last revision: Jul 16, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -96,20 +96,128 @@ void StateMachine::ClearPendingEvent(void)
 }
 */
 
-void StateMachine::ProcessEvent(const State::TransitionType transition, const Event * event)
+bool StateMachine::ProcessEvent(const State::TransitionType transition, const Event * event)
 {
     SFASSERT(event);
+
+    // Check transition type: getting worse or getting better
+    bool gettingWorse;
+
+    // This is important because only one event can be active and initiate state transition, 
+    // and thus a new event may be ignored if the severity of the new event (1-255) or the
+    // criticality of it (N, W, E) is lower than those of the currently active event.
+    // If the new event is ignored, this function returns false, which prevents further event
+    // propagation.
+    //
+    // Note that different severity or criticality criteria are applied depending on the
+    // transition type.
+
+    State::StateType currentState, nextState;
+
+    switch (transition) {
+    case State::NORMAL_TO_WARNING:
+        currentState = State::NORMAL;
+        nextState = State::WARNING;
+        gettingWorse = true;
+        break;
+
+    case State::NORMAL_TO_ERROR:
+        currentState = State::NORMAL;
+        nextState = State::ERROR;
+        gettingWorse = true;
+        break;
+
+    case State::WARNING_TO_ERROR:
+        currentState = State::WARNING;
+        nextState = State::ERROR;
+        gettingWorse = true;
+        break;
+
+    case State::WARNING_TO_NORMAL:
+        currentState = State::WARNING;
+        nextState = State::NORMAL;
+        gettingWorse = false;
+        break;
+
+    case State::ERROR_TO_WARNING:
+        currentState = State::ERROR;
+        nextState = State::WARNING;
+        gettingWorse = false;
+        break;
+
+    case State::ERROR_TO_NORMAL:
+        currentState = State::ERROR;
+        nextState = State::NORMAL;
+        gettingWorse = false;
+        break;
+    default:
+        return false;
+    }
+
+    // Determine if a new event should be processed or ignored. This implements the error
+    // propagation strategy or policy for a single statemachine.  The error propagation
+    // among multiple statemachines are handled by Coordinator.
+    bool ignore = true;
+    if (PendingEvent == 0)
+        ignore = false;
+    else {
+        // Getting worse case
+        if (gettingWorse) {
+            // Check criticality
+            if (currentState < nextState)
+                ignore = false;
+            else if (currentState == nextState) {
+                // Check severity
+                if (PendingEvent->GetSeverity() < event->GetSeverity())
+                    ignore = false;
+            }
+        }
+        // Getting better case
+        else {
+            // Check criticality
+            if (currentState > nextState)
+                ignore = false;
+            else if (currentState == nextState) {
+                // Check severity
+                if (PendingEvent->GetSeverity() > event->GetSeverity())
+                    ignore = false;
+            }
+        }
+    }
+
+    if (ignore) {
+        SFLOG_WARNING << "StateMachine::ProcessEvent: event \"" << event->GetName() << "\" is ignored" << std::endl;
+        return false;
+    }
+
+    std::stringstream ss;
+    ss << "StateMachine::ProcessEvent: event \"" << event->GetName() << "\" caused state transition "
+       << "from " << State::GetStringState(currentState) << " to " << State::GetStringState(nextState);
+    if (PendingEvent)
+        ss << " and " << "active event was replaced from [ " << *PendingEvent << " ] to [ " << *event << " ].";
+    else
+        ss << " and new active event is installed as [ " << *event << " ].";
+    SFLOG_DEBUG << ss.str() << std::endl;
+
+    // Swap out currently active event with new event of higher criticality or equal
+    // criticality but higher severity.
+    if (nextState == State::NORMAL)
+        PendingEvent = 0;
+    else
+        PendingEvent = event;
 
     switch (transition) {
     case State::NORMAL_TO_WARNING: State.process_event(evt_N2W()); break;
     case State::NORMAL_TO_ERROR:   State.process_event(evt_N2E()); break;
-    case State::WARNING_TO_NORMAL: State.process_event(evt_W2N()); break;
     case State::WARNING_TO_ERROR:  State.process_event(evt_W2E()); break;
-    case State::ERROR_TO_NORMAL:   State.process_event(evt_E2N()); break;
+    case State::WARNING_TO_NORMAL: State.process_event(evt_W2N()); break;
     case State::ERROR_TO_WARNING:  State.process_event(evt_E2W()); break;
+    case State::ERROR_TO_NORMAL:   State.process_event(evt_E2N()); break;
     default:
-        return;
+        return false;
     }
+
+    return true;
 }
 
 State::StateType StateMachine::GetCurrentState(void) const

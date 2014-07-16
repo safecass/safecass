@@ -39,8 +39,7 @@ void StateEventHandler::Initialize(void)
 
 void StateEventHandler::OnStateEntryOrExit(const State::StateEntryExitType stateEntryExit)
 {
-    SFLOG_DEBUG << OwnerName << " - Base state machine: OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
-    //std::cout << OwnerName << " - Base state machine: OnStateEntryOrExit: " << State::GetString(stateEntryExit) << std::flush << std::endl;
+    SFLOG_DEBUG << OwnerName << " - Base state machine: OnStateEntryOrExit: " << State::GetStringEntryExit(stateEntryExit) << std::flush << std::endl;
 
 #if ENABLE_UNIT_TEST
     ++CountEntryExit[static_cast<size_t>(stateEntryExit)];
@@ -49,7 +48,7 @@ void StateEventHandler::OnStateEntryOrExit(const State::StateEntryExitType state
 
 void StateEventHandler::OnStateTransition(const State::TransitionType transition)
 {
-    SFLOG_DEBUG << OwnerName << " - Base state machine: OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
+    SFLOG_DEBUG << OwnerName << " - Base state machine: OnStateTransition: " << State::GetStringTransition(transition) << std::flush << std::endl;
     //std::cout << OwnerName << " - Base state machine: OnStateTransition: " << State::GetString(transition) << std::flush << std::endl;
 
 #if ENABLE_UNIT_TEST

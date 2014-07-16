@@ -20,7 +20,6 @@
 #include "filterBase.h"
 
 #include <map>
-//#include <queue>
 
 namespace SF {
 
@@ -55,7 +54,7 @@ public:
 
 protected:
     // Name of this coordinator
-    const std::string Name;
+    std::string Name;
 
     // Monitor map
     //! Map of monitoring targets
@@ -101,6 +100,9 @@ public:
     Coordinator(const std::string & name);
     //! Destructor
     virtual ~Coordinator();
+
+    // Set name of instance
+    inline void SetName(const std::string & name) { Name = name; }
 
     //! Deploy all monitors and filter pipelines
     /*! Middleware specific: This method should be overriden by derived class
@@ -166,6 +168,9 @@ public:
     // Called by filter when event is generated.  Event information such as timestamp,
     // location, and severity is encoded in JSON.
     bool OnEvent(const std::string & event);
+    // TEMP: Coordinator does not have casros accessor and cannot publish messages. As
+    // temporary solution, we use pure virtual method for publishing messages.
+    virtual bool PublishStateChangeMessage(const std::string & msg) = 0;
     // Called by OnEvent() to inform the derived class (e.g., mtsSafetyCoordinator in case
     // of cisst) of the event
     virtual bool OnEventHandler(const Event * e) = 0;

@@ -175,34 +175,20 @@ const std::string GCM::ProcessStateTransition(State::StateMachineType type,
         SFLOG_ERROR << "GCM::ProcessStateTransition: invalid transition" << std::endl;
         return "";
     }
-    // Make transition
-    sm->ProcessEvent(transition, event);
-
-    // Get next state after state transition
-    const State::StateType nextState = sm->GetCurrentState();
-    // Do nothing if the current state remains the same
-    if (currentState == nextState)
+    // Make transition for a single statemachine of interest. Depending on type of transition 
+    // (getting worse vs. better), transition event may be ignored.
+    bool transitionProcessed = sm->ProcessEvent(transition, event);
+    if (!transitionProcessed) {
+        SFLOG_INFO << "GCM::ProcessStateTransition: event \"" << event->GetName() << "\" is ignored" << std::endl;
         return "";
-
-    bool recovery = (State(nextState) < State(currentState));
-    // "Getting better" case
-    if (recovery) {
-        //
-    }
-    // "Getting worse" case
-    else {
-        //
     }
 
+    // TODO: Make subsequent transitions resulted from the transition above and propagate state 
+    // changes/events to CONNECTED interfaces.  Note that the projected states do not have
+    // actual statemachines and thus we don't need to propagate state transitions to S_P,
+    // S_R, and S.
 
-    // Make subsequent transitions resulted from the transition and propagate state changes/events 
-    // to its parent element
-
-    if (interfaceStateChange) {
-        // TODO
-    }
-
-    // TODO: build up JSON string
+    // TODO: build up JSON string that only contains state changes (delta)
     return "TODO: BUILD UP JSON";
 }
 
@@ -251,12 +237,16 @@ State::StateType GCM::GetComponentState(const ComponentStateViews view) const
     State stateApplicationView(States.ComponentApplication->GetCurrentState());
 
     switch (view) {
-    case GCM::SYSTEM_VIEW:
-        return (stateFrameworkView * stateApplicationView).GetState();
     case GCM::FRAMEWORK_VIEW:
         return stateFrameworkView.GetState();
     case GCM::APPLICATION_VIEW:
         return stateApplicationView.GetState();
+    case GCM::SYSTEM_VIEW:
+        {
+            State stateInterfaceProvided(GetInterfaceState(GCM::PROVIDED_INTERFACE));
+            State stateInterfaceRequired(GetInterfaceState(GCM::REQUIRED_INTERFACE));
+            return (((stateFrameworkView * stateApplicationView) * stateInterfaceProvided) * stateInterfaceRequired).GetState();
+        }
     }
 }
 
@@ -278,16 +268,40 @@ State::StateType GCM::GetInterfaceState(const std::string & name, const GCM::Int
 
 State::StateType GCM::GetInterfaceState(const GCM::InterfaceTypes type) const
 {
+    // NOTE: Different policies on the "projected" state of two kinds of interfaces
+    //
+    // S_P is always in the NORMAL state unless all provided interfaces are the non-NORMAL state
+    // because a change of the provided interface state does not have significance WITHIN
+    // the component unless all provided interface states become non-NORMAL.
+    // In contrast, any state change in any required interface affects S_R because a
+    // component "requires" all of required interfaces to work properly; otherwise, the
+    // component cannot operate correctly.
     const InterfaceStateMachinesType & interfaces = 
         (type == PROVIDED_INTERFACE ? States.ProvidedInterfaces : States.RequiredInterfaces);
 
+    bool allProvidedInterfacesNonNormal = true;
+
     InterfaceStateMachinesType::const_iterator it = interfaces.begin();
     const InterfaceStateMachinesType::const_iterator itEnd = interfaces.end();
+    if (it == itEnd)
+        return State::NORMAL; // there can be no provided or required interfaces
 
     State finalState(it->second->GetCurrentState());
+    allProvidedInterfacesNonNormal &= (it->second->GetCurrentState() != State::NORMAL);
     ++it;
-    for (; it != itEnd; ++it)
+    for (; it != itEnd; ++it) {
         finalState = finalState * it->second->GetCurrentState();
+        if (allProvidedInterfacesNonNormal)
+            allProvidedInterfacesNonNormal &= (it->second->GetCurrentState() != State::NORMAL);
+    }
 
-    return finalState.GetState();
+    if (type == REQUIRED_INTERFACE)
+        return finalState.GetState();
+    else {
+        if (allProvidedInterfacesNonNormal) {
+            return finalState.GetState();
+        } else {
+            return State::NORMAL;
+        }
+    }
 }

@@ -156,7 +156,7 @@ protected:
     GCMStateMachine State;
 
     // Active event that caused transition last time.  NULL in NORMAL state, non-NULL otherwise
-    Event * PendingEvent;
+    const Event * PendingEvent;
 
     /*! Name of owner of this state machine */
     std::string OwnerName;
@@ -178,7 +178,7 @@ public:
     virtual ~StateMachine(void);
 
     /*! Process state change events */
-    virtual void ProcessEvent(const State::TransitionType transition, const Event * event);
+    virtual bool ProcessEvent(const State::TransitionType transition, const Event * event);
 
     ////
     //// Pending Event
