@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>System State Viewer</title>
+<title>CASROS System State Viewer</title>
 <meta name="description" content="A visualisation of coffee flavours.">
 <style>
 @import url(style.css);
@@ -31,7 +31,7 @@ p#intro {
 }
 </style>
 
-<h1>System State Viewer</h1>
+<h1>CASROS System State Viewer</h1>
 <div id="vis"><!--<img src="full.png">--></div>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
@@ -55,7 +55,7 @@ var vis = div.append("svg")
 
 div.append("p")
     .attr("id", "intro")
-    .text("Click to zoom!");
+    .text("Click element to zoom");
 
 var partition = d3.layout.partition()
     .sort(null)
@@ -65,7 +65,7 @@ var arc = d3.svg.arc()
     .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
     .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
     .innerRadius(function(d) { return Math.max(0, d.y ? y(d.y) : d.y); })
-    .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
+    .outerRadius(function(d) { return Math.max(0, y(d.y + 1.0 * d.dy)); });
 
 d3.json("wheel.json", function(error, json) {
   var jsondata = JSON.parse(jsHandler.GetStateJSON());
@@ -174,7 +174,7 @@ function arcTween(d) {
 }
 
 function maxY(d) {
-  return d.children ? Math.max.apply(Math, d.children.map(maxY)) : d.y + d.dy;
+  return d.children ? Math.max.apply(Math, d.children.map(maxY)) : d.y + 1.0 * d.dy;
 }
 
 // http://www.w3.org/WAI/ER/WD-AERT/#color-contrast
@@ -229,10 +229,6 @@ function brightness(rgb) {
     //location.reload(true);
   }
 
-  function Refresh() {
-    location.reload();
-  }
-
   function onEventStub(para) {
     alert('onEventStub: ' + para);
     //ShowResult(para);
@@ -247,7 +243,18 @@ function brightness(rgb) {
       jsHandler.Refresh.connect(Refresh);
     }
   }
+
+  function Refresh() {
+    location.reload();
+  }
+
+  function requestRefresh() {
+    // TODO: send READ_REQ to CASROS network
+  }
 </script>
 
 <body onload='connect_qt()'>
+  <div style='margin-bottom:20px; text-align:center;'>
+    <button onclick='requestRefresh();' style='height:30px; width:100px; text-align: center;'>Refresh</button>
+  </div>
 </body>
