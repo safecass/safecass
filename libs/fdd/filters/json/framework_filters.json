@@ -22,6 +22,7 @@
 // accordingly (look for InstallFrameworkFilters() method).
 //
 {
+    "component": "", // will be set by casros when deployed
     "event": [
         {   // name of event
             "name"            : "EVT_THREAD_EXCEPTION",
@@ -30,19 +31,21 @@
             // 1-200: For application events
             // 201-255: Reserved for framework events
             //
-            // TODO: define and implement severity context; not used for now
-            //"severity"        : 255,
+            "severity"        : 255,
             // Each event can define ONLY ONE transition.
             "state_transition": [ "N2E" ]
         },
         {   "name"            : "/EVT_THREAD_EXCEPTION",
+            "severity"        : 255,
             "state_transition": [ "E2N" ]
         },
         {   "name"            : "EVT_THREAD_OVERRUN",
+            "severity"        : 201,
             // TODO: depending on how severe overrun is, next state can be warning.
             "state_transition": [ "N2E" ]
         },
         {   "name"            : "/EVT_THREAD_OVERRUN",
+            "severity"        : 201,
             // TODO: depending on how severe overrun is, next restored state can be
             "state_transition": [ "E2N" ]
         }
@@ -59,7 +62,7 @@
                 // s_P: provided interface state
                 // s_R: required interface state
                 "type"         : "s_F",
-                "component"    : ""  // will be overwritten by casros when deployed
+                "component"    : ""  // will be set by casros when deployed
             },
             "type"             : "ACTIVE",
             //"debug"            : true,
@@ -77,7 +80,7 @@
         {   "class_name"       : "FilterOnOff",
             "target"           : {
                 "type"         : "s_F",
-                "component"    : ""  // will be overwritten by casros when deployed
+                "component"    : ""  // will be set by casros when deployed
             },
             "type"             : "ACTIVE",
             "argument" : {

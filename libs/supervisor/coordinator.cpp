@@ -481,6 +481,32 @@ bool Coordinator::AddEventFromJSONFile(const std::string & jsonFileName)
     return true;
 }
 
+bool Coordinator::AddEventFromJSONFileToComponent(const std::string & jsonFileName,
+                                                  const std::string & targetComponentName)
+{
+    // Construct JSON structure from JSON file
+    SF::JSON json;
+    if (!json.ReadFromFile(jsonFileName)) {
+        SFLOG_ERROR << "AddEventFromJSONFile: Failed to read json file: " << jsonFileName << std::endl;
+        return false;
+    }
+
+    // Insert target component name
+    json.GetRoot()["component"] = targetComponentName;
+
+    bool ret = AddEventFromJSON(SF::JSON::GetJSONString(json.GetRoot()));
+    if (!ret) {
+        SFLOG_ERROR << "AddEventFromJSONFile: Failed to add events from JSON file: " << jsonFileName << std::endl;
+        return false;
+    }
+
+#if _VERBOSE
+    SFLOG_INFO << "AddEventFromJSONFile: Successfully added events from JSON file: " << jsonFileName << std::endl;
+#endif
+
+    return true;
+}
+
 const std::string Coordinator::GetEventList(const std::string & componentName) const
 {
     // TODO: json encoding

@@ -157,6 +157,9 @@ public:
     bool AddEventFromJSON(const std::string & jsonString);
     // Add event using file containing JSON string
     bool AddEventFromJSONFile(const std::string & jsonFileName);
+    // Add event to specific component using file containing JSON string
+    bool AddEventFromJSONFileToComponent(const std::string & jsonFileName,
+                                         const std::string & targetComponentName);
     // Given an event name, check if event exists
     bool FindEvent(const std::string & componentName, const std::string & eventName) const;
     bool FindEvent(const std::string & eventName) const;
