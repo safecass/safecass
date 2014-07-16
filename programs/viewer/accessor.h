@@ -30,6 +30,8 @@ public:
 
     void CallbackControl(SF::Topic::Control::CategoryType category, const std::string & json);
     void CallbackData   (SF::Topic::Data::CategoryType    category, const std::string & json);
+
+    void GenerateD3JSON(const SF::JSON::JSONVALUE & inroot, SF::JSON::JSONVALUE & outSCroot);
 };
 
 //

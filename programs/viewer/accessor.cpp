@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 10, 2014
-// Last revision: Jul 10, 2014
+// Last revision: Jul 16, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -19,6 +19,12 @@
 #define VERBOSE 0
 
 using namespace SF;
+
+// JSON object that has complete information of all states of the entire system (including 
+// multiple processes)
+// TODO: issue of shared resource with this
+SF::JSON CasrosSystemStates;
+SF::JSON::JSONVALUE & CasrosSystemStatesRoot = CasrosSystemStates.GetRoot();
 
 const std::string GetColorCodeForState(unsigned int state)
 {
@@ -60,7 +66,7 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
     SFLOG_INFO << "message received - topic: " << TopicName << ", category: " << categoryName << " ]" << std::endl;
 #if VERBOSE
     if (category == SF::Topic::Data::READ_RES) {
-        std::cout << "ViewerSubscriberCallback:" << __LINE__ << " Received json [ " << json << " ]" << std::endl;
+        std::cout << "ViewerSubscriberCallback:" << __LINE__ << " Received json => " << json << std::endl;
     }
 #endif
 
@@ -73,28 +79,47 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
 
     const SF::JSON::JSONVALUE & inroot = in.GetRoot();
 
-    const std::string cmd = SF::JSON::GetSafeValueString(in.GetRoot(), "cmd");
-    if (cmd.compare("state_list") != 0) {
-        SFLOG_INFO << "not state information: " << cmd << std::endl;
-        return;
-    }
-    
+    // Check command type
+    const std::string cmd = SF::JSON::GetSafeValueString(inroot, "cmd");
     if (cmd.compare("message") == 0) {
-        std::cout << SF::JSON::GetSafeValueString(in.GetRoot(), "msg") << std::endl;
+        std::cout << SF::JSON::GetSafeValueString(inroot, "msg") << std::endl;
         return;
+    } else {
+        if (cmd.compare("state_list") != 0) {
+            SFLOG_INFO << "not state information: " << cmd << std::endl;
+            return;
+        }
     }
 
-    // output JSON: state information for D3
-    SF::JSON out;
-    SF::JSON::JSONVALUE & root = out.GetRoot();
+    // extract name of safety coordinator
+    const std::string nameOfThisSC = SF::JSON::GetSafeValueString(inroot, "safety_coordinator");
+    // update state cache (overwrite)
+    CasrosSystemStatesRoot[nameOfThisSC] = inroot;
 
-    SF::JSON outSC;
-    size_t cntSafetyCoordinator = 0;
+    // placeholder for D3
+    SF::JSON D3States;
+    SF::JSON::JSONVALUE D3StatesRoot = D3States.GetRoot();
 
-    // MJTEMP: state information from casros may contain multiple instances
-    // of safety coordinator, but assume only one instance for now.
-    SF::JSON::JSONVALUE & outSCroot = outSC.GetRoot();
+    // iterate each state cache instance, convert it to D3 format, and stack it up.
+    size_t cntSC = 0;
+    JSON::JSONVALUE::iterator it = CasrosSystemStatesRoot.begin();
+    const JSON::JSONVALUE::iterator itEnd = CasrosSystemStatesRoot.end();
+    for (; it != itEnd; ++it) {
+        SF::JSON outSC;
+        SF::JSON::JSONVALUE & outSCroot = outSC.GetRoot();
+        GenerateD3JSON(*it, outSCroot);
+        D3StatesRoot[cntSC++] = outSCroot;
+    }
 
+    // get json-encoded string for state viewer
+    const std::string outJson = SF::JSON::GetJSONString(D3StatesRoot);
+
+    // refresh state chart
+    QJsApiHandler::UpdateJSONState(outJson);
+}
+
+void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JSON::JSONVALUE & outSCroot)
+{
     // safety coordinator name
     outSCroot["name"] = SF::JSON::GetSafeValueString(inroot, "safety_coordinator");
     outSCroot["color"] = "#72659d";
@@ -189,13 +214,6 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
         }
         outSCroot["children"][i] = outComponentRoot;
     }
-    root[cntSafetyCoordinator++] = outSCroot;
-
-    // get json-encoded string for state viewer
-    const std::string outJson = SF::JSON::GetJSONString(root);
-
-    // refresh state chart
-    QJsApiHandler::UpdateJSONState(outJson);
 }
 
 //
