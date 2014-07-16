@@ -108,7 +108,7 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
             SF::JSON outStateFramework;
             SF::JSON::JSONVALUE & outStateFrameworkRoot = outStateFramework.GetRoot();
             {
-                outStateFrameworkRoot["name"] = "s_F";
+                outStateFrameworkRoot["name"] = "Framework";
                 outStateFrameworkRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s_F"));
             }
             outComponentRoot["children"][j++] = outStateFrameworkRoot;
@@ -116,7 +116,7 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
             SF::JSON outStateApp;
             SF::JSON::JSONVALUE & outStateAppRoot = outStateApp.GetRoot();
             {
-                outStateAppRoot["name"] = "s_A";
+                outStateAppRoot["name"] = "Application";
                 outStateAppRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s_A"));
             }
             outComponentRoot["children"][j++] = outStateAppRoot;
@@ -126,7 +126,7 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
             SF::JSON::JSONVALUE & outInterfaceProvidedRoot = outInterfaceProvided.GetRoot();
             size_t cntProvided = 0;
             {
-                outInterfaceProvidedRoot["name"] = "s_A Provided";
+                outInterfaceProvidedRoot["name"] = "Provided";
                 // TODO: calculate state product to decide state color code ("s_P")
                 outInterfaceProvidedRoot["color"] = "yellow"; // TODO
 
@@ -155,7 +155,7 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
             SF::JSON::JSONVALUE & outInterfaceRequiredRoot = outInterfaceRequired.GetRoot();
             size_t cntRequired = 0;
             {
-                outInterfaceRequiredRoot["name"] = "s_A Required";
+                outInterfaceRequiredRoot["name"] = "Required";
                 // TODO: calculate state product to decide state color code ("s_R")
                 outInterfaceRequiredRoot["color"] = "cyan"; // TODO
 
