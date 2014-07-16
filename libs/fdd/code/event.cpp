@@ -73,6 +73,8 @@ State::TransitionType Event::GetTransition(State::StateType currentState) const
     default:
         return State::INVALID_TRANSITION;
     }
+
+    return State::INVALID_TRANSITION;
 }
 
 void Event::ToStream(std::ostream & os) const
