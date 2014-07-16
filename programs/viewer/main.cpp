@@ -36,6 +36,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // Set name of safety coordinator
+    mtsSafetyCoordinator * sc = componentManager->GetCoordinator();
+    CMN_ASSERT(sc);
+    sc->SetName("casros_state_viewer");
+
     // create the components with their respective UIs
     viewerQtComponent * viewer = new viewerQtComponent("viewer");
     componentManager->AddComponent(viewer);

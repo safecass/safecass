@@ -59,8 +59,7 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
         break;
     }
 
-    SFLOG_INFO << "[ topic: " << TopicName << ", category: " << categoryName << " ] received " << std::endl;
-
+    std::cout << "[ topic: " << TopicName << ", category: " << categoryName << " ] received " << std::endl;
     std::cout << json << std::endl;
 }
 
@@ -70,7 +69,7 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
 AccessorConsole::AccessorConsole(void)
     : SF::cisstAccessor(true,  // enablePublisherControl
                         false, // enablePublisherData
-                        false,  // enableSubscriberControl
+                        false, // enableSubscriberControl
                         true,  // enableSubscriberData
                         0,//new ConsoleSubscriberCallback(SF::Dict::TopicNames::CONTROL),
                         new ConsoleSubscriberCallback(SF::Dict::TopicNames::DATA))

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2014
-// Last revision: Jul 14, 2014
+// Last revision: Jul 16, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -17,6 +17,8 @@
 #include "jsCppBridge.h"
 #include "jsApiHandler.h"
 #include "JsApiProxy.h"
+
+#define VERBOSE 0
 
 QJsCppBridge::QJsCppBridge(QWebFrame * webFrame): WebFrame(webFrame)
 {
@@ -57,11 +59,15 @@ void QJsCppBridge::bridge_javascriptWindowObjectCleared()
 
 void QJsCppBridge::bridge_loadFinished(bool b)
 {
+#if VERBOSE
     qDebug() << "QJsCppBridge::bridge_loadFinished: " << (int)b;
+#endif
     if (JsApiProxy) {
+#if VERBOSE
         qDebug() << "QJsCppBridge::bridge_loadFinished - call";
         QString result = JsApiProxy->OnEvent("Initialization completes!");
         qDebug() << result;
+#endif
     }
 }
 

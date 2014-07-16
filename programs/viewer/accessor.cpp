@@ -16,6 +16,8 @@
 
 #include <iomanip>
 
+#define VERBOSE 0
+
 using namespace SF;
 
 const std::string GetColorCodeForState(unsigned int state)
@@ -56,8 +58,11 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
     }
 
     SFLOG_INFO << "message received - topic: " << TopicName << ", category: " << categoryName << " ]" << std::endl;
-    if (category == SF::Topic::Data::READ_RES)
-        std::cout << json << std::endl;
+#if VERBOSE
+    if (category == SF::Topic::Data::READ_RES) {
+        std::cout << "ViewerSubscriberCallback:" << __LINE__ << " Received json [ " << json << " ]" << std::endl;
+    }
+#endif
 
     // input JSON: state information from CASROS
     SF::JSON in;
@@ -71,6 +76,11 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
     const std::string cmd = SF::JSON::GetSafeValueString(in.GetRoot(), "cmd");
     if (cmd.compare("state_list") != 0) {
         SFLOG_INFO << "not state information: " << cmd << std::endl;
+        return;
+    }
+    
+    if (cmd.compare("message") == 0) {
+        std::cout << SF::JSON::GetSafeValueString(in.GetRoot(), "msg") << std::endl;
         return;
     }
 
@@ -127,11 +137,10 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
             size_t cntProvided = 0;
             {
                 outInterfaceProvidedRoot["name"] = "Provided";
-                // TODO: calculate state product to decide state color code ("s_P")
-                outInterfaceProvidedRoot["color"] = "yellow"; // TODO
+                outInterfaceProvidedRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s_P"));
 
                 // for each interface
-                const JSON::JSONVALUE inPrvInterfaces = inComponent["s_P"];
+                const JSON::JSONVALUE inPrvInterfaces = inComponent["interfaces_provided"];
                 cntProvided = inPrvInterfaces.size();
                 for (size_t k = 0; k < cntProvided; ++k) {
                     // input for provided interface
@@ -156,11 +165,10 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
             size_t cntRequired = 0;
             {
                 outInterfaceRequiredRoot["name"] = "Required";
-                // TODO: calculate state product to decide state color code ("s_R")
-                outInterfaceRequiredRoot["color"] = "cyan"; // TODO
+                outInterfaceRequiredRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s_R"));
 
                 // for each interface
-                const JSON::JSONVALUE inReqInterfaces = inComponent["s_R"];
+                const JSON::JSONVALUE inReqInterfaces = inComponent["interfaces_required"];
                 cntRequired = inReqInterfaces.size();
                 for (size_t k = 0; k < cntRequired; ++k) {
                     // input for provided interface
