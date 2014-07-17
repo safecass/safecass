@@ -38,6 +38,20 @@ const std::string GetColorCodeForState(unsigned int state)
     }
 }
 
+const std::string GetColorCodeForSafetyCoordinator(void)
+{
+    const int N = 5;
+
+    static int cnt = 0;
+    switch (cnt++ % N) {
+    case 0: return "#2e6093";
+    case 1: return "#3a5988";
+    case 2: return "#9d4e87";
+    case 3: return "#92538c";
+    case 4: return "#72659d";
+    }
+}
+
 //
 // Subscriber callback
 //
@@ -130,7 +144,7 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
 {
     // safety coordinator name
     outSCroot["name"] = SF::JSON::GetSafeValueString(inroot, "safety_coordinator");
-    outSCroot["color"] = "#72659d";
+    outSCroot["color"] = GetColorCodeForSafetyCoordinator();
 
     // for each component
     const JSON::JSONVALUE inComponents = inroot["components"];
