@@ -92,5 +92,5 @@ void Event::ToStream(std::ostream & os) const
         default:                       os << "INVALID ";
         }
     }
-    os << "], ";
+    os << "]";
 }

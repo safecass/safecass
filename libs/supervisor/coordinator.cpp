@@ -13,7 +13,7 @@
 //
 #include "coordinator.h"
 
-#define _VERBOSE 0
+#define VERBOSE 0
 
 using namespace SF;
 
@@ -426,7 +426,7 @@ bool Coordinator::AddEvents(const std::string & componentName, const JSON::JSONV
             delete event;
             return false;
         }
-#if _VERBOSE
+#if VERBOSE
         SFLOG_INFO << "[" << (i + 1) << "/" << events.size() << "] "
                    << "Successfully installed event: \"" << event->GetName() << "\"" << std::endl;
 #endif
@@ -452,7 +452,7 @@ bool Coordinator::AddEventFromJSON(const std::string & jsonString)
         return false;
     }
 
-#if _VERBOSE
+#if VERBOSE
     SFLOG_INFO << "AddEventFromJSON: Successfully added events from JSON: " << jsonString << std::endl;
 #endif
 
@@ -474,7 +474,7 @@ bool Coordinator::AddEventFromJSONFile(const std::string & jsonFileName)
         return false;
     }
 
-#if _VERBOSE
+#if VERBOSE
     SFLOG_INFO << "AddEventFromJSONFile: Successfully added events from JSON file: " << jsonFileName << std::endl;
 #endif
 
@@ -500,7 +500,7 @@ bool Coordinator::AddEventFromJSONFileToComponent(const std::string & jsonFileNa
         return false;
     }
 
-#if _VERBOSE
+#if VERBOSE
     SFLOG_INFO << "AddEventFromJSONFile: Successfully added events from JSON file: " << jsonFileName << std::endl;
 #endif
 
@@ -593,7 +593,7 @@ bool Coordinator::OnEvent(const std::string & event)
     const std::string targetComponentName = JSON::GetSafeValueString(jsonEvent["target"], "component");
     const std::string targetInterfaceName = JSON::GetSafeValueString(jsonEvent["target"], "interface");
 
-#if _VERBOSE
+#if VERBOSE
     SFLOG_ERROR << "fuid: " << fuid << std::endl
                 << "severity: " << severity << std::endl
                 << "name: " << eventName << std::endl
@@ -609,6 +609,7 @@ bool Coordinator::OnEvent(const std::string & event)
         SFLOG_ERROR << "OnEvent: event \"" << eventName << "\" is not registered" << std::endl;
         return false;
     }
+    SFLOG_DEBUG << "OnEvent: Received event: " << *e << std::endl;
 
     // Get state machine associated with the event, determine necessary transition 
     // based on the current state of the state machine. This state change may have

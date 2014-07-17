@@ -157,10 +157,24 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
     // Determine if a new event should be processed or ignored. This implements the error
     // propagation strategy or policy for a single statemachine.  The error propagation
     // among multiple statemachines are handled by Coordinator.
+
+    // Design rationale: state transition policy: severity vs. criticality
+    // 1) Getting "worse" scenarios
+    //    Criticality first -> Severity later
+    //    : More sensitive to state transition, more emphasis on early detection and 
+    //      prognostic state transition
+    //
+    // 2) Getting "better" scenarios
+    //    Severity first -> Criticality later
+    //    : More emphasis on pending event that originally caused state transition
+    //      (e.g., FORCE_SAT caused state transition N2E, FORCE_NEAR_SAT restores
+    //      the state from E2N?)
     bool ignore = true;
     if (PendingEvent == 0)
         ignore = false;
     else {
+        SFLOG_DEBUG << "PENDING EVENT: " << *PendingEvent << std::endl;
+        SFLOG_DEBUG << "NEW EVENT: " << *event << std::endl;
         // Getting worse case
         if (gettingWorse) {
             // Check criticality
@@ -174,6 +188,7 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
         }
         // Getting better case
         else {
+#if 0 // Criticality first
             // Check criticality
             if (currentState > nextState)
                 ignore = false;
@@ -182,11 +197,18 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
                 if (PendingEvent->GetSeverity() > event->GetSeverity())
                     ignore = false;
             }
+#endif
+            // Check severity
+            if (PendingEvent->GetSeverity() <= event->GetSeverity()) {
+                // Check criticality
+                if (currentState > nextState)
+                    ignore = false;
+            }
         }
     }
 
     if (ignore) {
-        SFLOG_WARNING << "StateMachine::ProcessEvent: event \"" << event->GetName() << "\" is ignored" << std::endl;
+        SFLOG_WARNING << "StateMachine::ProcessEvent: event \"" << *event << "\" is ignored" << std::endl;
         return false;
     }
 
