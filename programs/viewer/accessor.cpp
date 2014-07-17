@@ -13,6 +13,7 @@
 //
 #include "accessor.h"
 #include "QtJsBridge/jsApiHandler.h"
+#include <cisstMultiTask/mtsManagerLocal.h>
 
 #include <iomanip>
 
@@ -63,8 +64,8 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
         break;
     }
 
-    SFLOG_INFO << "message received - topic: " << TopicName << ", category: " << categoryName << " ]" << std::endl;
 #if VERBOSE
+    SFLOG_INFO << "message received - topic: " << TopicName << ", category: " << categoryName << " ]" << std::endl;
     if (category == SF::Topic::Data::READ_RES) {
         std::cout << "ViewerSubscriberCallback:" << __LINE__ << " Received json => " << json << std::endl;
     }
@@ -78,6 +79,13 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
     }
 
     const SF::JSON::JSONVALUE & inroot = in.GetRoot();
+
+    // Get target safety coordinator (assigned as process name in cisst)
+    //const std::string targetProcessName = 
+        //JSON::GetSafeValueString(inroot["target"], "safety_coordinator");
+    //const std::string thisProcessName = mtsManagerLocal::GetInstance()->GetProcessName();
+    //if (targetProcessName.compare("*") != 0 && (targetProcessName != thisProcessName))
+        //return;
 
     // Check command type
     const std::string cmd = SF::JSON::GetSafeValueString(inroot, "cmd");
@@ -230,7 +238,7 @@ AccessorViewer::AccessorViewer(void)
 }
 
 bool AccessorViewer::RequestStateList(const std::string & safetyCoordinatorName,
-                                       const std::string & componentName) const
+                                      const std::string & componentName) const
 {
     std::stringstream ss;
     ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "

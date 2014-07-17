@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
 
     // Create publisher and subscriber
     AccessorViewer casrosAccessor;
+    casrosAccessor.RequestStateList();
 
     // create and start all components
     componentManager->CreateAll();
