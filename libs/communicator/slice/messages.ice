@@ -6,8 +6,8 @@
 //
 //------------------------------------------------------------------------
 //
-// Created on   : July 31, 2012
-// Last revision: May 19, 2014
+// Created on   : Jul 31, 2012
+// Last revision: Jul 17, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -25,6 +25,7 @@ module SF
     interface Control {
         void Command(string arg);
         void ReadReq(string arg);
+        void StateUpdate(string arg);
     };
 
     // interface for the "Data" topic. All string arguments are json-encoded.

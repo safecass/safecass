@@ -140,10 +140,9 @@ void GCM::GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const
     names = GetNamesOfInterfaces(type);
 }
 
-const std::string GCM::ProcessStateTransition(State::StateMachineType type,
-                                              const Event *           event,
-                                              const std::string &     componentName,
-                                              const std::string &     interfaceName)
+State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
+                                                  const Event *           event,
+                                                  const std::string &     interfaceName)
 {
     StateMachine * sm = 0;
     bool interfaceStateChange = false;
@@ -159,12 +158,12 @@ const std::string GCM::ProcessStateTransition(State::StateMachineType type,
         it = interfaceStateMachines.find(interfaceName);
         if (it == interfaceStateMachines.end()) {
             SFLOG_ERROR << "GCM::ProcessStateTransition: no interface found: \"" << interfaceName << "\"" << std::endl;
-            return "";
+            return State::INVALID_TRANSITION;
         }
         sm = it->second;
     } else {
         SFLOG_ERROR << "GCM::ProcessStateTransition: invalid state machine type" << std::endl;
-        return "";
+        return State::INVALID_TRANSITION;
     }
 
     // NOTE: Depending on event handling policy in terms of severity and criticality,
@@ -179,27 +178,32 @@ const std::string GCM::ProcessStateTransition(State::StateMachineType type,
     // Look for possible transitions from the current state
     const State::TransitionType transition = event->GetTransition(currentState);
     if (transition == State::INVALID_TRANSITION) {
-        SFLOG_ERROR << "GCM::ProcessStateTransition: invalid transition: " 
-                    << "current state: " << State::GetStringState(currentState) << ", "
-                    << "transition: " << State::GetStringTransition(transition)
-                    << std::endl;
-        return "";
+        SFLOG_WARNING << "GCM::ProcessStateTransition: invalid transition: " 
+                      << "current state: " << State::GetStringState(currentState) << ", "
+                      << "transition: " << State::GetStringTransition(transition)
+                      << std::endl;
+        return State::INVALID_TRANSITION;
     }
     // Make transition for a single statemachine of interest. Depending on type of transition 
     // (getting worse vs. better), transition event may be ignored.
     bool transitionProcessed = sm->ProcessEvent(transition, event);
     if (!transitionProcessed) {
         SFLOG_INFO << "GCM::ProcessStateTransition: event \"" << event->GetName() << "\" is ignored" << std::endl;
-        return "";
+        return State::INVALID_TRANSITION;
     }
 
-    // TODO: Make subsequent transitions resulted from the transition above and propagate state 
-    // changes/events to CONNECTED interfaces.  Note that the projected states do not have
-    // actual statemachines and thus we don't need to propagate state transitions to S_P,
-    // S_R, and S.
+    // Error propagation based on service states (for i-th component and j-th interface of
+    // the component):
+    // - Service state = [ s_R(i,k) * s_F(i) * s_A(i) * ] s_P(i,j) ([]: optional)
+    // Service states change 1) whenever s_P(i,j) changes and 2) any of other states that
+    // the provided interface state depends on change.
 
-    // TODO: build up JSON string that only contains state changes (delta)
-    return "TODO: BUILD UP JSON";
+    // Make subsequent transitions resulted from the transition above and propagate state 
+    // changes/events to connected interfaces via publishing state change messages.
+
+    // Check if any service state changes due to this event/transition
+
+    return transition;
 }
 
 #if 0

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Apr 22, 2014
+// Last revision: Jul 17, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -45,7 +45,14 @@ public:
         StateMachine * ComponentApplication; /*!< s_A: Component State, Application View */
         InterfaceStateMachinesType RequiredInterfaces; /*!< s_R: map of required interface states */
         InterfaceStateMachinesType ProvidedInterfaces; /*!< s_P: map of provided interface states */
+        InterfaceStateMachinesType Services; /*!< s_S: map of service states (projected states) */
     } StateMachinesType;
+
+    /*! Typedef for specification of service state dependency information */
+    // list of statemachines
+    typedef std::vector<StateMachine *> StateMachineVectorType;
+    // key: name of [ s_A, s_F, required interfaces ]
+    typedef std::map<std::string, StateMachineVectorType> ServiceStateDependencyInfoType;
 
 protected:
     /*! Name of component that GCM is associated with */
@@ -53,6 +60,9 @@ protected:
 
     /*! State machines */
     StateMachinesType States;
+
+    /*! Service state dependency information */
+    ServiceStateDependencyInfoType ServiceStateDependencyInfo;
 
 private:
     /*! Component associated with GCM has to be declared */
@@ -73,11 +83,10 @@ public:
     /*! Remove interface */
     bool RemoveInterface(const std::string & name, const GCM::InterfaceTypes type);
 
-    // Process state transition event and returns json string that presents state changes
-    const std::string ProcessStateTransition(State::StateMachineType type,
-                                             const Event *           event,
-                                             const std::string &     componentName,
-                                             const std::string &     interfaceName = "");
+    // Process state transition event and returns transition
+    State::TransitionType ProcessStateTransition(State::StateMachineType type,
+                                                 const Event *           event,
+                                                 const std::string &     interfaceName = "");
 
     //
     // Getters

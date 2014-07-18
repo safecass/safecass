@@ -6,8 +6,8 @@
 //
 //------------------------------------------------------------------------
 //
-// Created on   : July 14, 2012
-// Last revision: June 25, 2014
+// Created on   : Jul 14, 2012
+// Last revision: Jul 17, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -622,20 +622,51 @@ bool Coordinator::OnEvent(const std::string & event)
         return false;
     }
 
-    const std::string jsonStateChange = 
-        gcm->ProcessStateTransition(targetStateMachineType, e, targetComponentName, targetInterfaceName);
-
-    // TODO: propagate state changes/events to connected interfaces ("projected state")
-    // TODO: how to propagate service state changes to other processes? (should exploit connection information)
-
-    // MJTEMP
-    if (jsonStateChange.size() > 0) {
-        std::stringstream ss;
-        ss << "{ \"target\": { \"safety_coordinator\": \"*\", "
-              "\"component\": \"*\" }, "
-              "\"request\": \"state_list\" }";
-        this->PublishStateChangeMessage(ss.str());
+    const State::TransitionType transition = gcm->ProcessStateTransition(targetStateMachineType, e, targetInterfaceName);
+    if (transition == State::INVALID_TRANSITION) {
+        SFLOG_WARNING << "OnEvent: invalid transition for event " << *e << std::endl;
+        return false;
     }
+
+    // Refresh state information (for visualization)
+    JSON _jsonRefresh;
+    JSON::JSONVALUE & jsonRefresh = _jsonRefresh.GetRoot();
+    jsonRefresh["target"]["safety_coordinator"] = "*";
+    jsonRefresh["target"]["component"] = "*";
+    jsonRefresh["request"] = "state_list";
+    //std::stringstream ss;
+    //ss << "{ \"target\": { \"safety_coordinator\": \"*\", "
+            //"\"component\": \"*\" }, "
+            //"\"request\": \"state_list\" }";
+    PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
+
+#if 0
+    // If any service state change occurs
+    if (targetStateMachineType != State::STATEMACHINE_REQUIRED) {
+        // NORMAL_TO_WARNING and WARNING_TO_NORMAL don't need to get propagated to external components.
+        if (transition == State::NORMAL_TO_ERROR || transition == State::WARNING_TO_ERROR ||
+            transition == State::ERROR_TO_NORMAL || transition == State::ERROR_TO_WARNING)
+        {
+            JSON _jsonState;
+            JSON::JSONVALUE & jsonState = _jsonState.GetRoot();
+            jsonState["request"] = "state_update";
+            // information about provided interface of which state just changed
+            jsonState["source"]["safety_coordinator"] = Name;
+            jsonState["source"]["component"] = targetComponentName;
+            jsonState["source"]["interface"] = targetInterfaceName;
+            // new state
+            State::StateType nextState = State::GetNextState(transition);
+            if (nextState == State::NORMAL || nextState == State::WARNING)
+                jsonState["state"] = static_cast<unsigned int>(State::NORMAL);
+            else
+                jsonState["state"] = static_cast<unsigned int>(State::ERROR);
+            // event information
+            jsonState["event"] = e->GetName();
+
+            PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonState));
+        }
+    }
+#endif
 
     // Call event hook for middleware
     return OnEventHandler(e);
@@ -649,4 +680,3 @@ GCM * Coordinator::GetGCMInstance(const std::string & componentName) const
     else
         return it->second;
 }
-

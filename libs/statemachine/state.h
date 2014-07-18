@@ -132,9 +132,12 @@ public:
     State & operator= (const State & rhs);
 
     /*! String representation of states, entry/exit events, and transitions */
-    static const std::string GetStringState(StateType type);
-    static const std::string GetStringEntryExit(StateEntryExitType type);
-    static const std::string GetStringTransition(TransitionType type);
+    static const std::string GetStringState(StateType state);
+    static const std::string GetStringEntryExit(StateEntryExitType entryExit);
+    static const std::string GetStringTransition(TransitionType transition);
+
+    // Given transition, return new state 
+    static StateType GetNextState(TransitionType transition);
 };
 
 

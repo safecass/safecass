@@ -151,6 +151,7 @@ bool Publisher::PublishControl(const Topic::Control::CategoryType category, cons
         switch (category) {
         case Topic::Control::COMMAND:  PublisherControl->Command(json); break;
         case Topic::Control::READ_REQ: PublisherControl->ReadReq(json); break;
+        case Topic::Control::STATE_UPDATE: PublisherControl->StateUpdate(json); break;
         default:
             SFLOG_ERROR << PUBLISHER_INFO << "Failed to publish message (invalid control category): " << json << std::endl;
             return false;

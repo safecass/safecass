@@ -51,6 +51,9 @@ public:
     void ReadReq(const std::string & json, const Ice::Current &) {
         CallbackInstance->CallbackControl(Topic::Control::READ_REQ, json);
     }
+    void StateUpdate(const std::string & json, const Ice::Current &) {
+        CallbackInstance->CallbackControl(Topic::Control::STATE_UPDATE, json);
+    }
 };
 
 Subscriber::Subscriber(void): BaseIce(NONAME, NONAME), CallbackInstance(0)

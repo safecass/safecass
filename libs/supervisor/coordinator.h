@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Jul 10, 2014
+// Last revision: Jul 17, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -18,6 +18,7 @@
 #include "monitor.h"
 #include "gcm.h"
 #include "filterBase.h"
+#include "topic_def.h"
 
 #include <map>
 
@@ -173,7 +174,7 @@ public:
     bool OnEvent(const std::string & event);
     // TEMP: Coordinator does not have casros accessor and cannot publish messages. As
     // temporary solution, we use pure virtual method for publishing messages.
-    virtual bool PublishStateChangeMessage(const std::string & msg) = 0;
+    virtual bool PublishMessage(Topic::Control::CategoryType category, const std::string & msg) = 0;
     // Called by OnEvent() to inform the derived class (e.g., mtsSafetyCoordinator in case
     // of cisst) of the event
     virtual bool OnEventHandler(const Event * e) = 0;

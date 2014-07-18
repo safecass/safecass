@@ -100,6 +100,7 @@ namespace TopicNames {
     namespace Control {
         DEFINE_KEYWORD(COMMAND);
         DEFINE_KEYWORD(READ_REQ);
+        DEFINE_KEYWORD(STATE_UPDATE);
     }
     namespace Data {
         DEFINE_KEYWORD(MONITOR);

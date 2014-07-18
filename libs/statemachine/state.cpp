@@ -22,9 +22,9 @@ State::State(State::StateType state) : CurrentState(state)
 {}
 
 #define STRINGFY(_state) case _state: return #_state;
-const std::string State::GetStringState(const StateType type)
+const std::string State::GetStringState(const StateType state)
 {
-    switch (type) {
+    switch (state) {
         STRINGFY(NORMAL);
         STRINGFY(WARNING);
         STRINGFY(ERROR);
@@ -33,9 +33,9 @@ const std::string State::GetStringState(const StateType type)
     }
 }
 
-const std::string State::GetStringEntryExit(const StateEntryExitType type)
+const std::string State::GetStringEntryExit(const StateEntryExitType entryExit)
 {
-    switch (type) {
+    switch (entryExit) {
         STRINGFY(NORMAL_ON_ENTRY);
         STRINGFY(NORMAL_ON_EXIT);
         STRINGFY(WARNING_ON_ENTRY);
@@ -46,9 +46,9 @@ const std::string State::GetStringEntryExit(const StateEntryExitType type)
     }
 }
 
-const std::string State::GetStringTransition(const TransitionType type)
+const std::string State::GetStringTransition(const TransitionType transition)
 {
-    switch (type) {
+    switch (transition) {
         STRINGFY(NORMAL_TO_ERROR);
         STRINGFY(ERROR_TO_NORMAL);
         STRINGFY(NORMAL_TO_WARNING);
@@ -59,6 +59,23 @@ const std::string State::GetStringTransition(const TransitionType type)
     }
 }
 #undef STRINGFY
+
+State::StateType State::GetNextState(TransitionType transition)
+{
+    switch (transition) {
+    case State::WARNING_TO_NORMAL:
+    case State::ERROR_TO_NORMAL:
+        return State::NORMAL;
+    case State::NORMAL_TO_WARNING:
+    case State::ERROR_TO_WARNING:
+        return State::WARNING;
+    case State::NORMAL_TO_ERROR:
+    case State::WARNING_TO_ERROR:
+        return State::ERROR;
+    default:
+        return State::INVALID;
+    }
+}
 
 bool State::operator> (const State & rhs) const
 {

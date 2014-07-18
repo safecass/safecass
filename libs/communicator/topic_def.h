@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: May 20, 2014
+// Last revision: Jul 17, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -31,7 +31,9 @@ namespace Topic {
             // Execute commands to change states or values of the system
             COMMAND,
             // Request to fetch current values of the system
-            READ_REQ
+            READ_REQ,
+            // Inform other components of state change (error and state change event propagation)
+            STATE_UPDATE
         } CategoryType;
     };
 

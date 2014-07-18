@@ -27,6 +27,9 @@ using namespace SF;
 SF::JSON CasrosSystemStates;
 SF::JSON::JSONVALUE & CasrosSystemStatesRoot = CasrosSystemStates.GetRoot();
 
+// for safety coordinator color selection
+static int SCColorCode = 0;
+
 const std::string GetColorCodeForState(unsigned int state)
 {
     switch (static_cast<State::StateType>(state)) {
@@ -42,13 +45,14 @@ const std::string GetColorCodeForSafetyCoordinator(void)
 {
     const int N = 5;
 
-    static int cnt = 0;
-    switch (cnt++ % N) {
+    switch (SCColorCode++ % N) {
     case 0: return "#2e6093";
     case 1: return "#3a5988";
     case 2: return "#9d4e87";
     case 3: return "#92538c";
     case 4: return "#72659d";
+    default:
+            return "#ffffff";
     }
 }
 
@@ -135,6 +139,9 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
 
     // get json-encoded string for state viewer
     const std::string outJson = SF::JSON::GetJSONString(D3StatesRoot);
+
+    // Reset color code
+    SCColorCode = 0;
 
     // refresh state chart
     QJsApiHandler::UpdateJSONState(outJson);
