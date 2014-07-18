@@ -7,11 +7,12 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Jul 15, 2014
+// Last revision: Jul 17, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "gcm.h"
+#include "common.h"
 #include "config.h"
 #include <cisstMultiTask/mtsComponent.h>
 #include <cisstMultiTask/mtsManagerLocal.h>
@@ -29,6 +30,10 @@ GCM::GCM(const std::string & componentName)
 {
     States.ComponentFramework   = new StateMachine(componentName);
     States.ComponentApplication = new StateMachine(componentName);
+
+    // Hopefully, nobody uses s_F or s_A as the name of required interface...
+    ServiceStateDependencyInfo["s_F"] = new StrVecType;
+    ServiceStateDependencyInfo["s_A"] = new StrVecType;
 }
 
 GCM::~GCM(void)
@@ -48,6 +53,13 @@ GCM::~GCM(void)
         it = States.ProvidedInterfaces.begin();
         States.ProvidedInterfaces.erase(it);
         delete it->second;
+    }
+
+    ServiceStateDependencyInfoType::iterator it2;
+    while (!ServiceStateDependencyInfo.empty()) {
+        it2 = ServiceStateDependencyInfo.begin();
+        ServiceStateDependencyInfo.erase(it2);
+        delete it2->second;
     }
 }
 
@@ -85,6 +97,12 @@ bool GCM::AddInterface(const std::string & name, const GCM::InterfaceTypes type)
             return false;
         }
         States.RequiredInterfaces.insert(std::make_pair(name, new StateMachine(name)));
+
+        // add new column to service state dependency information table
+        SFASSERT(ServiceStateDependencyInfo.find(name) == ServiceStateDependencyInfo.end());
+        ServiceStateDependencyInfo[name] = new StrVecType;
+
+        SFLOG_DEBUG << "GCM:AddInterface: updated service state dependency table: " << ComponentName << " - " << name << std::endl;
     }
     
     return true;
@@ -318,4 +336,67 @@ State::StateType GCM::GetInterfaceState(const GCM::InterfaceTypes type) const
             return State::NORMAL;
         }
     }
+}
+
+void GCM::AddServiceStateDependency(const JSON::JSONVALUE & services)
+{
+    std::string prvName;
+    for (size_t i = 0; i < services.size(); ++i) {
+        prvName = JSON::GetSafeValueString(services[i], "name");
+        if (!FindInterface(prvName, PROVIDED_INTERFACE)) {
+            SFLOG_ERROR << "GCM::AddServiceStateDependency: no provided interface found: "
+                        << "\"" << prvName << "\"" << std::endl;
+            continue;
+        }
+
+        bool dependent = JSON::GetSafeValueBool(services[i]["dependency"], "s_F");
+        if (dependent)
+            AddServiceStateDependencyEntry(prvName, "s_F");
+        dependent = JSON::GetSafeValueBool(services[i]["dependency"], "s_A");
+        if (dependent)
+            AddServiceStateDependencyEntry(prvName, "s_A");
+
+        for (size_t j = 0; j < services[i]["dependency"]["s_R"].size(); ++j) {
+            const std::string reqName = services[i]["dependency"]["s_R"][j].asString();
+            AddServiceStateDependencyEntry(prvName, reqName);
+        }
+    }
+
+    ServiceStateDependencyInfoType::iterator it = ServiceStateDependencyInfo.begin();
+    ServiceStateDependencyInfoType::iterator itEnd = ServiceStateDependencyInfo.end();
+    for (; it != itEnd; ++it) {
+        std::cout << it->first << std::endl;
+        StrVecType * v = it->second;
+        if (!v)
+            continue;
+        for (size_t j = 0; j < v->size(); ++j) {
+            std::cout << "\t" << v->at(j) << std::endl;
+        }
+    }
+}
+
+bool GCM::AddServiceStateDependencyEntry(const std::string & providedInterfaceName,
+                                         const std::string & name)
+{
+    StrVecType * vec = ServiceStateDependencyInfo.find(name)->second;
+    if (!vec) {
+        SFLOG_ERROR << "GCM::AddServiceStateDependencyEntry: No entry \""
+                    << name << "\" found in service state dependency table"
+                    << std::endl;
+        return false;
+    }
+
+    for (size_t i = 0; i < vec->size(); ++i) {
+        // check if provided interface is already in the table
+        if (vec->at(i).compare(providedInterfaceName) == 0) {
+            SFLOG_ERROR << "GCM::AddServiceStateDependency: Provided interface \"" 
+                        << providedInterfaceName << "\" is already in service state dependency table"
+                        << std::endl;
+            return false;
+        }
+    }
+
+    vec->push_back(providedInterfaceName);
+
+    return true;
 }

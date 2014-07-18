@@ -105,6 +105,11 @@ public:
     // Set name of instance
     inline void SetName(const std::string & name) { Name = name; }
 
+    // Read and process configuration file that contains definitions for events, filters,
+    // and service states dependency information.
+    bool ReadConfigFile(const std::string & jsonFileName);
+    bool ReadConfigFileFramework(const std::string & jsonFileName, const std::string & componentName);
+
     //! Deploy all monitors and filter pipelines
     /*! Middleware specific: This method should be overriden by derived class
      * because each middleware has different component composition processes.
@@ -138,9 +143,6 @@ public:
     //
     // FILTERS
     //
-    // Read and process configuration file that contains definition for events and filters
-    bool ReadConfigFile(const std::string & jsonFileName);
-    bool ReadConfigFileFramework(const std::string & jsonFileName, const std::string & componentName);
     // Get all filters installed on the component specified
     FiltersType * GetFilters(const std::string & componentName) const;
     // Install filter from JSON
@@ -192,6 +194,12 @@ public:
     // Called by OnEvent() to inform the derived class (e.g., mtsSafetyCoordinator in case
     // of cisst) of the event
     virtual bool OnEventHandler(const Event * e) = 0;
+
+    //
+    // SERVICE STATES
+    //
+    bool AddServiceStateDependencyFromJSON(const std::string & jsonString);
+    bool AddServiceStateDependencyFromJSONFile(const std::string & jsonFileName);
 
     //! For human-readable logging and debugging
     /*! \param outputStream output stream

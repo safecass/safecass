@@ -239,6 +239,11 @@ bool Coordinator::ReadConfigFile(const std::string & jsonFileName)
         return false;
     }
 
+    if (!AddServiceStateDependencyFromJSONFile(jsonFileName)) {
+        SFLOG_ERROR << "Failed to read config file (service state): \"" << jsonFileName << "\"" << std::endl;
+        return false;
+    }
+
     SFLOG_DEBUG << "Successfully processed config file: \"" << jsonFileName << "\"" << std::endl;
 
     return true;
@@ -337,8 +342,8 @@ bool Coordinator::AddFilterFromJSON(const std::string & jsonString)
 bool Coordinator::AddFilters(const JSON::JSONVALUE & filters)
 {
     if (filters.isNull() || filters.size() == 0) {
-        SFLOG_ERROR << "AddFilter: No filter specification found in json: " << filters << std::endl;
-        return false;
+        SFLOG_INFO << "AddFilter: No filter specification found in json: " << filters << std::endl;
+        return true;
     }
 
     // Create filter target instance
@@ -508,8 +513,8 @@ bool Coordinator::AddEvent(const std::string & componentName, Event * event)
 bool Coordinator::AddEvents(const std::string & componentName, const JSON::JSONVALUE & events)
 {
     if (events.isNull() || events.size() == 0) {
-        SFLOG_ERROR << "AddEvents: No event specification found in json: " << JSON::GetJSONString(events) << std::endl;
-        return false;
+        SFLOG_INFO << "AddEvents: No event specification found in json: " << JSON::GetJSONString(events) << std::endl;
+        return true;
     }
 
     // Figure out how many events are defined, and create and register event instances
@@ -817,3 +822,50 @@ GCM * Coordinator::GetGCMInstance(const std::string & componentName) const
     else
         return it->second;
 }
+
+bool Coordinator::AddServiceStateDependencyFromJSON(const std::string & jsonString)
+{
+    // Construct JSON structure from JSON string
+    JSON json;
+    if (!json.Read(jsonString.c_str())) {
+        SFLOG_ERROR << "AddServiceStateDependencyFromJSON: Failed to read json string: " << jsonString << std::endl;
+        return false;
+    }
+
+    const JSON::JSONVALUE & services = json.GetRoot()["service"];
+    if (services != JSON::JSONVALUE::null) {
+        const std::string componentName = JSON::GetSafeValueString(json.GetRoot(), "component");
+        GCM * gcm = GetGCMInstance(componentName);
+        if (!gcm) {
+            SFLOG_ERROR << "AddServiceStateDependencyFromJSON: no component found: \"" << componentName << "\"" << std::endl;
+            return false;
+        }
+
+        gcm->AddServiceStateDependency(services);
+    }
+
+    SFLOG_DEBUG << "AddServiceStateDependencyFromJSON: Successfully added service state dependency using json string: " << jsonString << std::endl;
+
+    return true;
+}
+
+bool Coordinator::AddServiceStateDependencyFromJSONFile(const std::string & jsonFileName)
+{
+    // Construct JSON structure from JSON file
+    JSON json;
+    if (!json.ReadFromFile(jsonFileName)) {
+        SFLOG_ERROR << "AddServiceStateDependencyFromJSONFile: Failed to read json file: " << jsonFileName << std::endl;
+        return false;
+    }
+
+    bool ret = AddServiceStateDependencyFromJSON(JSON::GetJSONString(json.GetRoot()));
+    if (!ret) {
+        SFLOG_ERROR << "AddServiceStateDependencyFromJSONFile: Failed to add service state dependency from JSON file: " << jsonFileName << std::endl;
+        return false;
+    }
+
+    SFLOG_DEBUG << "AddServiceStateDependencyFromJSONFile: Successfully added service state dependency from JSON file: " << jsonFileName << std::endl;
+
+    return ret;
+}
+

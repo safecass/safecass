@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 7, 2014
-// Last revision: Jul 3, 2014
+// Last revision: Jul 14, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -15,10 +15,11 @@
 #include "accessor.h"
 // Header from the Clipo project; See CMakeLists.txt for more details.
 #include "command_line_interpreter.hpp"
+#include "common.h"
 
 namespace po = boost::program_options;
 
-typedef std::vector<std::string> StrVec;
+using namespace SF;
 
 //
 // command handlers
@@ -83,12 +84,12 @@ int main(int argc, char **argv)
     // Instantiate interpreter
     boost::cli::commands_description desc;
     desc.add_options()
-        ("help",   po::value<StrVec>()->zero_tokens()->notifier(boost::bind(&handler_help, _1)))
-        ("filter", po::value<StrVec>()->notifier(&handler_filter)->multitoken())
-        ("state",  po::value<StrVec>()->notifier(&handler_state)->multitoken())
-        ("event",  po::value<StrVec>()->notifier(&handler_event)->multitoken())
-        ("exit",   po::value<StrVec>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
-        ("quit",   po::value<StrVec>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
+        ("help",   po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_help, _1)))
+        ("filter", po::value<StrVecType>()->notifier(&handler_filter)->multitoken())
+        ("state",  po::value<StrVecType>()->notifier(&handler_state)->multitoken())
+        ("event",  po::value<StrVecType>()->notifier(&handler_event)->multitoken())
+        ("exit",   po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
+        ("quit",   po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
         ;
 
     boost::cli::command_line_interpreter cli(desc, ">");

@@ -20,6 +20,7 @@
 #include "statemachine.h"
 #include "state.h"
 #include "event.h"
+#include "json.h"
 
 #include <map>
 
@@ -45,14 +46,13 @@ public:
         StateMachine * ComponentApplication; /*!< s_A: Component State, Application View */
         InterfaceStateMachinesType RequiredInterfaces; /*!< s_R: map of required interface states */
         InterfaceStateMachinesType ProvidedInterfaces; /*!< s_P: map of provided interface states */
-        InterfaceStateMachinesType Services; /*!< s_S: map of service states (projected states) */
+        //InterfaceStateMachinesType Services; /*!< s_S: map of service states (projected states) */
     } StateMachinesType;
 
     /*! Typedef for specification of service state dependency information */
-    // list of statemachines
-    typedef std::vector<StateMachine *> StateMachineVectorType;
     // key: name of [ s_A, s_F, required interfaces ]
-    typedef std::map<std::string, StateMachineVectorType> ServiceStateDependencyInfoType;
+    // value: a list of names of provided interfaces that are dependent on elements of name "key"
+    typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType;
 
 protected:
     /*! Name of component that GCM is associated with */
@@ -82,6 +82,10 @@ public:
     bool FindInterface(const std::string & name, const GCM::InterfaceTypes type) const;
     /*! Remove interface */
     bool RemoveInterface(const std::string & name, const GCM::InterfaceTypes type);
+    // Add service state dependency information
+    void AddServiceStateDependency(const JSON::JSONVALUE & services);
+    bool AddServiceStateDependencyEntry(const std::string & providedInterfaceName,
+                                        const std::string & name);
 
     // Process state transition event and returns transition
     State::TransitionType ProcessStateTransition(State::StateMachineType type,
