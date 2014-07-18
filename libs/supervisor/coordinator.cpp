@@ -12,6 +12,7 @@
 // Github       : https://github.com/minyang/casros
 //
 #include "coordinator.h"
+#include "filterFactory.h"
 
 #define VERBOSE 0
 
@@ -224,31 +225,167 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
     return ss.str();
 }
 
-bool Coordinator::AddFilter(const std::string & componentName, FilterBase * filter)
+bool Coordinator::ReadConfigFile(const std::string & jsonFileName)
 {
-    // TODO: "target" of filter
-#if 0
-    // state_machine: type
-    State::StateMachineType smType;
-    const std::string type = SF::JSON::GetSafeValueString(events[i]["state_machine"], "type");
-    if (type.compare("s_F") == 0)
-        smType = State::STATEMACHINE_FRAMEWORK;
-    else if (type.compare("s_A") == 0)
-        smType = State::STATEMACHINE_APP;
-    else if (type.compare("s_P") == 0)
-        smType = State::STATEMACHINE_PROVIDED;
-    else if (type.compare("s_R") == 0)
-        smType = State::STATEMACHINE_REQUIRED;
-    else {
-        SFLOG_ERROR << "AddEvents: Invalid state machine type: " << type << ", JSON: " << events[i] << std::endl;
+    // NOTE: events should be processed first than filters because SC needs event information
+    // to deploy filters.
+    if (!AddEventFromJSONFile(jsonFileName)) {
+        SFLOG_ERROR << "Failed to read config file (event): \"" << jsonFileName << "\"" << std::endl;
         return false;
     }
-    // state_machine: id 
-    if (smType == State::STATEMACHINE_PROVIDED || smType == State::STATEMACHINE_REQUIRED) {
-        smId = JSON::GetSafeValueString(events[i]["state_machine"], "id");
+
+    if (!AddFilterFromJSONFile(jsonFileName)) {
+        SFLOG_ERROR << "Failed to read config file (filter): \"" << jsonFileName << "\"" << std::endl;
+        return false;
     }
-#endif
+
+    SFLOG_DEBUG << "Successfully processed config file: \"" << jsonFileName << "\"" << std::endl;
+
+    return true;
+}
+
+bool Coordinator::ReadConfigFileFramework(const std::string & jsonFileName, const std::string & componentName)
+{
+    // NOTE: events should be processed first than filters because SC needs event information
+    // to deploy filters.
+    if (!AddEventFromJSONFileToComponent(jsonFileName, componentName)) {
+        SFLOG_ERROR << "Failed to read config file for framework (event): \"" << jsonFileName << "\"" << std::endl;
+        return false;
+    }
+
+    if (!AddFilterFromJSONFileToComponent(jsonFileName, componentName)) {
+        SFLOG_ERROR << "Failed to read config file for framework (filter): \"" << jsonFileName << "\"" << std::endl;
+        return false;
+    }
+
+    SFLOG_DEBUG << "Successfully processed config file for framework: \"" << jsonFileName << "\"" << std::endl;
+
+    return true;
+}
+
+bool Coordinator::AddFilterFromJSONFileToComponent(const std::string & jsonFileName,
+                                                   const std::string & targetComponentName)
+{
+    // Construct JSON structure from JSON file
+    JSON json;
+    if (!json.ReadFromFile(jsonFileName)) {
+        SFLOG_ERROR << "AddFilterFromJSONFileToComponent: Failed to read json file: " << jsonFileName << std::endl;
+        return false;
+    }
+    SFLOG_DEBUG << "AddFilterFromJSONFileToComponent: Successfully read json file: " << jsonFileName << std::endl;
+
+    // Replace placeholder for target component name with actual target component name
+    std::string filterClassName;
+    JSON::JSONVALUE & filters = json.GetRoot()["filter"];
+    for (size_t i = 0; i < filters.size(); ++i) {
+        JSON::JSONVALUE & filter = filters[i];
+        filter["target"]["component"] = targetComponentName;
+    }
+
+    bool ret = AddFilters(filters);
+    if (!ret) {
+        SFLOG_ERROR << "AddFilterFromJSONFile: Failed to add filter(s) from JSON file: " << jsonFileName << std::endl;
+        return false;
+    }
+
+    SFLOG_DEBUG << "AddFilterFromJSONFile: Successfully added filter(s) from JSON file: " << jsonFileName << std::endl;
+
+    return true;
+}
+
+bool Coordinator::AddFilterFromJSONFile(const std::string & jsonFileName)
+{
+    // Construct JSON structure from JSON file
+    JSON json;
+    if (!json.ReadFromFile(jsonFileName)) {
+        SFLOG_ERROR << "AddFilterFromJSONFile: Failed to read json file: " << jsonFileName << std::endl;
+        return false;
+    }
+
+    bool ret = AddFilterFromJSON(JSON::GetJSONString(json.GetRoot()));
+    if (!ret) {
+        SFLOG_ERROR << "AddFilterFromJSONFile: Failed to add filter(s) from JSON file: " << jsonFileName << std::endl;
+        return false;
+    }
+
+    SFLOG_DEBUG << "AddFilterFromJSONFile: Successfully added filter(s) from JSON file: " << jsonFileName << std::endl;
+
+    return ret;
+}
+
+bool Coordinator::AddFilterFromJSON(const std::string & jsonString)
+{
+    // Construct JSON structure from JSON string
+    JSON json;
+    if (!json.Read(jsonString.c_str())) {
+        SFLOG_ERROR << "AddFilterFromJSON: Failed to read json string: " << jsonString << std::endl;
+        return false;
+    }
+
+    const JSON::JSONVALUE filters = json.GetRoot()["filter"];
+    bool ret = AddFilters(filters);
+    if (!ret) {
+        SFLOG_DEBUG << "AddFilterFromJSON: Failed to add filter(s) using json string: " << jsonString << std::endl;
+        return false;
+    }
+
+    SFLOG_DEBUG << "AddFilterFromJSON: Successfully added filter(s) using json string: " << jsonString << std::endl;
+
+    return true;
+}
+
+bool Coordinator::AddFilters(const JSON::JSONVALUE & filters)
+{
+    if (filters.isNull() || filters.size() == 0) {
+        SFLOG_ERROR << "AddFilter: No filter specification found in json: " << filters << std::endl;
+        return false;
+    }
+
+    // Create filter target instance
+
+    // Figure out how many filters are defined, and 
+    // create and install filter instances while iterating each filter specification
+    std::string filterClassName;
+    FilterBase * filter = 0; 
+    bool enableLog = false;
+    for (size_t i = 0; i < filters.size(); ++i) {
+        filterClassName = JSON::GetSafeValueString(filters[i], "class_name");
+        enableLog = JSON::GetSafeValueBool(filters[i], "debug");
         
+        // Create filter instance based on filter class name using filter factory
+        filter = FilterFactory::GetInstance()->CreateFilter(filterClassName, filters[i]);
+        if (!filter) {
+            SFLOG_ERROR << "AddFilter: Failed to create filter instance \"" << filterClassName << "\"\n";
+            continue;
+        }
+
+        // Install filter to the target component
+        if (!AddFilter(filter)) {
+            SFLOG_ERROR << "AddFilter: Failed to add filter \"" << filter->GetFilterName() << "\"\n";
+            delete filter;
+            return false;
+        }
+        
+        // configure filter (process filter-specific arguments)
+        if (!filter->ConfigureFilter(filters[i])) {
+            SFLOG_ERROR << "AddFilter: Failed to process filter-specfic parts for filter instance: \"" << filterClassName << "\"\n";
+            delete filter;
+            return false;
+        }
+
+        // enable debug log if specified
+        if (enableLog)
+            filter->EnableDebugLog();
+
+        SFLOG_DEBUG << "[" << (i + 1) << "/" << filters.size() << "] "
+            << "Successfully installed filter: \"" << filter->GetFilterName() << "\"" << std::endl;
+   }
+
+    return true;
+}
+
+bool Coordinator::AddFilter(const std::string & componentName, FilterBase * filter)
+{
     // check if component is added
     unsigned int cid = GetComponentId(componentName);
     if (cid == 0) {

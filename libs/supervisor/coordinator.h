@@ -138,9 +138,23 @@ public:
     //
     // FILTERS
     //
+    // Read and process configuration file that contains definition for events and filters
+    bool ReadConfigFile(const std::string & jsonFileName);
+    bool ReadConfigFileFramework(const std::string & jsonFileName, const std::string & componentName);
     // Get all filters installed on the component specified
     FiltersType * GetFilters(const std::string & componentName) const;
-    // Add filter instance
+    // Install filter from JSON
+    bool AddFilters(const SF::JSON::JSONVALUE & filters);
+    // Install filter from JSON string
+    bool AddFilterFromJSON(const std::string & jsonString);
+    // Install filter from JSON file
+    bool AddFilterFromJSONFile(const std::string & jsonFileName);
+    // Install filter from JSON file with target component specified
+    bool AddFilterFromJSONFileToComponent(const std::string & jsonFileName,
+                                          const std::string & targetComponentName);
+    // Install filter using filter instance (Component-based framework-specific)
+    virtual bool AddFilter(SF::FilterBase * filter) = 0;
+    // Register filter instance to Coordinator
     bool AddFilter(const std::string & componentName, FilterBase * filter);
     // Get information about all the filters installed on the component specified
     const std::string GetFilterList(const std::string & componentName = "*") const;
