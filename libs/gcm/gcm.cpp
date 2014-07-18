@@ -478,5 +478,29 @@ void GCM::PrintServiceStateDependencyTable(std::ostream & out)
 
 State::StateType GCM::GetServiceState(const std::string & providedInterfaceName) const
 {
-    return State::INVALID;
+    ServiceStateDependencyInfoType::const_iterator it = 
+        ServiceStateDependencyInfo2.find(providedInterfaceName);
+    if (it == ServiceStateDependencyInfo2.end())
+        return State::INVALID;
+
+    StrVecType * v = it->second;
+    SFASSERT(v);
+    if (v->size() == 0)
+        return GetInterfaceState(providedInterfaceName, PROVIDED_INTERFACE);
+
+    State serviceState(State::NORMAL);
+    std::string name;
+    for (size_t i = 0; i < v->size(); ++i) {
+        name = v->at(i);
+        if (name.compare("s_F") == 0)
+            serviceState = serviceState * GetComponentState(FRAMEWORK_VIEW);
+        else if (name.compare("s_A") == 0)
+            serviceState = serviceState * GetComponentState(APPLICATION_VIEW);
+        else
+            serviceState = serviceState * GetInterfaceState(name, REQUIRED_INTERFACE);
+        if (serviceState.GetState() == State::ERROR)
+            break;
+    }
+
+    return (serviceState < State(State::ERROR) ? State::NORMAL : State::FAILURE);
 }

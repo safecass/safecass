@@ -35,7 +35,7 @@ p#intro {
 <div id="vis"><!--<img src="full.png">--></div>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
-var width = 640,
+var width = 700,
     height = width,
     radius = width / 2,
     x = d3.scale.linear().range([0, 2 * Math.PI]),
@@ -65,7 +65,7 @@ var arc = d3.svg.arc()
     .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
     .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
     .innerRadius(function(d) { return Math.max(0, d.y ? y(d.y) : d.y); })
-    .outerRadius(function(d) { return Math.max(0, y(d.y + 1.0 * d.dy)); });
+    .outerRadius(function(d) { return Math.max(0, y(1.0*d.y + (d.depth == 3 ? 1.0 : 1.0) * d.dy)); });
 
 d3.json("wheel.json", function(error, json) {
   var jsondata = JSON.parse(jsHandler.GetStateJSON());

@@ -50,14 +50,7 @@ public:
     } StateMachinesType;
 
     /*! Typedef for specification of service state dependency information */
-    // key: name of [ s_A, s_F, required interfaces ]
-    // value: a list of names of provided interfaces that are dependent on elements of name "key"
-    // Used to decide if service state should change when a state transition occurs.
     typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType;
-    // key: name of provided interfaces
-    // value: a list of elements names on which a provided interface state depends
-    // Used to calculate service state of a provided interface
-    typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType2;
 
 protected:
     /*! Name of component that GCM is associated with */
@@ -67,8 +60,14 @@ protected:
     StateMachinesType States;
 
     /*! Service state dependency information */
-    ServiceStateDependencyInfoType  ServiceStateDependencyInfo;
-    ServiceStateDependencyInfoType2 ServiceStateDependencyInfo2;
+    // key: name of [ s_A, s_F, required interfaces ]
+    // value: a list of names of provided interfaces that are dependent on elements of name "key"
+    // Used to decide if service state should change when a state transition occurs.
+    ServiceStateDependencyInfoType ServiceStateDependencyInfo;
+    // key: name of provided interfaces
+    // value: a list of elements names on which a provided interface state depends
+    // Used to calculate service state of a provided interface
+    ServiceStateDependencyInfoType ServiceStateDependencyInfo2;
 
 private:
     /*! Component associated with GCM has to be declared */

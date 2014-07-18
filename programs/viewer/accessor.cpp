@@ -206,6 +206,10 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
                         outInterfaceProvidedEachRoot["name"] = inPrvInterface["name"];
                         outInterfaceProvidedEachRoot["color"] = 
                             GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "state"));
+                        size_t cnt = 0;
+                        outInterfaceProvidedEachRoot["children"][cnt]["name"] = "";//"service";
+                        outInterfaceProvidedEachRoot["children"][cnt]["color"] =
+                            GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "service_state"));
                     }
                     outInterfaceProvidedRoot["children"][k] = outInterfaceProvidedEachRoot;
                 }

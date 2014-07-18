@@ -197,25 +197,32 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
            << "\"s_A\": " << static_cast<int>(gcm->GetComponentState(GCM::APPLICATION_VIEW)) << ", "
            << "\"s_P\": " << static_cast<int>(gcm->GetInterfaceState(GCM::PROVIDED_INTERFACE)) << ", "
            << "\"s_R\": " << static_cast<int>(gcm->GetInterfaceState(GCM::REQUIRED_INTERFACE)) << ", ";
+
         StrVecType names;
-        // provided interface states
-#define GET_EACH_INTERFACE_STATE(_type, _key)\
-        names.clear();\
-        it->second->GetNamesOfInterfaces(_type, names);\
-        ss << "\"" _key "\": [ ";\
-        for (size_t i = 0; i < names.size(); ++i) {\
-            if (i != 0)\
-                ss << ", ";\
-            ss << "{ \"name\": \"" << names[i] << "\", ";\
-            ss << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], _type));\
-            ss << " }";\
-        }\
-        ss << " ]";
-        GET_EACH_INTERFACE_STATE(GCM::PROVIDED_INTERFACE, "interfaces_provided");
-        ss << ", ";
-        GET_EACH_INTERFACE_STATE(GCM::REQUIRED_INTERFACE, "interfaces_required");
-#undef GET_EACH_INTERFACE_STATE
-        ss << " }";
+
+        it->second->GetNamesOfInterfaces(GCM::PROVIDED_INTERFACE, names);
+        ss << "\"interfaces_provided\": [ ";
+        for (size_t i = 0; i < names.size(); ++i) {
+            if (i != 0)
+                ss << ", ";
+            ss << "{ \"name\": \"" << names[i] << "\", ";
+            ss << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", ";
+            ss << "\"service_state\": " << static_cast<int>(gcm->GetServiceState(names[i]));
+            ss << " }";
+        }
+        ss << " ], ";
+
+        names.clear();
+        it->second->GetNamesOfInterfaces(GCM::REQUIRED_INTERFACE, names);
+        ss << "\"interfaces_required\": [ ";
+        for (size_t i = 0; i < names.size(); ++i) {
+            if (i != 0)
+                ss << ", ";
+            ss << "{ \"name\": \"" << names[i] << "\", ";
+            ss << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::REQUIRED_INTERFACE));
+            ss << " }";
+        }
+        ss << " ] }";
 
         first = false;
     }

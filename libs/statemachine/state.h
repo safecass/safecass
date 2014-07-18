@@ -38,7 +38,7 @@ public:
         NORMAL = 0,
         WARNING,
         ERROR,
-        // projected state
+        // propagated state
         FAILURE,
         // invalid state
         INVALID
