@@ -52,7 +52,12 @@ public:
     /*! Typedef for specification of service state dependency information */
     // key: name of [ s_A, s_F, required interfaces ]
     // value: a list of names of provided interfaces that are dependent on elements of name "key"
+    // Used to decide if service state should change when a state transition occurs.
     typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType;
+    // key: name of provided interfaces
+    // value: a list of elements names on which a provided interface state depends
+    // Used to calculate service state of a provided interface
+    typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType2;
 
 protected:
     /*! Name of component that GCM is associated with */
@@ -62,7 +67,8 @@ protected:
     StateMachinesType States;
 
     /*! Service state dependency information */
-    ServiceStateDependencyInfoType ServiceStateDependencyInfo;
+    ServiceStateDependencyInfoType  ServiceStateDependencyInfo;
+    ServiceStateDependencyInfoType2 ServiceStateDependencyInfo2;
 
 private:
     /*! Component associated with GCM has to be declared */
@@ -95,22 +101,24 @@ public:
     //
     // Getters
     //
-    /*! Returns name of component that this GCM is associated with */
+    //! Returns name of component that this GCM is associated with
     const std::string & GetComponentName(void) const { return ComponentName; }
-    /*! Returns names of interfaces */
+    //! Returns names of interfaces
     StrVecType GetNamesOfInterfaces(InterfaceTypes type) const;
     void       GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const;
-    /*! Returns component state */
+    //! Returns component state
     State::StateType GetComponentState(const ComponentStateViews view = SYSTEM_VIEW) const;
-    /*! Returns interface state */
+    //! Returns interface state
     State::StateType GetInterfaceState(const std::string & name, const GCM::InterfaceTypes type) const;
-    /*! Returns projected interface state */
+    //! Returns consolidated interface state
     State::StateType GetInterfaceState(const GCM::InterfaceTypes type) const;
+    //! Returns service state of provided interface considering its dependencies on other states
+    State::StateType GetServiceState(const std::string & providedInterfaceName) const;
 
     //
     // Misc.
     //
-    /*! Human readable output of this class */
+    //! Human readable output of this class
     void ToStream(std::ostream & outputStream) const;
     // Print service state dependency table in tabular format
     void PrintServiceStateDependencyTable(std::ostream & out);

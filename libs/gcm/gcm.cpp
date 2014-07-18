@@ -61,6 +61,11 @@ GCM::~GCM(void)
         ServiceStateDependencyInfo.erase(it2);
         delete it2->second;
     }
+    while (!ServiceStateDependencyInfo2.empty()) {
+        it2 = ServiceStateDependencyInfo2.begin();
+        ServiceStateDependencyInfo2.erase(it2);
+        delete it2->second;
+    }
 }
 
 void GCM::ToStream(std::ostream & out) const
@@ -89,6 +94,13 @@ bool GCM::AddInterface(const std::string & name, const GCM::InterfaceTypes type)
             return false;
         }
         States.ProvidedInterfaces.insert(std::make_pair(name, new StateMachine(name)));
+
+        // add new column to service state dependency information table
+        SFASSERT(ServiceStateDependencyInfo2.find(name) == ServiceStateDependencyInfo2.end());
+        ServiceStateDependencyInfo2[name] = new StrVecType;
+
+        SFLOG_DEBUG << "GCM:AddInterface: updated service state dependency table with provided interface: "
+                    << "\"" << ComponentName << "\" - \"" << name << "\"" << std::endl;
     } else {
         if (States.RequiredInterfaces.find(name) != States.RequiredInterfaces.end()) {
 #if ENABLE_UNIT_TEST
@@ -102,7 +114,8 @@ bool GCM::AddInterface(const std::string & name, const GCM::InterfaceTypes type)
         SFASSERT(ServiceStateDependencyInfo.find(name) == ServiceStateDependencyInfo.end());
         ServiceStateDependencyInfo[name] = new StrVecType;
 
-        SFLOG_DEBUG << "GCM:AddInterface: updated service state dependency table: " << ComponentName << " - " << name << std::endl;
+        SFLOG_DEBUG << "GCM:AddInterface: updated service state dependency table with required interface: "
+                    << "\"" << ComponentName << "\" - \"" << name << "\"" << std::endl;
     }
     
     return true;
@@ -368,13 +381,22 @@ void GCM::AddServiceStateDependency(const JSON::JSONVALUE & services)
 bool GCM::AddServiceStateDependencyEntry(const std::string & providedInterfaceName,
                                          const std::string & name)
 {
-    StrVecType * vec = ServiceStateDependencyInfo.find(name)->second;
-    if (!vec) {
-        SFLOG_ERROR << "GCM::AddServiceStateDependencyEntry: No entry \""
-                    << name << "\" found in service state dependency table"
-                    << std::endl;
+    // Update first table
+    ServiceStateDependencyInfoType::const_iterator it = ServiceStateDependencyInfo.find(name);
+    if (it == ServiceStateDependencyInfo.end()) {
+        SFLOG_ERROR << "GCM::AddServiceStateDependencyEntry: No required interface \""
+                    << name << "\" found" << std::endl;
         return false;
     }
+
+    StrVecType * vec = it->second;
+    SFASSERT(vec);
+    //if (!vec) {
+        //SFLOG_ERROR << "GCM::AddServiceStateDependencyEntry: No entry \""
+                    //<< name << "\" found in service state dependency table"
+                    //<< std::endl;
+        //return false;
+    //}
 
     for (size_t i = 0; i < vec->size(); ++i) {
         // check if provided interface is already in the table
@@ -385,8 +407,35 @@ bool GCM::AddServiceStateDependencyEntry(const std::string & providedInterfaceNa
             return false;
         }
     }
-
     vec->push_back(providedInterfaceName);
+
+    // Update second table
+    it = ServiceStateDependencyInfo2.find(providedInterfaceName);
+    if (it == ServiceStateDependencyInfo2.end()) {
+        SFLOG_ERROR << "GCM::AddServiceStateDependencyEntry: No provided interface \""
+                    << providedInterfaceName << "\" found" << std::endl;
+        return false;
+    }
+
+    StrVecType * vec2 = it->second;
+    SFASSERT(vec2);
+    //if (!vec2) {
+        //SFLOG_ERROR << "GCM::AddServiceStateDependencyEntry: No provided interface \""
+                    //<< providedInterfaceName << "\" found in service state dependency table"
+                    //<< std::endl;
+        //return false;
+    //}
+
+    for (size_t i = 0; i < vec2->size(); ++i) {
+        // check if entry is already in the table
+        if (vec2->at(i).compare(name) == 0) {
+            SFLOG_ERROR << "GCM::AddServiceStateDependency: Entry \"" 
+                        << name << "\" is already in service state dependency table"
+                        << std::endl;
+            return false;
+        }
+    }
+    vec2->push_back(name);
 
     return true;
 }
@@ -394,8 +443,10 @@ bool GCM::AddServiceStateDependencyEntry(const std::string & providedInterfaceNa
 void GCM::PrintServiceStateDependencyTable(std::ostream & out)
 {
     out << "Component: \"" << ComponentName << "\"" << std::endl;
-    ServiceStateDependencyInfoType::iterator it = ServiceStateDependencyInfo.begin();
-    ServiceStateDependencyInfoType::iterator itEnd = ServiceStateDependencyInfo.end();
+
+    out << "Table for entry (required interface) look-up:" << std::endl;
+    ServiceStateDependencyInfoType::const_iterator it = ServiceStateDependencyInfo.begin();
+    ServiceStateDependencyInfoType::const_iterator itEnd = ServiceStateDependencyInfo.end();
     for (; it != itEnd; ++it) {
         out << "\t" << it->first << std::endl;
         StrVecType * v = it->second;
@@ -407,4 +458,25 @@ void GCM::PrintServiceStateDependencyTable(std::ostream & out)
             std::cout << "\t\t" << v->at(j) << std::endl;
         }
     }
+
+    out << "Table for provided interface look-up:" << std::endl;
+    it = ServiceStateDependencyInfo2.begin();
+    itEnd = ServiceStateDependencyInfo2.end();
+    for (; it != itEnd; ++it) {
+        out << "\t" << it->first << std::endl;
+        StrVecType * v = it->second;
+        if (!v) {
+            out << "\t\t(none)" << std::endl;
+            continue;
+        }
+        for (size_t j = 0; j < v->size(); ++j) {
+            std::cout << "\t\t" << v->at(j) << std::endl;
+        }
+    }
+
+}
+
+State::StateType GCM::GetServiceState(const std::string & providedInterfaceName) const
+{
+    return State::INVALID;
 }
