@@ -362,17 +362,7 @@ void GCM::AddServiceStateDependency(const JSON::JSONVALUE & services)
         }
     }
 
-    ServiceStateDependencyInfoType::iterator it = ServiceStateDependencyInfo.begin();
-    ServiceStateDependencyInfoType::iterator itEnd = ServiceStateDependencyInfo.end();
-    for (; it != itEnd; ++it) {
-        std::cout << it->first << std::endl;
-        StrVecType * v = it->second;
-        if (!v)
-            continue;
-        for (size_t j = 0; j < v->size(); ++j) {
-            std::cout << "\t" << v->at(j) << std::endl;
-        }
-    }
+    //PrintServiceStateDependencyTable(std::cout);
 }
 
 bool GCM::AddServiceStateDependencyEntry(const std::string & providedInterfaceName,
@@ -399,4 +389,22 @@ bool GCM::AddServiceStateDependencyEntry(const std::string & providedInterfaceNa
     vec->push_back(providedInterfaceName);
 
     return true;
+}
+
+void GCM::PrintServiceStateDependencyTable(std::ostream & out)
+{
+    out << "Component: \"" << ComponentName << "\"" << std::endl;
+    ServiceStateDependencyInfoType::iterator it = ServiceStateDependencyInfo.begin();
+    ServiceStateDependencyInfoType::iterator itEnd = ServiceStateDependencyInfo.end();
+    for (; it != itEnd; ++it) {
+        out << "\t" << it->first << std::endl;
+        StrVecType * v = it->second;
+        if (!v) {
+            out << "\t\t(none)" << std::endl;
+            continue;
+        }
+        for (size_t j = 0; j < v->size(); ++j) {
+            std::cout << "\t\t" << v->at(j) << std::endl;
+        }
+    }
 }

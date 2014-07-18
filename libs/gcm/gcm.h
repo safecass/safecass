@@ -112,6 +112,8 @@ public:
     //
     /*! Human readable output of this class */
     void ToStream(std::ostream & outputStream) const;
+    // Print service state dependency table in tabular format
+    void PrintServiceStateDependencyTable(std::ostream & out);
 };
  
 inline std::ostream & operator << (std::ostream & outputStream, const GCM & gcm) {
