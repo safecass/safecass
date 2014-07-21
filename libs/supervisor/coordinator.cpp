@@ -199,15 +199,19 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
            << "\"s_R\": " << static_cast<int>(gcm->GetInterfaceState(GCM::REQUIRED_INTERFACE)) << ", ";
 
         StrVecType names;
+        std::string eventInfo;
 
         it->second->GetNamesOfInterfaces(GCM::PROVIDED_INTERFACE, names);
         ss << "\"interfaces_provided\": [ ";
         for (size_t i = 0; i < names.size(); ++i) {
             if (i != 0)
                 ss << ", ";
-            ss << "{ \"name\": \"" << names[i] << "\", ";
-            ss << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", ";
-            ss << "\"service_state\": " << static_cast<int>(gcm->GetServiceState(names[i]));
+            State::StateType serviceState = gcm->GetServiceState(names[i], eventInfo);
+            ss << "{ \"name\": \"" << names[i] << "\", "
+               << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", "
+               << "\"service_state\": " << static_cast<int>(serviceState);
+            if (eventInfo.size())
+                ss << ", \"event\": " << eventInfo;
             ss << " }";
         }
         ss << " ], ";
@@ -771,7 +775,10 @@ bool Coordinator::OnEvent(const std::string & event)
         return false;
     }
 
-    const State::TransitionType transition = gcm->ProcessStateTransition(targetStateMachineType, e, targetInterfaceName);
+    JSON _jsonServiceStateChange;
+    JSON::JSONVALUE & jsonServiceStateChange = _jsonServiceStateChange.GetRoot();
+    const State::TransitionType transition = gcm->ProcessStateTransition(targetStateMachineType, e, targetInterfaceName,
+                                                                         jsonServiceStateChange);
     if (transition == State::INVALID_TRANSITION) {
         SFLOG_WARNING << "OnEvent: invalid transition for event " << *e << std::endl;
         return false;
@@ -788,34 +795,6 @@ bool Coordinator::OnEvent(const std::string & event)
             //"\"component\": \"*\" }, "
             //"\"request\": \"state_list\" }";
     PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
-
-#if 0
-    // If any service state change occurs
-    if (targetStateMachineType != State::STATEMACHINE_REQUIRED) {
-        // NORMAL_TO_WARNING and WARNING_TO_NORMAL don't need to get propagated to external components.
-        if (transition == State::NORMAL_TO_ERROR || transition == State::WARNING_TO_ERROR ||
-            transition == State::ERROR_TO_NORMAL || transition == State::ERROR_TO_WARNING)
-        {
-            JSON _jsonState;
-            JSON::JSONVALUE & jsonState = _jsonState.GetRoot();
-            jsonState["request"] = "state_update";
-            // information about provided interface of which state just changed
-            jsonState["source"]["safety_coordinator"] = Name;
-            jsonState["source"]["component"] = targetComponentName;
-            jsonState["source"]["interface"] = targetInterfaceName;
-            // new state
-            State::StateType nextState = State::GetNextState(transition);
-            if (nextState == State::NORMAL || nextState == State::WARNING)
-                jsonState["state"] = static_cast<unsigned int>(State::NORMAL);
-            else
-                jsonState["state"] = static_cast<unsigned int>(State::ERROR);
-            // event information
-            jsonState["event"] = e->GetName();
-
-            PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonState));
-        }
-    }
-#endif
 
     // Call event hook for middleware
     return OnEventHandler(e);

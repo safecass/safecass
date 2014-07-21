@@ -69,6 +69,12 @@ protected:
     // Used to calculate service state of a provided interface
     ServiceStateDependencyInfoType ServiceStateDependencyInfo2;
 
+    // Get json representation of service state change
+    void GetJSONForServiceStateChange(const std::string & providedInterfaceName, JSON::JSONVALUE & json);
+    // Get statemachine instance
+    const StateMachine * GetStateMachineComponent(ComponentStateViews view) const;
+    const StateMachine * GetStateMachineInterface(const std::string & name, InterfaceTypes type) const;
+
 private:
     /*! Component associated with GCM has to be declared */
     GCM(void);
@@ -82,20 +88,22 @@ public:
     virtual ~GCM(void);
 
     /*! Add interface */
-    bool AddInterface(const std::string & name, const GCM::InterfaceTypes type);
+    bool AddInterface(const std::string & name, InterfaceTypes type);
     /*! Find interface */
-    bool FindInterface(const std::string & name, const GCM::InterfaceTypes type) const;
+    bool FindInterface(const std::string & name, InterfaceTypes type) const;
     /*! Remove interface */
-    bool RemoveInterface(const std::string & name, const GCM::InterfaceTypes type);
+    bool RemoveInterface(const std::string & name, InterfaceTypes type);
     // Add service state dependency information
     void AddServiceStateDependency(const JSON::JSONVALUE & services);
     bool AddServiceStateDependencyEntry(const std::string & providedInterfaceName,
                                         const std::string & name);
 
-    // Process state transition event and returns transition
+    // Process state transition event and returns transition and json object that contains 
+    // service state changes.
     State::TransitionType ProcessStateTransition(State::StateMachineType type,
                                                  const Event *           event,
-                                                 const std::string &     interfaceName = "");
+                                                 const std::string &     interfaceName,
+                                                 JSON::JSONVALUE &       json);
 
     //
     // Getters
@@ -108,11 +116,11 @@ public:
     //! Returns component state
     State::StateType GetComponentState(const ComponentStateViews view = SYSTEM_VIEW) const;
     //! Returns interface state
-    State::StateType GetInterfaceState(const std::string & name, const GCM::InterfaceTypes type) const;
+    State::StateType GetInterfaceState(const std::string & name, InterfaceTypes type) const;
     //! Returns consolidated interface state
-    State::StateType GetInterfaceState(const GCM::InterfaceTypes type) const;
-    //! Returns service state of provided interface considering its dependencies on other states
-    State::StateType GetServiceState(const std::string & providedInterfaceName) const;
+    State::StateType GetInterfaceState(InterfaceTypes type) const;
+    //! Returns service state of provided interface and statemachine instance of dominance
+    State::StateType GetServiceState(const std::string & providedInterfaceName, std::string & eventInfo) const;
 
     //
     // Misc.

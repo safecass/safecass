@@ -193,11 +193,12 @@ public:
     //
     // Getters
     //
-    /*! Return current state */
+    //! Return current state
     State::StateType GetCurrentState(void) const;
-
-    /*! Return onwer name */
+    //! Return onwer name
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
+    //! Return pending event
+    inline const Event * GetPendingEvent(void) const { return PendingEvent; }
 
     //
     // Setters
