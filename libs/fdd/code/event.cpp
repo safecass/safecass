@@ -7,18 +7,19 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Jul 10, 2014
+// Last revision: Jul 19, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "event.h"
+#include "json.h"
 
 using namespace SF;
 
 Event::Event(const std::string     & name,
              unsigned int            severity,
              const TransitionsType & transitions)
-    : Name(name), Severity(severity), Transitions(transitions)
+    : Name(name), Severity(severity), Transitions(transitions), Timestamp(0)
 {
     memset(TransitionMask, 0, TOTAL_NUMBER_OF_STATES * TOTAL_NUMBER_OF_STATES);
 #define N 0
@@ -93,4 +94,28 @@ void Event::ToStream(std::ostream & os) const
         }
     }
     os << "]";
+}
+
+const std::string Event::SerializeJSON(bool includeStateTransition) const
+{
+    JSON _json;
+    JSON::JSONVALUE & json = _json.GetRoot();
+    json["name"] = Name;
+    json["severity"] = Severity;
+    json["timestamp"] = Timestamp;
+
+    if (includeStateTransition)
+        for (size_t i = 0; i < Transitions.size(); ++i) {
+            switch (Transitions[i]) {
+            case State::NORMAL_TO_ERROR  : json["state_transition"][i] = "N2E "; break;
+            case State::ERROR_TO_NORMAL  : json["state_transition"][i] = "E2N "; break;
+            case State::NORMAL_TO_WARNING: json["state_transition"][i] = "N2W "; break;
+            case State::WARNING_TO_NORMAL: json["state_transition"][i] = "W2N "; break;
+            case State::WARNING_TO_ERROR : json["state_transition"][i] = "W2E "; break;
+            case State::ERROR_TO_WARNING : json["state_transition"][i] = "E2W "; break;
+            default:                       json["state_transition"][i] = "INVALID";
+            }
+        }
+    
+    return JSON::GetJSONString(json);
 }
