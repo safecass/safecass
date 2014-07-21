@@ -535,12 +535,23 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
             serviceState = serviceState * GetComponentState(FRAMEWORK_VIEW);
             // If service state changes due to framework state
             if (serviceState != oldState) {
-                SFLOG_DEBUG << "GCM::GetServiceState (s_F): service state for \"" << providedInterfaceName << "\" changes - "
-                            << State::GetStringState(oldState.GetState()) << " to "
-                            << State::GetStringState(serviceState.GetState()) << ", "
-                            << "Pending event changes from " << *e << " to "
-                            << *(States.ComponentFramework->GetPendingEvent())
-                            << std::endl;
+                std::stringstream ss;
+                ss << "GCM::GetServiceState (s_F): service state for \"" << providedInterfaceName << "\" changes - "
+                   << State::GetStringState(oldState.GetState()) << " to "
+                   << State::GetStringState(serviceState.GetState()) << ", "
+                   << "Pending event changes from ";
+#define GET_EVENT_STRING( _e)\
+                if (_e)\
+                    ss << *_e;\
+                else\
+                    ss << "null";
+                GET_EVENT_STRING(e);
+                ss << " to ";
+                GET_EVENT_STRING(States.ComponentFramework->GetPendingEvent());
+                ss << std::endl;
+
+                SFLOG_DEBUG << ss.str();
+
                 e = States.ComponentFramework->GetPendingEvent();
 #if 0
                 if (!e) {
@@ -574,12 +585,18 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
             serviceState = serviceState * GetComponentState(APPLICATION_VIEW);
             // If service state changes due to application state
             if (serviceState != oldState) {
-                SFLOG_DEBUG << "GCM::GetServiceState (s_A): service state for \"" << providedInterfaceName << "\" changes - "
-                            << State::GetStringState(oldState.GetState()) << " to "
-                            << State::GetStringState(serviceState.GetState()) << ", "
-                            << "Pending event changes from " << *e << " to "
-                            << *(States.ComponentApplication->GetPendingEvent())
-                            << std::endl;
+                std::stringstream ss;
+                ss << "GCM::GetServiceState (s_A): service state for \"" << providedInterfaceName << "\" changes - "
+                   << State::GetStringState(oldState.GetState()) << " to "
+                   << State::GetStringState(serviceState.GetState()) << ", "
+                   << "Pending event changes from ";
+                GET_EVENT_STRING(e);
+                ss << " to ";
+                GET_EVENT_STRING(States.ComponentApplication->GetPendingEvent());
+                ss << std::endl;
+
+                SFLOG_DEBUG << ss.str();
+
                 e = States.ComponentApplication->GetPendingEvent();
             }
             // Even if service state remains the same, event of highest severity should be identified.
@@ -599,12 +616,18 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
             const StateMachine * sm = GetStateMachineInterface(name, REQUIRED_INTERFACE);
             serviceState = serviceState * State(sm->GetCurrentState());
             if (serviceState != oldState) {
-                SFLOG_DEBUG << "GCM::GetServiceState (s_R): service state for \"" << providedInterfaceName << "\" changes - "
-                            << State::GetStringState(oldState.GetState()) << " to "
-                            << State::GetStringState(serviceState.GetState()) << ", "
-                            << "Pending event changes from " << *e << " to "
-                            << sm->GetPendingEvent()
-                            << std::endl;
+                std::stringstream ss;
+                ss << "GCM::GetServiceState (s_R): service state for \"" << providedInterfaceName << "\" changes - "
+                   << State::GetStringState(oldState.GetState()) << " to "
+                   << State::GetStringState(serviceState.GetState()) << ", "
+                   << "Pending event changes from ";
+                GET_EVENT_STRING(e);
+                ss << " to ";
+                GET_EVENT_STRING(sm->GetPendingEvent());
+                ss << std::endl;
+
+                SFLOG_DEBUG << ss.str();
+
                 e = sm->GetPendingEvent();
             }
             // Even if service state remains the same, event of highest severity should be identified.
