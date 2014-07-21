@@ -51,8 +51,9 @@
         }
     ],
     "filter" : [
-        // Exception filter
+        // Exception detection filter
         {   // common fields
+            // name of filter class (used by filter factory to instantiate filter instance)
             "class_name"       : "FilterOnOff",
             //"target_component" : "", 
             "target"           : {
@@ -64,6 +65,7 @@
                 "type"         : "s_F",
                 "component"    : ""  // will be set by casros when deployed
             },
+            // filtering type: ACTIVE or PASSIVE
             "type"             : "ACTIVE",
             //"debug"            : true,
             // filter specific fields
@@ -75,8 +77,7 @@
             },
             "last_filter"      : true
         },
-        // TODO: change filter class to FilterThreshold (onoff: for testing)
-        // Overrun filter
+        // Overrun detection filter
         {   "class_name"       : "FilterOnOff",
             "target"           : {
                 "type"         : "s_F",
