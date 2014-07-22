@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Jul 17, 2014
+// Last revision: Jul 22, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -53,7 +53,9 @@ public:
     typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType;
 
 protected:
-    /*! Name of component that GCM is associated with */
+    // Name of coordinator instance that this GCM is associated with */
+    const std::string CoordinatorName;
+    /*! Name of component that this GCM is associated with */
     const std::string ComponentName;
 
     /*! State machines */
@@ -82,7 +84,7 @@ private:
 public:
     /*! Constructor with owner.  GCM is initialized based on information about owner 
         component specified. */
-    GCM(const std::string & componentName);
+    GCM(const std::string & coordinatorName, const std::string & componentName);
 
     /*! Destructor */
     virtual ~GCM(void);
@@ -119,8 +121,8 @@ public:
     State::StateType GetInterfaceState(const std::string & name, InterfaceTypes type) const;
     //! Returns consolidated interface state
     State::StateType GetInterfaceState(InterfaceTypes type) const;
-    //! Returns service state of provided interface and statemachine instance of dominance
-    State::StateType GetServiceState(const std::string & providedInterfaceName, std::string & eventInfo) const;
+    //! Returns service state of provided interface and event information that caused service state transition
+    State::StateType GetServiceState(const std::string & providedInterfaceName, const Event * & event) const;
 
     //
     // Misc.

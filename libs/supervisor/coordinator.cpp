@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Jul 17, 2014
+// Last revision: Jul 21, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -89,7 +89,7 @@ unsigned int Coordinator::AddComponent(const std::string & componentName)
     MapComponentNameToId[componentName] = cid;
     MapComponentIdToName[cid] = componentName;
 
-    GCM * gcm = new GCM(componentName);
+    GCM * gcm = new GCM(Name, componentName);
     MapGCM[cid] = gcm;
 
     return cid;
@@ -206,13 +206,13 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         for (size_t i = 0; i < names.size(); ++i) {
             if (i != 0)
                 ss << ", ";
-            State::StateType serviceState = gcm->GetServiceState(names[i], eventInfo);
+            const Event * e = 0;
+            State::StateType serviceState = gcm->GetServiceState(names[i], e);
             ss << "{ \"name\": \"" << names[i] << "\", "
                << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", "
-               << "\"service_state\": " << static_cast<int>(serviceState);
-            if (eventInfo.size())
-                ss << ", \"event\": " << eventInfo;
-            ss << " }";
+               << "\"service_state\": " << static_cast<int>(serviceState) << ", "
+               << "\"event\": " << (e ? e->SerializeJSON() : "{}")
+               << " }";
         }
         ss << " ], ";
 
@@ -775,25 +775,25 @@ bool Coordinator::OnEvent(const std::string & event)
         return false;
     }
 
+    // For error propagation
     JSON _jsonServiceStateChange;
     JSON::JSONVALUE & jsonServiceStateChange = _jsonServiceStateChange.GetRoot();
-    const State::TransitionType transition = gcm->ProcessStateTransition(targetStateMachineType, e, targetInterfaceName,
-                                                                         jsonServiceStateChange);
+    const State::TransitionType transition = 
+        gcm->ProcessStateTransition(targetStateMachineType, e, targetInterfaceName, jsonServiceStateChange);
     if (transition == State::INVALID_TRANSITION) {
         SFLOG_WARNING << "OnEvent: invalid transition for event " << *e << std::endl;
         return false;
     }
 
-    // Refresh state information (for visualization)
+    // To refresh visualization
     JSON _jsonRefresh;
     JSON::JSONVALUE & jsonRefresh = _jsonRefresh.GetRoot();
     jsonRefresh["target"]["safety_coordinator"] = "*";
     jsonRefresh["target"]["component"] = "*";
     jsonRefresh["request"] = "state_list";
-    //std::stringstream ss;
-    //ss << "{ \"target\": { \"safety_coordinator\": \"*\", "
-            //"\"component\": \"*\" }, "
-            //"\"request\": \"state_list\" }";
+
+    // Publish messages
+    PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonServiceStateChange));
     PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
 
     // Call event hook for middleware

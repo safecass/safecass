@@ -83,14 +83,16 @@ void Event::ToStream(std::ostream & os) const
     os << Name << ": " << Severity << ", [ ";
 
     for (size_t i = 0; i < Transitions.size(); ++i) {
+        if (i > 0)
+            os << " ";
         switch (Transitions[i]) {
-        case State::NORMAL_TO_ERROR  : os << "N2E "; break;
-        case State::ERROR_TO_NORMAL  : os << "E2N "; break;
-        case State::NORMAL_TO_WARNING: os << "N2W "; break;
-        case State::WARNING_TO_NORMAL: os << "W2N "; break;
-        case State::WARNING_TO_ERROR : os << "W2E "; break;
-        case State::ERROR_TO_WARNING : os << "E2W "; break;
-        default:                       os << "INVALID ";
+        case State::NORMAL_TO_ERROR  : os << "N2E"; break;
+        case State::ERROR_TO_NORMAL  : os << "E2N"; break;
+        case State::NORMAL_TO_WARNING: os << "N2W"; break;
+        case State::WARNING_TO_NORMAL: os << "W2N"; break;
+        case State::WARNING_TO_ERROR : os << "W2E"; break;
+        case State::ERROR_TO_WARNING : os << "E2W"; break;
+        default:                       os << "INVALID";
         }
     }
     os << "]";
@@ -107,12 +109,12 @@ const std::string Event::SerializeJSON(bool includeStateTransition) const
     if (includeStateTransition)
         for (size_t i = 0; i < Transitions.size(); ++i) {
             switch (Transitions[i]) {
-            case State::NORMAL_TO_ERROR  : json["state_transition"][i] = "N2E "; break;
-            case State::ERROR_TO_NORMAL  : json["state_transition"][i] = "E2N "; break;
-            case State::NORMAL_TO_WARNING: json["state_transition"][i] = "N2W "; break;
-            case State::WARNING_TO_NORMAL: json["state_transition"][i] = "W2N "; break;
-            case State::WARNING_TO_ERROR : json["state_transition"][i] = "W2E "; break;
-            case State::ERROR_TO_WARNING : json["state_transition"][i] = "E2W "; break;
+            case State::NORMAL_TO_ERROR  : json["state_transition"][i] = "N2E"; break;
+            case State::ERROR_TO_NORMAL  : json["state_transition"][i] = "E2N"; break;
+            case State::NORMAL_TO_WARNING: json["state_transition"][i] = "N2W"; break;
+            case State::WARNING_TO_NORMAL: json["state_transition"][i] = "W2N"; break;
+            case State::WARNING_TO_ERROR : json["state_transition"][i] = "W2E"; break;
+            case State::ERROR_TO_WARNING : json["state_transition"][i] = "E2W"; break;
             default:                       json["state_transition"][i] = "INVALID";
             }
         }

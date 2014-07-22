@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Jul 17, 2014
+// Last revision: Jul 22, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -19,14 +19,14 @@
 
 using namespace SF;
 
-GCM::GCM(void) : ComponentName(NONAME)
+GCM::GCM(void) : CoordinatorName(NONAME), ComponentName(NONAME)
 {
     // Default constructor should not be used
     SFASSERT(false);
 }
 
-GCM::GCM(const std::string & componentName)
-    : ComponentName(componentName)
+GCM::GCM(const std::string & coordinatorName, const std::string & componentName)
+    : CoordinatorName(coordinatorName), ComponentName(componentName)
 {
     States.ComponentFramework   = new StateMachine(componentName);
     States.ComponentApplication = new StateMachine(componentName);
@@ -236,14 +236,33 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
     // Check if any service state changes due to this event/transition
     // A service state changes whenever a provided interface's "projected" state goes 
     // to Normal or Error.  That is,
+    JSON _jsonState;
+    JSON::JSONVALUE & jsonState = _jsonState.GetRoot();
     if (transition == State::NORMAL_TO_ERROR || transition == State::WARNING_TO_ERROR ||
         transition == State::ERROR_TO_NORMAL || transition == State::ERROR_TO_WARNING)
     {
+        jsonState["request"] = "state_update";
+        std::string eventInfo;
+        size_t cnt = 0;
+
         // NORMAL_TO_WARNING and WARNING_TO_NORMAL don't have impact on the projected state
         // of a provided interface, and thus don't need to get propagated to external 
         // components.
         if (type == State::STATEMACHINE_PROVIDED) {
-            GetJSONForServiceStateChange(interfaceName, json);
+            JSON _jsonUpdate;
+            JSON::JSONVALUE & jsonUpdate = _jsonUpdate.GetRoot();
+            // information about provided interface of which state just changed
+            jsonUpdate["source"]["safety_coordinator"] = CoordinatorName;
+            jsonUpdate["source"]["component"] = ComponentName;
+            jsonUpdate["source"]["interface"] = interfaceName;
+            // new state
+            const Event * e = 0;
+            State::StateType nextServiceState = GetServiceState(interfaceName, e);
+            jsonUpdate["state"] = static_cast<unsigned int>(nextServiceState);
+            // event
+            jsonUpdate["event"] = ((e == 0) ? "{}" : e->SerializeJSON());
+
+            jsonState["update"][cnt++] = jsonUpdate;
         } else {
             // look up depedency table to check if there is any provided interface whose
             // service state is affected by the state change.
@@ -268,36 +287,25 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
             // to broadcast to inform the service state change due to this transition
             for (size_t i = 0; i < vec->size(); ++i) {
                 const std::string prvName = vec->at(i);
-                GetJSONForServiceStateChange(prvName, json);
-#if 0
-                if (targetStateMachineType != State::STATEMACHINE_REQUIRED) {
-                    if (transition == State::NORMAL_TO_ERROR || transition == State::WARNING_TO_ERROR ||
-                        transition == State::ERROR_TO_NORMAL || transition == State::ERROR_TO_WARNING)
-                    {
-                        JSON _jsonState;
-                        JSON::JSONVALUE & jsonState = _jsonState.GetRoot();
-                        jsonState["request"] = "state_update";
-                        // information about provided interface of which state just changed
-                        jsonState["source"]["safety_coordinator"] = Name;
-                        jsonState["source"]["component"] = targetComponentName;
-                        jsonState["source"]["interface"] = targetInterfaceName;
-                        // new state
-                        State::StateType nextState = State::GetNextState(transition);
-                        if (nextState == State::NORMAL || nextState == State::WARNING)
-                            jsonState["state"] = static_cast<unsigned int>(State::NORMAL);
-                        else
-                            jsonState["state"] = static_cast<unsigned int>(State::ERROR);
-                        // event information
-                        jsonState["event"] = e->GetName();
-
-                        PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonState));
-                    }
-                }
-#endif
-
+                JSON _jsonUpdate;
+                JSON::JSONVALUE & jsonUpdate = _jsonUpdate.GetRoot();
+                // information about provided interface of which state just changed
+                jsonUpdate["source"]["safety_coordinator"] = CoordinatorName;
+                jsonUpdate["source"]["component"] = ComponentName;
+                jsonUpdate["source"]["interface"] = interfaceName;
+                // new state
+                const Event * e = 0;
+                State::StateType nextServiceState = GetServiceState(prvName, e);
+                jsonUpdate["state"] = static_cast<unsigned int>(nextServiceState);
+                // event
+                jsonUpdate["event"] = ((e == 0) ? "{}" : e->SerializeJSON());
+               
+                jsonState["update"][cnt++] = jsonUpdate;
             }
         }
     }
+
+    json = jsonState;
 
     return transition;
 }
@@ -505,12 +513,12 @@ void GCM::PrintServiceStateDependencyTable(std::ostream & out)
 
 }
 
-State::StateType GCM::GetServiceState(const std::string & providedInterfaceName, std::string & eventInfo) const
+State::StateType GCM::GetServiceState(const std::string & providedInterfaceName, const Event * & event) const
 {
     ServiceStateDependencyInfoType::const_iterator it = 
         ServiceStateDependencyInfo2.find(providedInterfaceName);
     if (it == ServiceStateDependencyInfo2.end()) {
-        eventInfo = "";
+        event = 0;
         return State::INVALID;
     }
 
@@ -520,8 +528,7 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
         // Find provided interface instance
         InterfaceStateMachinesType::const_iterator it = States.ProvidedInterfaces.find(providedInterfaceName);
         SFASSERT(it != States.ProvidedInterfaces.end());
-        const Event * e = it->second->GetPendingEvent();
-        eventInfo = (e ? e->SerializeJSON() : "");
+        event = it->second->GetPendingEvent();
         return GetInterfaceState(providedInterfaceName, PROVIDED_INTERFACE);
     }
 
@@ -553,6 +560,7 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
                 SFLOG_DEBUG << ss.str();
 
                 e = States.ComponentFramework->GetPendingEvent();
+                SFASSERT(e);
 #if 0
                 if (!e) {
                     e = States.ComponentFramework->GetPendingEvent();
@@ -570,14 +578,15 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
             }
             // Even if service state remains the same, event of highest severity should be identified.
             else {
-                if (e && (e->GetSeverity() < States.ComponentFramework->GetPendingEvent()->GetSeverity())) {
-                    SFLOG_DEBUG << "GCM::GetServiceState (s_F): service state for \"" << providedInterfaceName << "\" remains same - "
-                                << State::GetStringState(oldState.GetState()) << ", "
-                                << "Pending event changes from " << *e << " to "
-                                << *(States.ComponentFramework->GetPendingEvent())
-                                << std::endl;
-                    e = States.ComponentFramework->GetPendingEvent();
-                }
+                if (e && States.ComponentFramework->GetPendingEvent())
+                    if (e->GetSeverity() < States.ComponentFramework->GetPendingEvent()->GetSeverity()) {
+                        SFLOG_DEBUG << "GCM::GetServiceState (s_F): service state for \"" << providedInterfaceName << "\" remains same - "
+                                    << State::GetStringState(oldState.GetState()) << ", "
+                                    << "Pending event changes from " << *e << " to "
+                                    << *(States.ComponentFramework->GetPendingEvent())
+                                    << std::endl;
+                        e = States.ComponentFramework->GetPendingEvent();
+                    }
             }
         }
         else if (name.compare("s_A") == 0) {
@@ -598,17 +607,19 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
                 SFLOG_DEBUG << ss.str();
 
                 e = States.ComponentApplication->GetPendingEvent();
+                SFASSERT(e);
             }
             // Even if service state remains the same, event of highest severity should be identified.
             else {
-                if (e && (e->GetSeverity() < States.ComponentApplication->GetPendingEvent()->GetSeverity())) {
-                    SFLOG_DEBUG << "GCM::GetServiceState (s_A): service state for \"" << providedInterfaceName << "\" remains same - "
-                                << State::GetStringState(oldState.GetState()) << ", "
-                                << "Pending event changes from " << *e << " to "
-                                << *(States.ComponentApplication->GetPendingEvent())
-                                << std::endl;
-                    e = States.ComponentApplication->GetPendingEvent();
-                }
+                if (e && States.ComponentApplication->GetPendingEvent())
+                    if (e && (e->GetSeverity() < States.ComponentApplication->GetPendingEvent()->GetSeverity())) {
+                        SFLOG_DEBUG << "GCM::GetServiceState (s_A): service state for \"" << providedInterfaceName << "\" remains same - "
+                                    << State::GetStringState(oldState.GetState()) << ", "
+                                    << "Pending event changes from " << *e << " to "
+                                    << *(States.ComponentApplication->GetPendingEvent())
+                                    << std::endl;
+                        e = States.ComponentApplication->GetPendingEvent();
+                    }
             }
         }
         else {
@@ -629,17 +640,19 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
                 SFLOG_DEBUG << ss.str();
 
                 e = sm->GetPendingEvent();
+                SFASSERT(e);
             }
             // Even if service state remains the same, event of highest severity should be identified.
             else {
-                if (e && (e->GetSeverity() < sm->GetPendingEvent()->GetSeverity())) {
-                    SFLOG_DEBUG << "GCM::GetServiceState (s_R): service state for \"" << providedInterfaceName << "\" remains same - "
-                                << State::GetStringState(oldState.GetState()) << ", "
-                                << "Pending event changes from " << *e << " to "
-                                << *(sm->GetPendingEvent())
-                                << std::endl;
-                    e = sm->GetPendingEvent();
-                }
+                if (e && sm->GetPendingEvent())
+                    if (e && (e->GetSeverity() < sm->GetPendingEvent()->GetSeverity())) {
+                        SFLOG_DEBUG << "GCM::GetServiceState (s_R): service state for \"" << providedInterfaceName << "\" remains same - "
+                            << State::GetStringState(oldState.GetState()) << ", "
+                            << "Pending event changes from " << *e << " to "
+                            << *(sm->GetPendingEvent())
+                            << std::endl;
+                        e = sm->GetPendingEvent();
+                    }
             }
         }
 
@@ -649,25 +662,9 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
             //break;
     }
 
-    eventInfo = (e ? e->SerializeJSON(false) : "");
+    event = e;
 
     return (serviceState < State(State::ERROR) ? State::NORMAL : State::FAILURE);
-}
-
-void GCM::GetJSONForServiceStateChange(const std::string & providedInterfaceName, JSON::JSONVALUE & json)
-{
-    /*
-{
-    "request": "state_update",
-    "source": {
-        "safety_coordinator": "aSafetyCoordinatorName",
-        "component": "aComponentName",
-        "interface": "aProvidedInterfaceName"
-    },
-    "state": [ 0 | 3 ], // 0: Normal, 3: Failure (projected state)
-    "event": "EVT_NAME_FOR_THIS_EVENT"
-}
-    */
 }
 
 const StateMachine * GCM::GetStateMachineComponent(GCM::ComponentStateViews view) const
