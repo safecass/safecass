@@ -50,9 +50,6 @@ public:
     typedef std::map<FilterBase::FilterIDType, FilterBase*> FiltersType;
     typedef std::map<std::string, FiltersType*> FilterMapType; // key: component name
 
-    // TODO: CONNECTIONS
-    // - do this with graph
-
 protected:
     // Name of this coordinator
     std::string Name;
@@ -102,6 +99,8 @@ public:
     //! Destructor
     virtual ~Coordinator();
 
+    // Get name of instance
+    inline const std::string & GetName(void) const { return Name; }
     // Set name of instance
     inline void SetName(const std::string & name) { Name = name; }
 
@@ -188,6 +187,8 @@ public:
     // Called by filter when event is generated.  Event information such as timestamp,
     // location, and severity is encoded in JSON.
     bool OnEvent(const std::string & event);
+    // Called by subscriber when service state change is propagated from other component.
+    bool OnEventPropagation(const JSON::JSONVALUE & json);
     // TEMP: Coordinator does not have casros accessor and cannot publish messages. As
     // temporary solution, we use pure virtual method for publishing messages.
     virtual bool PublishMessage(Topic::Control::CategoryType category, const std::string & msg) = 0;
@@ -200,6 +201,12 @@ public:
     //
     bool AddServiceStateDependencyFromJSON(const std::string & jsonString);
     bool AddServiceStateDependencyFromJSONFile(const std::string & jsonFileName);
+
+    //
+    // CONNECTIONS
+    //
+    bool AddConnection(const std::string & clientSCName, const std::string & clientCompName, const std::string & clientIntfcName,
+                       const std::string & serverSCName, const std::string & serverCompName, const std::string & serverIntfcName);
 
     //! For human-readable logging and debugging
     /*! \param outputStream output stream

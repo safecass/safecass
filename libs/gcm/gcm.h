@@ -51,6 +51,15 @@ public:
 
     /*! Typedef for specification of service state dependency information */
     typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType;
+    
+    // typedef for connection information (to identify required interface)
+    typedef struct {
+        std::string SafetyCoordinatorName;
+        std::string ComponentName;
+        std::string RequiredInterfaceName;
+    } RequiredInterfaceInfoType;
+    typedef std::vector<RequiredInterfaceInfoType> ConnectionListType;
+    typedef std::map<std::string, ConnectionListType *> ConnectionsType;
 
 protected:
     // Name of coordinator instance that this GCM is associated with */
@@ -60,6 +69,10 @@ protected:
 
     /*! State machines */
     StateMachinesType States;
+
+    // Connection information
+    // key: provided interface name, value: list of required interface information
+    ConnectionsType Connections;
 
     /*! Service state dependency information */
     // key: name of [ s_A, s_F, required interfaces ]
@@ -76,6 +89,8 @@ protected:
     // Get statemachine instance
     const StateMachine * GetStateMachineComponent(ComponentStateViews view) const;
     const StateMachine * GetStateMachineInterface(const std::string & name, InterfaceTypes type) const;
+
+    void PopulateStateUpdateJSON(const std::string & providedInterfaceName, JSON::JSONVALUE & json) const;
 
 private:
     /*! Component associated with GCM has to be declared */
@@ -107,6 +122,13 @@ public:
                                                  const std::string &     interfaceName,
                                                  JSON::JSONVALUE &       json);
 
+    // Add connection information (about required interface) to provided interface
+    // This information is used to build up json for error propagation.
+    void AddConnection(const std::string & providedInterfaceName,
+                       const std::string & safetyCoordinatorName,
+                       const std::string & requiredComponentName,
+                       const std::string & requiredInterfaceName);
+
     //
     // Getters
     //
@@ -131,6 +153,8 @@ public:
     void ToStream(std::ostream & outputStream) const;
     // Print service state dependency table in tabular format
     void PrintServiceStateDependencyTable(std::ostream & out);
+    // Given a provided interface, print connection information
+    void PrintConnections(const std::string providedInterfaceName, std::ostream & out);
 };
  
 inline std::ostream & operator << (std::ostream & outputStream, const GCM & gcm) {

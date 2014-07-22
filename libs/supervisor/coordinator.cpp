@@ -747,7 +747,7 @@ bool Coordinator::OnEvent(const std::string & event)
     const std::string targetInterfaceName = JSON::GetSafeValueString(jsonEvent["target"], "interface");
 
 #if VERBOSE
-    SFLOG_ERROR << "fuid: " << fuid << std::endl
+    SFLOG_DEBUG << "fuid: " << fuid << std::endl
                 << "severity: " << severity << std::endl
                 << "name: " << eventName << std::endl
                 << "timestamp: " << timestamp << std::endl
@@ -855,3 +855,136 @@ bool Coordinator::AddServiceStateDependencyFromJSONFile(const std::string & json
     return ret;
 }
 
+bool Coordinator::OnEventPropagation(const JSON::JSONVALUE & json)
+{
+    if (json.size() == 0) {
+        SFLOG_ERROR << "OnEventPropagation: no error propagation info" << std::endl;
+        return false;
+    }
+
+    for (size_t i = 0; i < json.size(); ++i) {
+        const JSON::JSONVALUE & info = json[i];
+        // TODO: When connection management facility is in place, look up the facility to
+        // determine if there is any required interface of which run-time state is affected
+        // by this service state change event.
+    }
+#if 0
+[
+    {   // statemachine identifiers    
+        "source": {
+            "safety_coordinator": "aSafetyCoordinatorName",
+            "component": "aComponentName",
+            "interface": "aProvidedInterfaceName"
+        },
+        "state": 0, // 0: Normal, 3: Failure (projected state)
+        "event": { "name": "EVT_NAME_THAT_CAUSED_THIS_TRANSITION", 
+                    "severity": 100,
+                    "timestamp": 0 }
+    }
+]
+#endif
+    /*
+    const JSON::JSONVALUE & jsonEvent = json.GetRoot()["event"];
+
+    const FilterBase::FilterIDType fuid = JSON::GetSafeValueUInt(jsonEvent, "fuid");
+    const unsigned int severity         = JSON::GetSafeValueUInt(jsonEvent, "severity");
+    const std::string eventName         = JSON::GetSafeValueString(jsonEvent, "name");
+    const TimestampType timestamp       = JSON::GetSafeValueDouble(jsonEvent, "timestamp");
+
+    const State::StateMachineType targetStateMachineType = 
+        static_cast<State::StateMachineType>(JSON::GetSafeValueUInt(jsonEvent["target"], "type"));
+    const std::string targetComponentName = JSON::GetSafeValueString(jsonEvent["target"], "component");
+    const std::string targetInterfaceName = JSON::GetSafeValueString(jsonEvent["target"], "interface");
+
+#if VERBOSE
+    SFLOG_ERROR << "fuid: " << fuid << std::endl
+                << "severity: " << severity << std::endl
+                << "name: " << eventName << std::endl
+                << "timestamp: " << timestamp << std::endl
+                << "targetStateMachineType: " << targetStateMachineType << std::endl
+                << "targetComponentName: " << targetComponentName << std::endl
+                << "targetInterfaceName: " << targetInterfaceName << std::endl;
+#endif
+*/
+    return true;
+}
+
+bool Coordinator::AddConnection(const std::string & clientSCName, const std::string & clientCompName, const std::string & clientIntfcName,
+                                const std::string & serverSCName, const std::string & serverCompName, const std::string & serverIntfcName)
+{
+    // local configuration
+    if (clientSCName.compare(serverSCName) == 0) {
+        // If name of this safety coordinator does not match neither client or server name
+        if (clientSCName.compare(Name) != 0)
+            return true;
+        // figure out which interface is provided interface
+        GCM * gcmClient = GetGCMInstance(clientCompName);
+        GCM * gcmServer = GetGCMInstance(serverCompName);
+        SFASSERT(gcmClient && gcmServer);
+        if (gcmClient->FindInterface(clientIntfcName, GCM::REQUIRED_INTERFACE))// &&
+            //gcmServer->FindInterface(serverIntfcName, GCM::PROVIDED_INTERFACE))
+        {
+            // Client is required, server is provided
+            // add connection to server:serverIntfcName
+            gcmServer->AddConnection(serverIntfcName, clientSCName, clientCompName, clientIntfcName);
+        } else if (gcmClient->FindInterface(clientIntfcName, GCM::PROVIDED_INTERFACE))// &&
+                   //gcmServer->FindInterface(serverIntfcName, GCM::REQUIRED_INTERFACE))
+        {
+            // Server is required, client is provided
+            // add connection to client:clientIntfcName
+            gcmClient->AddConnection(clientIntfcName, serverSCName, serverCompName, serverIntfcName);
+        } else {
+            SFLOG_ERROR << "AddConnection: failed to add connection: "
+                        << "[ " << clientSCName << " : " << clientCompName << " : " << clientIntfcName << " ] - "
+                        << "[ " << serverSCName << " : " << serverCompName << " : " << serverIntfcName << " ]" << std::endl;
+            return false;
+        }
+    }
+    // networked configuration
+    else {
+        // This instance of coordinator is client
+        if (clientSCName.compare(Name) == 0) {
+            GCM * gcm = GetGCMInstance(clientCompName);
+            if (!gcm) {
+                SFLOG_ERROR << "AddConnection: no component (as client) found: \"" << clientCompName << "\"" << std::endl;
+                return false;
+            }
+            // Figure out if client interface is required or provided
+            if (gcm->FindInterface(clientIntfcName, GCM::REQUIRED_INTERFACE)) {
+                // NOP
+                ;
+            } else {
+                SFASSERT(gcm->FindInterface(clientIntfcName, GCM::PROVIDED_INTERFACE));
+                // Server is required, client is provided
+                // add connection to client:clientIntfcName
+                gcm->AddConnection(clientIntfcName, serverSCName, serverCompName, serverIntfcName);
+            }
+        }
+        else {
+            // This instance of coordinator is server
+            SFASSERT(serverSCName.compare(Name) == 0);
+
+            GCM * gcm = GetGCMInstance(serverCompName);
+            if (!gcm) {
+                SFLOG_ERROR << "AddConnection: no component (as server) found: \"" << serverCompName << "\"" << std::endl;
+                return false;
+            }
+            // Figure out if server interface is required or provided
+            if (gcm->FindInterface(serverIntfcName, GCM::REQUIRED_INTERFACE)) {
+                // NOP
+                ;
+            } else {
+                SFASSERT(gcm->FindInterface(serverIntfcName, GCM::PROVIDED_INTERFACE));
+                // Client is required, server is provided
+                // add connection to server:serverIntfcName
+                gcm->AddConnection(serverIntfcName, clientSCName, clientCompName, clientIntfcName);
+            }
+        }
+    }
+
+    SFLOG_DEBUG << "AddConnection: successfully added connection: "
+                << "[ " << clientSCName << " : " << clientCompName << " : " << clientIntfcName << " ] - "
+                << "[ " << serverSCName << " : " << serverCompName << " : " << serverIntfcName << " ]" << std::endl;
+
+    return true;
+}

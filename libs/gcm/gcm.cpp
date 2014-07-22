@@ -66,6 +66,13 @@ GCM::~GCM(void)
         ServiceStateDependencyInfo2.erase(it2);
         delete it2->second;
     }
+
+    ConnectionsType::iterator it3;
+    while (!Connections.empty()) {
+        it3 = Connections.begin();
+        Connections.erase(it3);
+        delete it3->second;
+    }
 }
 
 void GCM::ToStream(std::ostream & out) const
@@ -243,7 +250,6 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
     {
         jsonState["request"] = "state_update";
         std::string eventInfo;
-        size_t cnt = 0;
 
         // NORMAL_TO_WARNING and WARNING_TO_NORMAL don't have impact on the projected state
         // of a provided interface, and thus don't need to get propagated to external 
@@ -251,18 +257,11 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
         if (type == State::STATEMACHINE_PROVIDED) {
             JSON _jsonUpdate;
             JSON::JSONVALUE & jsonUpdate = _jsonUpdate.GetRoot();
-            // information about provided interface of which state just changed
-            jsonUpdate["source"]["safety_coordinator"] = CoordinatorName;
-            jsonUpdate["source"]["component"] = ComponentName;
-            jsonUpdate["source"]["interface"] = interfaceName;
-            // new state
-            const Event * e = 0;
-            State::StateType nextServiceState = GetServiceState(interfaceName, e);
-            jsonUpdate["state"] = static_cast<unsigned int>(nextServiceState);
-            // event
-            jsonUpdate["event"] = ((e == 0) ? "{}" : e->SerializeJSON());
 
-            jsonState["update"][cnt++] = jsonUpdate;
+            PopulateStateUpdateJSON(interfaceName, jsonUpdate);
+
+            size_t cntUpdate = 0;
+            jsonState["update"][cntUpdate] = jsonUpdate;
         } else {
             // look up depedency table to check if there is any provided interface whose
             // service state is affected by the state change.
@@ -285,22 +284,15 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
             }
             // iterate list of statemachine for provided interfaces and generates json object
             // to broadcast to inform the service state change due to this transition
+            size_t cntUpdate = 0;
             for (size_t i = 0; i < vec->size(); ++i) {
                 const std::string prvName = vec->at(i);
                 JSON _jsonUpdate;
                 JSON::JSONVALUE & jsonUpdate = _jsonUpdate.GetRoot();
-                // information about provided interface of which state just changed
-                jsonUpdate["source"]["safety_coordinator"] = CoordinatorName;
-                jsonUpdate["source"]["component"] = ComponentName;
-                jsonUpdate["source"]["interface"] = interfaceName;
-                // new state
-                const Event * e = 0;
-                State::StateType nextServiceState = GetServiceState(prvName, e);
-                jsonUpdate["state"] = static_cast<unsigned int>(nextServiceState);
-                // event
-                jsonUpdate["event"] = ((e == 0) ? "{}" : e->SerializeJSON());
-               
-                jsonState["update"][cnt++] = jsonUpdate;
+
+                PopulateStateUpdateJSON(prvName, jsonUpdate);
+
+                jsonState["update"][cntUpdate++] = jsonUpdate;
             }
         }
     }
@@ -308,6 +300,40 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
     json = jsonState;
 
     return transition;
+}
+
+void GCM::PopulateStateUpdateJSON(const std::string & providedInterfaceName, JSON::JSONVALUE & json) const
+{
+    // information about provided interface of which state just changed
+    json["source"]["safety_coordinator"] = CoordinatorName;
+    json["source"]["component"] = ComponentName;
+    json["source"]["interface"] = providedInterfaceName;
+    // new state
+    const Event * e = 0;
+    State::StateType nextServiceState = GetServiceState(providedInterfaceName, e);
+    json["state"] = static_cast<unsigned int>(nextServiceState);
+    // event
+    json["event"] = ((e == 0) ? JSON::JSONVALUE::null : e->SerializeJSON());//((e == 0) ? "{}" : e->SerializeJSON());
+    // target
+    {
+        JSON _target;
+        JSON::JSONVALUE & target = _target.GetRoot();
+        int cntTarget = 0;
+
+        ConnectionsType::const_iterator it = Connections.find(providedInterfaceName);
+        if (it == Connections.end()) {
+            // no connection
+            json["target"][cntTarget] = JSON::JSONVALUE::null;
+        } else {
+            const ConnectionListType & vec = *(it->second);
+            for (size_t i = 0; i < vec.size(); ++i) {
+                target["safety_coordinator"] = vec[i].SafetyCoordinatorName;
+                target["component"] = vec[i].ComponentName;
+                target["interface"] = vec[i].RequiredInterfaceName;
+                json["target"][cntTarget++] = target;
+            }
+        }
+    }
 }
 
 State::StateType GCM::GetComponentState(ComponentStateViews view) const
@@ -693,5 +719,49 @@ const StateMachine * GCM::GetStateMachineInterface(const std::string & name, GCM
             return 0;
         else
             return it->second;
+    }
+}
+
+void GCM::AddConnection(const std::string & providedInterfaceName,
+                        const std::string & safetyCoordinatorName,
+                        const std::string & requiredComponentName,
+                        const std::string & requiredInterfaceName)
+{
+    ConnectionsType::iterator it = Connections.find(providedInterfaceName);
+    if (it == Connections.end()) {
+        ConnectionListType * vec = new ConnectionListType;
+        Connections[providedInterfaceName] = vec;
+        it = Connections.find(providedInterfaceName);
+    }
+
+    ConnectionListType * connections = it->second;
+
+    RequiredInterfaceInfoType req;
+    req.SafetyCoordinatorName = safetyCoordinatorName;
+    req.ComponentName         = requiredComponentName;
+    req.RequiredInterfaceName = requiredInterfaceName;
+    connections->push_back(req);
+
+    // DEBUG
+    //std::cout << "########### Connection updates: comp \"" << ComponentName << "\", "
+    //          << "provided interface: \"" << providedInterfaceName << "\"" << std::endl;
+    //PrintConnections(providedInterfaceName, std::cout);
+}
+
+void GCM::PrintConnections(const std::string providedInterfaceName, std::ostream & out)
+{
+    ConnectionsType::const_iterator it = Connections.find(providedInterfaceName);
+    if (it == Connections.end()) {
+        out << "no connection";
+        return;
+    }
+
+    const ConnectionListType & vec = *(it->second);
+    for (size_t i = 0; i < vec.size(); ++i) {
+        out << "[" << (i + 1) << "] "
+            << vec[i].SafetyCoordinatorName << " : "
+            << vec[i].ComponentName << " : "
+            << vec[i].RequiredInterfaceName
+            << std::endl;
     }
 }
