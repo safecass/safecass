@@ -153,17 +153,20 @@ void FilterOnOff::RunFilter(void)
     LastValue = newInput;
 }
 
-void FilterOnOff::ToStream(std::ostream & outputStream) const
+void FilterOnOff::ToStream(std::ostream & outputStream, bool verbose) const
 {
-    BaseType::ToStream(outputStream);
+    BaseType::ToStream(outputStream, verbose);
 
-    outputStream << "----- Filter-specifics: " << std::endl 
-                 << "Signal Type    : SCALAR" << std::endl
-                 << "Last input     : " << LastValue << std::endl
-                 << "Next reading   : " << InputSignals[0]->GetPlaceholderScalar() << std::endl
-                 << "Event on name  : " << EventNameOn << std::endl
-                 << "Event off name : " << EventNameOff << std::endl
-                 << std::endl;
+    if (!verbose) {
+        outputStream << EventNameOn << ", " << EventNameOff;
+    } else {
+        outputStream << "----- Filter-specifics: " << std::endl 
+                    << "Signal Type    : SCALAR" << std::endl
+                    << "Last input     : " << LastValue << std::endl
+                    << "Next reading   : " << InputSignals[0]->GetPlaceholderScalar() << std::endl
+                    << "Event on name  : " << EventNameOn << std::endl
+                    << "Event off name : " << EventNameOff << std::endl;
+    }
 }
 
 const std::string FilterOnOff::GenerateEventInfo(EVENT_TYPE eventType) const

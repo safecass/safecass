@@ -332,8 +332,8 @@ public:
     inline void SetSafetyCoordinator(Coordinator * instance) { SafetyCoordinator = instance; }
 
     //! Returns human readable outputs
-    virtual std::string ToString(void) const;
-    virtual void        ToStream(std::ostream & outputStream) const;
+    virtual const std::string ToString(bool verbose = false) const;
+    virtual void ToStream(std::ostream & out, bool verbose = true) const;
 
 
     /*! \addtogroup Misc. Getters
@@ -355,10 +355,10 @@ public:
     static const FilterIDType INVALID_FILTER_UID;
 };
 
-inline std::ostream & operator << (std::ostream & outputStream, const FilterBase & filter)
+inline std::ostream & operator << (std::ostream & out, const FilterBase & filter)
 {
-    filter.ToStream(outputStream);
-    return outputStream;
+    filter.ToStream(out);
+    return out;
 }
 
 };

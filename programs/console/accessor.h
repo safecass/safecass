@@ -40,7 +40,10 @@ public:
     AccessorConsole(void);
     ~AccessorConsole() {}
 
-    // request list of all filters installed
+    // request list of detailed information for all filters
+    bool RequestFilterInfo(const std::string & safetyCoordinatorName = "*",
+                           const std::string & componentName = "*") const;
+    // request summary of all filters
     bool RequestFilterList(const std::string & safetyCoordinatorName = "*",
                            const std::string & componentName = "*") const;
     // request list of all states in the system

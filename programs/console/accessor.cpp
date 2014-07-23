@@ -88,7 +88,25 @@ bool AccessorConsole::RequestFilterList(const std::string & safetyCoordinatorNam
         return false;
     }
 
-    std::cout << "requested list of filters" << std::endl;
+    std::cout << "requested summary of filters" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}
+
+bool AccessorConsole::RequestFilterInfo(const std::string & safetyCoordinatorName,
+                                        const std::string & componentName) const
+{
+    std::stringstream ss;
+    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
+          "\"component\": \"" << componentName << "\" }, "
+          "\"request\": \"filter_info\" }";
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+        std::cerr << "RequestFilterInfo: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        return false;
+    }
+
+    std::cout << "requested list of detailed information about filters" << std::endl;
     osaSleep(0.5);
 
     return true;

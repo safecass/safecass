@@ -323,11 +323,10 @@ void FilterBase::SetEventLocationInstance(EventLocationBase * location)
     EventLocation = location;
 }
 
-std::string FilterBase::ToString(void) const
+const std::string FilterBase::ToString(bool verbose) const
 {
     std::stringstream ss;
-    ToStream(ss);
-
+    ToStream(ss, verbose);
     return ss.str();
 }
 
@@ -465,39 +464,59 @@ const std::string FilterBase::GenerateEventInfo(void) const
     return "FilterBase::GenerateEventInfo:TODO";
 }
 
-void FilterBase::ToStream(std::ostream & outputStream) const
+void FilterBase::ToStream(std::ostream & out, bool verbose) const
 {
-    outputStream << "[" << UID << "] "
-                 << "Name: \"" << Name << "\", ";
-    outputStream << "Target: \"";
-    switch (FilterTarget.StateMachineType) {
-    case State::STATEMACHINE_FRAMEWORK: outputStream << "s_F"; break;
-    case State::STATEMACHINE_APP:       outputStream << "s_A"; break;
-    case State::STATEMACHINE_PROVIDED:  outputStream << "s_P"; break;
-    case State::STATEMACHINE_REQUIRED:  outputStream << "s_R"; break;
-    case State::STATEMACHINE_INVALID:   outputStream << "INVALID"; break;
-    }
-    outputStream << "\", component: \"" << FilterTarget.ComponentName
-                 << "\", interface: \"" << FilterTarget.InterfaceName
-                 << "\", ";
-    outputStream << "Filter type: " << (FilterType == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
-                 << "State: " << GetFilterStateString(FilterState);
-    outputStream << ", Event location: " << (EventLocation ? "Available" : "n/a");
-    if (LastFilterOfPipeline)
-        outputStream << ", Event publisher: " << (EventPublisher ? "installed" : "n/a");
-    outputStream << std::endl;
+    if (verbose) {
+        out << "[" << UID << "] "
+            << "Name: \"" << Name << "\", ";
+        out << "Target: \"";
+        switch (FilterTarget.StateMachineType) {
+        case State::STATEMACHINE_FRAMEWORK: out << "s_F"; break;
+        case State::STATEMACHINE_APP:       out << "s_A"; break;
+        case State::STATEMACHINE_PROVIDED:  out << "s_P"; break;
+        case State::STATEMACHINE_REQUIRED:  out << "s_R"; break;
+        case State::STATEMACHINE_INVALID:   out << "INVALID"; break;
+        }
+        out << "\", component: \"" << FilterTarget.ComponentName
+            << "\", interface: \"" << FilterTarget.InterfaceName
+            << "\", ";
+        out << "Filter type: " << (FilterType == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
+            << "State: " << GetFilterStateString(FilterState);
+        out << ", Event location: " << (EventLocation ? "Available" : "n/a");
+        if (LastFilterOfPipeline)
+            out << ", Event publisher: " << (EventPublisher ? "installed" : "n/a");
+        out << std::endl;
 
-    // Input signals
-    outputStream << "----- Input Signals:" << std::endl;
-    for (size_t i = 0; i < InputSignals.size(); ++i) {
-        outputStream << "[" << i << "] " << (*InputSignals[i]) << std::endl;
+        // Input signals
+        out << "----- Input Signals:" << std::endl;
+        for (size_t i = 0; i < InputSignals.size(); ++i) {
+            out << "[" << i << "] " << (*InputSignals[i]) << std::endl;
+        }
+        // Output signals
+        out << "----- Output Signals:" << std::endl;
+        for (size_t i = 0; i < OutputSignals.size(); ++i) {
+            out << "[" << i << "] " << (*OutputSignals[i]) << std::endl;
+        }
+        // Input queue
+        out << "----- Input queue: " << ShowInputQueue() << std::endl;
+    } else {
+        out << "[ " << UID << " ] ";
+        switch (FilterTarget.StateMachineType) {
+        case State::STATEMACHINE_FRAMEWORK: out << "s_F "; break;
+        case State::STATEMACHINE_APP:       out << "s_A "; break;
+        case State::STATEMACHINE_PROVIDED:  out << "s_P "; break;
+        case State::STATEMACHINE_REQUIRED:  out << "s_R "; break;
+        case State::STATEMACHINE_INVALID:   out << "N/A "; break;
+        }
+        out << "\"" << FilterTarget.ComponentName << "\"";
+        if (FilterTarget.InterfaceName.size())
+            out << ":\"" << FilterTarget.InterfaceName << "\"";
+        out << "  " << Name << "  ";
+        // Input signals
+        for (size_t i = 0; i < InputSignals.size(); ++i)
+            out << "\"" << InputSignals[i]->GetName() << "\"  ";
+        // Input queue
+        if (InputQueue.size())
+            out << "[ " << ShowInputQueue() << " ]";
     }
-    // Output signals
-    outputStream << "----- Output Signals:" << std::endl;
-    for (size_t i = 0; i < OutputSignals.size(); ++i) {
-        outputStream << "[" << i << "] " << (*OutputSignals[i]) << std::endl;
-    }
-    // Input queue
-    outputStream << "----- Input queue: " << ShowInputQueue() << std::endl;
 }
-

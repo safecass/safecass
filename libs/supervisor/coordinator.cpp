@@ -444,9 +444,8 @@ Coordinator::FiltersType * Coordinator::GetFilters(const std::string & component
     return (it == MapFilter.end() ? 0 : it->second);
 }
 
-const std::string Coordinator::GetFilterList(const std::string & componentName) const
+const std::string Coordinator::GetFilterList(const std::string & componentName, bool verbose) const
 {
-    // TODO: json encoding
     std::stringstream ss;
 
     bool allComponents = (componentName.compare("*") == 0);
@@ -466,7 +465,7 @@ const std::string Coordinator::GetFilterList(const std::string & componentName) 
         FiltersType::const_iterator it2 = filters->begin();
         const FiltersType::const_iterator itEnd2 = filters->end();
         for (; it2 != itEnd2; ++it2)
-            ss << "\t" << *it2->second << std::endl;
+            ss << "\t" << it2->second->ToString(verbose) << std::endl;
     }
 
     return ss.str();

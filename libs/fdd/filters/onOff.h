@@ -85,7 +85,7 @@ public:
     inline SignalElement::SignalType GetSignalType(void) const  { return SignalElement::SCALAR; }
 
     /*! Returns human readable representation of this filter */
-    void ToStream(std::ostream & outputStream) const;
+    void ToStream(std::ostream & outputStream, bool verbose = false) const;
 
     //! For filter factory
     SF_DEFINE_FACTORY_CREATE(FilterOnOff);
