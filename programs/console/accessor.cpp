@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Jul 22, 2014
+// Last revision: Jul 23, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -148,11 +148,29 @@ bool AccessorConsole::RequestEventList(const std::string & safetyCoordinatorName
           "\"component\": \"" << componentName << "\" }, "
           "\"request\": \"event_list\" }";
     if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
-        std::cerr << "RequestStateList: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        std::cerr << "RequestEventList: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
         return false;
     }
 
     std::cout << "requested list of events" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}
+
+bool AccessorConsole::RequestConnectionList(const std::string & safetyCoordinatorName,
+                                            const std::string & componentName) const
+{
+    std::stringstream ss;
+    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
+          "\"component\": \"" << componentName << "\" }, "
+          "\"request\": \"connection_list\" }";
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+        std::cerr << "RequestConnectionList: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        return false;
+    }
+
+    std::cout << "requested list of connections" << std::endl;
     osaSleep(0.5);
 
     return true;

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Jul 3, 2014
+// Last revision: Jul 23, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -43,12 +43,15 @@ public:
     // request list of all filters installed
     bool RequestFilterList(const std::string & safetyCoordinatorName = "*",
                            const std::string & componentName = "*") const;
-    // request list of all states in the Safety Coordinator
+    // request list of all states in the system
     bool RequestStateList(const std::string & safetyCoordinatorName = "*",
                           const std::string & componentName = "*") const;
-    // request list of all events in the Safety Coordinator
+    // request list of all events in the system
     bool RequestEventList(const std::string & safetyCoordinatorName = "*",
                           const std::string & componentName = "*") const;
+    // request list of all connections in the system
+    bool RequestConnectionList(const std::string & safetyCoordinatorName = "*",
+                               const std::string & componentName = "*") const;
     // request fault injection
     bool RequestFilterFaultInject(const std::string & safetyCoordinatorName,
                                   const SF::FilterBase::FilterIDType fuid,

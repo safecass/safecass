@@ -816,20 +816,31 @@ void GCM::AddConnection(const std::string & providedInterfaceName,
     //PrintConnections(providedInterfaceName, std::cout);
 }
 
-void GCM::PrintConnections(const std::string providedInterfaceName, std::ostream & out)
+void GCM::PrintConnections(const std::string providedInterfaceName, std::ostream & out,
+                           const std::string & prefix)
 {
+    out << prefix << providedInterfaceName << ": ";
     ConnectionsType::const_iterator it = Connections.find(providedInterfaceName);
     if (it == Connections.end()) {
-        out << "no connection";
+        out << std::endl;
         return;
     }
+    out << std::endl;
 
     const ConnectionListType & vec = *(it->second);
     for (size_t i = 0; i < vec.size(); ++i) {
-        out << "[" << (i + 1) << "] "
+        out << prefix << "\t[" << (i + 1) << "] "
             << vec[i].SafetyCoordinatorName << " : "
             << vec[i].ComponentName << " : "
             << vec[i].RequiredInterfaceName
             << std::endl;
     }
+}
+
+void GCM::PrintConnections(std::ostream & out, const std::string & prefix)
+{
+    InterfaceStateMachinesType::const_iterator it = States.ProvidedInterfaces.begin();
+    const InterfaceStateMachinesType::const_iterator itEnd = States.ProvidedInterfaces.end();
+    for (; it != itEnd; ++it)
+        PrintConnections(it->first, out, prefix);
 }

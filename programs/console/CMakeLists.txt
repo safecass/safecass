@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : May 7, 2014
-# Last revision: Jul 3, 2014
+# Last revision: Jul 23, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -37,7 +37,8 @@ if (SF_HAS_CISST)
                             # command handlers
                             cmd_filter.cpp 
                             cmd_state.cpp
-                            cmd_event.cpp)
+                            cmd_event.cpp
+                            cmd_connection.cpp)
     cisst_target_link_libraries(console ${REQUIRED_CISST_LIBS})
     target_link_libraries (console ${REQUIRED_SF_LIBS} 
                                    ${SF_LIB_DEPENDENCY_LIBS}

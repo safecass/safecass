@@ -207,6 +207,8 @@ public:
     //
     bool AddConnection(const std::string & clientSCName, const std::string & clientCompName, const std::string & clientIntfcName,
                        const std::string & serverSCName, const std::string & serverCompName, const std::string & serverIntfcName);
+    // Get information about all connections that the component specified is involved with
+    const std::string GetConnectionList(const std::string & componentName = "*", const std::string & prefix = "") const;
 
     //! For human-readable logging and debugging
     /*! \param outputStream output stream

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 7, 2014
-// Last revision: Jul 14, 2014
+// Last revision: Jul 23, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -25,8 +25,9 @@ using namespace SF;
 // command handlers
 //
 void handler_filter(const std::vector<std::string> & args);
-void handler_state (const std::vector<std::string> & args);
-void handler_event (const std::vector<std::string> & args);
+void handler_state(const std::vector<std::string> & args);
+void handler_event(const std::vector<std::string> & args);
+void handler_connection(const std::vector<std::string> & args);
 
 // instance of casros network accessor
 AccessorConsole * casrosAccessor = 0;
@@ -45,6 +46,8 @@ void handler_help(const std::vector<std::string> &)
        << "    state"NL
        << "    filter"NL
        << "    event"NL
+       //<< "    service"NL
+       << "    connection"NL
        << "    help      : show this help"NL
        << "    exit/quit : exit console"NL NL
        << "For more information:"NL
@@ -84,12 +87,13 @@ int main(int argc, char **argv)
     // Instantiate interpreter
     boost::cli::commands_description desc;
     desc.add_options()
-        ("help",   po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_help, _1)))
-        ("filter", po::value<StrVecType>()->notifier(&handler_filter)->multitoken())
-        ("state",  po::value<StrVecType>()->notifier(&handler_state)->multitoken())
-        ("event",  po::value<StrVecType>()->notifier(&handler_event)->multitoken())
-        ("exit",   po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
-        ("quit",   po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
+        ("help",       po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_help, _1)))
+        ("filter",     po::value<StrVecType>()->notifier(&handler_filter)->multitoken())
+        ("state",      po::value<StrVecType>()->notifier(&handler_state)->multitoken())
+        ("event",      po::value<StrVecType>()->notifier(&handler_event)->multitoken())
+        ("connection", po::value<StrVecType>()->notifier(&handler_connection)->multitoken())
+        ("exit",       po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
+        ("quit",       po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
         ;
 
     boost::cli::command_line_interpreter cli(desc, ">");

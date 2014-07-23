@@ -155,7 +155,10 @@ public:
     // Print service state dependency table in tabular format
     void PrintServiceStateDependencyTable(std::ostream & out);
     // Given a provided interface, print connection information
-    void PrintConnections(const std::string providedInterfaceName, std::ostream & out);
+    void PrintConnections(const std::string providedInterfaceName, std::ostream & out,
+                          const std::string & prefix = "");
+    // Print connection information for all provided interfaces
+    void PrintConnections(std::ostream & out, const std::string & prefix = "");
 };
  
 inline std::ostream & operator << (std::ostream & outputStream, const GCM & gcm) {
