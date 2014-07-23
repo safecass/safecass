@@ -1,3 +1,4 @@
+/*
 //------------------------------------------------------------------------
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
@@ -11,6 +12,7 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
+*/
 body {
   font-family: Myriad Web
 }
@@ -40,3 +42,4 @@ p#intro {
   text-align: center;
   margin: 1em 0;
 }
+
