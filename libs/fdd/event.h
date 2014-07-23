@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Jul 19, 2014
+// Last revision: Jul 22, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -16,6 +16,7 @@
 
 #include "utils.h" // for TimestampType
 #include "state.h"
+#include "json.h"
 
 namespace SF {
 
@@ -64,7 +65,9 @@ public:
     // Returns human readable outputs
     virtual void ToStream(std::ostream & outputStream) const;
     // Serialize this object in json
-    const std::string SerializeJSON(bool includeStateTransition = true) const;
+    const JSON::JSONVALUE SerializeJSON(bool includeStateTransition = true) const;
+    // Serialize this object in string
+    const std::string SerializeString(bool includeStateTransition = true) const;
 };
 
 inline std::ostream & operator << (std::ostream & outputStream, const Event & event)

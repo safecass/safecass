@@ -7,12 +7,11 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Jul 19, 2014
+// Last revision: Jul 22, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "event.h"
-#include "json.h"
 
 using namespace SF;
 
@@ -98,7 +97,7 @@ void Event::ToStream(std::ostream & os) const
     os << "]";
 }
 
-const std::string Event::SerializeJSON(bool includeStateTransition) const
+const JSON::JSONVALUE Event::SerializeJSON(bool includeStateTransition) const
 {
     JSON _json;
     JSON::JSONVALUE & json = _json.GetRoot();
@@ -119,5 +118,11 @@ const std::string Event::SerializeJSON(bool includeStateTransition) const
             }
         }
     
-    return JSON::GetJSONString(json);
+    return json;
 }
+
+const std::string Event::SerializeString(bool includeStateTransition) const
+{
+    return JSON::GetJSONString(SerializeString(includeStateTransition));
+}
+
