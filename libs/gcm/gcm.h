@@ -144,7 +144,8 @@ public:
     //! Returns consolidated interface state
     State::StateType GetInterfaceState(InterfaceTypes type) const;
     //! Returns service state of provided interface and event information that caused service state transition
-    State::StateType GetServiceState(const std::string & providedInterfaceName, const Event * & event) const;
+    State::StateType GetServiceState(const std::string & providedInterfaceName, const Event * & event,
+                                     bool forErrorPropagation) const;
 
     //
     // Misc.

@@ -155,8 +155,11 @@ protected:
     /*! State machine instance */
     GCMStateMachine State;
 
-    // Active event that caused transition last time.  NULL in NORMAL state, non-NULL otherwise
+    // Pending event that caused transition last time.  NULL in NORMAL state, non-NULL otherwise
     const Event * PendingEvent;
+    // Cache of the very last pending event.  To keep this cache is necessary for error propagation
+    // because ProcessEvent() resets PendingEvent when getting back to NORMAL state.
+    const Event * LastPendingEvent;
 
     /*! Name of owner of this state machine */
     std::string OwnerName;
@@ -199,6 +202,10 @@ public:
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
     //! Return pending event
     inline const Event * GetPendingEvent(void) const { return PendingEvent; }
+    //! Return cached last pending event
+    inline const Event * GetLastPendingEvent(void) const { return LastPendingEvent; }
+    //! Check if last state transition was back to NORMAL state
+    inline bool IsLastTransitionToNormalState(void) const { return (LastPendingEvent != 0); }
 
     //
     // Setters

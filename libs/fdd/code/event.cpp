@@ -94,7 +94,7 @@ void Event::ToStream(std::ostream & os) const
         default:                       os << "INVALID";
         }
     }
-    os << "]";
+    os << " ]";
 }
 
 const JSON::JSONVALUE Event::SerializeJSON(bool includeStateTransition) const

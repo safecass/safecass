@@ -48,6 +48,16 @@
             "severity"        : 201,
             // TODO: depending on how severe overrun is, next restored state can be
             "state_transition": [ "E2N" ]
+        },
+        {   "name"            : "EVT_SERVICE_FAILURE",
+            "severity"        : 250,
+            // TODO: depending on how severe overrun is, next restored state can be
+            "state_transition": [ "N2E" ]
+        },
+        {   "name"            : "/EVT_SERVICE_FAILURE",
+            "severity"        : 250,
+            // TODO: depending on how severe overrun is, next restored state can be
+            "state_transition": [ "E2N" ]
         }
     ],
     "filter" : [

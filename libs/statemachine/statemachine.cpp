@@ -50,6 +50,7 @@ StateMachine::StateMachine(const std::string & ownerName, StateEventHandler * ev
 void StateMachine::Initialize(const std::string & ownerName, StateEventHandler * eventHandler)
 {
     PendingEvent = 0;
+    LastPendingEvent = 0;
     OwnerName = ownerName;
 
     State.EventHandlerInstance = eventHandler;
@@ -76,25 +77,6 @@ void StateMachine::SetStateEventHandler(StateEventHandler * instance)
 
     State.EventHandlerInstance = instance;
 }
-
-/*
-void StateMachine::SetPendingEvent(Event * e)
-{
-    PendingEvent = e;
-
-    SFLOG_INFO << "StateMachine::SetPendingEvent: set pending event: " << *e << std::endl;
-}
-
-void StateMachine::ClearPendingEvent(void)
-{
-    if (!PendingEvent)
-        return;
-
-    SFLOG_INFO << "StateMachine::SetPendingEvent: reset pending event: " << *PendingEvent << std::endl;
-
-    PendingEvent = 0;
-}
-*/
 
 bool StateMachine::ProcessEvent(const State::TransitionType transition, const Event * event)
 {
@@ -223,6 +205,7 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
 
     // Swap out currently active event with new event of higher criticality or equal
     // criticality but higher severity.
+    LastPendingEvent = PendingEvent;
     if (nextState == State::NORMAL)
         PendingEvent = 0;
     else

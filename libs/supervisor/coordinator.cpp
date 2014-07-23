@@ -207,7 +207,7 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
             if (i != 0)
                 ss << ", ";
             const Event * e = 0;
-            State::StateType serviceState = gcm->GetServiceState(names[i], e);
+            State::StateType serviceState = gcm->GetServiceState(names[i], e, false);
             ss << "{ \"name\": \"" << names[i] << "\", "
                << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", "
                << "\"service_state\": " << static_cast<int>(serviceState) << ", "
@@ -734,17 +734,18 @@ bool Coordinator::OnEvent(const std::string & event)
         return false;
     }
 
-    const JSON::JSONVALUE & jsonEvent = json.GetRoot()["event"];
+    JSON::JSONVALUE & jsonEvent = json.GetRoot()["event"];
 
     const FilterBase::FilterIDType fuid = JSON::GetSafeValueUInt(jsonEvent, "fuid");
     const unsigned int severity         = JSON::GetSafeValueUInt(jsonEvent, "severity");
     const std::string eventName         = JSON::GetSafeValueString(jsonEvent, "name");
     const TimestampType timestamp       = JSON::GetSafeValueDouble(jsonEvent, "timestamp");
 
+    jsonEvent = json.GetRoot()["target"];
     const State::StateMachineType targetStateMachineType = 
-        static_cast<State::StateMachineType>(JSON::GetSafeValueUInt(jsonEvent["target"], "type"));
-    const std::string targetComponentName = JSON::GetSafeValueString(jsonEvent["target"], "component");
-    const std::string targetInterfaceName = JSON::GetSafeValueString(jsonEvent["target"], "interface");
+        static_cast<State::StateMachineType>(JSON::GetSafeValueUInt(jsonEvent, "type"));
+    const std::string targetComponentName = JSON::GetSafeValueString(jsonEvent, "component");
+    const std::string targetInterfaceName = JSON::GetSafeValueString(jsonEvent, "interface");
 
 #if VERBOSE
     SFLOG_DEBUG << "fuid: " << fuid << std::endl
@@ -793,8 +794,13 @@ bool Coordinator::OnEvent(const std::string & event)
     jsonRefresh["request"] = "state_list";
 
     // Publish messages
-    PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonServiceStateChange));
     PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
+    if (jsonServiceStateChange != JSON::JSONVALUE::null)
+        PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonServiceStateChange));
+    else
+        SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << ", " << targetInterfaceName << " ] "
+                    << "event " << *e << " occured but has no impact on service state of "
+                    << "any of its provided interface.  No further error propagation." << std::endl;
 
     // Call event hook for middleware
     return OnEventHandler(e);
@@ -862,50 +868,85 @@ bool Coordinator::OnEventPropagation(const JSON::JSONVALUE & json)
         return false;
     }
 
+    std::string scName, componentName, interfaceName;
     for (size_t i = 0; i < json.size(); ++i) {
-        const JSON::JSONVALUE & info = json[i];
-        // TODO: When connection management facility is in place, look up the facility to
-        // determine if there is any required interface of which run-time state is affected
-        // by this service state change event.
-    }
+        const JSON::JSONVALUE & src = json[i];
+
+        // deserialize event information
+        State::StateType state  = static_cast<State::StateType>(JSON::GetSafeValueUInt(src, "state"));
+        // getting better cases
 #if 0
-[
-    {   // statemachine identifiers    
-        "source": {
-            "safety_coordinator": "aSafetyCoordinatorName",
-            "component": "aComponentName",
-            "interface": "aProvidedInterfaceName"
-        },
-        "state": 0, // 0: Normal, 3: Failure (projected state)
-        "event": { "name": "EVT_NAME_THAT_CAUSED_THIS_TRANSITION", 
-                    "severity": 100,
-                    "timestamp": 0 }
+        if (state == State::NORMAL) {
+            SFASSERT(src["event"] == JSON::JSONVALUE::null);
+        }
+        // getting worse cases
+        else if (state == State::FAILURE) {
+            SFASSERT(src["event"] != JSON::JSONVALUE::null);
+        }
+        // should not happen
+        else {
+            SFASSERT(false);
+        }
+#endif
+
+        unsigned int severity   = JSON::GetSafeValueUInt(src["event"], "severity");
+        TimestampType timestamp = JSON::GetSafeValueDouble(src["event"], "timestamp");
+        std::string eventName   = JSON::GetSafeValueString(src["event"], "name");
+
+        for (size_t j = 0; j < src["target"].size(); ++j) {
+            const JSON::JSONVALUE & target = src["target"][j];
+
+            scName = JSON::GetSafeValueString(target, "safety_coordinator");
+            if (this->Name.compare(scName) != 0)
+                continue; // this error propagation target is not for this safety coordinator
+
+            componentName = JSON::GetSafeValueString(target, "component");
+            GCM * gcm = GetGCMInstance(componentName);
+            if (!gcm) {
+                SFLOG_ERROR << "OnEventPropagation: no component found: \"" << componentName << "\"" << std::endl;
+                continue;
+            }
+
+            interfaceName = JSON::GetSafeValueString(target, "interface");
+            if (!gcm->FindInterface(interfaceName, GCM::REQUIRED_INTERFACE)) {
+                SFLOG_ERROR << "OnEventPropagation: no required interface found: \"" << interfaceName << "\"" << std::endl;
+                continue;
+            }
+
+            // Generate service failure event based on event information received
+            JSON _jsonEvent;
+            JSON::JSONVALUE & jsonEvent = _jsonEvent.GetRoot();
+            jsonEvent["event"]["severity"] = severity;
+            jsonEvent["event"]["timestamp"] = timestamp;
+            if (state == State::FAILURE)
+                jsonEvent["event"]["name"] = "EVT_SERVICE_FAILURE"; // see libs/fdd/filters/json/framework_filters.json
+            else if (state == State::NORMAL)
+                jsonEvent["event"]["name"] = "/EVT_SERVICE_FAILURE"; // see libs/fdd/filters/json/framework_filters.json
+            else {
+                SFLOG_ERROR << "OnEventPropagation: Invalid state: " << State::GetStringState(state) << std::endl;
+                continue;
+            }
+            jsonEvent["target"]["type"] = static_cast<unsigned int>(State::STATEMACHINE_REQUIRED);
+            jsonEvent["target"]["component"] = componentName;
+            jsonEvent["target"]["interface"] = interfaceName;
+
+            SFLOG_DEBUG << "OnEventPropagation: Propagating service failure event:\n" << JSON::GetJSONString(jsonEvent) << std::endl;
+
+            if (!OnEvent(JSON::GetJSONString(jsonEvent))) {
+                SFLOG_ERROR << "OnEventPropagation: Failed to propagate service failure state:\n"
+                            << JSON::GetJSONString(jsonEvent) << std::endl;
+                continue;
+            }
+
+            //
+            // TODO: add pending event to required interface that maintains what caused
+            // service failures.  However, all service failure events are REMAPPED as
+            // [/]EVT_SERVICE_FAILURE.
+            //
+            SFLOG_DEBUG << "OnEventPropagation: " << eventName << ", " << severity << ", " << timestamp << ", " << State::GetStringState(state) << std::endl;
+        }
     }
-]
-#endif
-    /*
-    const JSON::JSONVALUE & jsonEvent = json.GetRoot()["event"];
 
-    const FilterBase::FilterIDType fuid = JSON::GetSafeValueUInt(jsonEvent, "fuid");
-    const unsigned int severity         = JSON::GetSafeValueUInt(jsonEvent, "severity");
-    const std::string eventName         = JSON::GetSafeValueString(jsonEvent, "name");
-    const TimestampType timestamp       = JSON::GetSafeValueDouble(jsonEvent, "timestamp");
-
-    const State::StateMachineType targetStateMachineType = 
-        static_cast<State::StateMachineType>(JSON::GetSafeValueUInt(jsonEvent["target"], "type"));
-    const std::string targetComponentName = JSON::GetSafeValueString(jsonEvent["target"], "component");
-    const std::string targetInterfaceName = JSON::GetSafeValueString(jsonEvent["target"], "interface");
-
-#if VERBOSE
-    SFLOG_ERROR << "fuid: " << fuid << std::endl
-                << "severity: " << severity << std::endl
-                << "name: " << eventName << std::endl
-                << "timestamp: " << timestamp << std::endl
-                << "targetStateMachineType: " << targetStateMachineType << std::endl
-                << "targetComponentName: " << targetComponentName << std::endl
-                << "targetInterfaceName: " << targetInterfaceName << std::endl;
-#endif
-*/
     return true;
 }
 

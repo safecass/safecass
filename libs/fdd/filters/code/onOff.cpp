@@ -173,11 +173,16 @@ const std::string FilterOnOff::GenerateEventInfo(EVENT_TYPE eventType) const
     root["event"]["name"] = ((eventType == FilterOnOff::ONSET) ? EventNameOn : EventNameOff);
     // TODO: integrate boost time/date library
     root["event"]["timestamp"] = 1234.5678; // TEMP
+    root["event"]["severity"] = 255; // TEMP
+    root["event"]["fuid"] = this->UID;
+#if 0
     root["event"]["target"]["type"]      = this->FilterTarget.StateMachineType;
     root["event"]["target"]["component"] = this->FilterTarget.ComponentName;
     root["event"]["target"]["interface"] = this->FilterTarget.InterfaceName;
-    root["event"]["severity"] = 255; // TEMP
-    root["event"]["fuid"] = this->UID;
+#endif
+    root["target"]["type"]      = this->FilterTarget.StateMachineType;
+    root["target"]["component"] = this->FilterTarget.ComponentName;
+    root["target"]["interface"] = this->FilterTarget.InterfaceName;
 
     return JSON::GetJSONString(root);
 }
