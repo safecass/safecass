@@ -52,6 +52,9 @@ public:
     // request list of all connections in the system
     bool RequestConnectionList(const std::string & safetyCoordinatorName = "*",
                                const std::string & componentName = "*") const;
+    // request list of service dependency information in the system
+    bool RequestServiceDependencyList(const std::string & safetyCoordinatorName = "*",
+                                      const std::string & componentName = "*") const;
     // request fault injection
     bool RequestFilterFaultInject(const std::string & safetyCoordinatorName,
                                   const SF::FilterBase::FilterIDType fuid,

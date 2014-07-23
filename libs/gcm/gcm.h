@@ -153,7 +153,7 @@ public:
     //! Human readable output of this class
     void ToStream(std::ostream & outputStream) const;
     // Print service state dependency table in tabular format
-    void PrintServiceStateDependencyTable(std::ostream & out);
+    void PrintServiceStateDependencyTable(std::ostream & out, const std::string & prefix = "");
     // Given a provided interface, print connection information
     void PrintConnections(const std::string providedInterfaceName, std::ostream & out,
                           const std::string & prefix = "");

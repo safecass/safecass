@@ -1055,3 +1055,25 @@ const std::string Coordinator::GetConnectionList(const std::string & componentNa
 
     return ss.str();
 }
+
+const std::string Coordinator::GetServiceDependencyList(const std::string & componentName,
+                                                        const std::string & prefix) const
+{
+    std::stringstream ss;
+
+    bool allComponents = (componentName.compare("*") == 0);
+
+    GCMMapType::const_iterator it = MapGCM.begin();
+    const GCMMapType::const_iterator itEnd = MapGCM.end();
+    for (; it != itEnd; ++it) {
+        GCM * gcm = it->second;
+        if (!allComponents)
+            if (GetComponentName(it->first).compare(componentName) != 0)
+                continue;
+
+        ss << "Component: \"" << GetComponentName(it->first) << "\"" << std::endl;
+        gcm->PrintServiceStateDependencyTable(ss, prefix);
+    }
+
+    return ss.str();
+}

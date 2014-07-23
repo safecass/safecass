@@ -201,6 +201,8 @@ public:
     //
     bool AddServiceStateDependencyFromJSON(const std::string & jsonString);
     bool AddServiceStateDependencyFromJSONFile(const std::string & jsonFileName);
+    // Get information about service dependency specifications
+    const std::string GetServiceDependencyList(const std::string & componentName = "*", const std::string & prefix = "") const;
 
     //
     // CONNECTIONS

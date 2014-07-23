@@ -28,6 +28,7 @@ void handler_filter(const std::vector<std::string> & args);
 void handler_state(const std::vector<std::string> & args);
 void handler_event(const std::vector<std::string> & args);
 void handler_connection(const std::vector<std::string> & args);
+void handler_service(const std::vector<std::string> & args);
 
 // instance of casros network accessor
 AccessorConsole * casrosAccessor = 0;
@@ -46,8 +47,8 @@ void handler_help(const std::vector<std::string> &)
        << "    state"NL
        << "    filter"NL
        << "    event"NL
-       //<< "    service"NL
        << "    connection"NL
+       << "    service"NL
        << "    help      : show this help"NL
        << "    exit/quit : exit console"NL NL
        << "For more information:"NL
@@ -92,6 +93,7 @@ int main(int argc, char **argv)
         ("state",      po::value<StrVecType>()->notifier(&handler_state)->multitoken())
         ("event",      po::value<StrVecType>()->notifier(&handler_event)->multitoken())
         ("connection", po::value<StrVecType>()->notifier(&handler_connection)->multitoken())
+        ("service",    po::value<StrVecType>()->notifier(&handler_service)->multitoken())
         ("exit",       po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
         ("quit",       po::value<StrVecType>()->zero_tokens()->notifier(boost::bind(&handler_exit, _1)))
         ;

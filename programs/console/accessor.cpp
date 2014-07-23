@@ -175,3 +175,21 @@ bool AccessorConsole::RequestConnectionList(const std::string & safetyCoordinato
 
     return true;
 }
+
+bool AccessorConsole::RequestServiceDependencyList(const std::string & safetyCoordinatorName,
+                                                   const std::string & componentName) const
+{
+    std::stringstream ss;
+    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
+          "\"component\": \"" << componentName << "\" }, "
+          "\"request\": \"service_list\" }";
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+        std::cerr << "RequestServiceDependencyList: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        return false;
+    }
+
+    std::cout << "requested list of service dependency" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}

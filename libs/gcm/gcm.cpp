@@ -511,37 +511,36 @@ bool GCM::AddServiceStateDependencyEntry(const std::string & providedInterfaceNa
     return true;
 }
 
-void GCM::PrintServiceStateDependencyTable(std::ostream & out)
+void GCM::PrintServiceStateDependencyTable(std::ostream & out, const std::string & prefix)
 {
-    out << "Component: \"" << ComponentName << "\"" << std::endl;
-
-    out << "Table for entry (required interface) look-up:" << std::endl;
+    //out << "Component: \"" << ComponentName << "\"" << std::endl;
+    out << prefix << "Look-up table using state:" << std::endl;
     ServiceStateDependencyInfoType::const_iterator it = ServiceStateDependencyInfo.begin();
     ServiceStateDependencyInfoType::const_iterator itEnd = ServiceStateDependencyInfo.end();
     for (; it != itEnd; ++it) {
-        out << "\t" << it->first << std::endl;
+        out << prefix << "\t" << it->first << std::endl;
         StrVecType * v = it->second;
         if (!v) {
-            out << "\t\t(none)" << std::endl;
+            out << prefix << "\t\t(none)" << std::endl;
             continue;
         }
         for (size_t j = 0; j < v->size(); ++j) {
-            std::cout << "\t\t" << v->at(j) << std::endl;
+            out << prefix << "\t\t" << v->at(j) << std::endl;
         }
     }
 
-    out << "Table for provided interface look-up:" << std::endl;
+    out << prefix << "Look-up table using provided interface:" << std::endl;
     it = ServiceStateDependencyInfo2.begin();
     itEnd = ServiceStateDependencyInfo2.end();
     for (; it != itEnd; ++it) {
-        out << "\t" << it->first << std::endl;
+        out << prefix << "\t" << it->first << std::endl;
         StrVecType * v = it->second;
         if (!v) {
-            out << "\t\t(none)" << std::endl;
+            out << prefix << "\t\t(none)" << std::endl;
             continue;
         }
         for (size_t j = 0; j < v->size(); ++j) {
-            std::cout << "\t\t" << v->at(j) << std::endl;
+            out << prefix << "\t\t" << v->at(j) << std::endl;
         }
     }
 

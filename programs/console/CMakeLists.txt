@@ -38,7 +38,8 @@ if (SF_HAS_CISST)
                             cmd_filter.cpp 
                             cmd_state.cpp
                             cmd_event.cpp
-                            cmd_connection.cpp)
+                            cmd_connection.cpp
+                            cmd_service.cpp)
     cisst_target_link_libraries(console ${REQUIRED_CISST_LIBS})
     target_link_libraries (console ${REQUIRED_SF_LIBS} 
                                    ${SF_LIB_DEPENDENCY_LIBS}
