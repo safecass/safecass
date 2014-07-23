@@ -340,6 +340,8 @@ void GCM::PopulateStateUpdateJSON(const std::string & providedInterfaceName, JSO
             }
         }
     }
+
+    SFLOG_DEBUG << "PopulateStateUpdateJSON: " << providedInterfaceName << ", JSON:\n" << JSON::GetJSONString(json) << std::endl;
 }
 
 State::StateType GCM::GetComponentState(ComponentStateViews view) const
@@ -552,11 +554,13 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
         ServiceStateDependencyInfo2.find(providedInterfaceName);
     if (it == ServiceStateDependencyInfo2.end()) {
         event = 0;
+        SFLOG_WARNING << "GetServiceState: no provided interface found: \"" << providedInterfaceName << "\"" << std::endl;
         return State::INVALID;
     }
 
     StrVecType * v = it->second;
     SFASSERT(v);
+    // If provided interface has no dependency on other state(s) for its service state
     if (v->size() == 0) {
         // Find provided interface instance
         InterfaceStateMachinesType::const_iterator it = States.ProvidedInterfaces.find(providedInterfaceName);
@@ -565,9 +569,15 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
         return GetInterfaceState(providedInterfaceName, PROVIDED_INTERFACE);
     }
 
-    State serviceState(State::NORMAL);
+    //const Event * e = 0; // Need to keep track of which event cuased the service state transition
+    //State serviceState(State::NORMAL);
+    
+    // Initial state and pending event should be fetched from the provided interface
+    const StateMachine * smProvided = GetStateMachineInterface(providedInterfaceName, PROVIDED_INTERFACE);
+    const Event * e = smProvided->GetPendingEvent();
+    State serviceState(smProvided->GetCurrentState());
+
     const StateMachine * sm;
-    const Event * e = 0; // Need to keep track of which event cuased the service state transition
     std::string name;
     for (size_t i = 0; i < v->size(); ++i) {
         name = v->at(i);

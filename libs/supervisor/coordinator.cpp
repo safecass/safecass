@@ -211,7 +211,7 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
             ss << "{ \"name\": \"" << names[i] << "\", "
                << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", "
                << "\"service_state\": " << static_cast<int>(serviceState) << ", "
-               << "\"event\": " << (e ? e->SerializeJSON() : "{}")
+               << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null)//"{}")
                << " }";
         }
         ss << " ], ";
@@ -786,7 +786,7 @@ bool Coordinator::OnEvent(const std::string & event)
         return false;
     }
 
-    // To refresh visualization
+    // Refresh state viewer
     JSON _jsonRefresh;
     JSON::JSONVALUE & jsonRefresh = _jsonRefresh.GetRoot();
     jsonRefresh["target"]["safety_coordinator"] = "*";
@@ -795,8 +795,12 @@ bool Coordinator::OnEvent(const std::string & event)
 
     // Publish messages
     PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
-    if (jsonServiceStateChange != JSON::JSONVALUE::null)
+    if (jsonServiceStateChange != JSON::JSONVALUE::null) {
         PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonServiceStateChange));
+        SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << ", " << targetInterfaceName << " ] "
+                    << "event [ " << *e << " ] occured.  Publishing error propagation json:\n"
+                    << JSON::GetJSONString(jsonServiceStateChange) << std::endl;
+    }
     else
         SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << ", " << targetInterfaceName << " ] "
                     << "event " << *e << " occured but has no impact on service state of "
