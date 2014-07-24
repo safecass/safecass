@@ -17,8 +17,9 @@ using namespace SF;
 
 Event::Event(const std::string     & name,
              unsigned int            severity,
-             const TransitionsType & transitions)
-    : Name(name), Severity(severity), Transitions(transitions), Timestamp(0)
+             const TransitionsType & transitions,
+             const std::string     & what)
+    : Name(name), Severity(severity), Transitions(transitions), Timestamp(0), What(what)
 {
     memset(TransitionMask, 0, TOTAL_NUMBER_OF_STATES * TOTAL_NUMBER_OF_STATES);
 #define N 0
@@ -95,6 +96,9 @@ void Event::ToStream(std::ostream & os) const
         }
     }
     os << " ]";
+
+    if (What.size())
+        os << ", " << What;
 }
 
 const JSON::JSONVALUE Event::SerializeJSON(bool includeStateTransition) const
@@ -104,6 +108,8 @@ const JSON::JSONVALUE Event::SerializeJSON(bool includeStateTransition) const
     json["name"] = Name;
     json["severity"] = Severity;
     json["timestamp"] = Timestamp;
+    if (What.size())
+        json["what"] = What;
 
     if (includeStateTransition)
         for (size_t i = 0; i < Transitions.size(); ++i) {

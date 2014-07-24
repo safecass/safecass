@@ -37,6 +37,8 @@ protected:
     const TransitionsType Transitions;
     // timestamp of the time when this event occurred.  zero otherwise.
     const TimestampType   Timestamp;
+    // Description of event
+    const std::string     What;
 
     // 2D array containing boolean mask that defines possible transitions
     //
@@ -51,7 +53,8 @@ protected:
 public:
     Event(const std::string     & name,
           unsigned int            severity,
-          const TransitionsType & transitions);
+          const TransitionsType & transitions,
+          const std::string     & what);
 
     virtual ~Event() {}
 
@@ -61,6 +64,7 @@ public:
     inline unsigned int        GetSeverity(void) const  { return Severity; }
     //inline const TransitionsType & GetTransitions(void) const { return Transitions; }
     inline TimestampType       GetTimestamp(void) const { return Timestamp; }
+    inline const std::string & GetWhat(void) const      { return What; }
 
     // Returns human readable outputs
     virtual void ToStream(std::ostream & outputStream) const;
