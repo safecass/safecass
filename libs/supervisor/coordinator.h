@@ -212,6 +212,16 @@ public:
     // Get information about all connections that the component specified is involved with
     const std::string GetConnectionList(const std::string & componentName = "*", const std::string & prefix = "") const;
 
+    //
+    // APIs for Users
+    //
+    // Generate event
+    void GenerateEvent(const std::string &     eventName,
+                       State::StateMachineType type,
+                       const std::string &     what,
+                       const std::string &     componentName,
+                       const std::string &     interfaceName = "");
+
     //! For human-readable logging and debugging
     /*! \param outputStream output stream
         \param includeLocation target location is printed if yes (default: yes)

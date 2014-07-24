@@ -1076,3 +1076,39 @@ const std::string Coordinator::GetServiceDependencyList(const std::string & comp
 
     return ss.str();
 }
+
+void Coordinator::GenerateEvent(const std::string &     eventName,
+                                State::StateMachineType type,
+                                const std::string &     what,
+                                const std::string &     componentName,
+                                const std::string &     interfaceName)
+{
+    // get timestamp as early as possible
+    // FIXME: After integrating Boost chrono, update this to fetch real timestamp
+    TimestampType tick = 0;
+
+    // Look up event dictionary to see if the name of user-provided event is valid
+    const Event * e = GetEvent(eventName);
+    if (!e) {
+        SFLOG_ERROR << "Coordinator::GenerateEvent: no registered event found: \"" << eventName << std::endl;
+        return;
+    }
+
+    JSON _json;
+    JSON::JSONVALUE & json = _json.GetRoot();
+    json["event"]["severity"]  = e->GetSeverity();
+    json["event"]["name"]      = e->GetName();
+    json["event"]["timestamp"] = tick;
+    if (what.size())
+        json["event"]["what"] = what;
+    json["target"]["type"]      = static_cast<int>(type);
+    json["target"]["component"] = componentName;
+    json["target"]["interface"] = interfaceName;
+
+    SFLOG_INFO << "Coordinator::GenerateEvent: \n" << JSON::GetJSONString(json) << std::endl;
+
+    if (!OnEvent(JSON::GetJSONString(json)))
+        SFLOG_ERROR << "Coordinator::GenerateEvent: Failed to handle event:\n" << JSON::GetJSONString(json) << std::endl;
+    else
+        SFLOG_DEBUG << "Coordinator::GenerateEvent: Successfully generated and handled event:\n" << JSON::GetJSONString(json) << std::endl;
+}
