@@ -54,7 +54,7 @@ public:
     Event(const std::string     & name,
           unsigned int            severity,
           const TransitionsType & transitions,
-          const std::string     & what);
+          const std::string     & what = "");
 
     virtual ~Event() {}
 
