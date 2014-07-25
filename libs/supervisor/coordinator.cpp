@@ -921,7 +921,7 @@ bool Coordinator::OnEventPropagation(const JSON::JSONVALUE & json)
             JSON::JSONVALUE & jsonEvent = _jsonEvent.GetRoot();
             jsonEvent["event"]["severity"] = severity;
             jsonEvent["event"]["timestamp"] = timestamp;
-            if (state == State::FAILURE)
+            if (state == State::ERROR || state == State::FAILURE)
                 jsonEvent["event"]["name"] = "EVT_SERVICE_FAILURE"; // see libs/fdd/filters/json/framework_filters.json
             else if (state == State::NORMAL)
                 jsonEvent["event"]["name"] = "/EVT_SERVICE_FAILURE"; // see libs/fdd/filters/json/framework_filters.json
@@ -1111,4 +1111,28 @@ void Coordinator::GenerateEvent(const std::string &     eventName,
         SFLOG_ERROR << "Coordinator::GenerateEvent: Failed to handle event:\n" << JSON::GetJSONString(json) << std::endl;
     else
         SFLOG_DEBUG << "Coordinator::GenerateEvent: Successfully generated and handled event:\n" << JSON::GetJSONString(json) << std::endl;
+}
+
+State::StateType Coordinator::GetState(State::StateMachineType type,
+                                       const std::string & componentName,
+                                       const std::string & interfaceName) const
+{
+    GCM * gcm = GetGCMInstance(componentName);
+    if (gcm == 0) {
+        SFLOG_ERROR << "Coordinator::GetState: No component found: \"" << componentName << "\"" << std::endl;
+        return State::INVALID;
+    }
+
+    switch (type) {
+    case State::STATEMACHINE_FRAMEWORK:
+        return gcm->GetComponentState(GCM::FRAMEWORK_VIEW);
+    case State::STATEMACHINE_APP:
+        return gcm->GetComponentState(GCM::APPLICATION_VIEW);
+    case State::STATEMACHINE_PROVIDED:
+        return gcm->GetInterfaceState(interfaceName, GCM::PROVIDED_INTERFACE);
+    case State::STATEMACHINE_REQUIRED:
+        return gcm->GetInterfaceState(interfaceName, GCM::REQUIRED_INTERFACE);
+    default:
+        return State::INVALID;
+    }
 }

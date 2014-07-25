@@ -221,6 +221,10 @@ public:
                        const std::string &     what,
                        const std::string &     componentName,
                        const std::string &     interfaceName = "");
+    // Get state
+    State::StateType GetState(State::StateMachineType type,
+                              const std::string & componentName,
+                              const std::string & interfaceName) const;
 
     //! For human-readable logging and debugging
     /*! \param outputStream output stream
