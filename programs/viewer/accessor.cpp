@@ -60,6 +60,7 @@ const std::string GetColorCodeForState(unsigned int state, bool projectedState =
 
 const std::string GetColorCodeForSafetyCoordinator(void)
 {
+    // ref: http://www.dtelepathy.com/blog/inspiration/beautiful-color-palettes-for-your-next-web-project
     const int N = 5;
 
     switch (SCColorCode++ % N) {
@@ -68,6 +69,10 @@ const std::string GetColorCodeForSafetyCoordinator(void)
     case 2: return "#9d4e87";
     case 3: return "#92538c";
     case 4: return "#72659d";
+    case 5: return "#293E6A";
+    case 6: return "#3B5A99";
+    case 7: return "#74ABF8";
+    case 8: return "#6992AC";
     default:
             return "#ffffff";
     }
@@ -188,8 +193,8 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
             SF::JSON::JSONVALUE & outStateComponentRoot = outStateComponent.GetRoot();
             // Get system view of component state
             SF::State stateComponentSystemView, stateComponentFrameworkView, stateComponentAppView;
-            stateComponentFrameworkView = static_cast<State::StateType>(JSON::GetSafeValueUInt(inComponent, "s_F"));
-            stateComponentAppView       = static_cast<State::StateType>(JSON::GetSafeValueUInt(inComponent, "s_A"));
+            stateComponentFrameworkView = static_cast<State::StateType>(JSON::GetSafeValueUInt(inComponent["s_F"], "state"));
+            stateComponentAppView       = static_cast<State::StateType>(JSON::GetSafeValueUInt(inComponent["s_A"], "state"));
             stateComponentSystemView = stateComponentFrameworkView * stateComponentAppView;
 
             outStateComponentRoot["name"] = "Component";
@@ -201,6 +206,8 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
                 {
                     outStateFrameworkRoot["name"] = "Framework";
                     outStateFrameworkRoot["color"] = GetColorCodeForState(stateComponentFrameworkView.GetState());
+                    if (inComponent["s_F"]["event"] != JSON::JSONVALUE::null)
+                        outStateFrameworkRoot["pendingevent"] = JSON::GetJSONString(inComponent["s_F"]["event"]);
                 }
                 outStateComponentRoot["children"][cntComponentState++] = outStateFrameworkRoot;
 
@@ -209,6 +216,8 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
                 {
                     outStateAppRoot["name"] = "Application";
                     outStateAppRoot["color"] = GetColorCodeForState(stateComponentAppView.GetState());
+                    if (inComponent["s_A"]["event"] != JSON::JSONVALUE::null)
+                        outStateAppRoot["pendingevent"] = JSON::GetJSONString(inComponent["s_A"]["event"]);
                 }
                 outStateComponentRoot["children"][cntComponentState++] = outStateAppRoot;
             }
@@ -229,10 +238,13 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
                     outInterfaceProvidedEachRoot["name"] = "Service";
                     outInterfaceProvidedEachRoot["color"] = 
                         GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "service_state"), true);
+
                     size_t cnt = 0;
                     outInterfaceProvidedEachRoot["children"][cnt]["name"] = inPrvInterface["name"];
                     outInterfaceProvidedEachRoot["children"][cnt]["color"] =
                         GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "state"));
+                    if (inPrvInterface["event"] != JSON::JSONVALUE::null)
+                        outInterfaceProvidedEachRoot["pendingevent"] = JSON::GetJSONString(inPrvInterface["event"]);
                 }
                 //outInterfaceProvidedRoot["children"][k] = outInterfaceProvidedEachRoot;
 
@@ -260,6 +272,9 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
                         outInterfaceRequiredEachRoot["name"] = inReqInterface["name"];
                         outInterfaceRequiredEachRoot["color"] =
                             GetColorCodeForState(JSON::GetSafeValueUInt(inReqInterface, "state"));
+                        // TODO: add pending event semantics to required interfaces later.
+                        //if (JSON::GetJSONString(inReqInterface["event"]) != JSON::JSONVALUE::null)
+                        //    outInterfaceRequiredEachRoot["pendingevent"] = JSON::GetJSONString(inReqInterface["event"]);
                     }
                     outInterfaceRequiredRoot["children"][k] = outInterfaceRequiredEachRoot;
                 }

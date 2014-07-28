@@ -138,7 +138,10 @@ public:
     StrVecType GetNamesOfInterfaces(InterfaceTypes type) const;
     void       GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const;
     //! Returns component state
-    State::StateType GetComponentState(const ComponentStateViews view = SYSTEM_VIEW) const;
+    State::StateType GetComponentState(ComponentStateViews view = SYSTEM_VIEW) const;
+    //! Returns component state with outstanding event.  
+    // NOTE: This only works for either framework view or application view.
+    State::StateType GetComponentState(ComponentStateViews view, const Event* & e) const;
     //! Returns interface state
     State::StateType GetInterfaceState(const std::string & name, InterfaceTypes type) const;
     //! Returns consolidated interface state

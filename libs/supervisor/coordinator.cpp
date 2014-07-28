@@ -192,11 +192,20 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
 
         // MJTODO: replace this manual build-up with SF::JSON
         ss << "{ \"name\": \"" << it->second->GetComponentName() << "\", "
-           << "\"s\": " << static_cast<int>(gcm->GetComponentState(GCM::SYSTEM_VIEW)) << ", "
-           << "\"s_F\": " << static_cast<int>(gcm->GetComponentState(GCM::FRAMEWORK_VIEW)) << ", "
-           << "\"s_A\": " << static_cast<int>(gcm->GetComponentState(GCM::APPLICATION_VIEW)) << ", "
-           << "\"s_P\": " << static_cast<int>(gcm->GetInterfaceState(GCM::PROVIDED_INTERFACE)) << ", "
-           << "\"s_R\": " << static_cast<int>(gcm->GetInterfaceState(GCM::REQUIRED_INTERFACE)) << ", ";
+           << "\"s\": " << static_cast<int>(gcm->GetComponentState(GCM::SYSTEM_VIEW)) << ", ";
+
+        // component state - framework view
+        const Event * e = 0;
+        State::StateType stateComponentFramework = gcm->GetComponentState(GCM::FRAMEWORK_VIEW, e);
+        ss << "\"s_F\": { \"state\": " << static_cast<int>(stateComponentFramework) << ", "
+           << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null) << " }, ";
+        // component state - application view
+        e = 0;
+        State::StateType stateComponentApp = gcm->GetComponentState(GCM::APPLICATION_VIEW, e);
+        ss << "\"s_A\": { \"state\": " << static_cast<int>(stateComponentApp) << ", "
+           << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null) << " }, ";
+        // required interface state
+        ss << "\"s_R\": " << static_cast<int>(gcm->GetInterfaceState(GCM::REQUIRED_INTERFACE)) << ", ";
 
         StrVecType names;
         std::string eventInfo;
@@ -211,7 +220,7 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
             ss << "{ \"name\": \"" << names[i] << "\", "
                << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", "
                << "\"service_state\": " << static_cast<int>(serviceState) << ", "
-               << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null)//"{}")
+               << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null)
                << " }";
         }
         ss << " ], ";

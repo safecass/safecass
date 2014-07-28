@@ -106,13 +106,11 @@ d3.json("wheel.json", function(error, json) {
                 //.attr("transform", "translate(" + 100 + "," + 200 + ")")
                 .text(function(d, i){
                   // TODO: display pending event information, if any
-                  return d.name;
-                  /*
+                  //return d.name;
                   if (typeof d.pendingevent != 'undefined')
                     return d.pendingevent;
                   else
-                    return "n/a";
-                  */
+                    return d.name;
                 })
             )
       .on('mouseover', function(d){ d3.select(this).style("fill", '#80B3FF'); })

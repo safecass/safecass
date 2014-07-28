@@ -366,6 +366,31 @@ State::StateType GCM::GetComponentState(ComponentStateViews view) const
     }
 }
 
+State::StateType GCM::GetComponentState(ComponentStateViews view, const Event* & e) const
+{
+    SFASSERT(States.ComponentFramework);
+    SFASSERT(States.ComponentApplication);
+
+    State stateFrameworkView(States.ComponentFramework->GetCurrentState());
+    State stateApplicationView(States.ComponentApplication->GetCurrentState());
+
+    switch (view) {
+    case GCM::FRAMEWORK_VIEW:
+        e = States.ComponentFramework->GetPendingEvent();
+        return stateFrameworkView.GetState();
+    case GCM::APPLICATION_VIEW:
+        e = States.ComponentApplication->GetPendingEvent();
+        return stateApplicationView.GetState();
+    case GCM::SYSTEM_VIEW:
+        {
+            State stateInterfaceProvided(GetInterfaceState(GCM::PROVIDED_INTERFACE));
+            State stateInterfaceRequired(GetInterfaceState(GCM::REQUIRED_INTERFACE));
+            e = 0; // redundant: this event info is already encoded in the other states
+            return (((stateFrameworkView * stateApplicationView) * stateInterfaceProvided) * stateInterfaceRequired).GetState();
+        }
+    }
+}
+
 State::StateType GCM::GetInterfaceState(const std::string & name, GCM::InterfaceTypes type) const
 {
     InterfaceStateMachinesType::const_iterator it;
