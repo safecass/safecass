@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 10, 2014
-// Last revision: Jul 16, 2014
+// Last revision: Jul 28, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -30,14 +30,31 @@ SF::JSON::JSONVALUE & CasrosSystemStatesRoot = CasrosSystemStates.GetRoot();
 // for safety coordinator color selection
 static int SCColorCode = 0;
 
-const std::string GetColorCodeForState(unsigned int state)
+#define COLOR_RED1    "#ff0000"
+#define COLOR_RED2    "#c91a26"
+#define COLOR_YELLOW1 "#fffa00"
+#define COLOR_YELLOW2 "#ffda00"
+#define COLOR_WHITE   "#ffffff"
+#define COLOR_GREY    "#e3e7ee"
+
+const std::string GetColorCodeForState(unsigned int state, bool projectedState = false)
 {
-    switch (static_cast<State::StateType>(state)) {
-    case State::NORMAL: return "white"; break;
-    case State::WARNING: return "yellow"; break;
-    case State::ERROR: return "red"; break;
-    case State::FAILURE: return "black"; break;
-    case State::INVALID: return "blue"; break;
+    if (projectedState) {
+        switch (static_cast<State::StateType>(state)) {
+        case State::NORMAL:  return COLOR_GREY;
+        case State::WARNING: return COLOR_YELLOW2;
+        case State::ERROR:   return COLOR_RED2;
+        case State::FAILURE:
+        case State::INVALID: return "black";
+        }
+    } else {
+        switch (static_cast<State::StateType>(state)) {
+        case State::NORMAL:  return COLOR_WHITE;
+        case State::WARNING: return COLOR_YELLOW1;
+        case State::ERROR:   return COLOR_RED1;
+        case State::FAILURE:
+        case State::INVALID: return "green";
+        }
     }
 }
 
@@ -164,58 +181,63 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
         {
             // component name
             outComponentRoot["name"] = inComponent["name"];
-            outComponentRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s"));
+            outComponentRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s"), true);
 
+            // outputs for component state (three views: system, framework, application)
+            SF::JSON outStateComponent;
+            SF::JSON::JSONVALUE & outStateComponentRoot = outStateComponent.GetRoot();
+            // Get system view of component state
+            SF::State stateComponentSystemView, stateComponentFrameworkView, stateComponentAppView;
+            stateComponentFrameworkView = static_cast<State::StateType>(JSON::GetSafeValueUInt(inComponent, "s_F"));
+            stateComponentAppView       = static_cast<State::StateType>(JSON::GetSafeValueUInt(inComponent, "s_A"));
+            stateComponentSystemView = stateComponentFrameworkView * stateComponentAppView;
+
+            outStateComponentRoot["name"] = "Component";
+            outStateComponentRoot["color"] = GetColorCodeForState(stateComponentSystemView.GetState(), true);
+            {
+                size_t cntComponentState = 0;
+                SF::JSON outStateFramework;
+                SF::JSON::JSONVALUE & outStateFrameworkRoot = outStateFramework.GetRoot();
+                {
+                    outStateFrameworkRoot["name"] = "Framework";
+                    outStateFrameworkRoot["color"] = GetColorCodeForState(stateComponentFrameworkView.GetState());
+                }
+                outStateComponentRoot["children"][cntComponentState++] = outStateFrameworkRoot;
+
+                SF::JSON outStateApp;
+                SF::JSON::JSONVALUE & outStateAppRoot = outStateApp.GetRoot();
+                {
+                    outStateAppRoot["name"] = "Application";
+                    outStateAppRoot["color"] = GetColorCodeForState(stateComponentAppView.GetState());
+                }
+                outStateComponentRoot["children"][cntComponentState++] = outStateAppRoot;
+            }
             size_t j = 0;
-
-            // for each state
-            SF::JSON outStateFramework;
-            SF::JSON::JSONVALUE & outStateFrameworkRoot = outStateFramework.GetRoot();
-            {
-                outStateFrameworkRoot["name"] = "Framework";
-                outStateFrameworkRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s_F"));
-            }
-            outComponentRoot["children"][j++] = outStateFrameworkRoot;
-
-            SF::JSON outStateApp;
-            SF::JSON::JSONVALUE & outStateAppRoot = outStateApp.GetRoot();
-            {
-                outStateAppRoot["name"] = "Application";
-                outStateAppRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s_A"));
-            }
-            outComponentRoot["children"][j++] = outStateAppRoot;
+            outComponentRoot["children"][j++] = outStateComponentRoot;
 
             // outputs for provided interface
-            SF::JSON outInterfaceProvided;
-            SF::JSON::JSONVALUE & outInterfaceProvidedRoot = outInterfaceProvided.GetRoot();
-            size_t cntProvided = 0;
-            {
-                outInterfaceProvidedRoot["name"] = "Provided";
-                outInterfaceProvidedRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s_P"));
-
-                // for each interface
-                const JSON::JSONVALUE inPrvInterfaces = inComponent["interfaces_provided"];
-                cntProvided = inPrvInterfaces.size();
-                for (size_t k = 0; k < cntProvided; ++k) {
-                    // input for provided interface
-                    const JSON::JSONVALUE inPrvInterface = inPrvInterfaces[k];
-                    // output for provided interface
-                    SF::JSON outInterfaceProvidedEach;
-                    SF::JSON::JSONVALUE & outInterfaceProvidedEachRoot = outInterfaceProvidedEach.GetRoot();
-                    {
-                        outInterfaceProvidedEachRoot["name"] = inPrvInterface["name"];
-                        outInterfaceProvidedEachRoot["color"] = 
-                            GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "state"));
-                        size_t cnt = 0;
-                        outInterfaceProvidedEachRoot["children"][cnt]["name"] = "";//"service";
-                        outInterfaceProvidedEachRoot["children"][cnt]["color"] =
-                            GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "service_state"));
-                    }
-                    outInterfaceProvidedRoot["children"][k] = outInterfaceProvidedEachRoot;
+            // for each interface
+            const JSON::JSONVALUE inPrvInterfaces = inComponent["interfaces_provided"];
+            const size_t cntProvided = inPrvInterfaces.size();
+            for (size_t k = 0; k < cntProvided; ++k) {
+                // input for provided interface
+                const JSON::JSONVALUE inPrvInterface = inPrvInterfaces[k];
+                // output for provided interface
+                SF::JSON outInterfaceProvidedEach;
+                SF::JSON::JSONVALUE & outInterfaceProvidedEachRoot = outInterfaceProvidedEach.GetRoot();
+                {
+                    outInterfaceProvidedEachRoot["name"] = "Service";
+                    outInterfaceProvidedEachRoot["color"] = 
+                        GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "service_state"), true);
+                    size_t cnt = 0;
+                    outInterfaceProvidedEachRoot["children"][cnt]["name"] = inPrvInterface["name"];
+                    outInterfaceProvidedEachRoot["children"][cnt]["color"] =
+                        GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "state"));
                 }
+                //outInterfaceProvidedRoot["children"][k] = outInterfaceProvidedEachRoot;
+
+                outComponentRoot["children"][j++] = outInterfaceProvidedEachRoot;
             }
-            if (cntProvided)
-                outComponentRoot["children"][j++] = outInterfaceProvidedRoot;
 
             // outputs for required interface
             SF::JSON outInterfaceRequired;
@@ -223,7 +245,7 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
             size_t cntRequired = 0;
             {
                 outInterfaceRequiredRoot["name"] = "Required";
-                outInterfaceRequiredRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s_R"));
+                outInterfaceRequiredRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s_R"), true);
 
                 // for each interface
                 const JSON::JSONVALUE inReqInterfaces = inComponent["interfaces_required"];
@@ -247,6 +269,7 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
         }
         outSCroot["children"][i] = outComponentRoot;
     }
+    //std::cout << "###### " << JSON::GetJSONString(outSCroot) << std::endl;
 }
 
 //
