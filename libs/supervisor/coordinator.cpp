@@ -830,6 +830,11 @@ GCM * Coordinator::GetGCMInstance(const std::string & componentName) const
         return it->second;
 }
 
+GCM * Coordinator::GetGCMInstance(unsigned int componentId) const
+{
+    return GetGCMInstance(GetComponentName(componentId));
+}
+
 bool Coordinator::AddServiceStateDependencyFromJSON(const std::string & jsonString)
 {
     // Construct JSON structure from JSON string
@@ -1201,4 +1206,44 @@ State::StateType Coordinator::GetInterfaceState(const std::string & componentNam
     }
 
     return gcm->GetInterfaceState(interfaceName, type, e);
+}
+
+bool Coordinator::SetEventHandlerForComponent(const std::string & componentName,
+                                              GCM::ComponentStateViews view,
+                                              StateEventHandler * handler)
+{
+    if (view == GCM::SYSTEM_VIEW) {
+        SFLOG_ERROR << "Coordinator::SetEventHandlerForComponent: view should be either FRAMEWORK_VIEW or APPLICATION_VIEW" << std::endl;
+        return false;
+    }
+    if (!handler) {
+        SFLOG_ERROR << "Coordinator::SetEventHandlerForComponent: NULL handler" << std::endl;
+        return false;
+    }
+
+    GCM * gcm = GetGCMInstance(componentName);
+    if (gcm == 0) {
+        SFLOG_ERROR << "Coordinator::SetEventHandlerForComponent: Component \"" << componentName << "\" not found" << std::endl;
+        return false;
+    }
+
+    return gcm->SetEventHandlerForComponent(view, handler);
+}
+
+bool Coordinator::SetEventHandlerForInterface(const std::string & componentName,
+                                              const std::string & interfaceName,
+                                              GCM::InterfaceTypes type,
+                                              StateEventHandler * handler)
+{
+    GCM * gcm = GetGCMInstance(componentName);
+    if (gcm == 0) {
+        SFLOG_ERROR << "Coordinator::SetEventHandlerForInterface: Component \"" << componentName << "\" not found" << std::endl;
+        return false;
+    }
+    if (!handler) {
+        SFLOG_ERROR << "Coordinator::SetEventHandlerForInterface: NULL handler" << std::endl;
+        return false;
+    }
+
+    return gcm->SetEventHandlerForInterface(type, interfaceName, handler);
 }

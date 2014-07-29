@@ -89,6 +89,7 @@ protected:
     // TODO
 
     GCM * GetGCMInstance(const std::string & componentName) const;
+    GCM * GetGCMInstance(unsigned int componentId) const;
 
 protected:
     // Don't allow to create this object without its name
@@ -114,11 +115,6 @@ public:
      * because each middleware has different component composition processes.
      */
     virtual bool DeployMonitorsAndFDDs(void) = 0;
-
-    //! Handle event (fault, error, failure)
-    /*! Middleware specific: This method should be overriden by derived class
-     */
-    virtual void OnFaultEvent(const std::string & json) = 0;
 
     //
     // STATES
@@ -234,6 +230,16 @@ public:
                                        const std::string & interfaceName,
                                        const Event* & e,
                                        GCM::InterfaceTypes type) const;
+    // Install user-defined statemachine event handler for component. view should be
+    // either FRAMEWORK_VIEW or APPLICATION_VIEW (SYSTEM_VIEW is not an actual state)
+    bool SetEventHandlerForComponent(const std::string & componentName,
+                                     GCM::ComponentStateViews view,
+                                     StateEventHandler * handler);
+    // Install user-defined statemachine event handler for interface
+    bool SetEventHandlerForInterface(const std::string & componentName,
+                                     const std::string & interfaceName,
+                                     GCM::InterfaceTypes type,
+                                     StateEventHandler * handler);
 
     //! For human-readable logging and debugging
     /*! \param outputStream output stream
