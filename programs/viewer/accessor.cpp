@@ -257,7 +257,9 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
             size_t cntRequired = 0;
             {
                 outInterfaceRequiredRoot["name"] = "Required";
-                outInterfaceRequiredRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s_R"), true);
+                outInterfaceRequiredRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent["s_R"], "state"), true);
+                if (inComponent["s_R"]["event"] != JSON::JSONVALUE::null)
+                    outInterfaceRequiredRoot["pendingevent"] = JSON::GetJSONString(inComponent["s_R"]["event"]);
 
                 // for each interface
                 const JSON::JSONVALUE inReqInterfaces = inComponent["interfaces_required"];
@@ -272,9 +274,8 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
                         outInterfaceRequiredEachRoot["name"] = inReqInterface["name"];
                         outInterfaceRequiredEachRoot["color"] =
                             GetColorCodeForState(JSON::GetSafeValueUInt(inReqInterface, "state"));
-                        // TODO: add pending event semantics to required interfaces later.
-                        //if (JSON::GetJSONString(inReqInterface["event"]) != JSON::JSONVALUE::null)
-                        //    outInterfaceRequiredEachRoot["pendingevent"] = JSON::GetJSONString(inReqInterface["event"]);
+                        if (inReqInterface["event"] != JSON::JSONVALUE::null)
+                            outInterfaceRequiredEachRoot["pendingevent"] = JSON::GetJSONString(inReqInterface["event"]);
                     }
                     outInterfaceRequiredRoot["children"][k] = outInterfaceRequiredEachRoot;
                 }
