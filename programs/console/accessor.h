@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Jul 23, 2014
+// Last revision: Jul 29, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -62,6 +62,9 @@ public:
     bool RequestFilterFaultInject(const std::string & safetyCoordinatorName,
                                   const SF::FilterBase::FilterIDType fuid,
                                   const SF::DoubleVecType & inputs) const;
+    // request event generation
+    bool RequestEventGeneration(const std::string & eventName, const std::string & eventType, const std::string & safetyCoordinatorName,
+                                const std::string & componentName, const std::string & interfaceName) const;
 };
 
 #endif // _accessor_console_h

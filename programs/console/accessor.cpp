@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Jul 23, 2014
+// Last revision: Jul 29, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -207,6 +207,37 @@ bool AccessorConsole::RequestServiceDependencyList(const std::string & safetyCoo
     }
 
     std::cout << "requested list of service dependency" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}
+
+bool AccessorConsole::RequestEventGeneration(const std::string & eventName, const std::string & eventType, const std::string & safetyCoordinatorName,
+                                             const std::string & componentName, const std::string & interfaceName) const
+{
+    SF::JSON _json;
+    SF::JSON::JSONVALUE & json = _json.GetRoot();
+
+    // command
+    json["command"] = "event_generate";
+    // target
+    json["target"]["safety_coordinator"] = safetyCoordinatorName;
+    json["target"]["component"] = componentName;
+    if (interfaceName.size())
+        json["target"]["interface"] = interfaceName;
+    else
+        json["target"]["interface"] = SF::JSON::JSONVALUE::null;
+    // event
+    json["event"]["name"] = eventName;
+    json["event"]["type"] = eventType;
+
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::COMMAND, SF::JSON::GetJSONString(json))) {
+        std::cerr << "RequestServiceDependencyList: Failed to publish message (Control, COMMAND): " 
+                  << SF::JSON::GetJSONString(json) << std::endl;
+        return false;
+    }
+
+    std::cout << "requested event generation" << std::endl;
     osaSleep(0.5);
 
     return true;
