@@ -400,11 +400,65 @@ State::StateType GCM::GetComponentState(ComponentStateViews view, const Event* &
                 e = _e1;\
             else\
                 e = ((_e1->GetSeverity() > _e2->GetSeverity()) ? _e1 : _e2);
+            //TODO: remove debugging codes
+            /*
+#define GET_HIGHER_SEVERITY_EVENT(_e1, _e2)\
+            std::cout << "#### e1: ";\
+            if (!_e1)\
+                std::cout << "NULL";\
+            else\
+                std::cout << *_e1;\
+            std::cout << " | e2: ";\
+            if (!_e2)\
+                std::cout << "NULL";\
+            else\
+                std::cout << *_e2;\
+            std::cout << std::endl;\
+            if (_e1 && _e2)\
+                e = ((_e1->GetSeverity() > _e2->GetSeverity()) ? _e1 : _e2);\
+            else if ((_e1 == 0) && _e2)\
+                e = _e2;\
+            else if (_e1 && (_e2 == 0))\
+                e = _e1;\
+            else\
+                e = 0;
+                */
 
+            //if (ComponentName.compare("CONTROL") == 0) {
+            //std::cout << "------------ framework vs app\n";
             GET_HIGHER_SEVERITY_EVENT(eFramework, eApp);
+            //std::cout << "------------ e vs ePrv\n";
             GET_HIGHER_SEVERITY_EVENT(e, ePrv);
+            //std::cout << "------------ e vs eReq\n";
             GET_HIGHER_SEVERITY_EVENT(e, eReq);
+            //if (!e)
+                //std::cout << ">>>>e: NULL\n";
+            //else
+                //std::cout << ">>>>e: " << *e << std::endl;
 #undef GET_HIGHER_SEVERITY_EVENT
+
+            //std::cout << "Framework: " << State::GetStringState(stateFramework.GetState());
+            //if (eFramework)
+                //std::cout << *eFramework << std::endl;
+            //else
+                //std::cout << ", NULL" << std::endl;
+            //std::cout << "App: " << State::GetStringState(stateApp.GetState());
+            //if (eApp)
+                //std::cout << *eApp << std::endl;
+            //else
+                //std::cout << ", NULL" << std::endl;
+            //std::cout << "Prv: " << State::GetStringState(statePrv.GetState());
+            //if (ePrv)
+                //std::cout << *ePrv << std::endl;
+            //else
+                //std::cout << ", NULL" << std::endl;
+            //std::cout << "Req: " << State::GetStringState(stateReq.GetState());
+            //if (eReq)
+                //std::cout << *eReq << std::endl;
+            //else
+                //std::cout << ", NULL" << std::endl;
+            //}
+            //std::cout << std::flush;
 
             return (((stateFramework * stateApp) * statePrv) * stateReq).GetState();
         }
@@ -467,7 +521,7 @@ State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type, const Event* &
         state = state * it->second->GetCurrentState();
         if (it->second->GetPendingEvent() == 0)
             continue;
-        if (event == 0 || 
+        if (event == 0 ||
             event->GetSeverity() < it->second->GetPendingEvent()->GetSeverity())
             event = it->second->GetPendingEvent();
     }
@@ -942,4 +996,36 @@ void GCM::PrintConnections(std::ostream & out, const std::string & prefix)
     const InterfaceStateMachinesType::const_iterator itEnd = States.ProvidedInterfaces.end();
     for (; it != itEnd; ++it)
         PrintConnections(it->first, out, prefix);
+}
+
+bool GCM::SetEventHandlerForComponent(GCM::ComponentStateViews view, StateEventHandler * handler)
+{
+    SFASSERT(view != GCM::SYSTEM_VIEW);
+    SFASSERT(handler);
+
+    if (view == GCM::FRAMEWORK_VIEW)
+        States.ComponentFramework->SetStateEventHandler(handler);
+    else
+        States.ComponentApplication->SetStateEventHandler(handler);
+
+    return true;
+}
+
+bool GCM::SetEventHandlerForInterface(GCM::InterfaceTypes type, const std::string & interfaceName,
+                                      StateEventHandler * handler)
+{
+    SFASSERT(handler);
+
+    InterfaceStateMachinesType::const_iterator it;
+    if (type == GCM::PROVIDED_INTERFACE) {
+        it = States.ProvidedInterfaces.find(interfaceName);
+        SFASSERT(it != States.ProvidedInterfaces.end());
+    } else {
+        it = States.RequiredInterfaces.find(interfaceName);
+        SFASSERT(it != States.RequiredInterfaces.end());
+    }
+
+    it->second->SetStateEventHandler(handler);
+
+    return true;
 }

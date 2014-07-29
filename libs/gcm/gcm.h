@@ -151,6 +151,13 @@ public:
     //! Returns service state of provided interface and event information that caused service state transition
     State::StateType GetServiceState(const std::string & providedInterfaceName, const Event * & event,
                                      bool forErrorPropagation) const;
+    //
+    // Setters
+    //
+    // Install user-defined statemachine event handler
+    bool SetEventHandlerForComponent(GCM::ComponentStateViews view, StateEventHandler * handler);
+    bool SetEventHandlerForInterface(GCM::InterfaceTypes type, const std::string & interfaceName,
+                                     StateEventHandler * handler);
 
     //
     // Misc.
