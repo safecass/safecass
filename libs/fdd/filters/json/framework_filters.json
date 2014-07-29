@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 6, 2012
-// Last revision: Jul 16, 2014
+// Last revision: Jul 29, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -41,22 +41,18 @@
         },
         {   "name"            : "EVT_THREAD_OVERRUN",
             "severity"        : 201,
-            // TODO: depending on how severe overrun is, next state can be warning.
             "state_transition": [ "N2E" ]
         },
         {   "name"            : "/EVT_THREAD_OVERRUN",
             "severity"        : 201,
-            // TODO: depending on how severe overrun is, next restored state can be
             "state_transition": [ "E2N" ]
         },
         {   "name"            : "EVT_SERVICE_FAILURE",
             "severity"        : 250,
-            // TODO: depending on how severe overrun is, next restored state can be
             "state_transition": [ "N2E" ]
         },
         {   "name"            : "/EVT_SERVICE_FAILURE",
             "severity"        : 250,
-            // TODO: depending on how severe overrun is, next restored state can be
             "state_transition": [ "E2N" ]
         }
     ],
