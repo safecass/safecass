@@ -67,6 +67,10 @@ StateMachine::~StateMachine(void)
 
 void StateMachine::SetStateEventHandler(StateEventHandler * instance)
 {
+    std::stringstream ss;
+    ss << "StateMachine::SetStateEventHandler: event handler is being replaced: owner \""
+       << State.EventHandlerInstance->GetOwnerName() << "\" to ";
+
     // Disable event handler temporarily
     StateEventHandler * currentHandler = State.EventHandlerInstance;
     State.EventHandlerInstance = 0;
@@ -76,6 +80,10 @@ void StateMachine::SetStateEventHandler(StateEventHandler * instance)
         delete currentHandler;
 
     State.EventHandlerInstance = instance;
+
+    ss << "\"" << State.EventHandlerInstance->GetOwnerName() << "\"" << std::endl;
+
+    SFLOG_DEBUG << ss.str();
 }
 
 bool StateMachine::ProcessEvent(const State::TransitionType transition, const Event * event)

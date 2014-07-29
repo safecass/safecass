@@ -172,7 +172,8 @@ public:
     /*! Default constructor.  An instance of StateEventHandler is internally created and 
         is used as default event handler. */
     StateMachine(void);
-    /*! Constructors */
+    //! Constructors
+    // It is recommended to combine component name and interface name as owner name.
     StateMachine(const std::string & ownerName);
     StateMachine(StateEventHandler * eventHandler);
     StateMachine(const std::string & ownerName, StateEventHandler * eventHandler);

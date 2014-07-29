@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Apr 21, 2014
+// Last revision: Jul 29, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -23,7 +23,7 @@ namespace SF {
 class SFLIB_EXPORT StateEventHandler {
 protected:
     /*! Name of owner of this state machine */
-    std::string OwnerName;
+    const std::string OwnerName;
 
     void Initialize(void);
 
@@ -34,6 +34,8 @@ public:
 
     virtual void OnStateEntryOrExit(const State::StateEntryExitType stateEntryExit);
     virtual void OnStateTransition(const State::TransitionType transition);
+
+    inline const std::string & GetOwnerName(void) const { return OwnerName; }
 
     // Define test fields for unit tests
 #if ENABLE_UNIT_TEST
