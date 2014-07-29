@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Jul 22, 2014
+// Last revision: Jul 28, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -213,7 +213,7 @@ public:
     const std::string GetConnectionList(const std::string & componentName = "*", const std::string & prefix = "") const;
 
     //
-    // APIs for Users
+    // APIs for Applications 
     //
     // Generate event
     void GenerateEvent(const std::string &     eventName,
@@ -222,9 +222,18 @@ public:
                        const std::string &     componentName,
                        const std::string &     interfaceName = "");
     // Get state
-    State::StateType GetState(State::StateMachineType type,
-                              const std::string & componentName,
-                              const std::string & interfaceName) const;
+    State::StateType GetComponentState(const std::string & componentName,
+                                       GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;
+    State::StateType GetComponentState(const std::string & componentName,
+                                       const Event* & e,
+                                       GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;
+    State::StateType GetInterfaceState(const std::string & componentName,
+                                       const std::string & interfaceName,
+                                       GCM::InterfaceTypes type) const;
+    State::StateType GetInterfaceState(const std::string & componentName,
+                                       const std::string & interfaceName,
+                                       const Event* & e,
+                                       GCM::InterfaceTypes type) const;
 
     //! For human-readable logging and debugging
     /*! \param outputStream output stream

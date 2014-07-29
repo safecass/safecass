@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Jul 21, 2014
+// Last revision: Jul 28, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -205,7 +205,10 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         ss << "\"s_A\": { \"state\": " << static_cast<int>(stateComponentApp) << ", "
            << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null) << " }, ";
         // required interface state
-        ss << "\"s_R\": " << static_cast<int>(gcm->GetInterfaceState(GCM::REQUIRED_INTERFACE)) << ", ";
+        e = 0;
+        State::StateType stateReq = gcm->GetInterfaceState(GCM::REQUIRED_INTERFACE, e);
+        ss << "\"s_R\": { \"state\": " << static_cast<int>(stateReq) << ", "
+           << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null) << " }, ";
 
         StrVecType names;
         std::string eventInfo;
@@ -215,7 +218,6 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         for (size_t i = 0; i < names.size(); ++i) {
             if (i != 0)
                 ss << ", ";
-            const Event * e = 0;
             State::StateType serviceState = gcm->GetServiceState(names[i], e, false);
             ss << "{ \"name\": \"" << names[i] << "\", "
                << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", "
@@ -232,8 +234,9 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
             if (i != 0)
                 ss << ", ";
             ss << "{ \"name\": \"" << names[i] << "\", ";
-            ss << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::REQUIRED_INTERFACE));
-            ss << " }";
+            ss << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::REQUIRED_INTERFACE, e)) << ", "
+               << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null)
+               << " }";
         }
         ss << " ] }";
 
@@ -1122,6 +1125,7 @@ void Coordinator::GenerateEvent(const std::string &     eventName,
         SFLOG_DEBUG << "Coordinator::GenerateEvent: Successfully generated and handled event:\n" << JSON::GetJSONString(json) << std::endl;
 }
 
+#if 0
 State::StateType Coordinator::GetState(State::StateMachineType type,
                                        const std::string & componentName,
                                        const std::string & interfaceName) const
@@ -1144,4 +1148,57 @@ State::StateType Coordinator::GetState(State::StateMachineType type,
     default:
         return State::INVALID;
     }
+}
+#endif
+
+State::StateType Coordinator::GetComponentState(const std::string & componentName,
+                                                GCM::ComponentStateViews view) const
+{
+    GCM * gcm = GetGCMInstance(componentName);
+    if (gcm == 0) {
+        SFLOG_ERROR << "Coordinator::GetComponentState: No component found: \"" << componentName << "\"" << std::endl;
+        return State::INVALID;
+    }
+
+    return gcm->GetComponentState(view);
+}
+
+State::StateType Coordinator::GetComponentState(const std::string & componentName,
+                                                const Event* & e,
+                                                GCM::ComponentStateViews view) const
+{
+    GCM * gcm = GetGCMInstance(componentName);
+    if (gcm == 0) {
+        SFLOG_ERROR << "Coordinator::GetComponentState (with event): No component found: \"" << componentName << "\"" << std::endl;
+        return State::INVALID;
+    }
+
+    return gcm->GetComponentState(view, e);
+}
+
+State::StateType Coordinator::GetInterfaceState(const std::string & componentName,
+                                                const std::string & interfaceName,
+                                                GCM::InterfaceTypes type) const
+{
+    GCM * gcm = GetGCMInstance(componentName);
+    if (gcm == 0) {
+        SFLOG_ERROR << "Coordinator::GetInterfaceState: No component found: \"" << componentName << "\"" << std::endl;
+        return State::INVALID;
+    }
+
+    return gcm->GetInterfaceState(interfaceName, type);
+}
+
+State::StateType Coordinator::GetInterfaceState(const std::string & componentName,
+                                                const std::string & interfaceName,
+                                                const Event* & e,
+                                                GCM::InterfaceTypes type) const
+{
+    GCM * gcm = GetGCMInstance(componentName);
+    if (gcm == 0) {
+        SFLOG_ERROR << "Coordinator::GetInterfaceState: No component found: \"" << componentName << "\"" << std::endl;
+        return State::INVALID;
+    }
+
+    return gcm->GetInterfaceState(interfaceName, type, e);
 }

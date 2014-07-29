@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Jul 22, 2014
+// Last revision: Jul 28, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -349,19 +349,19 @@ State::StateType GCM::GetComponentState(ComponentStateViews view) const
     SFASSERT(States.ComponentFramework);
     SFASSERT(States.ComponentApplication);
 
-    State stateFrameworkView(States.ComponentFramework->GetCurrentState());
-    State stateApplicationView(States.ComponentApplication->GetCurrentState());
+    State stateFramework(States.ComponentFramework->GetCurrentState());
+    State stateApplication(States.ComponentApplication->GetCurrentState());
 
     switch (view) {
     case GCM::FRAMEWORK_VIEW:
-        return stateFrameworkView.GetState();
+        return stateFramework.GetState();
     case GCM::APPLICATION_VIEW:
-        return stateApplicationView.GetState();
+        return stateApplication.GetState();
     case GCM::SYSTEM_VIEW:
         {
             State stateInterfaceProvided(GetInterfaceState(GCM::PROVIDED_INTERFACE));
             State stateInterfaceRequired(GetInterfaceState(GCM::REQUIRED_INTERFACE));
-            return (((stateFrameworkView * stateApplicationView) * stateInterfaceProvided) * stateInterfaceRequired).GetState();
+            return (((stateFramework* stateApplication) * stateInterfaceProvided) * stateInterfaceRequired).GetState();
         }
     }
 }
@@ -371,22 +371,42 @@ State::StateType GCM::GetComponentState(ComponentStateViews view, const Event* &
     SFASSERT(States.ComponentFramework);
     SFASSERT(States.ComponentApplication);
 
-    State stateFrameworkView(States.ComponentFramework->GetCurrentState());
-    State stateApplicationView(States.ComponentApplication->GetCurrentState());
+    const Event *eFramework = 0, *eApp = 0, *ePrv = 0, *eReq = 0;
+
+    State stateFramework(States.ComponentFramework->GetCurrentState());
+    State stateApp(States.ComponentApplication->GetCurrentState());
+
+    eFramework = States.ComponentFramework->GetPendingEvent();
+    eApp = States.ComponentApplication->GetPendingEvent();
 
     switch (view) {
     case GCM::FRAMEWORK_VIEW:
-        e = States.ComponentFramework->GetPendingEvent();
-        return stateFrameworkView.GetState();
+        e = eFramework;
+        return stateFramework.GetState();
     case GCM::APPLICATION_VIEW:
-        e = States.ComponentApplication->GetPendingEvent();
-        return stateApplicationView.GetState();
+        e = eApp;
+        return stateApp.GetState();
     case GCM::SYSTEM_VIEW:
         {
-            State stateInterfaceProvided(GetInterfaceState(GCM::PROVIDED_INTERFACE));
-            State stateInterfaceRequired(GetInterfaceState(GCM::REQUIRED_INTERFACE));
-            e = 0; // redundant: this event info is already encoded in the other states
-            return (((stateFrameworkView * stateApplicationView) * stateInterfaceProvided) * stateInterfaceRequired).GetState();
+            State statePrv(GetInterfaceState(GCM::PROVIDED_INTERFACE, ePrv));
+            State stateReq(GetInterfaceState(GCM::REQUIRED_INTERFACE, eReq));
+
+#define GET_HIGHER_SEVERITY_EVENT(_e1, _e2)\
+            if (_e1 == 0 && _e2 == 0)\
+                e = 0;\
+            else if (_e1 == 0 && _e2)\
+                e = _e2;\
+            else if (_e1 && _e2 == 0)\
+                e = _e1;\
+            else\
+                e = ((_e1->GetSeverity() > _e2->GetSeverity()) ? _e1 : _e2);
+
+            GET_HIGHER_SEVERITY_EVENT(eFramework, eApp);
+            GET_HIGHER_SEVERITY_EVENT(e, ePrv);
+            GET_HIGHER_SEVERITY_EVENT(e, eReq);
+#undef GET_HIGHER_SEVERITY_EVENT
+
+            return (((stateFramework * stateApp) * statePrv) * stateReq).GetState();
         }
     }
 }
@@ -394,7 +414,7 @@ State::StateType GCM::GetComponentState(ComponentStateViews view, const Event* &
 State::StateType GCM::GetInterfaceState(const std::string & name, GCM::InterfaceTypes type) const
 {
     InterfaceStateMachinesType::const_iterator it;
-    if (type == PROVIDED_INTERFACE) {
+    if (type == GCM::PROVIDED_INTERFACE) {
         it = States.ProvidedInterfaces.find(name);
         if (it == States.ProvidedInterfaces.end())
             return State::INVALID;
@@ -407,8 +427,54 @@ State::StateType GCM::GetInterfaceState(const std::string & name, GCM::Interface
     }
 }
 
-State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type) const
+State::StateType GCM::GetInterfaceState(const std::string & name, GCM::InterfaceTypes type,
+                                                const Event* & e) const
 {
+    GCM::InterfaceStateMachinesType::const_iterator it;
+    if (type == GCM::PROVIDED_INTERFACE) {
+        it = States.ProvidedInterfaces.find(name);
+        if (it == States.ProvidedInterfaces.end()) {
+            e = 0;
+            return State::INVALID;
+        }
+    } else {
+        it = States.RequiredInterfaces.find(name);
+        if (it == States.RequiredInterfaces.end()) {
+            e = 0;
+            return State::INVALID;
+        }
+    }
+
+    e = it->second->GetPendingEvent();
+    return it->second->GetCurrentState();
+}
+
+State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type, const Event* & e) const
+{
+    const InterfaceStateMachinesType & interfaces = 
+        (type == GCM::PROVIDED_INTERFACE ? States.ProvidedInterfaces : States.RequiredInterfaces);
+
+    if (interfaces.size() == 0) {
+        e = 0;
+        return State::NORMAL;
+    }
+
+    State state(State::NORMAL);
+    const Event * event = 0;
+
+    InterfaceStateMachinesType::const_iterator it = interfaces.begin();
+    const InterfaceStateMachinesType::const_iterator itEnd = interfaces.end();
+    for (; it != itEnd; ++it) {
+        state = state * it->second->GetCurrentState();
+        if (event == 0 || 
+            event->GetSeverity() < it->second->GetPendingEvent()->GetSeverity())
+            event = it->second->GetPendingEvent();
+    }
+
+    e = event;
+    return state.GetState();
+
+#if 0
     // NOTE: Different policies on the "projected" state of two kinds of interfaces
     //
     // S_P is always in the NORMAL state unless all provided interfaces are the non-NORMAL state
@@ -445,6 +511,14 @@ State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type) const
             return State::NORMAL;
         }
     }
+#endif
+}
+
+State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type) const
+{
+    const Event * e = 0;
+
+    return GetInterfaceState(type, e);
 }
 
 void GCM::AddServiceStateDependency(const JSON::JSONVALUE & services)

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Jul 22, 2014
+// Last revision: Jul 28, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -140,12 +140,14 @@ public:
     //! Returns component state
     State::StateType GetComponentState(ComponentStateViews view = SYSTEM_VIEW) const;
     //! Returns component state with outstanding event.  
-    // NOTE: This only works for either framework view or application view.
     State::StateType GetComponentState(ComponentStateViews view, const Event* & e) const;
     //! Returns interface state
     State::StateType GetInterfaceState(const std::string & name, InterfaceTypes type) const;
+    //! Returns interface state with outstanding event
+    State::StateType GetInterfaceState(const std::string & name, InterfaceTypes type, const Event* & e) const;
     //! Returns consolidated interface state
     State::StateType GetInterfaceState(InterfaceTypes type) const;
+    State::StateType GetInterfaceState(InterfaceTypes type, const Event* & e) const;
     //! Returns service state of provided interface and event information that caused service state transition
     State::StateType GetServiceState(const std::string & providedInterfaceName, const Event * & event,
                                      bool forErrorPropagation) const;
