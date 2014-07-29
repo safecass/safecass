@@ -427,8 +427,7 @@ State::StateType GCM::GetInterfaceState(const std::string & name, GCM::Interface
     }
 }
 
-State::StateType GCM::GetInterfaceState(const std::string & name, GCM::InterfaceTypes type,
-                                                const Event* & e) const
+State::StateType GCM::GetInterfaceState(const std::string & name, GCM::InterfaceTypes type, const Event* & e) const
 {
     GCM::InterfaceStateMachinesType::const_iterator it;
     if (type == GCM::PROVIDED_INTERFACE) {
@@ -466,6 +465,8 @@ State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type, const Event* &
     const InterfaceStateMachinesType::const_iterator itEnd = interfaces.end();
     for (; it != itEnd; ++it) {
         state = state * it->second->GetCurrentState();
+        if (it->second->GetPendingEvent() == 0)
+            continue;
         if (event == 0 || 
             event->GetSeverity() < it->second->GetPendingEvent()->GetSeverity())
             event = it->second->GetPendingEvent();
