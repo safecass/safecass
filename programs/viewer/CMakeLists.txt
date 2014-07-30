@@ -6,8 +6,8 @@
 #
 #------------------------------------------------------------------------
 #
-# Created on   : Jul 10, 2014
-# Last revision: Jul 14, 2014
+# Created on   : Jul 14, 2014
+# Last revision: Jul 29, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -35,7 +35,7 @@ if (cisst_FOUND_AS_REQUIRED)
                                       QtJsBridge/jsApiProxy.h
                                       QtJsBridge/jsCppBridge.h)
   # needed to include Qt generated header files
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+  include_directories(${CMAKE_CURRENT_BINARY_DIR} ${QT_QTWEBKIT_INCLUDE_DIR})
 
   # create example using a single process
   add_executable (viewerQt
@@ -47,9 +47,8 @@ if (cisst_FOUND_AS_REQUIRED)
                   QtJsBridge/jsCppBridge.cpp
                   ${QT_VIEWER_WRAPPED_UI}
                   ${QT_VIEWER_WRAPPED_CPP})
-  #set_property (TARGET viewerQt PROPERTY FOLDER "cisstMultiTask/examples")
   cisst_target_link_libraries (viewerQt ${REQUIRED_CISST_LIBRARIES})
-  target_link_libraries (viewerQt ${REQUIRED_SF_LIBS})
+  target_link_libraries (viewerQt ${REQUIRED_SF_LIBS} ${QT_QTWEBKIT_LIBRARY})
 else (cisst_FOUND_AS_REQUIRED)
   message ("Information: code in ${CMAKE_CURRENT_SOURCE_DIR} will not be compiled, it requires ${REQUIRED_CISST_LIBRARIES}")
 endif (cisst_FOUND_AS_REQUIRED)

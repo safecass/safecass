@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2014
-// Last revision: Jul 23, 2014
+// Last revision: Jul 29, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -20,6 +20,7 @@
 
 #include <QUrl>
 #include <QWebFrame>
+//#include <QtWebKit/QWebFrame>
 
 CMN_IMPLEMENT_SERVICES(viewerQtComponent);
 

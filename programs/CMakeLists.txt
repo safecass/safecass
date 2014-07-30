@@ -11,7 +11,7 @@
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
-if (BUILD_TOOLS)
+if (BUILD_PROGRAMS)
   add_subdirectory(supervisor)
   add_subdirectory(console)
   add_subdirectory(viewer)
