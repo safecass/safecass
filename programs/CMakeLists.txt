@@ -7,10 +7,12 @@
 #------------------------------------------------------------------------
 #
 # Created on   : Aug 7, 2012
-# Last revision: Jul 10, 2014
+# Last revision: Jul 29, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
-add_subdirectory(supervisor)
-add_subdirectory(console)
-add_subdirectory(viewer)
+if (BUILD_TOOLS)
+  add_subdirectory(supervisor)
+  add_subdirectory(console)
+  add_subdirectory(viewer)
+endif()

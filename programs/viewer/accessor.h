@@ -14,7 +14,7 @@
 #ifndef _accessor_viewer_qt_h
 #define _accessor_viewer_qt_h
 
-#include "cisstAccessor.h"
+#include "adapters/cisst/cisstAccessor.h"
 #include "filterBase.h"
 
 //

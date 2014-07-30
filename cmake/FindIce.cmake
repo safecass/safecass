@@ -50,15 +50,16 @@ endif ()
 find_path (ZEROC_ICE_INCLUDE_DIR NAMES Ice/Ice.h 
                                  DOC "Directory containing Ice/Ice.h"
                                  PATHS ${ICE_INCLUDE_DEFAULT_PATH})
-find_library (ZEROC_ICE_LIBRARY_ICE NAMES Ice ZerocIce
+find_library (ZEROC_ICE_LIBRARY_ICE NAMES libZerocIce ZerocIce Ice
                                     DOC "Path to Ice libraries"
-                                    HINTS ${ICE_LIB_DEFAULT_PATH})
+                                    PATHS ${ICE_LIB_DEFAULT_PATH}
+                                    NO_DEFAULT_PATH)
 find_library (ZEROC_ICE_LIBRARY_ICEUTIL NAMES IceUtil ZerocIceUtil
                                         DOC "Path to IceUtil libraries"
-                                        HINTS ${ICE_LIB_DEFAULT_PATH})
+                                        PATHS ${ICE_LIB_DEFAULT_PATH})
 find_library (ZEROC_ICE_LIBRARY_ICESTORM NAMES IceStorm ZerocIceStorm
                                          DOC "Path to IceStorm libraries"
-                                         HINTS ${ICE_LIB_DEFAULT_PATH})
+                                         PATHS ${ICE_LIB_DEFAULT_PATH})
 
 include (FindPackageHandleStandardArgs)
 find_package_handle_standard_args(ZEROC_ICE 
