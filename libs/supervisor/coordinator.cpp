@@ -780,21 +780,53 @@ bool Coordinator::OnEvent(const std::string & event)
     // based on the current state of the state machine. This state change may have
     // impact on other states.
 
-    // Process state transition and get json string that includes the changes
-    GCM * gcm = GetGCMInstance(targetComponentName);
-    if (!gcm) {
-        SFLOG_ERROR << "OnEvent: no GCM instance found for component \"" << targetComponentName << "\"" << std::endl;
-        return false;
+    // Check if this event is broadcasted
+    const bool broadcast = (e->GetSeverity() >= Event::SEVERITY_BROADCAST_MIN);
+    if (broadcast)
+        SFASSERT(targetComponentName.compare("*") == 0);
+
+    // Determine list of components (under this safety coordinator) to be notified of this event
+    std::vector<std::string> componentList;
+    if (!broadcast) {
+        if (!GetGCMInstance(targetComponentName)) {
+            SFLOG_ERROR << "OnEvent: no GCM instance found for component \"" << targetComponentName << "\"" << std::endl;
+            return false;
+        }
+        componentList.push_back(targetComponentName);
+    } else {
+        Coordinator::GCMMapType::const_iterator it = MapGCM.begin();
+        const Coordinator::GCMMapType::const_iterator itEnd = MapGCM.end();
+        for (; it != itEnd; ++it)
+            componentList.push_back(GetComponentName(it->first));
     }
 
-    // For error propagation
-    JSON _jsonServiceStateChange;
-    JSON::JSONVALUE & jsonServiceStateChange = _jsonServiceStateChange.GetRoot();
-    const State::TransitionType transition = 
-        gcm->ProcessStateTransition(targetStateMachineType, e, targetInterfaceName, jsonServiceStateChange);
-    if (transition == State::INVALID_TRANSITION) {
-        SFLOG_WARNING << "OnEvent: invalid transition for event " << *e << std::endl;
-        return false;
+    // Process state transition and get json string that includes the changes
+    GCM * gcm;
+    for (size_t i = 0; i < componentList.size(); ++i) {
+        gcm = GetGCMInstance(componentList[i]);
+        SFASSERT(gcm);
+
+        // For error propagation
+        JSON _jsonServiceStateChange;
+        JSON::JSONVALUE & jsonServiceStateChange = _jsonServiceStateChange.GetRoot();
+        const State::TransitionType transition = 
+            gcm->ProcessStateTransition(targetStateMachineType, e, targetInterfaceName, jsonServiceStateChange);
+        if (transition == State::INVALID_TRANSITION) {
+            SFLOG_WARNING << "OnEvent: invalid transition for event " << *e << std::endl;
+            continue;
+        }
+
+        // Publish service state change message
+        if (jsonServiceStateChange != JSON::JSONVALUE::null) {
+            PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonServiceStateChange));
+            SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << " : " << targetInterfaceName << " ] "
+                        << "event [ " << *e << " ] occurred.  Publishing error propagation json:\n"
+                        << JSON::GetJSONString(jsonServiceStateChange) << std::endl;
+        }
+        else
+            SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << " : " << targetInterfaceName << " ] "
+                        << "event " << *e << " occurred but has no impact on service state of "
+                        << "any of its provided interface.  No further error propagation." << std::endl;
     }
 
     // Refresh state viewer
@@ -803,19 +835,7 @@ bool Coordinator::OnEvent(const std::string & event)
     jsonRefresh["target"]["safety_coordinator"] = "*";
     jsonRefresh["target"]["component"] = "*";
     jsonRefresh["request"] = "state_list";
-
-    // Publish messages
     PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
-    if (jsonServiceStateChange != JSON::JSONVALUE::null) {
-        PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonServiceStateChange));
-        SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << ", " << targetInterfaceName << " ] "
-                    << "event [ " << *e << " ] occured.  Publishing error propagation json:\n"
-                    << JSON::GetJSONString(jsonServiceStateChange) << std::endl;
-    }
-    else
-        SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << ", " << targetInterfaceName << " ] "
-                    << "event " << *e << " occured but has no impact on service state of "
-                    << "any of its provided interface.  No further error propagation." << std::endl;
 
     // Call event hook for middleware
     return OnEventHandler(e);
@@ -1128,6 +1148,26 @@ void Coordinator::GenerateEvent(const std::string &     eventName,
         SFLOG_ERROR << "Coordinator::GenerateEvent: Failed to handle event:\n" << JSON::GetJSONString(json) << std::endl;
     else
         SFLOG_DEBUG << "Coordinator::GenerateEvent: Successfully generated and handled event:\n" << JSON::GetJSONString(json) << std::endl;
+}
+
+bool Coordinator::BroadcastEvent(const std::string & eventName, const std::string & what)
+{
+    const Event * e = GetEvent(eventName);
+    if (!e) {
+        SFLOG_ERROR << "Coordinator::BroadcastEvent: no event found: \"" << eventName << "\"" << std::endl;
+        return false;
+    }
+
+    // check if event severity is set for broadcast
+    if (e->GetSeverity() < Event::SEVERITY_BROADCAST_MIN) {
+        SFLOG_ERROR << "Coordinator::BroadcastEvent: event \"" << eventName << "\" is not set for broadcast: " << *e << std::endl;
+        return false;
+    }
+
+    // broadcast
+    GenerateEvent(eventName, State::STATEMACHINE_APP, what, "*");
+
+    return true;
 }
 
 #if 0

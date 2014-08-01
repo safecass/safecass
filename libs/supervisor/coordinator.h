@@ -217,6 +217,10 @@ public:
                        const std::string &     what,
                        const std::string &     componentName,
                        const std::string &     interfaceName = "");
+    // Broadcast event which has proper severity (i.e., severity equal or higher than
+    // the broadcast severity).  Note that this API is only used for application state machines.
+    bool BroadcastEvent(const std::string & eventName, const std::string & what);
+
     // Get state
     State::StateType GetComponentState(const std::string & componentName,
                                        GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;

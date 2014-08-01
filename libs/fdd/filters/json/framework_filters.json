@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 6, 2012
-// Last revision: Jul 29, 2014
+// Last revision: Aug 1, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -24,21 +24,6 @@
 {
     "component": "", // will be set by casros when deployed
     "event": [
-        {   // name of event
-            "name"            : "EVT_THREAD_EXCEPTION",
-            // severity (1-255)
-            // 1: lowest priority, ..., 255: highest priority
-            // 1-200: For application events
-            // 201-255: Reserved for framework events
-            //
-            "severity"        : 255,
-            // Each event can define ONLY ONE transition.
-            "state_transition": [ "N2E" ]
-        },
-        {   "name"            : "/EVT_THREAD_EXCEPTION",
-            "severity"        : 255,
-            "state_transition": [ "E2N" ]
-        },
         {   "name"            : "EVT_THREAD_OVERRUN",
             "severity"        : 201,
             "state_transition": [ "N2E" ]
@@ -47,13 +32,21 @@
             "severity"        : 201,
             "state_transition": [ "E2N" ]
         },
-        {   "name"            : "EVT_SERVICE_FAILURE",
-            "severity"        : 250,
+        {   "name"            : "EVT_THREAD_EXCEPTION",
+            "severity"        : 210,
             "state_transition": [ "N2E" ]
         },
-        {   "name"            : "/EVT_SERVICE_FAILURE",
-            "severity"        : 250,
+        {   "name"            : "/EVT_THREAD_EXCEPTION",
+            "severity"        : 210,
             "state_transition": [ "E2N" ]
+        },
+        {   "name"            : "EVT_SERVICE_FAILURE",
+            "severity"        : 220,
+            "state_transition": [ "N2E", "W2E", "E2E" ]
+        },
+        {   "name"            : "/EVT_SERVICE_FAILURE",
+            "severity"        : 220,
+            "state_transition": [ "E2N", "W2N", "N2N" ]
         }
     ],
     "filter" : [

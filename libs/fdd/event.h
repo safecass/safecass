@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Jul 22, 2014
+// Last revision: Aug 1, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -24,6 +24,16 @@ class SFLIB_EXPORT Event
 {
 public:
     typedef std::vector<State::TransitionType> TransitionsType;
+    
+    // severity definition
+    enum {
+        SEVERITY_APP_MIN       = 1,
+        SEVERITY_APP_MAX       = 200,
+        SEVERITY_FRAMEWORK_MIN = 201,
+        SEVERITY_FRAMEWORK_MAX = 250,
+        SEVERITY_BROADCAST_MIN = 251,
+        SEVERITY_BROADCAST_MAX = 255
+    };
 
 protected:
     // Name of this event
