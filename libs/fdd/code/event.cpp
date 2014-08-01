@@ -61,9 +61,9 @@ State::TransitionType Event::GetTransition(State::StateType currentState) const
     case State::NORMAL:
         // Preference on more severe state
         if (TransitionMask[State::NORMAL][State::ERROR])
-            return State::NORMAL_TO_WARNING;
-        else if (TransitionMask[State::NORMAL][State::WARNING])
             return State::NORMAL_TO_ERROR;
+        else if (TransitionMask[State::NORMAL][State::WARNING])
+            return State::NORMAL_TO_WARNING;
         break;
     case State::WARNING:
         // TODO: W2N and W2E can't be in the same event transition spec

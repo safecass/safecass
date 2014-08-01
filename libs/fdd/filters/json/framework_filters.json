@@ -42,11 +42,11 @@
         },
         {   "name"            : "EVT_SERVICE_FAILURE",
             "severity"        : 220,
-            "state_transition": [ "N2E", "W2E", "E2E" ]
+            "state_transition": [ "N2E", "W2E" ]
         },
         {   "name"            : "/EVT_SERVICE_FAILURE",
             "severity"        : 220,
-            "state_transition": [ "E2N", "W2N", "N2N" ]
+            "state_transition": [ "E2N", "W2N" ]
         }
     ],
     "filter" : [
