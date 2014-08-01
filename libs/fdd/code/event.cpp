@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Jul 22, 2014
+// Last revision: Aug 1, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -25,6 +25,11 @@ Event::Event(const std::string     & name,
 #define N 0
 #define W 1
 #define E 2
+    // Add transitions to the same state
+    TransitionMask[N][N] = true;
+    TransitionMask[W][W] = true;
+    TransitionMask[E][E] = true;
+
     // Counters to check if this event has multiple next states for one current state
     int fromN = 0, fromW = 0, fromE = 0;
     for (size_t i = 0; i < Transitions.size(); ++i) {
@@ -54,12 +59,14 @@ State::TransitionType Event::GetTransition(State::StateType currentState) const
 {
     switch (currentState) {
     case State::NORMAL:
-        if (TransitionMask[State::NORMAL][State::WARNING])
+        // Preference on more severe state
+        if (TransitionMask[State::NORMAL][State::ERROR])
             return State::NORMAL_TO_WARNING;
-        else if (TransitionMask[State::NORMAL][State::ERROR])
+        else if (TransitionMask[State::NORMAL][State::WARNING])
             return State::NORMAL_TO_ERROR;
         break;
     case State::WARNING:
+        // TODO: W2N and W2E can't be in the same event transition spec
         if (TransitionMask[State::WARNING][State::NORMAL])
             return State::WARNING_TO_NORMAL;
         else if (TransitionMask[State::WARNING][State::ERROR])
