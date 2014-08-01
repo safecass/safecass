@@ -232,12 +232,39 @@ bool AccessorConsole::RequestEventGeneration(const std::string & eventName, cons
     json["event"]["type"] = eventType;
 
     if (!Publishers.Control->PublishControl(SF::Topic::Control::COMMAND, SF::JSON::GetJSONString(json))) {
-        std::cerr << "RequestServiceDependencyList: Failed to publish message (Control, COMMAND): " 
+        std::cerr << "RequestEventGeneration: Failed to publish message (Control, COMMAND): " 
                   << SF::JSON::GetJSONString(json) << std::endl;
         return false;
     }
 
     std::cout << "requested event generation" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}
+
+bool AccessorConsole::RequestEventBroadcast(const std::string & eventName, const std::string & safetyCoordinatorName) const
+{
+    SF::JSON _json;
+    SF::JSON::JSONVALUE & json = _json.GetRoot();
+
+    // command
+    json["command"] = "event_generate";
+    // target
+    json["target"]["safety_coordinator"] = safetyCoordinatorName;
+    json["target"]["component"] = "*";
+    //json["target"]["interface"] = SF::JSON::JSONVALUE::null;
+    // event
+    json["event"]["name"] = eventName;
+    json["event"]["type"] = "application";
+
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::COMMAND, SF::JSON::GetJSONString(json))) {
+        std::cerr << "RequestServiceDependencyList: Failed to publish message (Control, COMMAND): " 
+                  << SF::JSON::GetJSONString(json) << std::endl;
+        return false;
+    }
+
+    std::cout << "requested event broadcast" << std::endl;
     osaSleep(0.5);
 
     return true;

@@ -25,9 +25,10 @@ void handler_event_help(void)
 {
     std::cout << std::endl
               << "event [command]" << std::endl
-              << "    help: show help for event command"  << std::endl
-              << "    list: show all events in the system" << std::endl
-              << "    generate: inject event into the system" << std::endl;
+              << "    help           : show help for event command"  << std::endl
+              << "    list           : show all events in the system" << std::endl
+              << "    generate|gen   : inject event into the system" << std::endl
+              << "    broadcast|bcast: broadcast event" << std::endl;
 }
 
 void handler_event_list(const std::string & safetyCoordinatorName, const std::string & componentName)
@@ -55,6 +56,17 @@ void handler_event_generate(const std::string & eventName, const std::string & e
         return;
     }
 }
+
+
+void handler_event_broadcast(const std::string & eventName, const std::string & safetyCoordinatorName)
+{
+    CASROS_ACCESSOR_CHECK;
+
+    if (!casrosAccessor->RequestEventBroadcast(eventName, safetyCoordinatorName)) {
+        std::cerr << "ERROR: failed to request event broadcast" << std::endl;
+        return;
+    }
+}
 #undef CASROS_ACCESSOR_CHECK
 
 //------------------------------------------------------------ 
@@ -66,7 +78,8 @@ void handler_event_generate(const std::string & eventName, const std::string & e
 typedef enum {
     HELP,  // show help
     LIST,  // show event list
-    GENERATE // generate event
+    GENERATE, // generate event
+    BROADCAST // broadcast event
 } EventOptionType;
 
 void handler_event(const std::vector<std::string> & args)
@@ -82,8 +95,10 @@ void handler_event(const std::vector<std::string> & args)
 
     if (cmd.compare("list") == 0)
         option = LIST;
-    else if (cmd.compare("generate") == 0)
+    else if (cmd.compare("gen") == 0 || cmd.compare("generate") == 0)
         option = GENERATE;
+    else if (cmd.compare("bcast") == 0 || cmd.compare("broadcast") == 0)
+        option = BROADCAST;
     else
         option = HELP;
 
@@ -129,6 +144,19 @@ void handler_event(const std::vector<std::string> & args)
             interfaceName = "";
 
         handler_event_generate(eventName, eventType, safetyCoordinatorName, componentName, interfaceName);
+        break;
+
+    case BROADCAST:
+        if (n < 3) {
+            std::cout << "usage: event broadcast eName scName" << std::endl
+                      << "   eName : event name (should be declared as broadcast event)" << std::endl
+                      << "   scName: name of safety coordinator" << std::endl;
+            return;
+        }
+        eventName = args[1];
+        safetyCoordinatorName = args[2];
+
+        handler_event_broadcast(eventName, safetyCoordinatorName);
         break;
     }
 }

@@ -65,6 +65,8 @@ public:
     // request event generation
     bool RequestEventGeneration(const std::string & eventName, const std::string & eventType, const std::string & safetyCoordinatorName,
                                 const std::string & componentName, const std::string & interfaceName) const;
+    // request event broadcast 
+    bool RequestEventBroadcast(const std::string & eventName, const std::string & safetyCoordinatorName) const;
 };
 
 #endif // _accessor_console_h
