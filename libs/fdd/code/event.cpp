@@ -43,6 +43,7 @@ Event::Event(const std::string     & name,
         default: continue;
         }
     }
+#if 0 // check this out later when working on sanity check on event spec file
     if (fromN >= 2 || fromW >= 2 || fromE >= 2) {
         SFLOG_ERROR << "Event transition error: event \"" << Name << "\" has multiple next states" << std::endl;
         SFLOG_ERROR << (int) TransitionMask[N][N] << " " << (int) TransitionMask[N][W] << " " << (int) TransitionMask[N][E] << std::endl;
@@ -50,6 +51,8 @@ Event::Event(const std::string     & name,
         SFLOG_ERROR << (int) TransitionMask[E][N] << " " << (int) TransitionMask[E][W] << " " << (int) TransitionMask[E][E] << std::endl;
         throw("Event error");
     }
+#endif
+
 #undef N
 #undef W
 #undef E
