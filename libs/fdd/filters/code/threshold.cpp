@@ -7,63 +7,98 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 3, 2012
-// Last revision: Jul 8, 2014
+// Last revision: Aug 5, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "threshold.h"
-#include "dict.h"
-#include "jsonSerializer.h"
-#include "eventPublisherBase.h"
 #include "filterFactory.h"
+#include "dict.h"
+#include "coordinator.h"
 
 using namespace SF;
 
 SF_IMPLEMENT_FACTORY(FilterThreshold);
 
 FilterThreshold::FilterThreshold(void)
-    : FilterBase(FilterThreshold::Name, NONAME, FilterBase::ACTIVE),
+    : FilterBase(FilterThreshold::Name,  // filter name
+                 FilterBase::ACTIVE, // filtering type (active vs. passive)
+                 State::STATEMACHINE_INVALID, // type of state machine
+                 NONAME,             // target component name
+                 NONAME),            // target interface name
       NameOfInputSignal(NONAME),
       Threshold(0.0),
-      Margin(0.0),
-      Output0(0.0),
-      Output1(0.0),
-      EventName(NONAME)
+      Tolerance(0.0),
+      OutputBelow(0.0),
+      OutputAbove(0.0),
+      EventNameAbove(NONAME),
+      EventNameBelow(NONAME)
 {
     Initialize();
 }
 
-FilterThreshold::FilterThreshold(const std::string &           targetComponentName,
-                                 SF::FilterBase::FilteringType monitoringType,
-                                 // filter-specific arguments
-                                 const std::string &           inputSignalName,
-                                 SignalElement::ScalarType     threshold,
-                                 SignalElement::ScalarType     margin,
-                                 SignalElement::ScalarType     output0,
-                                 SignalElement::ScalarType     output1)
-    : FilterBase(FilterThreshold::Name, targetComponentName, monitoringType),
+FilterThreshold::FilterThreshold(FilterBase::FilteringType monitoringType,
+                                 State::StateMachineType   targetStateMachineType,
+                                 const std::string &       targetComponentName,
+                                 const std::string &       targetInterfaceName,
+                                 const std::string &       inputSignalName,
+                                 SignalElement::ScalarType threshold,
+                                 SignalElement::ScalarType tolerance,
+                                 SignalElement::ScalarType outputBelow,
+                                 SignalElement::ScalarType outputAbove,
+                                 const std::string &       eventNameAbove,
+                                 const std::string &       eventNameBelow)
+    : FilterBase(FilterThreshold::Name,
+                 monitoringType,
+                 targetStateMachineType,
+                 targetComponentName,
+                 targetInterfaceName),
       NameOfInputSignal(inputSignalName),
       Threshold(threshold),
-      Margin(margin),
-      Output0(output0),
-      Output1(output1),
-      EventName(NONAME)
+      Tolerance(tolerance),
+      OutputBelow(outputBelow),
+      OutputAbove(outputAbove),
+      EventNameAbove(eventNameAbove),
+      EventNameBelow(eventNameBelow)
+{
+    Initialize();
+}
+
+FilterThreshold::FilterThreshold(FilterBase::FilteringType monitoringType,
+                                 State::StateMachineType   targetStateMachineType,
+                                 const std::string &       targetComponentName,
+                                 const std::string &       inputSignalName,
+                                 SignalElement::ScalarType threshold,
+                                 SignalElement::ScalarType tolerance,
+                                 SignalElement::ScalarType outputBelow,
+                                 SignalElement::ScalarType outputAbove,
+                                 const std::string &       eventNameAbove,
+                                 const std::string &       eventNameBelow)
+    : FilterBase(FilterThreshold::Name,
+                 monitoringType,
+                 targetStateMachineType,
+                 targetComponentName,
+                 NONAME),
+      NameOfInputSignal(inputSignalName),
+      Threshold(threshold),
+      Tolerance(tolerance),
+      OutputBelow(outputBelow),
+      OutputAbove(outputAbove),
+      EventNameAbove(eventNameAbove),
+      EventNameBelow(eventNameBelow)
 {
     Initialize();
 }
 
 FilterThreshold::FilterThreshold(const JSON::JSONVALUE & jsonNode)
     : FilterBase(FilterThreshold::Name, jsonNode),
-      NameOfInputSignal(JSON::GetSafeValueString(
-          jsonNode[Dict::Filter::argument], Dict::Filter::input_signal)),
-      Threshold(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::argument], Dict::FilterThreshold::threshold)),
-      Margin(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::argument], Dict::FilterThreshold::margin)),
-      Output0(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::argument], Dict::FilterThreshold::output0)),
-      Output1(JSON::GetSafeValueDouble(
-          jsonNode[Dict::Filter::argument], Dict::FilterThreshold::output1))
+      NameOfInputSignal(JSON::GetSafeValueString(jsonNode["argument"], "input_signal")),
+      Threshold(JSON::GetSafeValueDouble(jsonNode["argument"], "threshold")),
+      Tolerance(JSON::GetSafeValueDouble(jsonNode["argument"], "tolerance")),
+      OutputAbove(JSON::GetSafeValueDouble(jsonNode["argument"], "output_above")),
+      OutputBelow(JSON::GetSafeValueDouble(jsonNode["argument"], "output_below")),
+      EventNameAbove(JSON::GetSafeValueString(jsonNode["argument"], "event_above")),
+      EventNameBelow(JSON::GetSafeValueString(jsonNode["argument"], "event_below"))
 {
     Initialize();
 }
@@ -74,6 +109,8 @@ FilterThreshold::~FilterThreshold()
 
 void FilterThreshold::Initialize(void)
 {
+    IsAboveThreshold = false;
+
     // Register this filter to the filter factory
     // filters that casros provides do not need this; this is only for user-defined filters.
     //SF_REGISTER_FILTER_TO_FACTORY(FilterThreshold);
@@ -92,7 +129,12 @@ void FilterThreshold::Initialize(void)
 
 bool FilterThreshold::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
 {
-    EventName = JSON::GetSafeValueString(jsonNode["argument"], "event");
+    Threshold = JSON::GetSafeValueDouble(jsonNode["argument"], "threshold");
+    Tolerance = JSON::GetSafeValueDouble(jsonNode["argument"], "tolerance");
+    OutputAbove = JSON::GetSafeValueDouble(jsonNode["argument"], "output_above");
+    OutputBelow = JSON::GetSafeValueDouble(jsonNode["argument"], "output_below");
+    EventNameAbove = JSON::GetSafeValueString(jsonNode["argument"], "event_above");
+    EventNameBelow = JSON::GetSafeValueString(jsonNode["argument"], "event_below");
 
     return true;
 }
@@ -104,7 +146,7 @@ bool FilterThreshold::InitFilter(void)
     return true;
 }
 
-void FilterThreshold::FilterThreshold::CleanupFilter(void)
+void FilterThreshold::CleanupFilter(void)
 {
 }
 
@@ -113,80 +155,70 @@ void FilterThreshold::RunFilter(void)
     if (!FilterBase::RefreshSamples())
         return;
 
-    //
-    // TODO: UPDATE THIS FILTERING ALGORITHM!!!
-    //
-#if 0
-    // Filtering algorithm: thresholding with margin
-    if (InputSignals[0]->GetPlaceholderScalar() > Threshold + Margin) {
-        // Generate event if necessary (MJ: this may need to be done only for
-        // filters of type FAULT_DETECTOR category)
-        OutputSignals[0]->SetPlaceholderScalar(Output1);
-        // If this filter is the last filter of a pipeline
-        if (this->LastFilterOfPipeline) {
-            // If there is an event publisher associated with this filter and
-            // it is properly installed, publish the detected fault event to 
-            // the Safety Framework.
-            if (this->EventPublisher) {
-                double timestamp = InputSignals[0]->GetTimeLastSampleFetched();
-                //double severity = InputSignals[0]->GetPlaceholderScalar() - (Threshold + Margin);
-                double severity = InputSignals[0]->GetPlaceholderScalar() - Threshold;
-                this->EventPublisher->PublishEvent(GenerateFDIJSON(severity, timestamp));
-            } else {
-                SFLOG_ERROR << "FilterThreshold: No event publisher is active and thus event cannot be published" << std::endl;
-            }
+    const double newInput = InputSignals[0]->GetPlaceholderScalar();
+
+    if (this->PrintDebugLog)
+        std::cout << "FilterThreshold[ \"" << FilterTarget.ComponentName << "\":\""
+                  << FilterTarget.InterfaceName << "\" ] : " << newInput << std::endl << std::flush;
+
+    // Below threshold
+    if (newInput <= Threshold + Tolerance) {
+        if (IsAboveThreshold) {
+            const std::string evt = GenerateEventInfo(FilterThreshold::BELOW_THRESHOLD);
+            SafetyCoordinator->OnEvent(evt); // Offset event detected
+            IsAboveThreshold = false;
         }
-    } else {
-        OutputSignals[0]->SetPlaceholderScalar(Output0);
+        OutputSignals[0]->SetPlaceholderScalar(OutputBelow);
+        return;
     }
 
-    if (this->PrintDebugLog) {
-        std::cout << this->GetFilterName() << "\t" << InputSignals[0]->GetName() << ": " 
-            << InputSignals[0]->GetPlaceholderScalar() << " => " << OutputSignals[0]->GetPlaceholderScalar() << std::endl;
-    }
-#endif
+    // Above threshold with tolerance; Generate event
+    // TODO: Right now FilterBase::LastFilterOfPipeline is not being used, which allows
+    // any filter to generate events.  Should filter pipelines be used, it may be
+    // necessary to allow only the last filter to generate events to avoid potential 
+    // event flooding issue.
+    const std::string evt = GenerateEventInfo(FilterThreshold::ABOVE_THRESHOLD);
+    SafetyCoordinator->OnEvent(evt); // Onset event detected
+    OutputSignals[0]->SetPlaceholderScalar(OutputAbove);
+
+    IsAboveThreshold = true;
 }
 
-#if 0
-const std::string FilterThreshold::GenerateFDIJSON(double severity, double timestamp) const
+void FilterThreshold::ToStream(std::ostream & outputStream, bool verbose) const
 {
-    if (!EventLocation) {
-        SFLOG_ERROR << "GenerateFDIJSON: No event location instance available" << std::endl;
-        return "ERROR: no event location available";
+    BaseType::ToStream(outputStream, verbose);
+
+    if (!verbose) {
+        outputStream << EventNameAbove << ", " << EventNameBelow << std::endl;
     }
-
-    // Create JSONSerializer instance 
-    JSONSerializer serializer;
-
-    // Populate common fields
-    serializer.SetTopicType(Topic::DATA);
-    serializer.SetEventLocation(EventLocation);
-    serializer.SetTimestamp(timestamp);
-
-    // Populate fault information
-    // FIXME
-#if 0
-    serializer.SetEventType(Event::EVENT_FAULT);
-    serializer.SetFaultType(Event::FAULT_APPLICATION);
-    serializer.SetFaultDetectorName(this->GetFilterName()); // MJ: could use the name of filter pipeline instead
-
-    // Populate fault-specific fields
-    JSON::JSONVALUE & fields = serializer.GetFaultFields();
-    fields[Dict::Json::severity] = severity;
-#endif
-
-    return serializer.GetJSON();
+    else {
+        outputStream << "----- Filter-specifics: " << std::endl
+                    << "Threshold  : " << Threshold << std::endl
+                    << "Tolerance  : " << Tolerance << std::endl
+                    << "OutputAbove: " << OutputAbove << std::endl
+                    << "OutputBelow: " << OutputBelow << std::endl
+                    << "EventAbove : " << EventNameAbove << std::endl
+                    << "EventBelow : " << EventNameBelow << std::endl
+                    << "Above Th.? : " << (IsAboveThreshold ? "true" : "false") << std::endl;
+    }
 }
-#endif
 
-void FilterThreshold::ToStream(std::ostream & outputStream) const
+const std::string FilterThreshold::GenerateEventInfo(EVENT_TYPE eventType) const
 {
-    BaseType::ToStream(outputStream);
+    JSON json;
+    JSON::JSONVALUE & root = json.GetRoot();
+    root["event"]["name"] = ((eventType == FilterThreshold::ABOVE_THRESHOLD) ? EventNameAbove : EventNameBelow);
+    root["event"]["timestamp"] = InputSignals[0]->GetTimeLastSampleFetched();
+    //root["event"]["severity"] = 255; // TEMP
+    root["event"]["fuid"] = this->UID;
+#if 0
+    root["event"]["target"]["type"]      = this->FilterTarget.StateMachineType;
+    root["event"]["target"]["component"] = this->FilterTarget.ComponentName;
+    root["event"]["target"]["interface"] = this->FilterTarget.InterfaceName;
+#endif
+    root["target"]["type"]      = this->FilterTarget.StateMachineType;
+    root["target"]["component"] = this->FilterTarget.ComponentName;
+    root["target"]["interface"] = this->FilterTarget.InterfaceName;
 
-    outputStream << "----- Filter-specifics: " << std::endl
-                 << "Threshold: " << Threshold << std::endl
-                 << "Margin   : " << Margin << std::endl
-                 << "Output0  : " << Output0 << std::endl
-                 << "Output1  : " << Output1 << std::endl
-                 << std::endl;
+    return JSON::GetJSONString(root);
 }
