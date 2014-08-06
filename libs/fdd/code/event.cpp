@@ -96,6 +96,8 @@ State::TransitionType Event::GetTransition(State::StateType currentState) const
         if (TransitionMask[State::NORMAL][State::ERROR] ||
             TransitionMask[State::WARNING][State::ERROR])
             return State::NO_TRANSITION;
+    default:
+        return State::INVALID_TRANSITION;
     }
 
     return State::INVALID_TRANSITION;
