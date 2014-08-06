@@ -303,7 +303,6 @@ bool Coordinator::AddFilterFromJSONFileToComponent(const std::string & jsonFileN
     SFLOG_DEBUG << "AddFilterFromJSONFileToComponent: Successfully read json file: " << jsonFileName << std::endl;
 
     // Replace placeholder for target component name with actual target component name
-    std::string filterClassName;
     JSON::JSONVALUE & filters = json.GetRoot()["filter"];
     for (size_t i = 0; i < filters.size(); ++i) {
         JSON::JSONVALUE & filter = filters[i];
@@ -651,7 +650,7 @@ bool Coordinator::AddEventFromJSONFileToComponent(const std::string & jsonFileNa
     // Construct JSON structure from JSON file
     SF::JSON json;
     if (!json.ReadFromFile(jsonFileName)) {
-        SFLOG_ERROR << "AddEventFromJSONFile: Failed to read json file: " << jsonFileName << std::endl;
+        SFLOG_ERROR << "AddEventFromJSONFileToComponent: Failed to read json file: " << jsonFileName << std::endl;
         return false;
     }
 
@@ -660,12 +659,12 @@ bool Coordinator::AddEventFromJSONFileToComponent(const std::string & jsonFileNa
 
     bool ret = AddEventFromJSON(SF::JSON::GetJSONString(json.GetRoot()));
     if (!ret) {
-        SFLOG_ERROR << "AddEventFromJSONFile: Failed to add events from JSON file: " << jsonFileName << std::endl;
+        SFLOG_ERROR << "AddEventFromJSONFileToComponent: Failed to add events from JSON file: " << jsonFileName << std::endl;
         return false;
     }
 
 #if VERBOSE
-    SFLOG_INFO << "AddEventFromJSONFile: Successfully added events from JSON file: " << jsonFileName << std::endl;
+    SFLOG_INFO << "AddEventFromJSONFileToComponent: Successfully added events from JSON file: " << jsonFileName << std::endl;
 #endif
 
     return true;
