@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Jun 25, 2014
+// Last revision: Aug 6, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -81,6 +81,8 @@ public:
         //
         WARNING_TO_ERROR,
         ERROR_TO_WARNING,
+        //
+        NO_TRANSITION,
         // total number of state transitions
         NUMBER_OF_TRANSITIONS,
         // invalid transition

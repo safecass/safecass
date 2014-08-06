@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Aug 1, 2014
+// Last revision: Aug 6, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -25,11 +25,6 @@ Event::Event(const std::string     & name,
 #define N 0
 #define W 1
 #define E 2
-    // Add transitions to the same state
-    TransitionMask[N][N] = true;
-    TransitionMask[W][W] = true;
-    TransitionMask[E][E] = true;
-
     // Counters to check if this event has multiple next states for one current state
     int fromN = 0, fromW = 0, fromE = 0;
     for (size_t i = 0; i < Transitions.size(); ++i) {
@@ -83,6 +78,24 @@ State::TransitionType Event::GetTransition(State::StateType currentState) const
         break;
     default:
         return State::INVALID_TRANSITION;
+    }
+
+    // Check no-transition case
+    switch (currentState) {
+    case State::NORMAL:
+        if (TransitionMask[State::WARNING][State::NORMAL] ||
+            TransitionMask[State::ERROR][State::NORMAL])
+            return State::NO_TRANSITION;
+        break;
+    case State::WARNING:
+        if (TransitionMask[State::NORMAL][State::WARNING] ||
+            TransitionMask[State::ERROR][State::WARNING])
+            return State::NO_TRANSITION;
+        break;
+    case State::ERROR:
+        if (TransitionMask[State::NORMAL][State::ERROR] ||
+            TransitionMask[State::WARNING][State::ERROR])
+            return State::NO_TRANSITION;
     }
 
     return State::INVALID_TRANSITION;

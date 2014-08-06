@@ -813,6 +813,8 @@ bool Coordinator::OnEvent(const std::string & event)
         if (transition == State::INVALID_TRANSITION) {
             SFLOG_WARNING << "OnEvent: invalid transition for event " << *e << std::endl;
             continue;
+        } else if (transition == State::NO_TRANSITION) {
+            continue;
         }
 
         // Publish service state change message

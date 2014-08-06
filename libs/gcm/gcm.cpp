@@ -206,11 +206,11 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
     }
 
     // NOTE: Depending on event handling policy in terms of severity and criticality,
-    // the logics in the following codes and StateMachine::ProcessEvent() should behave
+    // the logic in the following codes and StateMachine::ProcessEvent() should behave
     // accordingly.  For example, should the criticality (N/W/E) has higher priority than
-    // severity (1-255), casros has to look at criticality first.  This is the current
-    // design and implementation.  Should the severity does, however, severity has to be 
-    // considered first.
+    // severity (1-255), casros has to look at criticality first and this is the current
+    // design.  Should priority be given to the severity, severity has to be considered 
+    // first.
 
     // Get current state
     const State::StateType currentState = sm->GetCurrentState();
@@ -222,6 +222,9 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
                       << "transition: " << State::GetStringTransition(transition)
                       << std::endl;
         return State::INVALID_TRANSITION;
+    } else if (transition == State::NO_TRANSITION) {
+        SFLOG_INFO << "GCM::ProcessStateTransition: event \"" << event->GetName() << "\" leads to no state transition" << std::endl;
+        return State::NO_TRANSITION;
     }
     // Make transition for a single statemachine of interest. Depending on type of transition 
     // (getting worse vs. better), transition event may be ignored.
