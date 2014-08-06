@@ -24,14 +24,6 @@
 {
     "component": "", // will be set by casros when deployed
     "event": [
-        {   "name"            : "EVT_THREAD_OVERRUN",
-            "severity"        : 201,
-            "state_transition": [ "N2E" ]
-        },
-        {   "name"            : "/EVT_THREAD_OVERRUN",
-            "severity"        : 201,
-            "state_transition": [ "E2N" ]
-        },
         {   "name"            : "EVT_THREAD_EXCEPTION",
             "severity"        : 210,
             "state_transition": [ "N2E" ]
@@ -73,20 +65,6 @@
                 // name of event to be generated
                 "event_on"     : "EVT_THREAD_EXCEPTION",
                 "event_off"    : "/EVT_THREAD_EXCEPTION"
-            },
-            "last_filter"      : true
-        },
-        // Overrun detection filter
-        {   "class_name"       : "FilterOnOff",
-            "target"           : {
-                "type"         : "s_F",
-                "component"    : ""  // will be set by casros when deployed
-            },
-            "type"             : "ACTIVE",
-            "argument" : {
-                "input_signal" : "OverrunCount",
-                "event_on"     : "EVT_THREAD_OVERRUN",
-                "event_off"    : "/EVT_THREAD_OVERRUN"
             },
             "last_filter"      : true
         }
