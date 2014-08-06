@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 16, 2012
-// Last revision: Apr 21, 2014
+// Last revision: Aug 5, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -43,6 +43,9 @@ void to_uppercase(std::string & s);
 // TODO: refactor time-related semantics within the framework for consistent use of time
 // at higher precision (possibly between different processes).
 typedef double TimestampType;
+
+// TODO: integrate boost time/date library
+TimestampType GetCurrentTimeTick(void);
 
 /*! Get current UTC time */
 std::string GetCurrentUTCTimeString(void);

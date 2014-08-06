@@ -7,18 +7,19 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 27, 2012
-// Last revision: Apr 21, 2014
+// Last revision: Aug 5, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
-#include "common.h"
+#include "utils.h"
 #include <time.h>
 #include <algorithm> 
 #include <functional> 
 #include <cctype>
 //#include <locale>
-
-namespace SF {
+#if SF_HAS_CISST
+#include <cisstOSAbstraction/osaGetTime.h>
+#endif
 
 /*! Returns current UTC time as formatted string: e.g. "2011-09-12T21:33:12Z"
 
@@ -51,7 +52,7 @@ namespace SF {
         : http://www.tutorialspoint.com/cplusplus/cpp_date_time.htm
 */
 // TODO: (at least) millisecond resolution?
-std::string GetCurrentUTCTimeString(void)
+std::string SF::GetCurrentUTCTimeString(void)
 {
     // TODO:  this const could be re-defined as enum to support different time zones
     static const int MST = -7;
@@ -79,7 +80,7 @@ std::string GetCurrentLocalTimeString(void)
 {}
 */
 
-std::string &ltrim(std::string &s)
+std::string & SF::ltrim(std::string &s)
 {
     s.erase(s.begin(), std::find_if(s.begin(), 
                                     s.end(), 
@@ -88,7 +89,7 @@ std::string &ltrim(std::string &s)
 }
 
 // trim from end
-std::string &rtrim(std::string &s)
+std::string & SF::rtrim(std::string &s)
 {
     s.erase(std::find_if(s.rbegin(), 
                          s.rend(), 
@@ -97,21 +98,28 @@ std::string &rtrim(std::string &s)
 }
 
 // trim from both ends
-std::string &trim(std::string &s)
+std::string & SF::trim(std::string &s)
 {
     return ltrim(rtrim(s));
 }
 
 // to lowercase
-void to_lowercase(std::string & s)
+void SF::to_lowercase(std::string & s)
 {
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
 // to uppercase 
-void to_uppercase(std::string & s)
+void SF::to_uppercase(std::string & s)
 {
     std::transform(s.begin(), s.end(), s.begin(), ::toupper);
 }
 
-};
+SF::TimestampType SF::GetCurrentTimeTick(void)
+{
+#if SF_HAS_CISST
+    return osaGetTime();
+#else
+    return 0.0;
+#endif
+}
