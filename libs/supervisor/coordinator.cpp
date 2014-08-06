@@ -364,7 +364,7 @@ bool Coordinator::AddFilterFromJSON(const std::string & jsonString)
 bool Coordinator::AddFilters(const JSON::JSONVALUE & filters)
 {
     if (filters.isNull() || filters.size() == 0) {
-        SFLOG_INFO << "AddFilter: No filter specification found in json: " << filters << std::endl;
+        SFLOG_WARNING << "AddFilter: No filter specification found in json: " << filters << std::endl;
         return true;
     }
 

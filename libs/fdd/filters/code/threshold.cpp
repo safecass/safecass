@@ -15,6 +15,7 @@
 #include "filterFactory.h"
 #include "dict.h"
 #include "coordinator.h"
+#include <iomanip>
 
 using namespace SF;
 
@@ -157,9 +158,11 @@ void FilterThreshold::RunFilter(void)
 
     const double newInput = InputSignals[0]->GetPlaceholderScalar();
 
-    if (this->PrintDebugLog)
+    if (this->PrintDebugLog) {
         std::cout << "FilterThreshold[ \"" << FilterTarget.ComponentName << "\":\""
-                  << FilterTarget.InterfaceName << "\" ] : " << newInput << std::endl << std::flush;
+                  << FilterTarget.InterfaceName << "\" ] : " 
+                  << std::setprecision(5) << newInput << std::endl << std::flush;
+    }
 
     // Below threshold
     if (newInput <= Threshold + Tolerance) {
