@@ -40,7 +40,7 @@ public:
 
 protected:
     // Filter should be instantiated with explicit arguments
-    FilterOnOff();
+    FilterOnOff(void);
 
     void Initialize(void);
 

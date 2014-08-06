@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jun 30, 2014
-// Last revision: Jul 3, 2014
+// Last revision: Aug 5, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -15,6 +15,7 @@
 #include "filterFactory.h"
 #include "dict.h"
 #include "coordinator.h"
+#include "utils.h" // GetCurrentTimeTick
 
 using namespace SF;
 
@@ -108,10 +109,6 @@ void FilterOnOff::RunFilter(void)
     if (!FilterBase::RefreshSamples())
         return;
 
-    // Debug log if enabled
-    //if (this->PrintDebugLog)
-    //    std::cout << *this << std::endl << std::flush;
-
     // Filtering algorithm: 
     // Output is 1 if the new input is different from the previous value and 
     // the input is non-zero (edge-trigerred).  Otherwise, output is zero.
@@ -157,9 +154,9 @@ void FilterOnOff::ToStream(std::ostream & outputStream, bool verbose) const
 {
     BaseType::ToStream(outputStream, verbose);
 
-    if (!verbose) {
+    if (!verbose)
         outputStream << EventNameOn << ", " << EventNameOff;
-    } else {
+    else {
         outputStream << "----- Filter-specifics: " << std::endl 
                     << "Signal Type    : SCALAR" << std::endl
                     << "Last input     : " << LastValue << std::endl
@@ -174,9 +171,8 @@ const std::string FilterOnOff::GenerateEventInfo(EVENT_TYPE eventType) const
     JSON json;
     JSON::JSONVALUE & root = json.GetRoot();
     root["event"]["name"] = ((eventType == FilterOnOff::ONSET) ? EventNameOn : EventNameOff);
-    // TODO: integrate boost time/date library
-    root["event"]["timestamp"] = 1234.5678; // TEMP
-    root["event"]["severity"] = 255; // TEMP
+    root["event"]["timestamp"] = InputSignals[0]->GetTimeLastSampleFetched();
+    //root["event"]["severity"] = 255; // TEMP
     root["event"]["fuid"] = this->UID;
 #if 0
     root["event"]["target"]["type"]      = this->FilterTarget.StateMachineType;

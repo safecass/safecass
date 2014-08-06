@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 31, 2013
-// Last revision: May 7, 2014
+// Last revision: Aug 5, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -26,7 +26,7 @@ FilterFactory::FilterFactory(void)
 
 #define REGISTER_FILTER(_name)\
     RegisterFilter(_name::Name, _name::Create);
-    //REGISTER_FILTER(FilterThreshold);
+    REGISTER_FILTER(FilterThreshold);
     //REGISTER_FILTER(FilterChangeDetection);
     REGISTER_FILTER(FilterOnOff);
 #undef REGISTER_FILTER
