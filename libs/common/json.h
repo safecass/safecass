@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: July 5, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jul 5, 2012
+// Last revision: Aug 7, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _json_h
 #define _json_h
 
@@ -51,7 +50,7 @@ public:
     virtual ~JSON();
 
     //! Populate JSON structure with string
-    virtual bool Read(const char * json);
+    virtual bool Read(const char * json, bool printStdErr = false);
     //! Read JSON file to populate JSON structure
     virtual bool ReadFromFile(const std::string & fileName);
     //! Write JSON structure to file

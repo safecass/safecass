@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: July 6, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Jul 6, 2012
+// Last revision: Aug 7, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #include "json.h"
 #include <iostream>
 #include <fstream>
@@ -42,7 +41,7 @@ void JSON::Cleanup(void)
     JSONReader = 0;
 }
 
-bool JSON::Read(const char * json)
+bool JSON::Read(const char * json, bool printStdErr)
 {
     if (!json) return false;
 
@@ -50,9 +49,10 @@ bool JSON::Read(const char * json)
     // following call to parse() will crash (points being freed is not allocated).
     // Json syntax validation would be a good plus.
     if (!JSONReader->parse(json, *JSONValues)) {
-        std::cout << "JSON::Read - Failed to parse json:\n" 
-                  //<< JSONReader->getFormatedErrorMessages() << std::endl;
-                  << json << std::endl;
+        if (printStdErr)
+            std::cout << "JSON::Read - Failed to parse json:\n" 
+                    //<< JSONReader->getFormatedErrorMessages() << std::endl;
+                    << json << std::endl;
         Cleanup();
         return false;
     }
