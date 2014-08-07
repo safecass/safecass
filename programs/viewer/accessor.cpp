@@ -44,7 +44,7 @@ const std::string GetColorCodeForState(unsigned int state, bool projectedState =
         case State::NORMAL:  return COLOR_GREY;
         case State::WARNING: return COLOR_YELLOW2;
         case State::ERROR:   return COLOR_RED2;
-        case State::FAILURE:
+        case State::FAILURE: return COLOR_RED2;
         case State::INVALID: return "black";
         }
     } else {

@@ -60,14 +60,15 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
     }
 
     SF::JSON _json;
+    std::cout << "[ topic: " << TopicName << ", category: " << categoryName << " ] received " << std::endl;
     if (_json.Read(json.c_str())) {
         std::string cmd(SF::JSON::GetSafeValueString(_json.GetRoot(), "cmd"));
         cmd = SF::rtrim(cmd);
         if (cmd.compare("state_list") != 0) {
-            std::cout << "[ topic: " << TopicName << ", category: " << categoryName << " ] received " << std::endl;
             std::cout << json << std::endl;
         }
-    }
+    } else
+        std::cout << json << std::endl;
 }
 
 //
