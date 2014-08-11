@@ -61,7 +61,8 @@ public:
     // request fault injection
     bool RequestFilterFaultInject(const std::string & safetyCoordinatorName,
                                   const SF::FilterBase::FilterIDType fuid,
-                                  const SF::DoubleVecType & inputs) const;
+                                  const SF::DoubleVecType & inputs,
+                                  bool deepInjection = false) const;
     // request event generation
     bool RequestEventGeneration(const std::string & eventName, const std::string & eventType, const std::string & safetyCoordinatorName,
                                 const std::string & componentName, const std::string & interfaceName) const;

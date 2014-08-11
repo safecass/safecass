@@ -122,12 +122,14 @@ bool AccessorConsole::RequestFilterInfo(const std::string & safetyCoordinatorNam
 
 bool AccessorConsole::RequestFilterFaultInject(const std::string & safetyCoordinatorName,
                                                const SF::FilterBase::FilterIDType fuid,
-                                               const SF::DoubleVecType & inputs) const
+                                               const SF::DoubleVecType & inputs,
+                                               bool deepInjection) const
 {
     std::stringstream ss;
     ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
           "\"fuid\": " << fuid << " }, "
           "\"request\": \"filter_inject\", "
+          "\"deep\": " << (deepInjection ? "true" : "false") << ", "
           "\"input\": [ ";
     for (size_t i = 0; i < inputs.size(); ++i) {
         if (i != 0)

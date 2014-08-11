@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Jul 23, 2014
+// Last revision: Aug 11, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -26,10 +26,11 @@ void handler_filter_help(void)
 {
     std::cout << std::endl
               << "filter [command]" << std::endl
-              << "    help  : show help for filter command"  << std::endl
-              << "    list  : show all filters in the system" << std::endl
-              << "    info  : show all filters in the system" << std::endl
-              << "    inject: inject test inputs to the filter" << std::endl;
+              << "    help   : show help for filter command"  << std::endl
+              << "    list   : show all filters in the system" << std::endl
+              << "    info   : show all filters in the system" << std::endl
+              << "    inject : shallow fault injection (modifies filter input; no actual value changes)" << std::endl
+              << "    dinject: deep fault injection (modifies actual values)" << std::endl;
 }
 
 void handler_filter_list(const std::string & safetyCoordinatorName,
@@ -61,11 +62,12 @@ void handler_filter_info(const std::string & safetyCoordinatorName,
 
 void handler_filter_inject(const std::string & safetyCoordinatorName,
                            const SF::FilterBase::FilterIDType fuid,
-                           const SF::DoubleVecType & inputs)
+                           const SF::DoubleVecType & inputs,
+                           bool deepInjection)
 {
     CASROS_ACCESSOR_CHECK;
 
-    if (!casrosAccessor->RequestFilterFaultInject(safetyCoordinatorName, fuid, inputs)) {
+    if (!casrosAccessor->RequestFilterFaultInject(safetyCoordinatorName, fuid, inputs, deepInjection)) {
         std::cerr << "ERROR: failed to request filter list" << std::endl;
         return;
     }
@@ -79,12 +81,14 @@ void handler_filter_inject(const std::string & safetyCoordinatorName,
 //  filter list
 //  filter info
 //  filter inject
+//  filter dinject
 //------------------------------------------------------------ 
 typedef enum {
     HELP,   // show help
     LIST,   // show summary of filters installed on the system
     INFO,   // show list of detailed inforamtion for all filters
-    INJECT  // fault injection
+    INJECT, // shallow fault injection
+    DINJECT // deep fault injection
 } FilterOptionType;
 
 void handler_filter(const std::vector<std::string> & args)
@@ -104,10 +108,13 @@ void handler_filter(const std::vector<std::string> & args)
         option = INFO;
     else if (cmd.compare("inject") == 0)
         option = INJECT;
+    else if (cmd.compare("dinject") == 0)
+        option = DINJECT;
     else
         option = HELP;
 
     unsigned int filterUID = 0;
+    bool deepInjection = false;
 
     switch (option) {
     default:
@@ -143,6 +150,12 @@ void handler_filter(const std::vector<std::string> & args)
         handler_filter_info(safetyCoordinatorName, componentName);
         break;
 
+    case DINJECT:
+        deepInjection = true;
+        if (n < 4) {
+            std::cout << "usage: filter dinject [safety_coordinator_name] [filter_uid] [input(s)]" << std::endl;
+            return;
+        }
     case INJECT:
         if (n < 4) {
             std::cout << "usage: filter inject [safety_coordinator_name] [filter_uid] [input(s)]" << std::endl;
@@ -156,7 +169,7 @@ void handler_filter(const std::vector<std::string> & args)
         for (size_t i = 0; i < nInputs; ++i)
             inputs.push_back(atof(args[i + 3].c_str()));
         
-        handler_filter_inject(safetyCoordinatorName, filterUID, inputs);
+        handler_filter_inject(safetyCoordinatorName, filterUID, inputs, deepInjection);
         break;
     }
 }
