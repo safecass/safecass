@@ -156,7 +156,7 @@ public:
     // Get information about all the filters installed on the component specified
     const std::string GetFilterList(const std::string & componentName = "*", bool verbose = true) const;
     // Get information about all the filters installed on the component specified
-    bool InjectInputToFilter(FilterBase::FilterIDType fuid, const DoubleVecType & inputs);
+    bool InjectInputToFilter(FilterBase::FilterIDType fuid, const DoubleVecType & inputs, bool deepInjection = false);
 
     //
     // EVENTS

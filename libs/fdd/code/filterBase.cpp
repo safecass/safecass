@@ -400,9 +400,12 @@ bool FilterBase::SetEventDetected(const std::string & json)
     return false; // FIXME
 }
 
-void FilterBase::InjectInput(SignalElement::ScalarType input)
+void FilterBase::InjectInput(SignalElement::ScalarType input, bool deepInjection)
 {
-#if 1
+    // TODO: this works only for single input: should be extended to multiple inputs later
+    // Also see comments in FilterBase::RefreshSamples(void)
+
+#if 0
     SFLOG_ERROR << "InjectInput: injecting " << input << " to filter id " << UID << std::endl;
     SFLOG_ERROR << "BEFORE: ";
 
@@ -415,9 +418,12 @@ void FilterBase::InjectInput(SignalElement::ScalarType input)
     SFLOG_ERROR << ss.str() << std::endl;
 #endif
 
-    InputQueue.push(input);
+    if (deepInjection)
+        InputSignals[0]->PushNewValueScalar(input);
+    else
+        InputQueue.push(input);
 
-#if 1
+#if 0
     SFLOG_ERROR << "AFTER: ";
     ss.str("");
     copy = InputQueue;
@@ -429,21 +435,32 @@ void FilterBase::InjectInput(SignalElement::ScalarType input)
 #endif
 }
 
-void FilterBase::InjectInput(const std::vector<SignalElement::ScalarType> & inputs)
+void FilterBase::InjectInput(const std::vector<SignalElement::ScalarType> & inputs, bool deepInjection)
 {
-    for (size_t i = 0; i < inputs.size(); ++i)
-        InputQueue.push(inputs[i]);
+    if (deepInjection)
+        for (size_t i = 0; i < inputs.size(); ++i)
+            InputSignals[0]->PushNewValueScalar(inputs[i]);
+    else
+        for (size_t i = 0; i < inputs.size(); ++i)
+            InputQueue.push(inputs[i]);
 }
 
-void FilterBase::InjectInput(const std::list<SignalElement::ScalarType> & inputs)
+void FilterBase::InjectInput(const std::list<SignalElement::ScalarType> & inputs, bool deepInjection)
 {
     std::list<SignalElement::ScalarType>::const_iterator it = inputs.begin();
-    for (; it != inputs.end(); ++it)
-        InputQueue.push(*it);
+
+    if (deepInjection)
+        for (; it != inputs.end(); ++it)
+            InputSignals[0]->PushNewValueScalar(*it);
+    else
+        for (; it != inputs.end(); ++it)
+            InputQueue.push(*it);
 }
 
 const std::string FilterBase::ShowInputQueue(void) const
 {
+    // TODO => add deepInjection option
+
     if (InputQueue.size() == 0)
         return "null";
 

@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: September 2, 2012
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Sep 12, 2012
+// Last revision: Aug 11, 2014
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
 #ifndef _HistoryBufferBase_h
 #define _HistoryBufferBase_h
 
@@ -43,6 +42,10 @@ public:
                                    TimestampType & timestamp) = 0;
     virtual void GetNewValueVector(SignalElement::VectorType & value,
                                    TimestampType & timestamp) = 0;
+
+    // Support for "deep" fault inject: modify actual values in the buffer
+    virtual void PushNewValueScalar(SignalElement::HistoryBufferIndexType index,
+                                    SignalElement::ScalarType & value) = 0;
 };
 
 };

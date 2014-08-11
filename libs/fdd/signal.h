@@ -121,6 +121,9 @@ public:
     void SetPlaceholderScalar(ScalarType value) { PlaceholderScalar = value; }
     void SetPlaceholderVector(VectorType value) { PlaceholderVector = value; }
 
+    // For deep fault injection
+    void PushNewValueScalar(ScalarType value);
+
     /*! Returns human readable outputs */
     virtual std::string ToString(void) const  {
         std::stringstream ss;

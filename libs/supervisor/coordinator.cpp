@@ -482,7 +482,7 @@ const std::string Coordinator::GetFilterList(const std::string & componentName, 
     return ss.str();
 }
 
-bool Coordinator::InjectInputToFilter(FilterBase::FilterIDType fuid, const DoubleVecType & inputs)
+bool Coordinator::InjectInputToFilter(FilterBase::FilterIDType fuid, const DoubleVecType & inputs, bool deepInjection)
 {
     FilterMapType::const_iterator it = MapFilter.begin();
     const FilterMapType::const_iterator itEnd = MapFilter.end();
@@ -497,7 +497,7 @@ bool Coordinator::InjectInputToFilter(FilterBase::FilterIDType fuid, const Doubl
         FilterBase * filter = it2->second;
         SFASSERT(filter);
 
-        filter->InjectInput(inputs);
+        filter->InjectInput(inputs, deepInjection);
 
         return true;
     }

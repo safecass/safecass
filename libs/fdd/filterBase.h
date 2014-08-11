@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: Jul 9, 2014
+// Last revision: Aug 11, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -268,9 +268,9 @@ public:
     // TODO: The current implementation assumes that the total number of inputs is 1.
     // This should be extended to support multiple-input cases.
     // TODO: add support for vector-type input
-    void InjectInput(SignalElement::ScalarType input);
-    void InjectInput(const std::vector<SignalElement::ScalarType> & inputs);
-    void InjectInput(const std::list<SignalElement::ScalarType> & inputs);
+    void InjectInput(SignalElement::ScalarType input, bool deepInjection);
+    void InjectInput(const std::vector<SignalElement::ScalarType> & inputs, bool deepInjection);
+    void InjectInput(const std::list<SignalElement::ScalarType> & inputs, bool deepInjection);
     const std::string ShowInputQueue(void) const;
 
     //-------------------------------------------------- 

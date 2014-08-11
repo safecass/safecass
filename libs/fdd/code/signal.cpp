@@ -7,14 +7,14 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: Apr 19, 2014
+// Last revision: Aug 11, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "signal.h"
 #include "historyBufferBase.h"
 
-namespace SF {
+using namespace SF;
 
 const SignalElement::HistoryBufferIndexType SignalElement::INVALID_HISTORY_BUFFER_INDEX = -1;
 
@@ -117,4 +117,9 @@ void SignalElement::ToStream(std::ostream & outputStream) const
     outputStream << "Timestamp: " << TimeLastSampleFetched;
 }
 
-};
+void SignalElement::PushNewValueScalar(ScalarType value)
+{
+    SFASSERT(HistoryBuffer);
+
+    HistoryBuffer->PushNewValueScalar(HistoryBufferIndex, value);
+}
