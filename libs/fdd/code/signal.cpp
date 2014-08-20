@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: Aug 11, 2014
+// Last revision: Aug 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -120,6 +120,11 @@ void SignalElement::ToStream(std::ostream & outputStream) const
 void SignalElement::PushNewValueScalar(ScalarType value)
 {
     SFASSERT(HistoryBuffer);
-
     HistoryBuffer->PushNewValueScalar(HistoryBufferIndex, value);
+}
+
+void SignalElement::PushNewValueVector(const VectorType & value)
+{
+    SFASSERT(HistoryBuffer);
+    HistoryBuffer->PushNewValueVector(HistoryBufferIndex, value);
 }

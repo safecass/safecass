@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Jul 28, 2014
+// Last revision: Aug 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -157,6 +157,7 @@ public:
     const std::string GetFilterList(const std::string & componentName = "*", bool verbose = true) const;
     // Get information about all the filters installed on the component specified
     bool InjectInputToFilter(FilterBase::FilterIDType fuid, const DoubleVecType & inputs, bool deepInjection = false);
+    bool InjectInputToFilter(FilterBase::FilterIDType fuid, const std::vector<DoubleVecType> & inputs, bool deepInjection = false);
 
     //
     // EVENTS

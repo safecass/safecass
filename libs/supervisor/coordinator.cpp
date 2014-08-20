@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Jul 28, 2014
+// Last revision: Aug 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -497,7 +497,31 @@ bool Coordinator::InjectInputToFilter(FilterBase::FilterIDType fuid, const Doubl
         FilterBase * filter = it2->second;
         SFASSERT(filter);
 
-        filter->InjectInput(inputs, deepInjection);
+        filter->InjectInputScalar(inputs, deepInjection);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Coordinator::InjectInputToFilter(FilterBase::FilterIDType fuid, const std::vector<DoubleVecType> & inputs, bool deepInjection)
+{
+    FilterMapType::const_iterator it = MapFilter.begin();
+    const FilterMapType::const_iterator itEnd = MapFilter.end();
+    for (; it != itEnd; ++it) {
+        FiltersType * filters = it->second;
+        SFASSERT(filters);
+
+        FiltersType::const_iterator it2 = filters->find(fuid);
+        if (it2 == filters->end())
+            continue;
+
+        FilterBase * filter = it2->second;
+        SFASSERT(filter);
+
+        for (size_t i = 0; i < inputs.size(); ++i)
+            filter->InjectInputVector(inputs[i], deepInjection);
 
         return true;
     }

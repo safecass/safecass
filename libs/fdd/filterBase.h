@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: Aug 11, 2014
+// Last revision: Aug 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -99,7 +99,8 @@ public:
     } FilterStateType;
 
     // typedef for fault injection
-    typedef std::queue<SignalElement::ScalarType> InputQueueType;
+    typedef std::queue<SignalElement::ScalarType> InputQueueScalarType;
+    typedef std::queue<SignalElement::VectorType> InputQueueVectorType;
 
 private:
     //! UID of this filters
@@ -148,7 +149,8 @@ protected:
     Event * EventDetected;
 
     //! Queue for fault injection
-    InputQueueType InputQueue;
+    InputQueueScalarType InputQueueScalar;
+    InputQueueVectorType InputQueueVector;
 
     // For event generation and broadcasting
     Coordinator * SafetyCoordinator;
@@ -267,11 +269,17 @@ public:
     // This feature is particularly useful for unit-testing or fault injection.
     // TODO: The current implementation assumes that the total number of inputs is 1.
     // This should be extended to support multiple-input cases.
-    // TODO: add support for vector-type input
-    void InjectInput(SignalElement::ScalarType input, bool deepInjection);
-    void InjectInput(const std::vector<SignalElement::ScalarType> & inputs, bool deepInjection);
-    void InjectInput(const std::list<SignalElement::ScalarType> & inputs, bool deepInjection);
-    const std::string ShowInputQueue(void) const;
+
+    // For scalar-type fault injection
+    void InjectInputScalar(SignalElement::ScalarType input, bool deepInjection);
+    void InjectInputScalar(const std::vector<SignalElement::ScalarType> & inputs, bool deepInjection);
+    void InjectInputScalar(const std::list<SignalElement::ScalarType> & inputs, bool deepInjection);
+    // For vector-type fault injection
+    void InjectInputVector(const SignalElement::VectorType & input, bool deepInjection);
+    void InjectInputVector(const std::vector<SignalElement::VectorType> & inputs, bool deepInjection);
+    // For debugging
+    const std::string ShowInputQueueScalar(void) const;
+    const std::string ShowInputQueueVector(void) const;
 
     //-------------------------------------------------- 
     //  Getters and Setters

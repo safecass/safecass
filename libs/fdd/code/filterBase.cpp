@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: Jul 1, 2014
+// Last revision: Aug 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -187,18 +187,39 @@ bool FilterBase::RefreshSamples(void)
     // queue and use it as the next input.
     // TODO: currently, this deals with only ONE input signal.  This should be extended to
     // multiple input signals to support multiple inputs.
-    if (InputQueue.size() > 0) {
-        SignalElement::ScalarType injectedInputScalar = InputQueue.front();
-        InputQueue.pop();
-        InputSignals[0]->SetPlaceholderScalar(injectedInputScalar);
-    } else {
-        // Fetch new value from history buffer
-        if (!InputSignals[0]->FetchNewValueScalar((FilterType == FilterBase::ACTIVE))) {
-            SFLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
-            this->Enable(false); // suppress further error messages due to the same issue
-            // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
-            // is usable.  There should be another way(s) to enable this filter again.
-            return false;
+
+    // Scalar type signal
+    if (InputSignals[0]->GetSignalType() == SignalElement::SCALAR) {
+        if (InputQueueScalar.size() > 0) {
+            SignalElement::ScalarType injectedInputScalar = InputQueueScalar.front();
+            InputQueueScalar.pop();
+            InputSignals[0]->SetPlaceholderScalar(injectedInputScalar);
+        } else {
+            // Fetch new value from history buffer
+            if (!InputSignals[0]->FetchNewValueScalar((FilterType == FilterBase::ACTIVE))) {
+                SFLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
+                this->Enable(false); // suppress further error messages due to the same issue
+                // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
+                // is usable.  There should be another way(s) to enable this filter again.
+                return false;
+            }
+        }
+    }
+    // Vector type signal
+    else {
+        if (InputQueueVector.size() > 0) {
+            SignalElement::VectorType vec = InputQueueVector.front();
+            InputQueueVector.pop();
+            InputSignals[0]->SetPlaceholderVector(vec);
+        } else {
+            // Fetch new value from history buffer
+            if (!InputSignals[0]->FetchNewValueVector((FilterType == FilterBase::ACTIVE))) {
+                SFLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
+                this->Enable(false); // suppress further error messages due to the same issue
+                // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
+                // is usable.  There should be another way(s) to enable this filter again.
+                return false;
+            }
         }
     }
 
@@ -400,52 +421,28 @@ bool FilterBase::SetEventDetected(const std::string & json)
     return false; // FIXME
 }
 
-void FilterBase::InjectInput(SignalElement::ScalarType input, bool deepInjection)
+void FilterBase::InjectInputScalar(SignalElement::ScalarType input, bool deepInjection)
 {
     // TODO: this works only for single input: should be extended to multiple inputs later
     // Also see comments in FilterBase::RefreshSamples(void)
 
-#if 0
-    SFLOG_ERROR << "InjectInput: injecting " << input << " to filter id " << UID << std::endl;
-    SFLOG_ERROR << "BEFORE: ";
-
-    std::stringstream ss;
-    InputQueueType copy(InputQueue);
-    while (!copy.empty()) {
-        ss << copy.front() << " ";
-        copy.pop();
-    }
-    SFLOG_ERROR << ss.str() << std::endl;
-#endif
-
     if (deepInjection)
         InputSignals[0]->PushNewValueScalar(input);
     else
-        InputQueue.push(input);
-
-#if 0
-    SFLOG_ERROR << "AFTER: ";
-    ss.str("");
-    copy = InputQueue;
-    while (!copy.empty()) {
-        ss << copy.front() << " ";
-        copy.pop();
-    }
-    SFLOG_ERROR << ss.str() << std::endl;
-#endif
+        InputQueueScalar.push(input);
 }
 
-void FilterBase::InjectInput(const std::vector<SignalElement::ScalarType> & inputs, bool deepInjection)
+void FilterBase::InjectInputScalar(const std::vector<SignalElement::ScalarType> & inputs, bool deepInjection)
 {
     if (deepInjection)
         for (size_t i = 0; i < inputs.size(); ++i)
             InputSignals[0]->PushNewValueScalar(inputs[i]);
     else
         for (size_t i = 0; i < inputs.size(); ++i)
-            InputQueue.push(inputs[i]);
+            InputQueueScalar.push(inputs[i]);
 }
 
-void FilterBase::InjectInput(const std::list<SignalElement::ScalarType> & inputs, bool deepInjection)
+void FilterBase::InjectInputScalar(const std::list<SignalElement::ScalarType> & inputs, bool deepInjection)
 {
     std::list<SignalElement::ScalarType>::const_iterator it = inputs.begin();
 
@@ -454,21 +451,58 @@ void FilterBase::InjectInput(const std::list<SignalElement::ScalarType> & inputs
             InputSignals[0]->PushNewValueScalar(*it);
     else
         for (; it != inputs.end(); ++it)
-            InputQueue.push(*it);
+            InputQueueScalar.push(*it);
 }
 
-const std::string FilterBase::ShowInputQueue(void) const
+void FilterBase::InjectInputVector(const SignalElement::VectorType & input, bool deepInjection)
+{
+    if (deepInjection)
+        InputSignals[0]->PushNewValueVector(input);
+    else
+        InputQueueVector.push(input);
+}
+
+void FilterBase::InjectInputVector(const std::vector<SignalElement::VectorType> & inputs, bool deepInjection)
+{
+    std::vector<SignalElement::VectorType>::const_iterator it = inputs.begin();
+
+    if (deepInjection)
+        for (; it != inputs.end(); ++it)
+            InputSignals[0]->PushNewValueVector(*it);
+    else
+        for (; it != inputs.end(); ++it)
+            InputQueueVector.push(*it);
+}
+
+const std::string FilterBase::ShowInputQueueScalar(void) const
 {
     // TODO => add deepInjection option
 
-    if (InputQueue.size() == 0)
+    if (InputQueueScalar.size() == 0)
         return "null";
 
     std::stringstream ss;
-
-    InputQueueType copy(InputQueue);
+    ss << std::setprecision(5);
+    InputQueueScalarType copy(InputQueueScalar);
     while (!copy.empty()) {
-        ss << std::setprecision(5) << copy.front() << " ";
+        ss << copy.front() << " ";
+        copy.pop();
+    }
+
+    return ss.str();
+}
+
+const std::string FilterBase::ShowInputQueueVector(void) const
+{
+    if (InputQueueVector.size() == 0)
+        return "null";
+
+    std::stringstream ss;
+    ss << std::setprecision(5);
+    InputQueueVectorType copy(InputQueueVector);
+    while (!copy.empty()) {
+        for (size_t i = 0; i < copy.front().size(); ++i)
+            ss << copy.front()[i] << " ";
         copy.pop();
     }
 
@@ -515,7 +549,11 @@ void FilterBase::ToStream(std::ostream & out, bool verbose) const
             out << "[" << i << "] " << (*OutputSignals[i]) << std::endl;
         }
         // Input queue
-        out << "----- Input queue: " << ShowInputQueue() << std::endl;
+        out << "----- Input queue: ";
+        if (InputQueueScalar.size())
+            out << ShowInputQueueScalar() << std::endl;
+        if (InputQueueVector.size())
+            out << ShowInputQueueVector() << std::endl;
     } else {
         out << "[ " << UID << " ] ";
         switch (FilterTarget.StateMachineType) {
@@ -533,7 +571,9 @@ void FilterBase::ToStream(std::ostream & out, bool verbose) const
         for (size_t i = 0; i < InputSignals.size(); ++i)
             out << "\"" << InputSignals[i]->GetName() << "\"  ";
         // Input queue
-        if (InputQueue.size())
-            out << "[ " << ShowInputQueue() << " ]";
+        if (InputQueueScalar.size())
+            out << "scalar [ " << ShowInputQueueScalar() << " ]";
+        if (InputQueueVector.size())
+            out << "vector [ " << ShowInputQueueVector() << " ]";
     }
 }

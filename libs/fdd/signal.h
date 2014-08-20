@@ -123,6 +123,7 @@ public:
 
     // For deep fault injection
     void PushNewValueScalar(ScalarType value);
+    void PushNewValueVector(const VectorType & value);
 
     /*! Returns human readable outputs */
     virtual std::string ToString(void) const  {

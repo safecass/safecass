@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 12, 2012
-// Last revision: Aug 11, 2014
+// Last revision: Aug 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -46,6 +46,8 @@ public:
     // Support for "deep" fault inject: modify actual values in the buffer
     virtual void PushNewValueScalar(SignalElement::HistoryBufferIndexType index,
                                     SignalElement::ScalarType & value) = 0;
+    virtual void PushNewValueVector(SignalElement::HistoryBufferIndexType index,
+                                    const SignalElement::VectorType & value) = 0;
 };
 
 };
