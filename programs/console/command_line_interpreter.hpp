@@ -30,6 +30,7 @@
 #include <iterator>
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
+#include "color_console.h"
 
 #if 0
 // to support arrow

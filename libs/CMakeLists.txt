@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
-# Last revision: Apr 22, 2014
+# Last revision: Aug 20, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -28,7 +28,9 @@ set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h ${LIB_DIR}/common/common.cpp
                        ${LIB_DIR}/common/common.h ${LIB_DIR}/common/utils.cpp
                        ${LIB_DIR}/common/dict.h ${LIB_DIR}/common/dict.cpp
                        ${LIB_DIR}/common/json.h ${LIB_DIR}/common/json.cpp
-                       ${LIB_DIR}/common/jsonSerializer.h ${LIB_DIR}/common/jsonSerializer.cpp)
+                       ${LIB_DIR}/common/jsonSerializer.h ${LIB_DIR}/common/jsonSerializer.cpp
+                       ${LIB_DIR}/common/color_console.h
+                       )
 set (SF_LIB_COMMON_INCLUDE_DIR ${LIB_DIR} ${LIB_DIR}/common)
 
 # supervisor
@@ -57,6 +59,7 @@ set (SF_LIB_FDD_SRC # faults
                     ${LIB_DIR}/fdd/filters/threshold.h ${LIB_DIR}/fdd/filters/code/threshold.cpp
                     #${LIB_DIR}/fdd/filters/changeDetection.h ${LIB_DIR}/fdd/filters/code/changeDetection.cpp
                     ${LIB_DIR}/fdd/filters/onOff.h ${LIB_DIR}/fdd/filters/code/onOff.cpp
+                    ${LIB_DIR}/fdd/filters/nop.h ${LIB_DIR}/fdd/filters/code/nop.cpp
                     )
 set (SF_LIB_FDD_INCLUDE_DIR ${LIB_DIR}/fdd ${LIB_DIR}/fdd/filters)
 
