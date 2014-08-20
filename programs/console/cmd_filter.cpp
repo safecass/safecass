@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Aug 11, 2014
+// Last revision: Aug 19, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -30,7 +30,8 @@ void handler_filter_help(void)
               << "    list   : show all filters in the system" << std::endl
               << "    info   : show all filters in the system" << std::endl
               << "    inject : shallow fault injection (modifies filter input; no actual value changes)" << std::endl
-              << "    dinject: deep fault injection (modifies actual values)" << std::endl;
+              << "    dinject: deep fault injection for scalar type inputs" << std::endl
+              << "    dinload: read input file for deep fault injection" << std::endl;
 }
 
 void handler_filter_list(const std::string & safetyCoordinatorName,
@@ -72,6 +73,18 @@ void handler_filter_inject(const std::string & safetyCoordinatorName,
         return;
     }
 }
+
+void handler_filter_inject_load(const std::string & safetyCoordinatorName,
+                                const SF::FilterBase::FilterIDType fuid,
+                                const std::string & fileName)
+{
+    CASROS_ACCESSOR_CHECK;
+
+    if (!casrosAccessor->RequestFilterFaultInjectLoad(safetyCoordinatorName, fuid, fileName)) {
+        std::cerr << "ERROR: failed to request filter list" << std::endl;
+        return;
+    }
+}
 #undef CASROS_ACCESSOR_CHECK
 
 //------------------------------------------------------------ 
@@ -82,13 +95,15 @@ void handler_filter_inject(const std::string & safetyCoordinatorName,
 //  filter info
 //  filter inject
 //  filter dinject
+//  filter dinload
 //------------------------------------------------------------ 
 typedef enum {
-    HELP,   // show help
-    LIST,   // show summary of filters installed on the system
-    INFO,   // show list of detailed inforamtion for all filters
-    INJECT, // shallow fault injection
-    DINJECT // deep fault injection
+    HELP,    // show help
+    LIST,    // show summary of filters installed on the system
+    INFO,    // show list of detailed inforamtion for all filters
+    INJECT,  // shallow fault injection
+    DINJECT, // deep fault injection - input from console
+    DINLOAD  // deep fault injection - input from file
 } FilterOptionType;
 
 void handler_filter(const std::vector<std::string> & args)
@@ -110,11 +125,14 @@ void handler_filter(const std::vector<std::string> & args)
         option = INJECT;
     else if (cmd.compare("dinject") == 0)
         option = DINJECT;
+    else if (cmd.compare("dinload") == 0)
+        option = DINLOAD;
     else
         option = HELP;
 
     unsigned int filterUID = 0;
     bool deepInjection = false;
+    std::string filename;
 
     switch (option) {
     default:
@@ -163,13 +181,25 @@ void handler_filter(const std::vector<std::string> & args)
         }
         safetyCoordinatorName = args[1];
         filterUID = atoi(args[2].c_str());
+        {
+            size_t nInputs = n - 3;
+            std::vector<double> inputs;
+            for (size_t i = 0; i < nInputs; ++i)
+                inputs.push_back(atof(args[i + 3].c_str()));
+            handler_filter_inject(safetyCoordinatorName, filterUID, inputs, deepInjection);
+        }
+        break;
 
-        size_t nInputs = n - 3;
-        std::vector<double> inputs;
-        for (size_t i = 0; i < nInputs; ++i)
-            inputs.push_back(atof(args[i + 3].c_str()));
-        
-        handler_filter_inject(safetyCoordinatorName, filterUID, inputs, deepInjection);
+    case DINLOAD:
+        if (n < 4) {
+            std::cout << "usage: filter dinload [safety_coordinator_name] [filter_uid] [filename]" << std::endl;
+            return;
+        }
+        safetyCoordinatorName = args[1];
+        filterUID = atoi(args[2].c_str());
+        filename = args[3];
+
+        handler_filter_inject_load(safetyCoordinatorName, filterUID, filename);
         break;
     }
 }

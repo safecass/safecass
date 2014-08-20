@@ -279,3 +279,54 @@ bool AccessorConsole::RequestEventBroadcast(const std::string & eventName, const
 
     return true;
 }
+
+bool AccessorConsole::RequestFilterFaultInjectLoad(const std::string & safetyCoordinatorName,
+                                                   const SF::FilterBase::FilterIDType fuid,
+                                                   const std::string & fileName) const
+{
+    SF::JSON _json;
+    SF::JSON::JSONVALUE & json = _json.GetRoot();
+
+    json["command"] = "event_generate";
+    json["target"]["safety_coordinator"] = safetyCoordinatorName;
+    json["target"]["fuid"] = fuid;
+    json["request"] = "filter_inject";
+    json["deep"] = true;
+
+    // read file (delimiter: comma, tab, space)
+    std::ifstream file(fileName);
+    if (!file.is_open()) {
+        std::cerr << "RequestFilterFaultInjectLoad: failed loading data from file: " << fileName << std::endl;
+        return false;
+    }
+
+    size_t n = 0;
+    std::string line;
+    while (getline(file, line)) {
+        char buf[256] = "";
+        memcpy(buf, line.c_str(), line.size());
+#define DELIMITERS " ,\t"
+        char * p = strtok(buf, DELIMITERS);
+        SF::JSON _row;
+        SF::JSON::JSONVALUE & row = _row.GetRoot();
+        size_t i = 0;
+        while (p) {
+            row[i++] = atof(p);
+            p = strtok(0, DELIMITERS);
+#undef DELIMITERS
+        }
+        json["input_vector"][n++] = row;
+    }
+    file.close();
+
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, SF::JSON::GetJSONString(json))) {
+        std::cerr << "RequestFilterFaultInject: Failed to publish message (Control, READ_REQ): " 
+                  << SF::JSON::GetJSONString(json) << std::endl;
+        return false;
+    }
+
+    std::cout << "requested input injection using input file" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}
