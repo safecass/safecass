@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 3, 2012
-// Last revision: Aug 5, 2014
+// Last revision: Aug 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -191,10 +191,9 @@ void FilterThreshold::ToStream(std::ostream & outputStream, bool verbose) const
 {
     BaseType::ToStream(outputStream, verbose);
 
-    if (!verbose) {
-        outputStream << EventNameAbove << ", " << EventNameBelow << std::endl;
-    }
-    else {
+    if (!verbose)
+        outputStream << EventNameAbove << ", " << EventNameBelow;
+    else
         outputStream << "----- Filter-specifics: " << std::endl
                     << "Threshold  : " << Threshold << std::endl
                     << "Tolerance  : " << Tolerance << std::endl
@@ -203,7 +202,6 @@ void FilterThreshold::ToStream(std::ostream & outputStream, bool verbose) const
                     << "EventAbove : " << EventNameAbove << std::endl
                     << "EventBelow : " << EventNameBelow << std::endl
                     << "Above Th.? : " << (IsAboveThreshold ? "true" : "false") << std::endl;
-    }
 }
 
 const std::string FilterThreshold::GenerateEventInfo(EVENT_TYPE eventType) const
