@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Jul 29, 2014
+// Last revision: Aug 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -64,8 +64,12 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
     if (_json.Read(json.c_str())) {
         std::string cmd(SF::JSON::GetSafeValueString(_json.GetRoot(), "cmd"));
         cmd = SF::rtrim(cmd);
-        if (cmd.compare("state_list") != 0) {
-            std::cout << json << std::endl;
+        if (cmd.compare("message") == 0) {
+            std::cout << SF::JSON::GetSafeValueString(json, "msg") << std::endl;
+        } else {
+            if (cmd.compare("state_list") != 0) {
+                std::cout << json << std::endl;
+            }
         }
     } else
         std::cout << json << std::endl;

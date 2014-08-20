@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 31, 2013
-// Last revision: Aug 5, 2014
+// Last revision: Aug 20, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -15,6 +15,7 @@
 #include "threshold.h"
 #include "changeDetection.h"
 #include "onOff.h"
+#include "nop.h"
 
 namespace SF {
 
@@ -29,6 +30,7 @@ FilterFactory::FilterFactory(void)
     REGISTER_FILTER(FilterThreshold);
     //REGISTER_FILTER(FilterChangeDetection);
     REGISTER_FILTER(FilterOnOff);
+    REGISTER_FILTER(FilterNOP);
 #undef REGISTER_FILTER
 }
 
