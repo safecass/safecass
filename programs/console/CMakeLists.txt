@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : May 7, 2014
-# Last revision: Jul 23, 2014
+# Last revision: Aug 20, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -43,7 +43,9 @@ if (SF_HAS_CISST)
     cisst_target_link_libraries(console ${REQUIRED_CISST_LIBS})
     target_link_libraries (console ${REQUIRED_SF_LIBS} 
                                    ${SF_LIB_DEPENDENCY_LIBS}
-                                   ${BOOST_LIB_PROGRAM_OPTION})# ncurses)
+                                   ${BOOST_LIB_PROGRAM_OPTION}
+                                   #ncurses
+                                   )
   else ()
     cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
   endif ()

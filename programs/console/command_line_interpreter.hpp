@@ -32,7 +32,11 @@
 #include <boost/program_options.hpp>
 #include "color_console.h"
 
-#if 0
+#if 0 // ncurse test
+struct Snake{
+    int x, y;
+    char s = 'O'; // logo
+} snake;
 // to support arrow
 #if SF_ON_WINDOWS
 #include <conio.h>
@@ -172,13 +176,14 @@ public:
     std::string command;
     std::cout << m_prompt << std::flush;
 
+#if 1
     while (std::getline(input_stream, command, '\n'))
     {
       handle_read_line(command);
       std::cout << m_prompt << std::flush;
     }
 
-    // Ncurses test code
+#else // Ncurses test code
 #if 0
     int KB_code=0;
 
@@ -190,6 +195,7 @@ public:
 
     w = initscr();
     cbreak();	/* Line buffering disabled. pass on everything */
+    keypad(stdscr, TRUE);
 
    while (true)
    { 
@@ -206,7 +212,8 @@ public:
                std::cout << "ESC" << std::endl;
                break;
 
-           case 75://KB_LEFT:
+           //case 75://KB_LEFT:
+           case KB_LEFT:
                std::cout << "LEFT" << std::endl;
                break;
 
@@ -226,6 +233,91 @@ public:
 
        }
    }
+#endif
+
+#if 0
+   initscr();
+    noecho();
+    curs_set(0);
+    keypad(stdscr, true);
+    nodelay(stdscr, true);
+    start_color();
+    init_pair(1, COLOR_MAGENTA, COLOR_BLACK );
+    attron(COLOR_PAIR(1));
+    int HEIGHT, WIDTH;
+
+    getmaxyx(stdscr, HEIGHT, WIDTH);
+
+    for (int x = 0; x < WIDTH-1; x++)
+        mvaddch(0, x, '*');
+
+    for (int y = 0; y < HEIGHT-2; y++)
+        mvaddch(y, WIDTH-1, '*');
+
+    for (int x = 0; x < WIDTH-1; x++)
+        mvaddch(HEIGHT-2, x, '*');
+
+    for (int y = 0; y < HEIGHT-2; y++)
+        mvaddch(y, 0, '*');
+
+
+    snake.x = WIDTH/2;
+    snake.y = HEIGHT/2;
+    mvaddch(snake.y, snake.x, snake.s);
+    refresh();
+
+
+    int key;
+    while((key = getch()) != 'q')
+    {
+        mvaddch(snake.y, snake.x, ' ');
+        switch(key)
+        {
+        case KEY_RIGHT:
+            snake.x +=1;    
+            break;
+
+        case KEY_LEFT:
+            snake.x -=1;    
+            break;
+
+        case KEY_UP:
+            snake.y -=1;    
+            break;
+
+        case KEY_DOWN:
+            snake.y +=1; 
+            break;
+        }
+
+        mvaddch(snake.y, snake.x, snake.s);
+
+        //usleep(100000);
+        refresh();
+    }
+
+    getch();
+    erase();
+    endwin();
+#endif
+
+#if 0
+     int i = 0;
+
+    initscr();
+
+    scrollok(stdscr,TRUE);
+
+    while(1)
+    {
+        printw("%d - lots and lots of lines flowing down the terminal\n", i);
+        ++i;
+        refresh();
+        usleep(100000);
+    }
+
+    endwin();
+#endif
 #endif
   }
 
