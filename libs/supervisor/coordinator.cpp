@@ -1312,3 +1312,50 @@ bool Coordinator::SetEventHandlerForInterface(const std::string & componentName,
 
     return gcm->SetEventHandlerForInterface(type, interfaceName, handler);
 }
+
+
+const Event * Coordinator::GetOutstandingEvent(const std::string & componentName,
+                                               GCM::ComponentStateViews view) const
+{
+    GCM * gcm = GetGCMInstance(componentName);
+    if (gcm == 0)
+        return 0;
+
+    const Event * e = 0;
+    gcm->GetComponentState(view, e);
+    return e;
+}
+
+const Event * Coordinator::GetOutstandingEvent(const std::string & componentName,
+                                               const std::string & interfaceName,
+                                               GCM::InterfaceTypes type) const
+{
+    GCM * gcm = GetGCMInstance(componentName);
+    if (gcm == 0)
+        return 0;
+
+    const Event * e = 0;
+    gcm->GetInterfaceState(interfaceName, type, e);
+    return e;
+}
+
+bool Coordinator::IsOutstandingEvent(const std::string & eventName,
+                                     const std::string & componentName,
+                                     GCM::ComponentStateViews view) const
+{
+    const Event * e = GetOutstandingEvent(componentName, view);
+    if (e == 0)
+        return false;
+    return (eventName.compare(e->GetName()) == 0);
+}
+
+bool Coordinator::IsOutstandingEvent(const std::string & eventName,
+                                     const std::string & componentName,
+                                     const std::string & interfaceName,
+                                     GCM::InterfaceTypes type) const
+{
+    const Event * e = GetOutstandingEvent(componentName, interfaceName, type);
+    if (e == 0)
+        return false;
+    return (eventName.compare(e->GetName()) == 0);
+}

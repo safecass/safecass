@@ -236,6 +236,21 @@ public:
                                        const std::string & interfaceName,
                                        const Event* & e,
                                        GCM::InterfaceTypes type) const;
+    // Get oustanding event
+    const Event * GetOutstandingEvent(const std::string & componentName,
+                                      GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;
+    const Event * GetOutstandingEvent(const std::string & componentName,
+                                      const std::string & interfaceName,
+                                      GCM::InterfaceTypes type) const;
+    // Check if event is outstanding
+    bool IsOutstandingEvent(const std::string & eventName,
+                            const std::string & componentName,
+                            GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;
+    bool IsOutstandingEvent(const std::string & eventName,
+                            const std::string & componentName,
+                            const std::string & interfaceName,
+                            GCM::InterfaceTypes type) const;
+
     // Install user-defined statemachine event handler for component. view should be
     // either FRAMEWORK_VIEW or APPLICATION_VIEW (SYSTEM_VIEW is not an actual state)
     bool SetEventHandlerForComponent(const std::string & componentName,
