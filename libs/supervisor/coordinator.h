@@ -242,6 +242,11 @@ public:
     const Event * GetOutstandingEvent(const std::string & componentName,
                                       const std::string & interfaceName,
                                       GCM::InterfaceTypes type) const;
+    const std::string GetOutstandingEventName(const std::string & componentName,
+                                              GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;
+    const std::string GetOutstandingEventName(const std::string & componentName,
+                                              const std::string & interfaceName,
+                                              GCM::InterfaceTypes type) const;
     // Check if event is outstanding
     bool IsOutstandingEvent(const std::string & eventName,
                             const std::string & componentName,

@@ -1339,6 +1339,24 @@ const Event * Coordinator::GetOutstandingEvent(const std::string & componentName
     return e;
 }
 
+
+const std::string Coordinator::GetOutstandingEventName(const std::string & componentName,
+                                                       GCM::ComponentStateViews view) const
+{
+    const Event * e = GetOutstandingEvent(componentName, view);
+
+    return (e ? e->GetName() : "");
+}
+
+const std::string Coordinator::GetOutstandingEventName(const std::string & componentName,
+                                                       const std::string & interfaceName,
+                                                       GCM::InterfaceTypes type) const
+{
+    const Event * e = GetOutstandingEvent(componentName, interfaceName, type);
+
+    return (e ? e->GetName() : "");
+}
+
 bool Coordinator::IsOutstandingEvent(const std::string & eventName,
                                      const std::string & componentName,
                                      GCM::ComponentStateViews view) const
