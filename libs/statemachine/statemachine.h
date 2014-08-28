@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 23, 2012
-// Last revision: Jul 15, 2014
+// Last revision: Aug 27, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -168,6 +168,9 @@ private:
     /*! Common initializer */
     void Initialize(const std::string & ownerName, StateEventHandler * eventHandler);
 
+    // Called only by Reset()
+    void Initialize(void);
+
 public:
     /*! Default constructor.  An instance of StateEventHandler is internally created and 
         is used as default event handler. */
@@ -184,15 +187,8 @@ public:
     /*! Process state change events */
     virtual bool ProcessEvent(const State::TransitionType transition, const Event * event);
 
-    ////
-    //// Pending Event
-    ////
-    //// Get pending event object
-    //const Event * GetPendingEvent(void) const { return PendingEvent; }
-    //// Set pending event
-    //void SetPendingEvent(Event * e);
-    //// Reset or clear pending event
-    //void ClearPendingEvent(void);
+    // Reset state machine
+    void Reset(void);
 
     //
     // Getters

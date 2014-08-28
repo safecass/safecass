@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Jul 16, 2014
+// Last revision: Aug 27, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -47,14 +47,20 @@ StateMachine::StateMachine(const std::string & ownerName, StateEventHandler * ev
     Initialize(ownerName, eventHandler);
 }
 
-void StateMachine::Initialize(const std::string & ownerName, StateEventHandler * eventHandler)
+void StateMachine::Initialize(void)
 {
     PendingEvent = 0;
     LastPendingEvent = 0;
-    OwnerName = ownerName;
 
-    State.EventHandlerInstance = eventHandler;
     State.start();
+}
+
+void StateMachine::Initialize(const std::string & ownerName, StateEventHandler * eventHandler)
+{
+    OwnerName = ownerName;
+    State.EventHandlerInstance = eventHandler;
+
+    Initialize();
 }
 
 StateMachine::~StateMachine(void)
@@ -243,6 +249,13 @@ State::StateType StateMachine::GetCurrentState(void) const
     }
 }
  
+void StateMachine::Reset(void)
+{
+    State.stop();
+
+    Initialize();
+}
+
 #if ENABLE_UNIT_TEST
 int StateMachine::GetCountEntryExit(const State::StateEntryExitType stateEntryExit) const
 {

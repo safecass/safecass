@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Jul 28, 2014
+// Last revision: Aug 27, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -1031,4 +1031,20 @@ bool GCM::SetEventHandlerForInterface(GCM::InterfaceTypes type, const std::strin
     it->second->SetStateEventHandler(handler);
 
     return true;
+}
+
+void GCM::ResetStatesAndEvents(void)
+{
+    States.ComponentFramework->Reset();
+    States.ComponentApplication->Reset();
+
+    InterfaceStateMachinesType::const_iterator it = States.ProvidedInterfaces.begin();
+    InterfaceStateMachinesType::const_iterator itEnd = States.ProvidedInterfaces.end();
+    for (; it != itEnd; ++it)
+        it->second->Reset();
+
+    it = States.RequiredInterfaces.begin();
+    itEnd = States.RequiredInterfaces.end();
+    for (; it != itEnd; ++it)
+        it->second->Reset();
 }

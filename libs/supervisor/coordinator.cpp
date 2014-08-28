@@ -1380,9 +1380,39 @@ bool Coordinator::IsOutstandingEvent(const std::string & eventName,
     return (eventName.compare(e->GetName()) == 0);
 }
 
-void Coordinator::ResetStateMachines(void)
+void Coordinator::ResetStateMachines(bool broadcast)
 {
-    boost::mutex::scoped_lock lock(Mutex);
+    {
+        boost::mutex::scoped_lock lock(Mutex);
 
-    // TODO: reset all state machines and associated events
+        // Reset all state machines and associated events
+        GCMMapType::const_iterator it = MapGCM.begin();
+        const GCMMapType::const_iterator itEnd = MapGCM.end();
+        for (; it != itEnd; ++it) {
+            GCM * gcm = it->second;
+            gcm->ResetStatesAndEvents();
+        }
+    }
+
+    SFLOG_ERROR << "[ " << GetName() << " ] Coordinator::ResetStateMachines: reset all state machines, " << (int) broadcast << std::endl;
+
+    // Refresh state viewer
+    JSON _jsonRefresh;
+    JSON::JSONVALUE & jsonRefresh = _jsonRefresh.GetRoot();
+    jsonRefresh["target"]["safety_coordinator"] = "*";
+    jsonRefresh["target"]["component"] = "*";
+    jsonRefresh["request"] = "state_list";
+    PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
+
+    if (broadcast) {
+        // Broadcast event to reset state machines of the other safety coordinators as well
+        JSON _json;
+        JSON::JSONVALUE & json = _json.GetRoot();
+        json["target"]["safety_coordinator"] = "*";
+        json["source"] = GetName();
+        json["request"] = "state_reset";
+        PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(json));
+
+    SFLOG_ERROR << "[ " << GetName() << " ] " << JSON::GetJSONString(json) << std::endl;
+    }
 }

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Jul 28, 2014
+// Last revision: Aug 27, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -128,6 +128,9 @@ public:
                        const std::string & safetyCoordinatorName,
                        const std::string & requiredComponentName,
                        const std::string & requiredInterfaceName);
+
+    // Reset all states and events
+    void ResetStatesAndEvents(void);
 
     //
     // Getters

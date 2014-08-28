@@ -254,11 +254,6 @@ public:
                                               const std::string & interfaceName,
                                               GCM::InterfaceTypes type) const;
 
-    // Reset all state machines 
-    // NOTE: This API can be extended to be able to reset state machines only in the 
-    // current safety coordinator.
-    void ResetStateMachines(void);
-
     // Check if event is outstanding
     bool IsOutstandingEvent(const std::string & eventName,
                             const std::string & componentName,
@@ -278,6 +273,11 @@ public:
                                      const std::string & interfaceName,
                                      GCM::InterfaceTypes type,
                                      StateEventHandler * handler);
+
+    // Reset all state machines 
+    // NOTE: This API can be extended to be able to reset state machines only in the 
+    // current safety coordinator.
+    void ResetStateMachines(bool broadcast = true);
 
     //! For human-readable logging and debugging
     /*! \param outputStream output stream
