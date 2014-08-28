@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Aug 20, 2014
+// Last revision: Aug 27, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -19,6 +19,7 @@
 #include "gcm.h"
 #include "filterBase.h"
 #include "topic_def.h"
+#include <boost/thread/mutex.hpp>
 
 #include <map>
 
@@ -26,6 +27,7 @@ namespace SF {
 
 // TODO: casros accessor is not included here.  If accessor is implemented without cisst,
 // it should be moved to this base class.
+// TODO: extensive code review for any potential concurrency issues
 
 class SFLIB_EXPORT Coordinator {
 public:
@@ -85,8 +87,12 @@ protected:
     EventMapType MapEvent;
     // FILTERS
     FilterMapType MapFilter;
-    // CONNECTIONS
-    // TODO
+    // CONNECTIONS: connection information is maintained by GCM (see gcm.h)
+
+    // Mutex for concurrency issues
+    // Nice article about boost::thread vs. std::thread in C++11:
+    // http://stackoverflow.com/questions/7241993/is-it-smart-to-replace-boostthread-and-boostmutex-with-c11-equivalents
+    boost::mutex Mutex;
 
     GCM * GetGCMInstance(const std::string & componentName) const;
     GCM * GetGCMInstance(unsigned int componentId) const;
@@ -247,6 +253,12 @@ public:
     const std::string GetOutstandingEventName(const std::string & componentName,
                                               const std::string & interfaceName,
                                               GCM::InterfaceTypes type) const;
+
+    // Reset all state machines 
+    // NOTE: This API can be extended to be able to reset state machines only in the 
+    // current safety coordinator.
+    void ResetStateMachines(void);
+
     // Check if event is outstanding
     bool IsOutstandingEvent(const std::string & eventName,
                             const std::string & componentName,

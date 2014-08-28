@@ -7,19 +7,21 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Aug 20, 2014
+// Last revision: Aug 27, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "coordinator.h"
 #include "filterFactory.h"
+#include <boost/thread.hpp>
 
 #define VERBOSE 0
 
 using namespace SF;
 
 Coordinator::Coordinator(const std::string & name): Name(name), ComponentIdCounter(0)
-{}
+{
+}
 
 Coordinator::~Coordinator()
 {
@@ -1376,4 +1378,11 @@ bool Coordinator::IsOutstandingEvent(const std::string & eventName,
     if (e == 0)
         return false;
     return (eventName.compare(e->GetName()) == 0);
+}
+
+void Coordinator::ResetStateMachines(void)
+{
+    boost::mutex::scoped_lock lock(Mutex);
+
+    // TODO: reset all state machines and associated events
 }

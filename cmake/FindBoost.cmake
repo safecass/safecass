@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : Apr 15, 2014
-# Last revision: Apr 15, 2014
+# Last revision: Aug 27, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -51,27 +51,31 @@ if (SF_ON_MAC)
   set (BOOST_INCLUDE_DEFAULT_PATH "/opt/local/include") # mac port
   set (BOOST_LIBS_DEFAULT_PATH "/opt/local/lib/") # mac port
 elseif (SF_ON_WINDOWS)
-  #
+  # TODO
 elseif (SF_ON_LINUX)
-  #
+  # TODO
 endif ()
 
 find_path (BOOST_INCLUDE_DIR NAMES boost/msm/common.hpp 
                              DOC "Directory containing boost/msm/common.hpp"
                              PATHS ${BOOST_INCLUDE_DEFAULT_PATH})
 
-if (ENABLE_UNIT_TEST)
-  find_library (BOOST_LIB_PROGRAM_OPTION NAMES boost_program_options boost_program_options-mt
-                                        DOC "Path to Boost program option library"
-                                        HINTS ${BOOST_LIBS_DEFAULT_PATH})
-endif()
+find_library (BOOST_LIB_PROGRAM_OPTION NAMES boost_program_options boost_program_options-mt
+                                       DOC "Path to Boost program option library"
+                                       HINTS ${BOOST_LIBS_DEFAULT_PATH})
+find_library (BOOST_LIB_THREAD NAMES boost_thread boost_thread-mt
+                               DOC "Path to Boost thread library"
+                               HINTS ${BOOST_LIBS_DEFAULT_PATH})
+find_library (BOOST_LIB_SYSTEM NAMES boost_system boost_system-mt
+                               DOC "Path to Boost system library"
+                               HINTS ${BOOST_LIBS_DEFAULT_PATH})
 
 include (FindPackageHandleStandardArgs)
-if (ENABLE_UNIT_TEST)
-  find_package_handle_standard_args(BOOST DEFAULT_MSG BOOST_INCLUDE_DIR BOOST_LIB_PROGRAM_OPTION)
-else()
-  find_package_handle_standard_args(BOOST DEFAULT_MSG BOOST_INCLUDE_DIR)
-endif()
+find_package_handle_standard_args(BOOST DEFAULT_MSG BOOST_INCLUDE_DIR 
+                                  # boost libs
+                                  BOOST_LIB_PROGRAM_OPTION
+                                  BOOST_LIB_THREAD
+                                  BOOST_LIB_SYSTEM)
 
 if (NOT BOOST_FOUND)
   message(FATAL_ERROR "Boost include directory not found (was looking for boost/msm/common.hpp")
@@ -81,6 +85,6 @@ endif ()
 message("Boost libraries found")
 message(STATUS "BOOST_INCLUDE_DIR: ${BOOST_INCLUDE_DIR}")
 message(STATUS "BOOST_FOUND: ${BOOST_FOUND}")
-if (ENABLE_UNIT_TEST)
-  message(STATUS "BOOST_LIB_PROGRAM_OPTION: ${BOOST_LIB_PROGRAM_OPTION}")
-endif()
+message(STATUS "BOOST_LIB_PROGRAM_OPTION: ${BOOST_LIB_PROGRAM_OPTION}")
+message(STATUS "BOOST_LIB_THREAD: ${BOOST_LIB_THREAD}")
+message(STATUS "BOOST_LIB_SYSTEM: ${BOOST_LIB_SYSTEM}")

@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
-# Last revision: Aug 20, 2014
+# Last revision: Aug 27, 2014
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -95,17 +95,21 @@ if (ENABLE_VIS_FRAMEWORK)
                                          ${LIB_DIR}/communicator)
 endif (ENABLE_VIS_FRAMEWORK)
 
-# Boost (requires msm and program_options)
+# Boost
 find_package (BOOST REQUIRED)
 if (BOOST_FOUND)
-    set (SF_LIB_STATEMACHINE_INCLUDE_DIR ${BOOST_INCLUDE_DIR}
-                                         ${LIB_DIR}/statemachine)
-    set (SF_LIB_STATEMACHINE_SRC ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/state.h
-                                 ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/state.cpp
-                                 ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/statemachine.h
-                                 ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/statemachine.cpp
-                                 ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/stateEventHandler.h
-                                 ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/stateEventHandler.cpp)
+  set (SF_LIB_STATEMACHINE_INCLUDE_DIR ${BOOST_INCLUDE_DIR}
+                                       ${LIB_DIR}/statemachine)
+  set (SF_LIB_STATEMACHINE_SRC ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/state.h
+                               ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/state.cpp
+                               ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/statemachine.h
+                               ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/statemachine.cpp
+                               ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/stateEventHandler.h
+                               ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/stateEventHandler.cpp)
+  set (SF_LIB_DEPENDENCY_LIBS ${SF_LIB_DEPENDENCY_LIBS} 
+                              ${BOOST_LIB_PROGRAM_OPTION}
+                              ${BOOST_LIB_THREAD}
+                              ${BOOST_LIB_SYSTEM})
 endif()
 
 # communicator for message exchange (publish-subscribe)
