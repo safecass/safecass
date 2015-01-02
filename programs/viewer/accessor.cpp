@@ -37,25 +37,60 @@ static int SCColorCode = 0;
 #define COLOR_WHITE   "#ffffff"
 #define COLOR_GREY    "#e3e7ee"
 
-const std::string GetColorCodeForState(unsigned int state, bool projectedState = false)
+// new color scheme based on thesis writing
+typedef enum {
+    LAYER_PROCESS,   // process layer
+    LAYER_COMPONENT, // component layer
+    LAYER_META,      // meta layer
+    LAYER_OUTERMOST  // outermost layer
+} LayerType;
+
+#define COLOR_PROCESS   "#666666"
+#define COLOR_COMPONENT "#999999"
+#define COLOR_META      "#cccccc"
+#define COLOR_NORMAL    "#ffffff"
+#define COLOR_WARNING   "#ffcc00"
+#define COLOR_ERROR     "#ff0000"
+
+//const std::string GetColorCodeForState(unsigned int state, bool projectedState = false)
+const std::string GetColorCodeForState(unsigned int state, LayerType layer = LAYER_OUTERMOST)
 {
+    switch (static_cast<State::StateType>(state)) {
+        case State::WARNING: return COLOR_WARNING;
+        case State::ERROR:
+        case State::FAILURE: return COLOR_ERROR;
+        case State::INVALID: return "black"; // for debugging 
+        case State::NORMAL: ; // fall through
+    }
+
+    SFASSERT(state == static_cast<State::StateType>(State::NORMAL));
+
+    switch (layer) {
+        case LAYER_PROCESS:   return COLOR_PROCESS;
+        case LAYER_COMPONENT: return COLOR_COMPONENT;
+        case LAYER_META:      return COLOR_META;
+        case LAYER_OUTERMOST: return COLOR_NORMAL;
+    }
+    
+#if 0
     if (projectedState) {
         switch (static_cast<State::StateType>(state)) {
-        case State::NORMAL:  return COLOR_GREY;
-        case State::WARNING: return COLOR_YELLOW2;
-        case State::ERROR:   return COLOR_RED2;
-        case State::FAILURE: return COLOR_RED2;
-        case State::INVALID: return "black";
+        case State::NORMAL:  return COLOR_NORMAL;
+        case State::WARNING: return COLOR_WARNING;
+        case State::ERROR:
+        case State::FAILURE: return COLOR_ERROR;
+        case State::INVALID: return "black"; // for debugging 
         }
     } else {
         switch (static_cast<State::StateType>(state)) {
-        case State::NORMAL:  return COLOR_WHITE;
-        case State::WARNING: return COLOR_YELLOW1;
-        case State::ERROR:   return COLOR_RED1;
-        case State::FAILURE:
-        case State::INVALID: return "green";
+        case State::NORMAL:  return COLOR_NORMAL;
+        case State::WARNING: return COLOR_YELLOW;
+        case State::ERROR:
+        case State::FAILURE: return COLOR_ERROR;
+        case State::INVALID: return "green"; // for debugging
         }
     }
+#endif
 }
 
 const std::string GetColorCodeForSafetyCoordinator(void)
@@ -173,7 +208,7 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
 {
     // safety coordinator name
     outSCroot["name"] = SF::JSON::GetSafeValueString(inroot, "safety_coordinator");
-    outSCroot["color"] = GetColorCodeForSafetyCoordinator();
+    outSCroot["color"] = GetColorCodeForState(State::NORMAL, LAYER_PROCESS);
 
     // for each component
     const JSON::JSONVALUE inComponents = inroot["components"];
@@ -186,7 +221,7 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
         {
             // component name
             outComponentRoot["name"] = inComponent["name"];
-            outComponentRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s"), true);
+            outComponentRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s"), LAYER_COMPONENT);
 
             // outputs for component state (three views: system, framework, application)
             SF::JSON outStateComponent;
@@ -198,7 +233,7 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
             stateComponentSystemView = stateComponentFrameworkView * stateComponentAppView;
 
             outStateComponentRoot["name"] = "Component";
-            outStateComponentRoot["color"] = GetColorCodeForState(stateComponentSystemView.GetState(), true);
+            outStateComponentRoot["color"] = GetColorCodeForState(stateComponentSystemView.GetState(), LAYER_META);
             {
                 size_t cntComponentState = 0;
                 SF::JSON outStateFramework;
@@ -237,7 +272,7 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
                 {
                     outInterfaceProvidedEachRoot["name"] = "Service";
                     outInterfaceProvidedEachRoot["color"] = 
-                        GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "service_state"), true);
+                        GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "service_state"), LAYER_META);
 
                     size_t cnt = 0;
                     outInterfaceProvidedEachRoot["children"][cnt]["name"] = inPrvInterface["name"];
@@ -257,7 +292,7 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
             size_t cntRequired = 0;
             {
                 outInterfaceRequiredRoot["name"] = "Required";
-                outInterfaceRequiredRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent["s_R"], "state"), true);
+                outInterfaceRequiredRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent["s_R"], "state"), LAYER_META);
                 if (inComponent["s_R"]["event"] != JSON::JSONVALUE::null)
                     outInterfaceRequiredRoot["pendingevent"] = JSON::GetJSONString(inComponent["s_R"]["event"]);
 
