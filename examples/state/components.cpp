@@ -52,16 +52,20 @@ ForceSensorComponent::ForceSensorEventHandler::~ForceSensorEventHandler()
     std::cout << "ForceSensorComponent state transition event handler: deleted\n";
 }
 
-void ForceSensorComponent::ForceSensorEventHandler::OnStateEntryOrExit(
-     const SF::State::StateEntryExitType stateEntryExit)
+
+void ForceSensorComponent::ForceSensorEventHandler::OnEntry(const SF::State::StateEntryExitType entryType)
 {
-    std::cout << "ForceSensorComponent state transition: " << SF::State::GetString(stateEntryExit) << std::endl;
+    std::cout << "ForceSensorComponent onEntry: " << SF::State::GetString(entryType) << std::endl;
 }
 
-void ForceSensorComponent::ForceSensorEventHandler::OnStateTransition(
-     const SF::State::TransitionType transition)
+void ForceSensorComponent::ForceSensorEventHandler::OnExity(const SF::State::StateEntryExitType exitType)
 {
-    std::cout << "ForceSensorComponent state: " << SF::State::GetString(transition) << std::endl;
+    std::cout << "ForceSensorComponent onExit: " << SF::State::GetString(exitType) << std::endl;
+}
+
+void ForceSensorComponent::ForceSensorEventHandler::OnStateTransition(const SF::State::TransitionType transition)
+{
+    std::cout << "ForceSensorComponent onTransition: " << SF::State::GetString(transition) << std::endl;
 }
 
 //-------------------------------------------------- 

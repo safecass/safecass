@@ -61,8 +61,10 @@ public:
         ForceSensorEventHandler();
         ~ForceSensorEventHandler();
 
-        void OnStateEntryOrExit(const SF::State::StateEntryExitType stateEntryExit);
-        void OnStateTransition(const SF::State::TransitionType transition);
+        // override methods of the base class
+        void OnEntry(const SF::State::StateEntryExitType entryType);
+        void OnExity(const SF::State::StateEntryExitType exitType);
+        void OnTransition(const SF::State::TransitionType transition);
     };
 
 protected:
