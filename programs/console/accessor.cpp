@@ -61,13 +61,12 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
 
     SF::JSON _json;
     std::cout << "[ topic: " << TopicName << ", category: " << categoryName << " ] received " << std::endl;
-    if (_json.GetRoot().isNull())
-        return;
-
     if (_json.Read(json.c_str())) {
+        if (_json.GetRoot().isNull())
+            return;
+
         std::string cmd("");
-        if (!_json.GetRoot().isNull())
-            cmd = SF::JSON::GetSafeValueString(_json.GetRoot(), "cmd");
+        cmd = SF::JSON::GetSafeValueString(_json.GetRoot(), "cmd");
         cmd = SF::rtrim(cmd);
         if (cmd.compare("message") == 0) {
             std::cout << SF::JSON::GetSafeValueString(json, "msg") << std::endl;
