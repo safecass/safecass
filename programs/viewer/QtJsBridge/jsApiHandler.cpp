@@ -46,27 +46,7 @@ void QJsApiHandler::UpdateJSONState(const std::string & json)
 
 QString QJsApiHandler::GetStateJSON(void)
 {
-//const std::string json="[ { \"children\" : [ { \"children\" : [ { \"color\" : \"green\", \"name\" : \"s_F\" }, \
-    { \"color\" : \"white\", \"name\" : \"s_A\" }, { \"children\" : [ { \"color\" : \"white\", \"name\" : \"prv.intfc.name.1\" }, \
-    { \"color\" : \"white\", \"name\" : \"prv.intfc.name.2\" } ], \"color\" : \"cyan\", \"name\" : \"s_A Provided\" }, \
-    { \"children\" : [ { \"color\" : \"white\", \"name\" : \"req.intfc.name.1\" }, \
-    { \"color\" : \"white\", \"name\" : \"req.intfc.name.2\" } ], \"color\" : \"cyan\", \"name\" : \"s_A Required\" } ],\
-    \"color\" : \"white\", \"name\" : \"componentA\" }, { \"children\" : [ { \"color\" : \"white\", \"name\" : \"s_F\" },\
-    { \"color\" : \"white\", \"name\" : \"s_A\" }, { \"children\" : [ { \"color\" : \"white\", \"name\" : \"prv.intfc.name.1\" },\
-    { \"color\" : \"white\", \"name\" : \"prv.intfc.name.2\" } ], \"color\" : \"cyan\", \"name\" : \"s_A Provided\" }, \
-    { \"children\" : [ { \"color\" : \"white\", \"name\" : \"req.intfc.name.1\" },\
-    { \"color\" : \"white\", \"name\" : \"req.intfc.name.2\" } ], \"color\" : \"cyan\", \"name\" : \"s_A Required\" } ], \
-    \"color\" : \"white\", \"name\" : \"componentB\" } ], \"color\" : \"#ff0000\", \"name\" : \"LCM\" }, \
-    { \"children\" : [ { \"children\" : [ { \"color\" : \"white\", \"name\" : \"s_F\" }, { \"color\" : \"white\", \"name\" : \"s_A\" },\
-    { \"children\" : [ { \"color\" : \"white\", \"name\" : \"prv.intfc.name.1\" }, { \"color\" : \"white\", \"name\" : \"prv.intfc.name.2\" } ],\
-        \"color\" : \"cyan\", \"name\" : \"s_A Provided\" }, { \"children\" : [ { \"color\" : \"white\", \"name\" : \"req.intfc.name.1\" }, \
-        { \"color\" : \"white\", \"name\" : \"req.intfc.name.2\" } ], \"color\" : \"cyan\", \"name\" : \"s_A Required\" } ],\
-        \"color\" : \"white\", \"name\" : \"componentA\" }, { \"children\" : [ { \"color\" : \"white\", \"name\" : \"s_F\" },\
-        { \"color\" : \"white\", \"name\" : \"s_A\" }, { \"children\" : [ { \"color\" : \"white\", \"name\" : \"prv.intfc.name.1\" },\
-    { \"color\" : \"white\", \"name\" : \"prv.intfc.name.2\" } ], \"color\" : \"cyan\", \"name\" : \"s_A Provided\" },\
-    { \"children\" : [ { \"color\" : \"white\", \"name\" : \"req.intfc.name.1\" }, { \"color\" : \"white\", \"name\" : \"req.intfc.name.2\" } ],\
-        \"color\" : \"cyan\", \"name\" : \"s_A Required\" } ], \"color\" : \"white\", \"name\" : \"componentB\" } ],\
-        \"color\" : \"#ff0000\", \"name\" : \"Control\" } ]";
+    //printf("%s\n", StateJSON.c_str());
 
     return QString::fromStdString(StateJSON);
 }
