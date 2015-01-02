@@ -73,55 +73,59 @@ protected:
         template <class Event,class FSM>
         void on_entry(Event const& ,FSM&) {
             if (EventHandlerInstance)
-                EventHandlerInstance->OnStateEntryOrExit(State::STATEMACHINE_ON_ENTRY);
+                EventHandlerInstance->OnEntry(State::STATEMACHINE_ON_ENTRY);
         }
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) {
             if (EventHandlerInstance)
-                EventHandlerInstance->OnStateEntryOrExit(State::STATEMACHINE_ON_EXIT);
+                EventHandlerInstance->OnExit(State::STATEMACHINE_ON_EXIT);
         }
 
-#define ON_STATE_ENTRY_EXIT(_transition)\
+#define ON_ENTRY(_transition)\
         if (fsm.EventHandlerInstance)\
-            fsm.EventHandlerInstance->OnStateEntryOrExit(_transition);
+            fsm.EventHandlerInstance->OnEntry(_transition);
+#define ON_EXIT(_transition)\
+        if (fsm.EventHandlerInstance)\
+            fsm.EventHandlerInstance->OnExit(_transition);
         // List of FSM states
         struct Normal: public msm::front::state<> 
         {
             template <class Event,class FSM>
-            void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::NORMAL_ON_ENTRY); }
+            void on_entry(Event const&,FSM& fsm) { ON_ENTRY(State::NORMAL_ON_ENTRY); }
             template <class Event,class FSM>
-            void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::NORMAL_ON_EXIT); }
+            void on_exit(Event const&,FSM& fsm) { ON_EXIT(State::NORMAL_ON_EXIT); }
         };
         struct Warning: public msm::front::state<> 
         {
             template <class Event,class FSM>
-            void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::WARNING_ON_ENTRY); }
+            void on_entry(Event const&,FSM& fsm) { ON_ENTRY(State::WARNING_ON_ENTRY); }
             template <class Event,class FSM>
-            void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::WARNING_ON_EXIT); }
+            void on_exit(Event const&,FSM& fsm) { ON_EXIT(State::WARNING_ON_EXIT); }
         };
         struct Error: public msm::front::state<>
         {
             template <class Event,class FSM>
-            void on_entry(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::ERROR_ON_ENTRY); }
+            void on_entry(Event const&,FSM& fsm) { ON_ENTRY(State::ERROR_ON_ENTRY); }
             template <class Event,class FSM>
-            void on_exit(Event const&,FSM& fsm) { ON_STATE_ENTRY_EXIT(State::ERROR_ON_EXIT); }
+            void on_exit(Event const&,FSM& fsm) { ON_EXIT(State::ERROR_ON_EXIT); }
         };
-#undef ON_STATE_ENTRY_EXIT
+#undef ON_ENTRY
+#undef ON_EXIT
 
         // Initial state (must be defined)
         typedef Normal initial_state;
 
         // Transition actions
-#define ON_STATE_TRANSITION_ACTION(_transition)\
+#define ON_TRANSITION_ACTION(_transition)\
         if (EventHandlerInstance)\
-            EventHandlerInstance->OnStateTransition(_transition);
-        void on_N2W(evt_N2W const&) { ON_STATE_TRANSITION_ACTION(State::NORMAL_TO_WARNING); }
-        void on_N2E(evt_N2E const&) { ON_STATE_TRANSITION_ACTION(State::NORMAL_TO_ERROR); }
-        void on_W2N(evt_W2N const&) { ON_STATE_TRANSITION_ACTION(State::WARNING_TO_NORMAL); }
-        void on_W2E(evt_W2E const&) { ON_STATE_TRANSITION_ACTION(State::WARNING_TO_ERROR); }
-        void on_E2N(evt_E2N const&) { ON_STATE_TRANSITION_ACTION(State::ERROR_TO_NORMAL); }
-        void on_E2W(evt_E2W const&) { ON_STATE_TRANSITION_ACTION(State::ERROR_TO_WARNING); }
-#undef ON_STATE_TRANSITION_ACTION
+            EventHandlerInstance->OnTransition(_transition);
+        void on_N2W(evt_N2W const&) { ON_TRANSITION_ACTION(State::NORMAL_TO_WARNING); }
+        void on_N2E(evt_N2E const&) { ON_TRANSITION_ACTION(State::NORMAL_TO_ERROR); }
+        void on_W2N(evt_W2N const&) { ON_TRANSITION_ACTION(State::WARNING_TO_NORMAL); }
+        void on_W2E(evt_W2E const&) { ON_TRANSITION_ACTION(State::WARNING_TO_ERROR); }
+        void on_E2N(evt_E2N const&) { ON_TRANSITION_ACTION(State::ERROR_TO_NORMAL); }
+        void on_E2W(evt_E2W const&) { ON_TRANSITION_ACTION(State::ERROR_TO_WARNING); }
+#undef ON_TRANSITION_ACTION
 
         // Transition table for GCMStateMachine
         typedef GCMStateMachine_ fs; // to make transition table cleaner

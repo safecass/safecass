@@ -70,8 +70,8 @@ public:
         // When component is enabled or disabled
         // MJ: Should the last state be stored so that it can be restored later when
         // this statemachine comes back, i.e., ON_ENTRY occurs?
-        ON_ENTRY,
-        ON_EXIT,
+        //ON_ENTRY,
+        //ON_EXIT,
         //
         NORMAL_TO_ERROR,
         ERROR_TO_NORMAL,

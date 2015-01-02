@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Jul 29, 2014
+// Last revision: Dec 4, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -32,8 +32,9 @@ public:
     StateEventHandler(const std::string & owner);
     virtual ~StateEventHandler(void);
 
-    virtual void OnStateEntryOrExit(const State::StateEntryExitType stateEntryExit);
-    virtual void OnStateTransition(const State::TransitionType transition);
+    virtual void OnEntry(const State::StateEntryExitType entryType);
+    virtual void OnExit(const State::StateEntryExitType exitType);
+    virtual void OnTransition(const State::TransitionType transition);
 
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
 
