@@ -131,6 +131,8 @@ public:
 
     // Reset all states and events
     void ResetStatesAndEvents(void);
+    // Reset states and events of particular type of state machine
+    void ResetStatesAndEvents(State::StateMachineType type);
 
     //
     // Getters

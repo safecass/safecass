@@ -1048,3 +1048,37 @@ void GCM::ResetStatesAndEvents(void)
     for (; it != itEnd; ++it)
         it->second->Reset();
 }
+
+void GCM::ResetStatesAndEvents(State::StateMachineType type)
+{
+    switch (type) {
+    case State::STATEMACHINE_FRAMEWORK:
+        States.ComponentFramework->Reset();
+        break;
+
+    case State::STATEMACHINE_APP:
+        States.ComponentApplication->Reset();
+        break;
+
+    case State::STATEMACHINE_PROVIDED:
+        {
+            InterfaceStateMachinesType::const_iterator it = States.ProvidedInterfaces.begin();
+            InterfaceStateMachinesType::const_iterator itEnd = States.ProvidedInterfaces.end();
+            for (; it != itEnd; ++it)
+                it->second->Reset();
+        }
+        break;
+
+    case State::STATEMACHINE_REQUIRED:
+        {
+            InterfaceStateMachinesType::const_iterator it = States.RequiredInterfaces.begin();
+            InterfaceStateMachinesType::const_iterator itEnd = States.RequiredInterfaces.end();
+            for (; it != itEnd; ++it)
+                it->second->Reset();
+        }
+        break;
+
+    case State::STATEMACHINE_INVALID:
+        return;
+    }
+}

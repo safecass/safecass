@@ -127,6 +127,8 @@ public:
     //
     // Add component. Returns non-zero component id for success, zero for failure.
     unsigned int AddComponent(const std::string & componentName);
+    // Check if component already exist
+    bool FindComponent(const std::string & componentName) const;
     // Get component id using its name
     unsigned int GetComponentId(const std::string & componentName) const;
     // Get component name using its id
@@ -274,10 +276,16 @@ public:
                                      GCM::InterfaceTypes type,
                                      StateEventHandler * handler);
 
-    // Reset all state machines 
-    // NOTE: This API can be extended to be able to reset state machines only in the 
-    // current safety coordinator.
-    void ResetStateMachines(bool broadcast = true);
+    //! Reset all state machines in this coordinator
+    /*! \param resetAll if true, reset all the other coordinators as well (default: false)
+     */ 
+    void ResetStateMachines(bool resetAll = false);
+
+    //! Reset particular type of state machine of a component in this coordinator
+    /*! \param componentName Name of component in the current coordinator
+        \param type Type of state machine to reset (refer to SF::State::StateMachineType)
+     */ 
+    void ResetStateMachines(const std::string & componentName, State::StateMachineType type);
 
     //! For human-readable logging and debugging
     /*! \param outputStream output stream

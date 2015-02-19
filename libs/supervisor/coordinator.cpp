@@ -76,7 +76,7 @@ void Coordinator::PrintMonitoringTargets(std::ostream & outputStream) const
 
 unsigned int Coordinator::AddComponent(const std::string & componentName)
 {
-    if (MapComponentNameToId.find(componentName) != MapComponentNameToId.end()) {
+    if (FindComponent(componentName)) {
         std::stringstream ss;
         ss << "Coordinator::AddComponent: component \"" << componentName 
            << "\" already registered [ ";
@@ -95,6 +95,11 @@ unsigned int Coordinator::AddComponent(const std::string & componentName)
     MapGCM[cid] = gcm;
 
     return cid;
+}
+
+bool Coordinator::FindComponent(const std::string & componentName) const
+{
+    return (MapComponentNameToId.find(componentName) != MapComponentNameToId.end());
 }
 
 unsigned int Coordinator::GetComponentId(const std::string & componentName) const
@@ -1380,7 +1385,7 @@ bool Coordinator::IsOutstandingEvent(const std::string & eventName,
     return (eventName.compare(e->GetName()) == 0);
 }
 
-void Coordinator::ResetStateMachines(bool broadcast)
+void Coordinator::ResetStateMachines(bool resetAll)
 {
     {
         boost::mutex::scoped_lock lock(Mutex);
@@ -1394,7 +1399,16 @@ void Coordinator::ResetStateMachines(bool broadcast)
         }
     }
 
-    SFLOG_ERROR << "[ " << GetName() << " ] Coordinator::ResetStateMachines: reset all state machines, " << (int) broadcast << std::endl;
+    std::stringstream ss;
+    ss << "[ " << GetName() << " ] Coordinator::ResetStateMachines: reset ";
+    if (resetAll)
+        ss << "ALL coordinators";
+    else {
+        ss << "coordinator \"" << GetName() << "\"";
+    }
+    ss << std::endl;
+
+    SFLOG_INFO << ss.str();
 
     // Refresh state viewer
     JSON _jsonRefresh;
@@ -1404,7 +1418,7 @@ void Coordinator::ResetStateMachines(bool broadcast)
     jsonRefresh["request"] = "state_list";
     PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
 
-    if (broadcast) {
+    if (resetAll) {
         // Broadcast event to reset state machines of the other safety coordinators as well
         JSON _json;
         JSON::JSONVALUE & json = _json.GetRoot();
@@ -1413,6 +1427,54 @@ void Coordinator::ResetStateMachines(bool broadcast)
         json["request"] = "state_reset";
         PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(json));
 
-    SFLOG_ERROR << "[ " << GetName() << " ] " << JSON::GetJSONString(json) << std::endl;
+        SFLOG_INFO << "[ " << GetName() << " ] " << JSON::GetJSONString(json) << std::endl;
     }
+}
+
+void Coordinator::ResetStateMachines(const std::string & componentName, State::StateMachineType type)
+{
+    // Find component
+    if (!FindComponent(componentName)) {
+        SFLOG_ERROR << "[ " << GetName() << " ] Coordinator::ResetStateMachines: no component \"" << componentName << "\" found";
+        return;
+    }
+
+    // Set string for state machine type
+    std::string typeString("invalid");
+    if (type == State::STATEMACHINE_INVALID) {
+        SFLOG_ERROR << "[ " << GetName() << " ] Coordinator::ResetStateMachines: invalid state machine type";
+        return;
+    } else {
+        switch (type) {
+        case State::STATEMACHINE_FRAMEWORK: typeString = "FRAMEWORK"; break;
+        case State::STATEMACHINE_APP:       typeString = "APPLICATION"; break;
+        case State::STATEMACHINE_PROVIDED:  typeString = "INTERFACE_PROVIDED"; break;
+        case State::STATEMACHINE_REQUIRED:  typeString = "INTERFACE_REQUIRED"; break;
+        case State::STATEMACHINE_INVALID:
+            SFASSERT(false); // must not reach here
+        }
+    }
+
+    {
+        boost::mutex::scoped_lock lock(Mutex);
+
+        // Reset all state machines and associated events
+        GCMMapType::const_iterator it = MapGCM.find(GetComponentId(componentName));
+        GCM * gcm = it->second;
+        SFASSERT(gcm);
+        gcm->ResetStatesAndEvents(type);
+    }
+
+    std::stringstream ss;
+    ss << "[ " << GetName() << " ] Coordinator::ResetStateMachines: reset coordinator \"" << GetName() << "\""
+       << ", state machine type: " << typeString << std::endl;
+    SFLOG_INFO << ss.str();
+
+    // Refresh state viewer
+    JSON _jsonRefresh;
+    JSON::JSONVALUE & jsonRefresh = _jsonRefresh.GetRoot();
+    jsonRefresh["target"]["safety_coordinator"] = "*";
+    jsonRefresh["target"]["component"] = "*";
+    jsonRefresh["request"] = "state_list";
+    PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
 }
