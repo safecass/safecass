@@ -163,13 +163,13 @@ endif ()
 # Option to compile examples separately
 option (BUILD_EXAMPLES "Build examples.  Requires casros-enabled component-based framework." OFF)
 # Option to compile programs separately
-option (BUILD_PROGRAMS "Build tools.  Requires casros-enabled component-based framework." OFF)
+option (BUILD_TOOLS "Build tools.  Requires casros-enabled component-based framework." OFF)
 
 # Include sub-directories
 add_subdirectory(libs)
-add_subdirectory(tools)
-if (BUILD_PROGRAMS)
-  add_subdirectory(programs)
+if (BUILD_TOOLS)
+  #add_subdirectory(programs)
+  add_subdirectory(tools)
 endif()
 if (BUILD_EXAMPLES)
   add_subdirectory(examples)

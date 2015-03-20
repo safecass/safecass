@@ -1,18 +1,31 @@
+#------------------------------------------------------------------------
 #
-# Safety Framework for Component-based Robotics
+# CASROS: Component-based Architecture for Safe Robotic Systems
 #
-# Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
+# Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
 #
-# Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or copy at
-# http://www.boost.org/LICENSE_1_0.txt)
+#------------------------------------------------------------------------
 #
-
+# Created on   : Jul 29, 2012
+# Last revision: Mar 19, 2015
+# Author       : Min Yang Jung (myj@jhu.edu)
+# Github       : https://github.com/minyang/casros
+#
 set (SF_BUILD_BIN_ROOT "${SF_BUILD_ROOT}/bin")
 
-#
+##############################
+# console
+##############################
+add_subdirectory(console)
+
+##############################
+# viewer
+##############################
+add_subdirectory(viewer)
+
+##############################
 # IceBox
-#
+##############################
 # copy files from [SRC]/tools/IceBox to [BUILD]/bin
 set (ICEBOX_BASE_DIR "${SafetyFramework_SOURCE_DIR}/tools/IceBox")
 set (ICEBOX_SRC_FILES "config.icebox"
@@ -31,9 +44,9 @@ foreach (ICEBOX_SRC_FILE ${ICEBOX_SRC_FILES})
     endif ()
 endforeach (ICEBOX_SRC_FILE)
 
-#
+##############################
 # Visualization back-end framework: MongoDB and Cube
-#
+##############################
 # copy files from [SRC]/tools/cube to [BUILD]/bin
 set (MONGODB_BASE_DIR "${SafetyFramework_SOURCE_DIR}/tools/cube")
 set (MONGODB_SRC_FILES # MongoDB

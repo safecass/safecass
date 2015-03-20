@@ -1,0 +1,4 @@
+Swimlane chart: http://bl.ocks.org/bunkat/1962173
+Timeline proof-of-concept: http://bl.ocks.org/rengel-de/5603464
+
+Timeline (a bit old): http://www.simile-widgets.org/timeline/
