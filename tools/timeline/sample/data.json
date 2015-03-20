@@ -1,0 +1,42 @@
+{
+  "states" : [
+    {
+      "id" : 0,
+      "label" : "JR3 s_F"
+    },
+    {
+      "id" : 1,
+      "label" : "JR3 s_A"
+    },
+    {
+      "id" : 2,
+      "label" : "JR3 s_P Provided1"
+    },
+    {
+      "id" : 3,
+      "label" : "JR3 s_P Provided2"
+    },
+    {
+      "id" : 4,
+      "label" : "JR3 s_R Required1"
+    }
+  ],
+  "items" : [
+    {
+      "desc" : "This is a description.",
+      "id" : 0,
+      "end" : "2012-01-09T19:00:00.000Z",
+      "state" : 0,
+      "class" : "past",
+      "start" : "2012-01-05T13:00:00.000Z"
+    },
+    {
+      "desc" : "This is a description.",
+      "id" : 1,
+      "end" : "2012-01-12T15:00:00.000Z",
+      "state" : 0,
+      "class" : "past",
+      "start" : "2012-01-11T14:00:00.000Z"
+    }
+  ]
+}

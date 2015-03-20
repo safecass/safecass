@@ -25,9 +25,8 @@ THE SOFTWARE.
 
 <html>
 <head>
-<title>Swimlane using d3.js</title>
+<title>Swimstate using d3.js</title>
 <script type="text/javascript" src="http://mbostock.github.com/d3/d3.v2.js"></script>
-<script type="text/javascript" src="randomData.js"></script>
 <style>
 .chart {
 	shape-rendering: crispEdges;
@@ -79,24 +78,31 @@ THE SOFTWARE.
 
 <script type="text/javascript">
 
-var data = randomData()
-  , lanes = data.lanes
+var loc = window.location.pathname;
+var dir = loc.substring(0, loc.lastIndexOf('/'));
+var dataFileName = "file://" + dir + "/data.json";
+
+var jsondata;
+readTextFile(dataFileName);
+
+var data = JSON.parse(jsondata)
+  , states = data.states
   , items = data.items
   , now = new Date();
 
-var margin = {top: 20, right: 15, bottom: 15, left: 60}
+var margin = {top: 20, right: 15, bottom: 15, left: 160}
   , width = 960 - margin.left - margin.right
   , height = 500 - margin.top - margin.bottom
-  , miniHeight = lanes.length * 12 + 50
+  , miniHeight = states.length * 12 + 50
   , mainHeight = height - miniHeight - 50;
 
 var x = d3.time.scale()
-	.domain([d3.time.sunday(d3.min(items, function(d) { return d.start; })),
-			 d3.max(items, function(d) { return d.end; })])
+	.domain([d3.time.sunday(d3.min(items, function(d) { console.log(new Date(d.start)); return new Date(d.start); })),
+			 d3.max(items, function(d) { return new Date(d.end); })])
 	.range([0, width]);
 var x1 = d3.time.scale().range([0, width]);
 
-var ext = d3.extent(lanes, function(d) { return d.id; });
+var ext = d3.extent(states, function(d) { return d.id; });
 var y1 = d3.scale.linear().domain([ext[0], ext[1] + 1]).range([0, mainHeight]);
 var y2 = d3.scale.linear().domain([ext[0], ext[1] + 1]).range([0, miniHeight]);
 
@@ -124,9 +130,9 @@ var mini = chart.append('g')
 	.attr('height', miniHeight)
 	.attr('class', 'mini');
 
-// draw the lanes for the main chart
-main.append('g').selectAll('.laneLines')
-	.data(lanes)
+// draw the states for the main chart
+main.append('g').selectAll('.stateLines')
+	.data(states)
 	.enter().append('line')
 	.attr('x1', 0)
 	.attr('y1', function(d) { return d3.round(y1(d.id)) + 0.5; })
@@ -134,19 +140,19 @@ main.append('g').selectAll('.laneLines')
 	.attr('y2', function(d) { return d3.round(y1(d.id)) + 0.5; })
 	.attr('stroke', function(d) { return d.label === '' ? 'white' : 'lightgray' });
 
-main.append('g').selectAll('.laneText')
-	.data(lanes)
+main.append('g').selectAll('.stateText')
+	.data(states)
 	.enter().append('text')
 	.text(function(d) { return d.label; })
 	.attr('x', -10)
 	.attr('y', function(d) { return y1(d.id + .5); })
 	.attr('dy', '0.5ex')
 	.attr('text-anchor', 'end')
-	.attr('class', 'laneText');
+	.attr('class', 'stateText');
 
-// draw the lanes for the mini chart
-mini.append('g').selectAll('.laneLines')
-	.data(lanes)
+// draw the states for the mini chart
+mini.append('g').selectAll('.stateLines')
+	.data(states)
 	.enter().append('line')
 	.attr('x1', 0)
 	.attr('y1', function(d) { return d3.round(y2(d.id)) + 0.5; })
@@ -154,15 +160,15 @@ mini.append('g').selectAll('.laneLines')
 	.attr('y2', function(d) { return d3.round(y2(d.id)) + 0.5; })
 	.attr('stroke', function(d) { return d.label === '' ? 'white' : 'lightgray' });
 
-mini.append('g').selectAll('.laneText')
-	.data(lanes)
+mini.append('g').selectAll('.stateText')
+	.data(states)
 	.enter().append('text')
 	.text(function(d) { return d.label; })
 	.attr('x', -10)
 	.attr('y', function(d) { return y2(d.id + .5); })
 	.attr('dy', '0.5ex')
 	.attr('text-anchor', 'end')
-	.attr('class', 'laneText');
+	.attr('class', 'stateText');
 
 // draw the x axis
 var xDateAxis = d3.svg.axis()
@@ -272,7 +278,8 @@ function display () {
 	var rects, labels
 	  , minExtent = d3.time.day(brush.extent()[0])
 	  , maxExtent = d3.time.day(brush.extent()[1])
-	  , visItems = items.filter(function (d) { return d.start < maxExtent && d.end > minExtent});
+	  //, visItems = items.filter(function (d) { return d.start < maxExtent && d.end > minExtent});
+	  , visItems = items.filter(function (d) { return new Date(d.start) < maxExtent && new Date(d.end) > minExtent});
 
 	mini.select('.brush').call(brush.extent([minExtent, maxExtent]));		
 
@@ -309,13 +316,13 @@ function display () {
 	// upate the item rects
 	rects = itemRects.selectAll('rect')
 		.data(visItems, function (d) { return d.id; })
-		.attr('x', function(d) { return x1(d.start); })
-		.attr('width', function(d) { return x1(d.end) - x1(d.start); });
+		.attr('x', function(d) { return x1(new Date(d.start)); })
+		.attr('width', function(d) { return x1(new Date(d.end)) - x1(new Date(d.start)); });
 
 	rects.enter().append('rect')
-		.attr('x', function(d) { return x1(d.start); })
-		.attr('y', function(d) { return y1(d.lane) + .1 * y1(1) + 0.5; })
-		.attr('width', function(d) { return x1(d.end) - x1(d.start); })
+		.attr('x', function(d) { return x1(new Date(d.start)); })
+		.attr('y', function(d) { return y1(d.state) + .1 * y1(1) + 0.5; })
+		.attr('width', function(d) { return x1(new Date(d.end)) - x1(new Date(d.start)); })
 		.attr('height', function(d) { return .8 * y1(1); })
 		.attr('class', function(d) { return 'mainItem ' + d.class; });
 
@@ -324,12 +331,12 @@ function display () {
 	// update the item labels
 	labels = itemRects.selectAll('text')
 		.data(visItems, function (d) { return d.id; })
-		.attr('x', function(d) { return x1(Math.max(d.start, minExtent)) + 2; });
+		.attr('x', function(d) { return x1(Math.max(new Date(d.start), minExtent)) + 2; });
 				
 	labels.enter().append('text')
 		.text(function (d) { return 'Item\n\n\n\n Id: ' + d.id; })
-		.attr('x', function(d) { return x1(Math.max(d.start, minExtent)) + 2; })
-		.attr('y', function(d) { return y1(d.lane) + .4 * y1(1) + 0.5; })
+		.attr('x', function(d) { return x1(Math.max(new Date(d.start), minExtent)) + 2; })
+		.attr('y', function(d) { return y1(d.state) + .4 * y1(1) + 0.5; })
 		.attr('text-anchor', 'start')
 		.attr('class', 'itemLabel');
 
@@ -355,7 +362,8 @@ function getPaths(items) {
 	for (var i = 0; i < items.length; i++) {
 		d = items[i];
 		if (!paths[d.class]) paths[d.class] = '';	
-		paths[d.class] += ['M',x(d.start),(y2(d.lane) + offset),'H',x(d.end)].join(' ');
+		//paths[d.class] += ['M',x(d.start),(y2(d.state) + offset),'H',x(d.end)].join(' ');
+		paths[d.class] += ['M',x(new Date(d.start)),(y2(d.state) + offset),'H',x(new Date(d.end))].join(' ');
 	}
 
 	for (var className in paths) {
@@ -365,6 +373,24 @@ function getPaths(items) {
 	return result;
 }
 
+function readTextFile(file)
+{
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function ()
+    {
+        if(rawFile.readyState === 4) {
+            if(rawFile.status === 200 || rawFile.status == 0) {
+                jsondata = rawFile.responseText;
+            } else {
+              console.log("Failed to read file: " + file);
+            }
+        } else {
+          console.log("Failed to read file: " + file);
+        }
+    }
+    rawFile.send(null);
+}
 </script>
 </body>
 </html>

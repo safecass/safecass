@@ -91,7 +91,7 @@
 
 		var generateRandomWorkItems = function () {
 			var data = [];
-			var laneCount = 20//randomNumber(5,7)
+			var laneCount = 5//randomNumber(5,7)
 			  , totalWorkItems = randomNumber(20,30)
 			  , startMonth = randomNumber(0,1)
 			  , startDay = randomNumber(1,28)
@@ -102,6 +102,7 @@
 				for (var j = 0; j < totalWorkItems; j++) {
 					
 					var dtS = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() + randomNumber(1,5), randomNumber(8, 16), 0, 0);
+                    console.log(dtS);
 
 					var dateOffset =  randomNumber(0,7);
 					var dt = new Date(dtS.getFullYear(), dtS.getMonth(), dtS.getDate() + dateOffset, randomNumber(dateOffset === 0 ? dtS.getHours() + 2 : 8, 18), 0, 0);
