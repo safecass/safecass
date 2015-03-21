@@ -26,7 +26,7 @@
       "desc" : "This is a description.",
       "id" : 0,
       "state" : 0,
-      "class" : "past",
+      "class" : "warning",
       "start" : "2015-03-16T13:00:00.000Z",
       "end" : "2015-03-16T14:01:30.000Z"
     },
@@ -36,7 +36,7 @@
       "start" : "2015-03-17T18:00:00.000Z",
       "end" : "2015-03-17T19:01:45.000Z",
       "state" : 1,
-      "class" : "past"
+      "class" : "warning"
     },
     {
       "desc" : "This is a description.",
@@ -44,7 +44,7 @@
       "start" : "2015-03-17T10:02:00.000Z",
       "end" : "2015-03-17T11:03:24.000Z",
       "state" : 2,
-      "class" : "past"
+      "class" : "error"
     },
     {
       "desc" : "This is a description.",
@@ -52,7 +52,7 @@
       "start" : "2015-03-14T10:02:00.000Z",
       "end" : "2015-03-14T11:03:24.000Z",
       "state" : 4,
-      "class" : "past"
+      "class" : "warning"
     }
   ]
 }

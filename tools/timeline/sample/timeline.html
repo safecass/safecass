@@ -54,7 +54,7 @@ THE SOFTWARE.
 }
 
 .miniItem {
-	stroke-width: 6;	
+	stroke-width: 14;
 }
 
 .future {
@@ -62,9 +62,14 @@ THE SOFTWARE.
 	fill: #ddd;
 }
 
-.past {
-	stroke: green;
-	fill: lightgreen;
+.warning {
+	stroke: #FFCC00;
+	fill: #FFCC00;
+}
+
+.error {
+	stroke: #F00007;
+	fill: #F00007;
 }
 
 .brush .extent {
@@ -79,10 +84,9 @@ THE SOFTWARE.
 <script type="text/javascript">
 
 // TODO:
-// color change (W/E)
 // improve brush actions <- LNS scroll
 // autoscale at start up
-// overlay
+// brush reset?
 
 var loc = window.location.pathname;
 var dir = loc.substring(0, loc.lastIndexOf('/'));
@@ -100,7 +104,7 @@ var margin = {top: 20, right: 15, bottom: 15, left: 130}
   , width = 960 - margin.left - margin.right
   , height = 500 - margin.top - margin.bottom
   , miniHeight = states.length * 12 + 50
-  , mainHeight = height - miniHeight - 50;
+  , mainHeight = height - miniHeight - 160;
 
 var x = d3.time.scale()
 	.domain([d3.time.sunday(d3.min(items, function(d) { return new Date(d.start); })),
@@ -125,13 +129,13 @@ chart.append('defs').append('clipPath')
 		.attr('height', mainHeight);
 
 var main = chart.append('g')
-	.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+	.attr('transform', 'translate(' + margin.left + ',' + (miniHeight + 60 + margin.top) + ')')
 	.attr('width', width)
 	.attr('height', mainHeight)
 	.attr('class', 'main');
 
 var mini = chart.append('g')
-	.attr('transform', 'translate(' + margin.left + ',' + (mainHeight + 60) + ')')
+	.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 	.attr('width', width)
 	.attr('height', miniHeight)
 	.attr('class', 'mini');
@@ -267,7 +271,7 @@ mini.append('rect')
 var brush = d3.svg.brush()
 	.x(x)
 	.extent([d3.time.monday(now),d3.time.saturday.ceil(now)])
-	.on("brush", display);
+	.on("brush", onBrush);
 
 mini.append('g')
 	.attr('class', 'x brush')
@@ -277,9 +281,9 @@ mini.append('g')
 		.attr('height', miniHeight - 1);
 
 mini.selectAll('rect.background').remove();
-display();
+onBrush();
 
-function display () {
+function onBrush() {
 
 	var rects, labels
 	  , minExtent = d3.time.day(brush.extent()[0])
@@ -328,7 +332,7 @@ function display () {
 		.attr('x', function(d) { return x1(new Date(d.start)); })
 		.attr('y', function(d) { return y1(d.state) + .1 * y1(1) + 0.5; })
 		.attr('width', function(d) { return x1(new Date(d.end)) - x1(new Date(d.start)); })
-		.attr('height', function(d) { return .8 * y1(1); })
+		.attr('height', function(d) { return .8 * y1(1); }) // main chart state height ratio
 		.attr('class', function(d) { return 'mainItem ' + d.class; });
 
 	rects.exit().remove();
@@ -341,7 +345,7 @@ function display () {
 	labels.enter().append('text')
 		.text(function (d) { return 'Item\n\n\n\n Id: ' + d.id; })
 		.attr('x', function(d) { return x1(Math.max(new Date(d.start), minExtent)) + 2; })
-		.attr('y', function(d) { return y1(d.state) + .4 * y1(1) + 0.5; })
+		.attr('y', function(d) { return y1(d.state) + .6 * y1(1) + 0.5; })
 		.attr('text-anchor', 'start')
 		.attr('class', 'itemLabel');
 
@@ -356,14 +360,14 @@ function moveBrush () {
 	  , end = new Date(point.getTime() + halfExtent);
 
 	brush.extent([start,end]);
-	display();
+	onBrush();
 }
 
 // generates a single path for each item class in the mini display
 // ugly - but draws mini 2x faster than append lines or line generator
 // is there a better way to do a bunch of lines as a single path with d3?
 function getPaths(items) {
-	var paths = {}, d, offset = .5 * y2(1) + 0.5, result = [];
+	var paths = {}, d, offset = .5 * y2(1), result = [];
 	for (var i = 0; i < items.length; i++) {
 		d = items[i];
 		if (!paths[d.class]) paths[d.class] = '';	
