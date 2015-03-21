@@ -78,6 +78,12 @@ THE SOFTWARE.
 
 <script type="text/javascript">
 
+// TODO:
+// color change (W/E)
+// improve brush actions <- LNS scroll
+// autoscale at start up
+// overlay
+
 var loc = window.location.pathname;
 var dir = loc.substring(0, loc.lastIndexOf('/'));
 var dataFileName = "file://" + dir + "/data.json";
@@ -90,14 +96,14 @@ var data = JSON.parse(jsondata)
   , items = data.items
   , now = new Date();
 
-var margin = {top: 20, right: 15, bottom: 15, left: 160}
+var margin = {top: 20, right: 15, bottom: 15, left: 130}
   , width = 960 - margin.left - margin.right
   , height = 500 - margin.top - margin.bottom
   , miniHeight = states.length * 12 + 50
   , mainHeight = height - miniHeight - 50;
 
 var x = d3.time.scale()
-	.domain([d3.time.sunday(d3.min(items, function(d) { console.log(new Date(d.start)); return new Date(d.start); })),
+	.domain([d3.time.sunday(d3.min(items, function(d) { return new Date(d.start); })),
 			 d3.max(items, function(d) { return new Date(d.end); })])
 	.range([0, width]);
 var x1 = d3.time.scale().range([0, width]);
@@ -278,7 +284,6 @@ function display () {
 	var rects, labels
 	  , minExtent = d3.time.day(brush.extent()[0])
 	  , maxExtent = d3.time.day(brush.extent()[1])
-	  //, visItems = items.filter(function (d) { return d.start < maxExtent && d.end > minExtent});
 	  , visItems = items.filter(function (d) { return new Date(d.start) < maxExtent && new Date(d.end) > minExtent});
 
 	mini.select('.brush').call(brush.extent([minExtent, maxExtent]));		
@@ -362,7 +367,6 @@ function getPaths(items) {
 	for (var i = 0; i < items.length; i++) {
 		d = items[i];
 		if (!paths[d.class]) paths[d.class] = '';	
-		//paths[d.class] += ['M',x(d.start),(y2(d.state) + offset),'H',x(d.end)].join(' ');
 		paths[d.class] += ['M',x(new Date(d.start)),(y2(d.state) + offset),'H',x(new Date(d.end))].join(' ');
 	}
 

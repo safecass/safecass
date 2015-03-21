@@ -2,41 +2,57 @@
   "states" : [
     {
       "id" : 0,
-      "label" : "JR3 s_F"
+      "label" : "JR3/Framework"
     },
     {
       "id" : 1,
-      "label" : "JR3 s_A"
+      "label" : "JR3/Application"
     },
     {
       "id" : 2,
-      "label" : "JR3 s_P Provided1"
+      "label" : "JR3/P Provided1"
     },
     {
       "id" : 3,
-      "label" : "JR3 s_P Provided2"
+      "label" : "JR3/P Provided2"
     },
     {
       "id" : 4,
-      "label" : "JR3 s_R Required1"
+      "label" : "JR3/R Required1"
     }
   ],
   "items" : [
     {
       "desc" : "This is a description.",
       "id" : 0,
-      "end" : "2012-01-09T19:00:00.000Z",
       "state" : 0,
       "class" : "past",
-      "start" : "2012-01-05T13:00:00.000Z"
+      "start" : "2015-03-16T13:00:00.000Z",
+      "end" : "2015-03-16T14:01:30.000Z"
     },
     {
       "desc" : "This is a description.",
       "id" : 1,
-      "end" : "2012-01-12T15:00:00.000Z",
-      "state" : 0,
-      "class" : "past",
-      "start" : "2012-01-11T14:00:00.000Z"
+      "start" : "2015-03-17T18:00:00.000Z",
+      "end" : "2015-03-17T19:01:45.000Z",
+      "state" : 1,
+      "class" : "past"
+    },
+    {
+      "desc" : "This is a description.",
+      "id" : 2,
+      "start" : "2015-03-17T10:02:00.000Z",
+      "end" : "2015-03-17T11:03:24.000Z",
+      "state" : 2,
+      "class" : "past"
+    },
+    {
+      "desc" : "This is a description.",
+      "id" : 3,
+      "start" : "2015-03-14T10:02:00.000Z",
+      "end" : "2015-03-14T11:03:24.000Z",
+      "state" : 4,
+      "class" : "past"
     }
   ]
 }
