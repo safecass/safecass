@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
-// Last revision: Apr 18, 2014
+// Last revision: Mar 23, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -31,13 +31,13 @@ const std::string VALUE_PLUGIN3 = "ruby";
 const unsigned int VALUE_LENGTH = 3;
 const bool VALUE_USE_SPACE = true;
 
-SFUtilTest::SFUtilTest()
+SFJSONTest::SFJSONTest()
 {
     // Test registration
-    TEST_ADD(SFUtilTest::TestJSONRead);
-    TEST_ADD(SFUtilTest::TestJSONReadFromFile);
-    TEST_ADD(SFUtilTest::TestJSONWrite);
-    TEST_ADD(SFUtilTest::TestJSONWriteToFile);
+    TEST_ADD(SFJSONTest::TestJSONRead);
+    TEST_ADD(SFJSONTest::TestJSONReadFromFile);
+    TEST_ADD(SFJSONTest::TestJSONWrite);
+    TEST_ADD(SFJSONTest::TestJSONWriteToFile);
 
     // Sample JSON from JsonCpp documentation:
     SampleJSON << "// Configuration options\n";
@@ -58,7 +58,7 @@ SFUtilTest::SFUtilTest()
     SampleJSON << "}\n";
 }
 
-void SFUtilTest::TestJSONRead(void)
+void SFJSONTest::TestJSONRead(void)
 {
     JSONTest test;
     const std::string sample(SampleJSON.str());
@@ -78,7 +78,7 @@ void SFUtilTest::TestJSONRead(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
 }
 
-void SFUtilTest::TestJSONReadFromFile(void)
+void SFJSONTest::TestJSONReadFromFile(void)
 {
     JSONTest test;
     TEST_ASSERT(test.ReadFromFile(SF_SOURCE_ROOT_DIR"/tests/sample.json"));
@@ -96,7 +96,7 @@ void SFUtilTest::TestJSONReadFromFile(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
 }
 
-void SFUtilTest::TestJSONWrite(void)
+void SFJSONTest::TestJSONWrite(void)
 {
     JSONTest test;
     TEST_ASSERT(test.Read(SampleJSON.str().c_str()));
@@ -129,7 +129,7 @@ void SFUtilTest::TestJSONWrite(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == newUseSpace);
 }
 
-void SFUtilTest::TestJSONWriteToFile(void)
+void SFJSONTest::TestJSONWriteToFile(void)
 {
     JSONTest test;
     TEST_ASSERT(test.Read(SampleJSON.str().c_str()));

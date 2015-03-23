@@ -30,6 +30,7 @@
 #if SF_HAS_CISST
 #include "testGCM.h"
 #endif
+#include "testUtil.h"
 
 #include <algorithm>
 #include <iostream>
@@ -90,8 +91,9 @@ int main(int argc, char ** argv)
 
     // Define test suites
     Test::Suite suite;
-    suite.add(auto_ptr<Test::Suite>(new SFUtilTest));
+    suite.add(auto_ptr<Test::Suite>(new SFJSONTest));
     suite.add(auto_ptr<Test::Suite>(new SFStateTest));
+    suite.add(auto_ptr<Test::Suite>(new SFUtilTest));
 #if SF_HAS_CISST
     SFGCMTest * GCMTest = 0;
     try {

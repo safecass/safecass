@@ -2,12 +2,12 @@
 #
 # CASROS: Component-based Architecture for Safe Robotic Systems
 #
-# Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+# Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 #
 #------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Jun 25, 2014
+# Last revision: Mar 23, 2015
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -41,7 +41,9 @@ if (SF_HAS_CISST)
   set (UNIT_TEST_SRC ${UNIT_TEST_SRC} 
                      #testGCM.h testGCM.cpp
                      #GCMHelper.h GCMHelper.cpp
-                     testState.h testState.cpp)
+                     #testJson.h testJson.cpp
+                     testState.h testState.cpp
+                     testUtil.h testUtil.cpp)
 endif (SF_HAS_CISST)
 
 # Define project settings

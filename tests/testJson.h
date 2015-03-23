@@ -7,19 +7,19 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
-// Last revision: Apr 18, 2014
+// Last revision: Mar 23, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
-#ifndef _SFUtilTest_h
-#define _SFUtilTest_h
+#ifndef _SFJSONTest_h
+#define _SFJSONTest_h
 
 #include "cpptest.h"
 
 #include <iostream>
 #include <sstream>
 
-class SFUtilTest: public Test::Suite 
+class SFJSONTest: public Test::Suite 
 {
     std::stringstream SampleJSON;
 
@@ -29,8 +29,8 @@ class SFUtilTest: public Test::Suite
     void TestJSONWriteToFile(void);
 
 public:
-    SFUtilTest();
-    ~SFUtilTest() {}
+    SFJSONTest();
+    ~SFJSONTest() {}
 };
 
-#endif // _SFUtilTest_h
+#endif // _SFJSONTest_h
