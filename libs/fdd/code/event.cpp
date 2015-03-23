@@ -2,26 +2,39 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Aug 6, 2014
+// Last revision: Mar 23, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "event.h"
+#include <iomanip> // std::setprecision
 
 using namespace SF;
+
+
+Event::Event(void)
+    : Name("INVALID"), Severity(0), Transitions(TransitionsType()), Timestamp(0), What(""), Ignored(false)
+{
+}
 
 Event::Event(const std::string     & name,
              unsigned int            severity,
              const TransitionsType & transitions,
              const std::string     & what)
-    : Name(name), Severity(severity), Transitions(transitions), Timestamp(0), What(what)
+    : Name(name), Severity(severity), Transitions(transitions), Timestamp(0), What(what), Ignored(false)
 {
     memset(TransitionMask, 0, TOTAL_NUMBER_OF_STATES * TOTAL_NUMBER_OF_STATES);
+
+    SetTransitionMask(Transitions);
+}
+
+void Event::SetTransitionMask(const TransitionsType & transitions)
+{
 #define N 0
 #define W 1
 #define E 2
@@ -120,10 +133,10 @@ void Event::ToStream(std::ostream & os) const
         default:                       os << "INVALID";
         }
     }
-    os << " ]";
+    os << " ], " << std::setprecision(13) << Timestamp;
 
     if (What.size())
-        os << ", " << What;
+        os << ", \"" << What << "\"";
 }
 
 const JSON::JSONVALUE Event::SerializeJSON(bool includeStateTransition) const
@@ -157,3 +170,19 @@ const std::string Event::SerializeString(bool includeStateTransition) const
     return JSON::GetJSONString(SerializeString(includeStateTransition));
 }
 
+void Event::CopyFrom(const Event * event)
+{
+    if (!event)
+        return;
+
+    this->Name = event->GetName();
+    this->Severity = event->GetSeverity();
+    this->Transitions = event->GetTransitions();
+    this->Timestamp = event->GetTimestamp();
+    this->What = event->GetWhat();
+    
+    this->Valid = event->GetValid();
+    this->Ignored = event->GetIgnored();
+
+    SetTransitionMask(this->Transitions);
+}

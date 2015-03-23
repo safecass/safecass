@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Aug 1, 2014
+// Last revision: Mar 23, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -22,6 +22,8 @@ namespace SF {
 
 class SFLIB_EXPORT Event
 {
+    friend class StateMachine;
+
 public:
     typedef std::vector<State::TransitionType> TransitionsType;
     
@@ -36,19 +38,35 @@ public:
     };
 
 protected:
+    //
+    // Event Attributes
+    //
     // Name of this event
-    const std::string     Name;
+    //const std::string Name;
+    std::string Name;
     // Severity:1-255
     // 1: lowest priority, ..., 255: highest priority
     // 1-200: For application events
     // 201-255: Reserved for framework events
-    const unsigned int    Severity;
+    //const unsigned int Severity;
+    unsigned int Severity;
     // Possible transitions associated with this event
-    const TransitionsType Transitions;
+    //const TransitionsType Transitions;
+    TransitionsType Transitions;
     // timestamp of the time when this event occurred.  zero otherwise.
-    const TimestampType   Timestamp;
+    TimestampType Timestamp;
     // Description of event
-    const std::string     What;
+    std::string What;
+
+    // If this event is valid (used by StateMachine class to determine if outsanding 
+    // event object is valid)
+    bool Valid;
+
+    //
+    // Extra attribute for timeline visualization
+    //
+    // If event was ignored, i.e., if event did not result in state transition
+    bool Ignored;
 
     // 2D array containing boolean mask that defines possible transitions
     //
@@ -60,6 +78,10 @@ protected:
     //             E | 0  0  0
     bool TransitionMask[TOTAL_NUMBER_OF_STATES][TOTAL_NUMBER_OF_STATES];
 
+    // Set TransitionMask array based on transition information
+    void SetTransitionMask(const TransitionsType & transitions);
+
+    Event(void);
 public:
     Event(const std::string     & name,
           unsigned int            severity,
@@ -68,13 +90,33 @@ public:
 
     virtual ~Event() {}
 
+    inline const std::string &   GetName(void) const        { return Name; }
+    inline unsigned int          GetSeverity(void) const    { return Severity; }
+    inline const TransitionsType GetTransitions(void) const { return Transitions; }
+    inline TimestampType         GetTimestamp(void) const   { return Timestamp; }
+    inline const std::string &   GetWhat(void) const        { return What; }
+
+    // Returns possible transition from the given state
     State::TransitionType GetTransition(State::StateType currentState) const;
 
-    inline const std::string & GetName(void) const      { return Name; }
-    inline unsigned int        GetSeverity(void) const  { return Severity; }
-    //inline const TransitionsType & GetTransitions(void) const { return Transitions; }
-    inline TimestampType       GetTimestamp(void) const { return Timestamp; }
-    inline const std::string & GetWhat(void) const      { return What; }
+    //
+    // Setters for run-time attributes
+    //
+    // MJTEMP: Currently, Get/SetTimestamp is used only for the timeline viewer.
+    // In other cases, event objects are handled as const pointer once the
+    // object is created.
+    void SetTimestamp(TimestampType timestamp) { Timestamp = timestamp; }
+    void SetWhat(const std::string & what)     { What = what; }
+
+    // Accessor for ignored property (used for timeline viewer)
+    inline bool GetIgnored(void) const          { return Ignored; }
+    inline void SetIgnored(bool ignored = true) { Ignored = ignored; }
+    // Accessor for valid property (used by StateMachine class)
+    inline bool GetValid(void) const        { return Valid; }
+    inline void SetValid(bool valid = true) { Valid = valid; }
+
+    // Copy attributes of other event
+    void CopyFrom(const Event * event);
 
     // Returns human readable outputs
     virtual void ToStream(std::ostream & outputStream) const;
