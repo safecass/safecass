@@ -139,6 +139,8 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
         break;
     }
 
+    std::cout << json << std::endl;
+
 #if VERBOSE
     SFLOG_INFO << "message received - topic: " << TopicName << ", category: " << categoryName << " ]" << std::endl;
     if (category == SF::Topic::Data::READ_RES) {
