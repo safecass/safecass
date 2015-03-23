@@ -97,18 +97,24 @@ readTextFile(dataFileName);
 
 var data = JSON.parse(jsondata)
   , states = data.states
-  , items = data.items
+  , events = data.events
   , now = new Date();
 
-var margin = {top: 20, right: 15, bottom: 15, left: 130}
-  , width = 960 - margin.left - margin.right
-  , height = 500 - margin.top - margin.bottom
-  , miniHeight = states.length * 12 + 50
+var margin = {top: 20, right: 40, bottom: 15, left: 300}
+  , width = 1000 - margin.left
+  , height = 1700 - margin.top - margin.bottom
+  , miniHeight = states.length * 11 + 50
   , mainHeight = height - miniHeight - 160;
 
+var tick_min = d3.min(events, function(d) { return new Date(d.start); });
+var tick_max = d3.max(events, function(d) { return new Date(d.end); });
+var tick_diff = tick_max.getTime() - tick_min.getTime(); // in msec
 var x = d3.time.scale()
-	.domain([d3.time.sunday(d3.min(items, function(d) { return new Date(d.start); })),
-			 d3.max(items, function(d) { return new Date(d.end); })])
+	.domain([d3.time.sunday(d3.min(events, function(d) { return new Date(d.start); })),
+  		     //d3.max(events, function(d) { return new Date(d.end); })])
+           d3.time.day.ceil(now)])
+  //.domain([new Date(tick_min.getTime() - tick_diff * 100), new Date(tick_max.getTime() + tick_diff * 100)])
+	//.domain([d3.min(events, function(d) { return new Date(d.start); }), d3.time.day.ceil(now)])
 	.range([0, width]);
 var x1 = d3.time.scale().range([0, width]);
 
@@ -154,10 +160,10 @@ main.append('g').selectAll('.stateText')
 	.data(states)
 	.enter().append('text')
 	.text(function(d) { return d.label; })
-	.attr('x', -10)
+	.attr('x', -margin.left)
 	.attr('y', function(d) { return y1(d.id + .5); })
 	.attr('dy', '0.5ex')
-	.attr('text-anchor', 'end')
+	.attr('text-anchor', 'begin')
 	.attr('class', 'stateText');
 
 // draw the states for the mini chart
@@ -174,10 +180,10 @@ mini.append('g').selectAll('.stateText')
 	.data(states)
 	.enter().append('text')
 	.text(function(d) { return d.label; })
-	.attr('x', -10)
+	.attr('x', -margin.left+50)
 	.attr('y', function(d) { return y2(d.id + .5); })
 	.attr('dy', '0.5ex')
-	.attr('text-anchor', 'end')
+	.attr('text-anchor', 'begin')
 	.attr('class', 'stateText');
 
 // draw the x axis
@@ -249,12 +255,12 @@ mini.append('line')
 	.attr('y2', miniHeight)
 	.attr('class', 'todayLine');
 
-// draw the items
+// draw the events
 var itemRects = main.append('g')
 	.attr('clip-path', 'url(#clip)');
 
 mini.append('g').selectAll('miniItems')
-	.data(getPaths(items))
+	.data(getPaths(events))
 	.enter().append('path')
 	.attr('class', function(d) { return 'miniItem ' + d.class; })
 	.attr('d', function(d) { return d.path; });
@@ -270,7 +276,10 @@ mini.append('rect')
 // draw the selection area
 var brush = d3.svg.brush()
 	.x(x)
-	.extent([d3.time.monday(now),d3.time.saturday.ceil(now)])
+	//.extent([d3.time.monday(now),d3.time.saturday.ceil(now)])
+	//.extent([d3.min(events, function(d) { return new Date(d.start); }), d3.time.day.ceil(now)])
+	//.extent([new Date(tick_min.getTime() - tick_diff * 100), new Date(tick_max.getTime() + tick_diff * 100)])
+	.extent([new Date(tick_min.getTime() - tick_diff * 100), d3.time.day.ceil(now)])
 	.on("brush", onBrush);
 
 mini.append('g')
@@ -286,9 +295,11 @@ onBrush();
 function onBrush() {
 
 	var rects, labels
-	  , minExtent = d3.time.day(brush.extent()[0])
-	  , maxExtent = d3.time.day(brush.extent()[1])
-	  , visItems = items.filter(function (d) { return new Date(d.start) < maxExtent && new Date(d.end) > minExtent});
+	  //, minExtent = d3.time.day(brush.extent()[0])
+	  //, maxExtent = d3.time.day(brush.extent()[1])
+	  , minExtent = brush.extent()[0]
+	  , maxExtent = brush.extent()[1]
+	  , visItems = events.filter(function (d) { return new Date(d.start) < maxExtent && new Date(d.end) > minExtent});
 
 	mini.select('.brush').call(brush.extent([minExtent, maxExtent]));		
 
@@ -319,7 +330,7 @@ function onBrush() {
 	main.select('.main.axis.date').call(x1DateAxis);
 	main.select('.main.axis.month').call(x1MonthAxis)
 		.selectAll('text')
-			.attr('dx', 5)
+			.attr('dx', 0.1)
 			.attr('dy', 12);
 
 	// upate the item rects
@@ -330,7 +341,7 @@ function onBrush() {
 
 	rects.enter().append('rect')
 		.attr('x', function(d) { return x1(new Date(d.start)); })
-		.attr('y', function(d) { return y1(d.state) + .1 * y1(1) + 0.5; })
+		.attr('y', function(d) { return y1(d.stateid) + .1 * y1(1) + 0.5; })
 		.attr('width', function(d) { return x1(new Date(d.end)) - x1(new Date(d.start)); })
 		.attr('height', function(d) { return .8 * y1(1); }) // main chart state height ratio
 		.attr('class', function(d) { return 'mainItem ' + d.class; });
@@ -343,9 +354,10 @@ function onBrush() {
 		.attr('x', function(d) { return x1(Math.max(new Date(d.start), minExtent)) + 2; });
 				
 	labels.enter().append('text')
-		.text(function (d) { return 'Item\n\n\n\n Id: ' + d.id; })
+		//.text(function (d) { return 'Item\n\n\n\n Id: ' + d.id; })
+		.text(function (d) { return d.name; })
 		.attr('x', function(d) { return x1(Math.max(new Date(d.start), minExtent)) + 2; })
-		.attr('y', function(d) { return y1(d.state) + .6 * y1(1) + 0.5; })
+		.attr('y', function(d) { return y1(d.stateid) + .6 * y1(1) + 0.5; })
 		.attr('text-anchor', 'start')
 		.attr('class', 'itemLabel');
 
@@ -355,23 +367,23 @@ function onBrush() {
 function moveBrush () {
 	var origin = d3.mouse(this)
 	  , point = x.invert(origin[0])
-	  , halfExtent = (brush.extent()[1].getTime() - brush.extent()[0].getTime()) / 2
-	  , start = new Date(point.getTime() - halfExtent)
-	  , end = new Date(point.getTime() + halfExtent);
+	  , halfExtent = (brush.extent()[1].getTime() - brush.extent()[0].getTime()) / 2;
+	  //, start = new Date(point.getTime() - halfExtent)
+	  //, end = new Date(point.getTime() + halfExtent);
 
-	brush.extent([start,end]);
+	//brush.extent([start,end]);
 	onBrush();
 }
 
 // generates a single path for each item class in the mini display
 // ugly - but draws mini 2x faster than append lines or line generator
 // is there a better way to do a bunch of lines as a single path with d3?
-function getPaths(items) {
+function getPaths(events) {
 	var paths = {}, d, offset = .5 * y2(1), result = [];
-	for (var i = 0; i < items.length; i++) {
-		d = items[i];
+	for (var i = 0; i < events.length; i++) {
+		d = events[i];
 		if (!paths[d.class]) paths[d.class] = '';	
-		paths[d.class] += ['M',x(new Date(d.start)),(y2(d.state) + offset),'H',x(new Date(d.end))].join(' ');
+		paths[d.class] += ['M',x(new Date(d.start)),(y2(d.stateid) + offset),'H',x(new Date(d.end))].join(' ');
 	}
 
 	for (var className in paths) {
