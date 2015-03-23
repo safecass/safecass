@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 3, 2014
-// Last revision: Jul 29, 2014
+// Last revision: Mar 21, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -26,18 +26,13 @@ void handler_event_help(void)
     std::cout << std::endl
               << "event [command]" << std::endl
               << "    help           : show help for event command"  << std::endl
-              << "    list           : show all events in the system" << std::endl
+              << "    list           : show registered events" << std::endl
               << "    generate|gen   : inject event into the system" << std::endl
               << "    broadcast|bcast: broadcast event" << std::endl;
 }
 
 void handler_event_list(const std::string & safetyCoordinatorName, const std::string & componentName)
 {
-#define CASROS_ACCESSOR_CHECK\
-    if (!casrosAccessor) {\
-        std::cerr << "ERROR: accessor is not initialized" << std::endl;\
-        return;\
-    }
     CASROS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestEventList(safetyCoordinatorName, componentName)) {
@@ -67,7 +62,6 @@ void handler_event_broadcast(const std::string & eventName, const std::string & 
         return;
     }
 }
-#undef CASROS_ACCESSOR_CHECK
 
 //------------------------------------------------------------ 
 // event
@@ -112,15 +106,14 @@ void handler_event(const std::vector<std::string> & args)
         if (n == 1) {
             safetyCoordinatorName = "*";
             componentName = "*";
-        }
-        else if (n == 2) {
+        } else if (n == 2) {
             safetyCoordinatorName = args[1];
             componentName = "*";
-        }
-        else if (n == 3) {
+        } else if (n == 3) {
             safetyCoordinatorName = args[1];
             componentName = args[2];
         }
+
         handler_event_list(safetyCoordinatorName, componentName);
         break;
 

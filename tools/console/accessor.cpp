@@ -59,6 +59,9 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
         break;
     }
 
+    // MJTEMP
+    std::cout << json << std::endl;
+
     SF::JSON _json;
     std::cout << "[ topic: " << TopicName << ", category: " << categoryName << " ] received " << std::endl;
     if (_json.Read(json.c_str())) {
@@ -175,6 +178,23 @@ bool AccessorConsole::RequestStateList(const std::string & safetyCoordinatorName
     return true;
 }
 
+bool AccessorConsole::RequestStateHistory(const std::string & safetyCoordinatorName,
+                                       const std::string & componentName) const
+{
+    std::stringstream ss;
+    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
+          "\"component\": \"" << componentName << "\" }, "
+          "\"request\": \"state_history\" }";
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+        std::cerr << "RequestStateHistory: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        return false;
+    }
+
+    std::cout << "requested state history" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}
 
 bool AccessorConsole::RequestEventList(const std::string & safetyCoordinatorName,
                                        const std::string & componentName) const

@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Jul 29, 2014
+// Last revision: Mar 21, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -49,6 +49,9 @@ public:
     // request list of all states in the system
     bool RequestStateList(const std::string & safetyCoordinatorName = "*",
                           const std::string & componentName = "*") const;
+    // request list of state history with events
+    bool RequestStateHistory(const std::string & safetyCoordinatorName = "*",
+                             const std::string & componentName = "*") const;
     // request list of all events in the system
     bool RequestEventList(const std::string & safetyCoordinatorName = "*",
                           const std::string & componentName = "*") const;
@@ -73,5 +76,12 @@ public:
     // request event broadcast 
     bool RequestEventBroadcast(const std::string & eventName, const std::string & safetyCoordinatorName) const;
 };
+
+// Aux macro
+#define CASROS_ACCESSOR_CHECK\
+    if (!casrosAccessor) {\
+        std::cerr << "ERROR: accessor is not initialized" << std::endl;\
+        return;\
+    }
 
 #endif // _accessor_console_h
