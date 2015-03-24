@@ -1,0 +1,34 @@
+{
+  "states" : [
+    {
+      "id" : 0,
+      "label" : "JR3/Framework"
+    },
+    {
+      "id" : 1,
+      "label" : "JR3/Application"
+    },
+    {
+      "id" : 2,
+      "label" : "JR3/P Provided1"
+    },
+    {
+      "id" : 3,
+      "label" : "JR3/P Provided2"
+    },
+    {
+      "id" : 4,
+      "label" : "JR3/R Required1"
+    }
+  ],
+  "events" : [
+    {
+      "desc" : "This is a description.",
+      "id" : 0,
+      "state" : 0,
+      "class" : "warning",
+      "start" : "2015-03-16T14:00:00.000Z",
+      "end" : "2015-03-16T14:00:00.200Z"
+    }
+  ]
+}

@@ -6,7 +6,7 @@
          "end" : "2015-03-23T20:35:27.146Z",
          "name" : "EVT_COMMAND_QUEUE_FULL",
          "start" : "2015-03-23T20:33:26.146Z",
-         "stateid" : 38
+         "state" : 38
       },
       {
          "class" : "ERROR",
@@ -14,7 +14,7 @@
          "end" : "2015-03-23T20:35:27.146Z",
          "name" : "EVT_SERVICE_FAILURE",
          "start" : "2015-03-23T20:32:26.146Z",
-         "stateid" : 45
+         "state" : 45
       }
    ],
    "states" : [

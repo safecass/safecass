@@ -100,20 +100,25 @@ var data = JSON.parse(jsondata)
   , events = data.events
   , now = new Date();
 
-var margin = {top: 20, right: 40, bottom: 15, left: 300}
+// obtain max string length in state names
+var maxLength = 0;
+for (var i = 0, length = states.length; i < length; ++i) {
+   maxLength = Math.max(maxLength, states[i].label.length);
+};
+
+var margin = {top: 20, right: 40, bottom: 15, left: maxLength * 6.5}
   , width = 1000 - margin.left
-  , height = 1700 - margin.top - margin.bottom
+  , height = 300 + states.length * 30 - margin.top - margin.bottom
   , miniHeight = states.length * 11 + 50
   , mainHeight = height - miniHeight - 160;
 
 var tick_min = d3.min(events, function(d) { return new Date(d.start); });
 var tick_max = d3.max(events, function(d) { return new Date(d.end); });
-var tick_diff = tick_max.getTime() - tick_min.getTime(); // in msec
+var tick_diff = (tick_max.getTime() - tick_min.getTime()) / 1000;
+
 var x = d3.time.scale()
-	.domain([d3.time.sunday(d3.min(events, function(d) { return new Date(d.start); })),
-  		     //d3.max(events, function(d) { return new Date(d.end); })])
-           d3.time.day.ceil(now)])
-  //.domain([new Date(tick_min.getTime() - tick_diff * 100), new Date(tick_max.getTime() + tick_diff * 100)])
+	//.domain([d3.time.sunday(d3.min(events, function(d) { return new Date(d.start); })), d3.time.day.ceil(now)])
+  .domain([new Date(tick_min.getTime() - tick_diff * 200), new Date(tick_max.getTime() + tick_diff * 200)])
 	//.domain([d3.min(events, function(d) { return new Date(d.start); }), d3.time.day.ceil(now)])
 	.range([0, width]);
 var x1 = d3.time.scale().range([0, width]);
@@ -180,10 +185,10 @@ mini.append('g').selectAll('.stateText')
 	.data(states)
 	.enter().append('text')
 	.text(function(d) { return d.label; })
-	.attr('x', -margin.left+50)
+	.attr('x', -10)
 	.attr('y', function(d) { return y2(d.id + .5); })
 	.attr('dy', '0.5ex')
-	.attr('text-anchor', 'begin')
+	.attr('text-anchor', 'end')
 	.attr('class', 'stateText');
 
 // draw the x axis
@@ -278,8 +283,8 @@ var brush = d3.svg.brush()
 	.x(x)
 	//.extent([d3.time.monday(now),d3.time.saturday.ceil(now)])
 	//.extent([d3.min(events, function(d) { return new Date(d.start); }), d3.time.day.ceil(now)])
-	//.extent([new Date(tick_min.getTime() - tick_diff * 100), new Date(tick_max.getTime() + tick_diff * 100)])
-	.extent([new Date(tick_min.getTime() - tick_diff * 100), d3.time.day.ceil(now)])
+	.extent([new Date(tick_min.getTime() - tick_diff * 100), new Date(tick_max.getTime() + tick_diff * 100)])
+	//.extent([new Date(tick_min.getTime() - tick_diff * 100), d3.time.day.ceil(now)])
 	.on("brush", onBrush);
 
 mini.append('g')
@@ -305,6 +310,7 @@ function onBrush() {
 
 	x1.domain([minExtent, maxExtent]);
 
+  /*
 	if ((maxExtent - minExtent) > 1468800000) {
 		x1DateAxis.ticks(d3.time.mondays, 1).tickFormat(d3.time.format('%a %d'))
 		x1MonthAxis.ticks(d3.time.mondays, 1).tickFormat(d3.time.format('%b - Week %W'))		
@@ -317,6 +323,24 @@ function onBrush() {
 		x1DateAxis.ticks(d3.time.hours, 4).tickFormat(d3.time.format('%I %p'))
 		x1MonthAxis.ticks(d3.time.days, 1).tickFormat(d3.time.format('%b %e'))
 	}
+  */
+  var brush_diff = (maxExtent - minExtent) / 5000;
+  if (brush_diff < 1) {
+      x1DateAxis.ticks(d3.time.seconds, 0.1).tickFormat(d3.time.format('.%L'))
+      x1MonthAxis.ticks(d3.time.seconds, 1).tickFormat(d3.time.format('%c'))
+  } else if (brush_diff < 60) { // 1 min
+      x1DateAxis.ticks(d3.time.minutes, 1).tickFormat(d3.time.format(':%S'))
+      x1MonthAxis.ticks(d3.time.minutes, 1).tickFormat(d3.time.format('%c'))
+  } else if (brush_diff < 3600) { // 1 hour
+      x1DateAxis.ticks(d3.time.hours, 1).tickFormat(d3.time.format(':%M:%S'))
+      x1MonthAxis.ticks(d3.time.hours, 1).tickFormat(d3.time.format('%c'))
+  } else if (brush_diff < 86400) { // 1 day
+      x1DateAxis.ticks(d3.time.days, 1).tickFormat(d3.time.format('%H:%M:%S'))
+      x1MonthAxis.ticks(d3.time.days, 1).tickFormat(d3.time.format('%c'))
+  } else {
+      x1DateAxis.ticks(d3.time.days, 2).tickFormat(d3.time.format('%H:%M:%S'))
+      x1MonthAxis.ticks(d3.time.days, 2).tickFormat(d3.time.format('%c'))
+  }
 
 
 	//x1Offset.range([0, x1(d3.time.day.ceil(now) - x1(d3.time.day.floor(now)))]);
@@ -341,7 +365,7 @@ function onBrush() {
 
 	rects.enter().append('rect')
 		.attr('x', function(d) { return x1(new Date(d.start)); })
-		.attr('y', function(d) { return y1(d.stateid) + .1 * y1(1) + 0.5; })
+		.attr('y', function(d) { return y1(d.state) + .1 * y1(1) + 0.5; })
 		.attr('width', function(d) { return x1(new Date(d.end)) - x1(new Date(d.start)); })
 		.attr('height', function(d) { return .8 * y1(1); }) // main chart state height ratio
 		.attr('class', function(d) { return 'mainItem ' + d.class; });
@@ -357,7 +381,7 @@ function onBrush() {
 		//.text(function (d) { return 'Item\n\n\n\n Id: ' + d.id; })
 		.text(function (d) { return d.name; })
 		.attr('x', function(d) { return x1(Math.max(new Date(d.start), minExtent)) + 2; })
-		.attr('y', function(d) { return y1(d.stateid) + .6 * y1(1) + 0.5; })
+		.attr('y', function(d) { return y1(d.state) + .6 * y1(1) + 0.5; })
 		.attr('text-anchor', 'start')
 		.attr('class', 'itemLabel');
 
@@ -383,7 +407,7 @@ function getPaths(events) {
 	for (var i = 0; i < events.length; i++) {
 		d = events[i];
 		if (!paths[d.class]) paths[d.class] = '';	
-		paths[d.class] += ['M',x(new Date(d.start)),(y2(d.stateid) + offset),'H',x(new Date(d.end))].join(' ');
+		paths[d.class] += ['M',x(new Date(d.start)),(y2(d.state) + offset),'H',x(new Date(d.end))].join(' ');
 	}
 
 	for (var className in paths) {
