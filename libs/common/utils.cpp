@@ -2,20 +2,22 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : May 27, 2012
-// Last revision: Aug 5, 2014
+// Last revision: Mar 23, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
 #include "utils.h"
 #include <time.h>
-#include <algorithm> 
-#include <functional> 
+#include <algorithm>
+#include <functional>
 #include <cctype>
+//#include <iomanip> // std::setprecision
+#include <math.h> // modf
 //#include <locale>
 #if SF_HAS_CISST
 #include <cisstOSAbstraction/osaGetTime.h>
@@ -71,6 +73,31 @@ std::string SF::GetCurrentUTCTimeString(void)
                  (ptm->tm_hour + UTC) % 24,
                  ptm->tm_min,
                  ptm->tm_sec);
+
+    return std::string(buf);
+}
+
+std::string SF::GetUTCTimeString(TimestampType timestamp)
+{
+    static const int MST = -7;
+    static const int UTC = 0;
+    static const int CCT = +8;
+
+    double fractpart, intpart;
+    fractpart = modf(timestamp, &intpart);
+  
+    time_t tick = (time_t)intpart;
+    struct tm * ptm = gmtime(&tick);
+
+    char buf[32];
+    sprintf(buf, "%04d-%02d-%02dT%02d:%02d:%02d.%03.0fZ", 
+                 ptm->tm_year + 1900,
+                 ptm->tm_mon + 1,
+                 ptm->tm_mday,
+                 (ptm->tm_hour + UTC) % 24,
+                 ptm->tm_min,
+                 ptm->tm_sec,
+                 fractpart * 1000.0);
 
     return std::string(buf);
 }

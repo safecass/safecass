@@ -50,6 +50,9 @@ TimestampType GetCurrentTimeTick(void);
 /*! Get current UTC time */
 std::string GetCurrentUTCTimeString(void);
 
+/*! Get given timestamp in UTC format */
+std::string GetUTCTimeString(TimestampType timestamp);
+
 };
 
 #endif // _utils_h
