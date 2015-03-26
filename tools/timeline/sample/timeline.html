@@ -62,20 +62,36 @@ THE SOFTWARE.
 	fill: #ddd;
 }
 
+.brush .extent {
+	stroke: gray;
+	fill: blue;
+	fill-opacity: .165;
+}
+
+/* color encoding of different types of events */
 .warning {
 	stroke: #FFCC00;
 	fill: #FFCC00;
 }
 
 .error {
-	stroke: #F00007;
+	stroke: blue;/*#F00007;*/
 	fill: #F00007;
 }
 
-.brush .extent {
-	stroke: gray;
-	fill: blue;
-	fill-opacity: .165;
+.error-override {
+	stroke: #FF00FF;
+	fill: #F00007;
+}
+
+.ignored {
+	stroke: #cecece;
+	fill: #cecece;
+}
+
+.debug {
+	stroke: #00FFFF;
+	fill: #00FFFF;
 }
 </style>
 </head>
@@ -342,7 +358,18 @@ function onBrush() {
       x1MonthAxis.ticks(d3.time.days, 2).tickFormat(d3.time.format('%c'))
   }
 
-
+  /*
+  var format = d3.time.format.multi([
+    [".%L", function(d) { return d.getMilliseconds(); }],
+    [":%S", function(d) { return d.getSeconds(); }],
+    ["%I:%M", function(d) { return d.getMinutes(); }],
+    ["%I %p", function(d) { return d.getHours(); }],
+    ["%a %d", function(d) { return d.getDay() && d.getDate() != 1; }],
+    ["%b %d", function(d) { return d.getDate() != 1; }],
+    ["%B", function(d) { return d.getMonth(); }],
+    ["%Y", function() { return true; }]
+  ]);
+  */
 	//x1Offset.range([0, x1(d3.time.day.ceil(now) - x1(d3.time.day.floor(now)))]);
 
 	// shift the today line
@@ -368,7 +395,8 @@ function onBrush() {
 		.attr('y', function(d) { return y1(d.state) + .1 * y1(1) + 0.5; })
 		.attr('width', function(d) { return x1(new Date(d.end)) - x1(new Date(d.start)); })
 		.attr('height', function(d) { return .8 * y1(1); }) // main chart state height ratio
-		.attr('class', function(d) { return 'mainItem ' + d.class; });
+		//.attr('class', function(d) { return 'mainItem ' + d.class; });
+		.attr('class', function(d) { return d.class; });
 
 	rects.exit().remove();
 

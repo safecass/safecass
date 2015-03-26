@@ -59,9 +59,6 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
         break;
     }
 
-    // MJTEMP
-    std::cout << json << std::endl;
-
     SF::JSON _json;
     std::cout << "[ topic: " << TopicName << ", category: " << categoryName << " ] received " << std::endl;
     if (_json.Read(json.c_str())) {
