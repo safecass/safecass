@@ -134,6 +134,11 @@ public:
     // Reset states and events of particular type of state machine
     void ResetStatesAndEvents(State::StateMachineType type);
 
+    // Extract state transition history from state machines and populate JSON object.
+    // baseId is used as the id of the first entry (state machine).
+    // Returns a number of state machines extracted.
+    unsigned int GetStateHistory(JSON::JSONVALUE & json, unsigned int baseId = 0);
+
     //
     // Getters
     //

@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 23, 2012
-// Last revision: Aug 27, 2014
+// Last revision: Mar 23, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -22,6 +22,7 @@
 #include "common.h"
 #include "config.h"
 #include "stateEventHandler.h"
+#include "json.h"
 #include <iostream>
 
 // boost msm
@@ -160,19 +161,37 @@ protected:
     GCMStateMachine State;
 
     // Pending event that caused transition last time.  NULL in NORMAL state, non-NULL otherwise
-    const Event * PendingEvent;
+    //const Event * OutstandingEvent;
+    Event * OutstandingEvent;
     // Cache of the very last pending event.  To keep this cache is necessary for error propagation
-    // because ProcessEvent() resets PendingEvent when getting back to NORMAL state.
-    const Event * LastPendingEvent;
+    // because ProcessEvent() resets OutstandingEvent when getting back to NORMAL state.
+    //const Event * LastOutstandingEvent;
+    Event * LastOutstandingEvent;
 
     /*! Name of owner of this state machine */
     std::string OwnerName;
+
+    // MJTEMP: This will be replaced with DB in the future.
+    // List of events occurred associated with this state machine.  This
+    // information is used for the timeline tool.
+    typedef struct {
+        // event occurred
+        // 3. UTC <> osaGetTime correctness test
+        // 4. define and handle various cases of onset/offset event visualization 
+        // on the timeline chart (e.g., N -> W -> E -> W -> N)
+        SF::Event * Evt;
+        // new state due to event (INVALID if e was ignored)
+        SF::State::StateType NewState;
+    } StateTransitionEntry;
+
+    typedef std::list<StateTransitionEntry> EventHistoryType;
+    EventHistoryType EventHistory;
 
 private:
     /*! Common initializer */
     void Initialize(const std::string & ownerName, StateEventHandler * eventHandler);
 
-    // Called only by Reset()
+    // Called only by constructors and Reset()
     void Initialize(void);
 
 public:
@@ -188,11 +207,15 @@ public:
     /*! Destructor */
     virtual ~StateMachine(void);
 
-    /*! Process state change events */
+    /*! Process state change events.  Internally, copy of event object is created and 
+        pushed to the list of event history. */
     virtual bool ProcessEvent(const State::TransitionType transition, const Event * event);
 
-    // Reset state machine
-    void Reset(void);
+    // Reset state machine.  EventHistory is reset if resetHistory is true.
+    void Reset(bool resetHistory = false);
+
+    // Get history of state transitions (used for timeline view)
+    void GetStateTransitionHistory(SF::JSON::JSONVALUE & json, unsigned int stateMachineId);
 
     //
     // Getters
@@ -202,11 +225,11 @@ public:
     //! Return onwer name
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
     //! Return pending event
-    inline const Event * GetPendingEvent(void) const { return PendingEvent; }
+    inline const Event * GetOutstandingEvent(void) const { return OutstandingEvent; }
     //! Return cached last pending event
-    inline const Event * GetLastPendingEvent(void) const { return LastPendingEvent; }
+    inline const Event * GetLastOutstandingEvent(void) const { return LastOutstandingEvent; }
     //! Check if last state transition was back to NORMAL state
-    inline bool IsLastTransitionToNormalState(void) const { return (LastPendingEvent != 0); }
+    inline bool IsLastTransitionToNormalState(void) const { return (LastOutstandingEvent != 0); }
 
     //
     // Setters

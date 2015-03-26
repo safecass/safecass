@@ -778,25 +778,10 @@ bool Coordinator::OnEvent(const std::string & event)
     JSON::JSONVALUE & jsonEvent = json.GetRoot()["event"];
 
     const FilterBase::FilterIDType fuid = JSON::GetSafeValueUInt(jsonEvent, "fuid");
-    const unsigned int severity         = JSON::GetSafeValueUInt(jsonEvent, "severity");
     const std::string eventName         = JSON::GetSafeValueString(jsonEvent, "name");
+    const unsigned int severity         = JSON::GetSafeValueUInt(jsonEvent, "severity");
     const TimestampType timestamp       = JSON::GetSafeValueDouble(jsonEvent, "timestamp");
-
-    jsonEvent = json.GetRoot()["target"];
-    const State::StateMachineType targetStateMachineType = 
-        static_cast<State::StateMachineType>(JSON::GetSafeValueUInt(jsonEvent, "type"));
-    const std::string targetComponentName = JSON::GetSafeValueString(jsonEvent, "component");
-    const std::string targetInterfaceName = JSON::GetSafeValueString(jsonEvent, "interface");
-
-#if VERBOSE
-    SFLOG_DEBUG << "fuid: " << fuid << std::endl
-                << "severity: " << severity << std::endl
-                << "name: " << eventName << std::endl
-                << "timestamp: " << timestamp << std::endl
-                << "targetStateMachineType: " << targetStateMachineType << std::endl
-                << "targetComponentName: " << targetComponentName << std::endl
-                << "targetInterfaceName: " << targetInterfaceName << std::endl;
-#endif
+    const std::string what              = JSON::GetSafeValueString(jsonEvent, "what");
 
     // check if event is registered
     const Event * e = GetEvent(eventName);
@@ -806,12 +791,34 @@ bool Coordinator::OnEvent(const std::string & event)
     }
     SFLOG_DEBUG << "OnEvent: Received event: " << *e << std::endl;
 
+    // Construct event object based on json
+    Event evt(e->GetName(), e->GetSeverity(), e->GetTransitions());
+    evt.SetTimestamp(timestamp ? timestamp : GetCurrentTimeTick());
+    evt.SetWhat(what);
+
+    jsonEvent = json.GetRoot()["target"];
+    const State::StateMachineType targetStateMachineType = 
+        static_cast<State::StateMachineType>(JSON::GetSafeValueUInt(jsonEvent, "type"));
+    const std::string targetComponentName = JSON::GetSafeValueString(jsonEvent, "component");
+    const std::string targetInterfaceName = JSON::GetSafeValueString(jsonEvent, "interface");
+
+#if VERBOSE
+    SFLOG_DEBUG << "fuid: " << fuid << std::endl
+                << "name: " << eventName << std::endl
+                << "severity: " << severity << std::endl
+                << "timestamp: " << timestamp << std::endl
+                << "what: " << what << std::endl
+                << "targetStateMachineType: " << targetStateMachineType << std::endl
+                << "targetComponentName: " << targetComponentName << std::endl
+                << "targetInterfaceName: " << targetInterfaceName << std::endl;
+#endif
+
     // Get state machine associated with the event, determine necessary transition 
     // based on the current state of the state machine. This state change may have
     // impact on other states.
 
     // Check if this event is broadcasted
-    const bool broadcast = (e->GetSeverity() >= Event::SEVERITY_BROADCAST_MIN);
+    const bool broadcast = (evt.GetSeverity() >= Event::SEVERITY_BROADCAST_MIN);
     if (broadcast)
         SFASSERT(targetComponentName.compare("*") == 0);
 
@@ -840,9 +847,9 @@ bool Coordinator::OnEvent(const std::string & event)
         JSON _jsonServiceStateChange;
         JSON::JSONVALUE & jsonServiceStateChange = _jsonServiceStateChange.GetRoot();
         const State::TransitionType transition = 
-            gcm->ProcessStateTransition(targetStateMachineType, e, targetInterfaceName, jsonServiceStateChange);
+            gcm->ProcessStateTransition(targetStateMachineType, &evt, targetInterfaceName, jsonServiceStateChange);
         if (transition == State::INVALID_TRANSITION) {
-            SFLOG_WARNING << "OnEvent: invalid transition for event " << *e << std::endl;
+            SFLOG_WARNING << "OnEvent: invalid transition for event " << evt << std::endl;
             continue;
         } else if (transition == State::NO_TRANSITION) {
             continue;
@@ -852,12 +859,12 @@ bool Coordinator::OnEvent(const std::string & event)
         if (jsonServiceStateChange != JSON::JSONVALUE::null) {
             PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonServiceStateChange));
             SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << " : " << targetInterfaceName << " ] "
-                        << "event [ " << *e << " ] occurred.  Publishing error propagation json:\n"
+                        << "event [ " << evt << " ] occurred.  Publishing error propagation json:\n"
                         << JSON::GetJSONString(jsonServiceStateChange) << std::endl;
         }
         else
             SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << " : " << targetInterfaceName << " ] "
-                        << "event " << *e << " occurred but has no impact on service state of "
+                        << "event " << evt << " occurred but has no impact on service state of "
                         << "any of its provided interface.  No further error propagation." << std::endl;
     }
 
@@ -870,7 +877,7 @@ bool Coordinator::OnEvent(const std::string & event)
     PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
 
     // Call event hook for middleware
-    return OnEventHandler(e);
+    return OnEventHandler(&evt);
 }
 
 GCM * Coordinator::GetGCMInstance(const std::string & componentName) const
@@ -946,21 +953,6 @@ bool Coordinator::OnEventPropagation(const JSON::JSONVALUE & json)
 
         // deserialize event information
         State::StateType state  = static_cast<State::StateType>(JSON::GetSafeValueUInt(src, "state"));
-        // getting better cases
-#if 0
-        if (state == State::NORMAL) {
-            SFASSERT(src["event"] == JSON::JSONVALUE::null);
-        }
-        // getting worse cases
-        else if (state == State::FAILURE) {
-            SFASSERT(src["event"] != JSON::JSONVALUE::null);
-        }
-        // should not happen
-        else {
-            SFASSERT(false);
-        }
-#endif
-
         unsigned int severity   = JSON::GetSafeValueUInt(src["event"], "severity");
         TimestampType timestamp = JSON::GetSafeValueDouble(src["event"], "timestamp");
         std::string eventName   = JSON::GetSafeValueString(src["event"], "name");
@@ -1154,7 +1146,7 @@ void Coordinator::GenerateEvent(const std::string &     eventName,
 {
     // get timestamp as early as possible
     // FIXME: After integrating Boost chrono, update this to fetch real timestamp
-    TimestampType tick = 0;
+    TimestampType tick = GetCurrentTimeTick();
 
     // Look up event dictionary to see if the name of user-provided event is valid
     const Event * e = GetEvent(eventName);
@@ -1163,13 +1155,18 @@ void Coordinator::GenerateEvent(const std::string &     eventName,
         return;
     }
 
+    Event evt(*e);
+
+    // Set run-time attributes of event
+    evt.SetTimestamp(tick);
+    evt.SetWhat(what);
+
     JSON _json;
     JSON::JSONVALUE & json = _json.GetRoot();
-    json["event"]["severity"]  = e->GetSeverity();
-    json["event"]["name"]      = e->GetName();
-    json["event"]["timestamp"] = tick;
-    if (what.size())
-        json["event"]["what"] = what;
+    json["event"]["severity"]   = evt.GetSeverity();
+    json["event"]["name"]       = evt.GetName();
+    json["event"]["timestamp"]  = evt.GetTimestamp();
+    json["event"]["what"]       = evt.GetWhat();
     json["target"]["type"]      = static_cast<int>(type);
     json["target"]["component"] = componentName;
     json["target"]["interface"] = interfaceName;
@@ -1477,4 +1474,45 @@ void Coordinator::ResetStateMachines(const std::string & componentName, State::S
     jsonRefresh["target"]["component"] = "*";
     jsonRefresh["request"] = "state_list";
     PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
+}
+
+const std::string Coordinator::GetStateHistory(const std::string & componentName) const
+{
+    JSON _json;
+    JSON::JSONVALUE & json = _json.GetRoot();
+    //jsonRefresh["target"]["safety_coordinator"] = "*";
+    //jsonRefresh["target"]["component"] = "*";
+    //jsonRefresh["request"] = "state_list";
+
+    bool allComponents = (componentName.compare("*") == 0);
+
+    GCM * gcm;
+    if (!allComponents) {
+        unsigned int cid = GetComponentId(componentName);
+        if (cid == 0) {
+            std::stringstream ss;
+            ss << "[ " << GetName() << " ] Coordinator::GetStateHistory: no component \"" << componentName << "\" found.";
+            return ss.str();
+        }
+
+        // if component is not yet added, add it first
+        GCMMapType::const_iterator it = MapGCM.find(cid);
+        SFASSERT(it != MapGCM.end());
+
+        gcm = it->second;
+        gcm->GetStateHistory(json);
+    } else {
+        GCMMapType::const_iterator it = MapGCM.begin();
+        const GCMMapType::const_iterator itEnd = MapGCM.end();
+        unsigned int id = 0;
+        for (; it != itEnd; ++it) {
+            gcm = it->second;
+            id += gcm->GetStateHistory(json, id);
+        }
+    }
+
+    // MJMJ
+    std::cout << "################## " << JSON::GetJSONString(json) << std::endl;
+
+    return _json.GetJSON();
 }

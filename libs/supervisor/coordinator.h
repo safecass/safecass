@@ -142,6 +142,8 @@ public:
                          const GCM::InterfaceTypes type);
     // Get state information of the entire system
     const std::string GetStateSnapshot(const std::string & componentName = "*") const;
+    // Get state history with events on the component specified
+    const std::string GetStateHistory(const std::string & componentName = "*") const;
 
     //
     // FILTERS
@@ -192,6 +194,7 @@ public:
     const std::string GetEventList(const std::string & componentName = "*") const;
     // Called by filter when event is generated.  Event information such as timestamp,
     // location, and severity is encoded in JSON.
+    // Creates event instance internally and calls the other OnEvent() method
     bool OnEvent(const std::string & event);
     // Called by subscriber when service state change is propagated from other component.
     bool OnEventPropagation(const JSON::JSONVALUE & json);

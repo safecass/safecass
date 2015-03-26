@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Aug 27, 2014
+// Last revision: Mar 23, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -49,8 +49,11 @@ StateMachine::StateMachine(const std::string & ownerName, StateEventHandler * ev
 
 void StateMachine::Initialize(void)
 {
-    PendingEvent = 0;
-    LastPendingEvent = 0;
+    OutstandingEvent = new Event();
+    OutstandingEvent->SetValid(false);
+
+    LastOutstandingEvent = new Event();
+    LastOutstandingEvent->SetValid(false);
 
     State.start();
 }
@@ -69,6 +72,9 @@ StateMachine::~StateMachine(void)
 
     if (State.EventHandlerInstance)
         delete State.EventHandlerInstance;
+
+    delete OutstandingEvent;
+    delete LastOutstandingEvent;
 }
 
 void StateMachine::SetStateEventHandler(StateEventHandler * instance)
@@ -166,10 +172,10 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
     //      (e.g., FORCE_SAT caused state transition N2E, FORCE_NEAR_SAT restores
     //      the state from E2N?)
     bool ignore = true;
-    if (PendingEvent == 0)
+    if (!OutstandingEvent->GetValid())
         ignore = false;
     else {
-        SFLOG_DEBUG << "PENDING EVENT: " << *PendingEvent << std::endl;
+        SFLOG_DEBUG << "OUTSTANDING EVENT: " << *OutstandingEvent << std::endl;
         SFLOG_DEBUG << "NEW EVENT: " << *event << std::endl;
         // Getting worse case
         if (gettingWorse) {
@@ -178,7 +184,7 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
                 ignore = false;
             else if (currentState == nextState) {
                 // Check severity
-                if (PendingEvent->GetSeverity() < event->GetSeverity())
+                if (OutstandingEvent->GetSeverity() < event->GetSeverity())
                     ignore = false;
             }
         }
@@ -190,12 +196,12 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
                 ignore = false;
             else if (currentState == nextState) {
                 // Check severity
-                if (PendingEvent->GetSeverity() > event->GetSeverity())
+                if (OutstandingEvent->GetSeverity() > event->GetSeverity())
                     ignore = false;
             }
 #endif
             // Check severity
-            if (PendingEvent->GetSeverity() <= event->GetSeverity()) {
+            if (OutstandingEvent->GetSeverity() <= event->GetSeverity()) {
                 // Check criticality
                 if (currentState > nextState)
                     ignore = false;
@@ -205,25 +211,36 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
 
     if (ignore) {
         SFLOG_WARNING << "StateMachine::ProcessEvent: event \"" << *event << "\" is ignored" << std::endl;
+
+        StateTransitionEntry entry;
+        entry.Evt = new Event(*event);
+        entry.Evt->SetIgnored();
+        entry.NewState = State::INVALID;
+        EventHistory.push_back(entry);
+
         return false;
     }
 
     std::stringstream ss;
     ss << "StateMachine::ProcessEvent: event \"" << event->GetName() << "\" caused state transition "
        << "from " << State::GetStringState(currentState) << " to " << State::GetStringState(nextState);
-    if (PendingEvent)
-        ss << " and " << "active event was replaced from [ " << *PendingEvent << " ] to [ " << *event << " ].";
-    else
+    if (OutstandingEvent->GetValid()) {
+        ss << " and " << "active event was replaced from [ " << *OutstandingEvent << " ] to [ " << *event << " ].";
+    }
+    else {
         ss << " and new active event is installed as [ " << *event << " ].";
+    }
     SFLOG_DEBUG << ss.str() << std::endl;
 
     // Swap out currently active event with new event of higher criticality or equal
     // criticality but higher severity.
-    LastPendingEvent = PendingEvent;
+    LastOutstandingEvent->CopyFrom(OutstandingEvent);
     if (nextState == State::NORMAL)
-        PendingEvent = 0;
-    else
-        PendingEvent = event;
+        OutstandingEvent->SetValid(false);
+    else {
+        OutstandingEvent->CopyFrom(event);
+        OutstandingEvent->SetValid(true);
+    }
 
     switch (transition) {
     case State::NORMAL_TO_WARNING: State.process_event(evt_N2W()); break;
@@ -235,6 +252,11 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
     default:
         return false;
     }
+
+    StateTransitionEntry entry;
+    entry.Evt = new Event(*event);
+    entry.NewState = nextState;
+    EventHistory.push_back(entry);
 
     return true;
 }
@@ -249,11 +271,20 @@ State::StateType StateMachine::GetCurrentState(void) const
     }
 }
  
-void StateMachine::Reset(void)
+void StateMachine::Reset(bool resetHistory)
 {
     State.stop();
 
     Initialize();
+
+    if (resetHistory) {
+        EventHistoryType::const_iterator it = EventHistory.begin();
+        const EventHistoryType::const_iterator itEnd = EventHistory.end();
+        for (; it != itEnd; ++it)
+            delete it->Evt;
+
+        EventHistory.clear();
+    }
 }
 
 #if ENABLE_UNIT_TEST
@@ -296,3 +327,175 @@ std::string StateMachine::GetCounterStatus(void) const
     return ss.str();
 }
 #endif
+
+// time (in second) to represent standalone events
+#define DEFAULT_WIDTH 0.1
+//#define STATE_HISTORY_DEBUG // MJTEMP
+void StateMachine::GetStateTransitionHistory(SF::JSON::JSONVALUE & json, unsigned int stateMachineId)
+{
+    EventHistoryType::const_iterator it = EventHistory.begin();
+    const EventHistoryType::const_iterator itEnd = EventHistory.end();
+
+    /*
+                                                  Now 
+        Time:  -----------------------------------|--------------
+
+                              prevEvt             currEvt 
+        Event: ---------------|-------------------|--------------
+
+                                    currState        nextState
+        State: ---------------|-------------------|--------------
+    */
+    const Event *currEvt = 0, *prevEvt = 0;
+    State::StateType currState = State::NORMAL, nextState;
+    for (; it != itEnd; ++it) {
+        currEvt = it->Evt;
+
+#if STATE_HISTORY_DEBUG
+        std::cout << __LINE__ << " ----------- currEvt: " << *currEvt << " ====> " << State::GetStringState(it->NewState) << std::endl;
+        if (prevEvt)
+            std::cout << __LINE__ << "             prevEvt: " << *prevEvt << std::endl;
+        else
+            std::cout << __LINE__ << "             prevEvt: NULL\n";
+#endif
+
+        JSON _entry;
+        JSON::JSONVALUE & entry = _entry.GetRoot();
+
+        // numeric id of state machine
+        entry["state"] = stateMachineId;
+
+        // Events ignored show up as events of 0.1 second's duration
+        if (currEvt->GetIgnored()) {
+            entry["name"] = currEvt->GetName();
+            entry["desc"] = currEvt->GetWhat();
+            entry["class"] = "ignored";
+            entry["start"] = GetUTCTimeString(currEvt->GetTimestamp());
+            entry["end"] = GetUTCTimeString(currEvt->GetTimestamp() + DEFAULT_WIDTH);
+            json["events"].append(entry);
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": ignored\n";
+#endif
+        } else {
+            nextState = it->NewState;
+            // If no prior event (outstanding event) exists
+            if (prevEvt == 0) {
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": no prior event\n";
+#endif
+                if (nextState == State::NORMAL) {
+                    // This should not happen
+                    // MJTEMP: add debug event
+#define ADD_DEBUG_EVENT \
+                    entry["name"] = currEvt->GetName();\
+                    entry["desc"] = currEvt->GetWhat();\
+                    entry["class"] = "debug";\
+                    entry["start"] = GetUTCTimeString(currEvt->GetTimestamp());\
+                    entry["end"] = GetUTCTimeString(currEvt->GetTimestamp() + DEFAULT_WIDTH);\
+                    json["events"].append(entry);
+
+                    ADD_DEBUG_EVENT;
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": should not happen\n";
+#endif
+                } else {
+                    // The very first onset event.  At this moment, we don't
+                    // know yet when the completion event occurs, and thus we do
+                    // not add this event to the timeline (yet).
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": NOP\n";
+#endif
+                }
+            }
+            // If outstsanding event exists
+            else {
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": outstanding event exists: " << *prevEvt << "\n";
+#endif
+                // Update currState
+                if (it != EventHistory.begin()) {
+                    --it;
+                    currState = it->NewState;
+                    ++it;
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": previous state: " << State::GetStringState(currState) << "\n";
+#endif
+                }
+
+                // Remains in the same state
+                if (currState == nextState) {
+                    // This should not happen
+                    if (currState == State::NORMAL) {
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": should not happen\n";
+#endif
+                        ADD_DEBUG_EVENT;
+                    }
+                    // Handles event prioritization
+                    else {
+                        // New event of equal or higher severity overrides current outstanding event
+                        if (prevEvt->GetSeverity() <= currEvt->GetSeverity()) {
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": oustanding event overridden\n";
+#endif
+                            // Add current outstanding event to timeline
+                            entry["name"] = prevEvt->GetName();
+                            entry["desc"] = prevEvt->GetWhat();
+                            entry["class"] = State::GetStringState(currState);
+                            entry["start"] = GetUTCTimeString(prevEvt->GetTimestamp());
+                            entry["end"] = GetUTCTimeString(currEvt->GetTimestamp());
+                        }
+                        // New event of lower severity is ignored
+                        else {
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": new event ignored\n";
+#endif
+                            entry["name"] = currEvt->GetName();
+                            entry["desc"] = currEvt->GetWhat();
+                            entry["class"] = "ignored";
+                            entry["start"] = GetUTCTimeString(currEvt->GetTimestamp());
+                            entry["end"] = GetUTCTimeString(currEvt->GetTimestamp() + DEFAULT_WIDTH);
+                        }
+                        json["events"].append(entry);
+                    }
+                }
+                // completion event ("getting better") or onset event ("getting worse")
+                else {
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": onset or completion event\n";
+#endif
+                    // Add previous event to timeline
+                    entry["name"] = prevEvt->GetName();
+                    entry["desc"] = prevEvt->GetWhat();
+                    entry["class"] = State::GetStringState(currState);
+                    entry["start"] = GetUTCTimeString(prevEvt->GetTimestamp());
+                    entry["end"] = GetUTCTimeString(currEvt->GetTimestamp());
+
+                    // completion event ("getting better")
+                    if (currState > nextState) {
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": getting better\n";
+#endif
+                        json["events"].append(entry);
+                    }
+                    // onset event ("getting worse")
+                    else {
+                        SFASSERT(currState < nextState);
+                        if (currState == State::WARNING) {
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": warning\n";
+#endif
+                            json["events"].append(entry);
+                        } else {
+#if STATE_HISTORY_DEBUG
+            std::cout << __LINE__ << ": CHECK THIS OUT!!!\n";
+#endif
+                        }
+                    }
+                }
+            }
+        }
+
+        prevEvt = currEvt;
+    }
+}

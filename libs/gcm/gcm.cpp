@@ -321,8 +321,17 @@ void GCM::PopulateStateUpdateJSON(const std::string & providedInterfaceName, JSO
     const Event * e = 0;
     State::StateType nextServiceState = GetServiceState(providedInterfaceName, e, true);
     json["state"] = static_cast<unsigned int>(nextServiceState);
+
     // event
-    json["event"] = ((e == 0) ? JSON::JSONVALUE::null : e->SerializeJSON());
+    if (e) {
+        Event evt(*e);
+        // update timestamp
+        evt.SetTimestamp(GetCurrentTimeTick());
+        json["event"] = evt.SerializeJSON();
+    } else {
+        json["event"] = JSON::JSONVALUE::null;
+    }
+    
     // target
     {
         JSON _target;
@@ -379,8 +388,8 @@ State::StateType GCM::GetComponentState(ComponentStateViews view, const Event* &
     State stateFramework(States.ComponentFramework->GetCurrentState());
     State stateApp(States.ComponentApplication->GetCurrentState());
 
-    eFramework = States.ComponentFramework->GetPendingEvent();
-    eApp = States.ComponentApplication->GetPendingEvent();
+    eFramework = States.ComponentFramework->GetOutstandingEvent();
+    eApp = States.ComponentApplication->GetOutstandingEvent();
 
     switch (view) {
     case GCM::FRAMEWORK_VIEW:
@@ -501,7 +510,7 @@ State::StateType GCM::GetInterfaceState(const std::string & name, GCM::Interface
         }
     }
 
-    e = it->second->GetPendingEvent();
+    e = it->second->GetOutstandingEvent();
     return it->second->GetCurrentState();
 }
 
@@ -522,11 +531,11 @@ State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type, const Event* &
     const InterfaceStateMachinesType::const_iterator itEnd = interfaces.end();
     for (; it != itEnd; ++it) {
         state = state * it->second->GetCurrentState();
-        if (it->second->GetPendingEvent() == 0)
+        if (it->second->GetOutstandingEvent() == 0)
             continue;
         if (event == 0 ||
-            event->GetSeverity() < it->second->GetPendingEvent()->GetSeverity())
-            event = it->second->GetPendingEvent();
+            event->GetSeverity() < it->second->GetOutstandingEvent()->GetSeverity())
+            event = it->second->GetOutstandingEvent();
     }
 
     e = event;
@@ -721,7 +730,7 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
         // Find provided interface instance
         InterfaceStateMachinesType::const_iterator it = States.ProvidedInterfaces.find(providedInterfaceName);
         SFASSERT(it != States.ProvidedInterfaces.end());
-        event = it->second->GetPendingEvent();
+        event = it->second->GetOutstandingEvent();
         return GetInterfaceState(providedInterfaceName, PROVIDED_INTERFACE);
     }
 
@@ -730,7 +739,7 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
     
     // Initial state and pending event should be fetched from the provided interface
     const StateMachine * smProvided = GetStateMachineInterface(providedInterfaceName, PROVIDED_INTERFACE);
-    const Event * e = smProvided->GetPendingEvent();
+    const Event * e = smProvided->GetOutstandingEvent();
     State serviceState(smProvided->GetCurrentState());
 
     const StateMachine * sm;
@@ -757,19 +766,19 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
                     ss << "null";
                 GET_EVENT_STRING(e);
                 ss << " to ";
-                GET_EVENT_STRING(States.ComponentFramework->GetPendingEvent());
+                GET_EVENT_STRING(States.ComponentFramework->GetOutstandingEvent());
                 ss << std::endl;
 
                 SFLOG_DEBUG << ss.str();
 
                 if (forErrorPropagation) {
-                    e = (sm->IsLastTransitionToNormalState() ? sm->GetLastPendingEvent() : sm->GetPendingEvent());
+                    e = (sm->IsLastTransitionToNormalState() ? sm->GetLastOutstandingEvent() : sm->GetOutstandingEvent());
                     SFASSERT(e);
                 } else
-                    e = States.ComponentFramework->GetPendingEvent();
+                    e = States.ComponentFramework->GetOutstandingEvent();
 #if 0
                 if (!e) {
-                    e = States.ComponentFramework->GetPendingEvent();
+                    e = States.ComponentFramework->GetOutstandingEvent();
                 } else {
                     // FIXME: clarify how to deal with this case
                     // If severity of pending event is higher than that of *this* event,
@@ -777,8 +786,8 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
                     // (If no, this violates state change semantics; we lose info about who changed the state)
                     // Also, state change can be two types: getting worse vs. getting better
                     // ==> How should we determine which event remains the final pending event?
-                    if (e->GetSeverity() > States.ComponentFramework->GetPendingEvent()->GetSeverity())
-                        e = States.ComponentFramework->GetPendingEvent();
+                    if (e->GetSeverity() > States.ComponentFramework->GetOutstandingEvent()->GetSeverity())
+                        e = States.ComponentFramework->GetOutstandingEvent();
                 }
 #endif
             }
@@ -786,21 +795,21 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
             else {
                 if (e == 0) {
                     if (forErrorPropagation)
-                        e = (sm->IsLastTransitionToNormalState() ? sm->GetLastPendingEvent() : sm->GetPendingEvent());
+                        e = (sm->IsLastTransitionToNormalState() ? sm->GetLastOutstandingEvent() : sm->GetOutstandingEvent());
                     else
-                        e = sm->GetPendingEvent();
+                        e = sm->GetOutstandingEvent();
                 } else {
-                    const Event * pending = States.ComponentFramework->GetPendingEvent();
+                    const Event * pending = States.ComponentFramework->GetOutstandingEvent();
                     if (pending) {
                         if (e->GetSeverity() < pending->GetSeverity()) {
                             SFLOG_DEBUG << "GCM::GetServiceState (s_F): service state for \"" << providedInterfaceName << "\" remains same - "
                                 << State::GetStringState(oldState.GetState()) << ", "
                                 << "Pending event changes from " << *e << " to " << *pending << std::endl;
                             if (forErrorPropagation) {
-                                e = (sm->IsLastTransitionToNormalState() ? sm->GetLastPendingEvent() : sm->GetPendingEvent());
+                                e = (sm->IsLastTransitionToNormalState() ? sm->GetLastOutstandingEvent() : sm->GetOutstandingEvent());
                                 SFASSERT(e);
                             } else
-                                e = sm->GetPendingEvent();
+                                e = sm->GetOutstandingEvent();
                         }
                     }
                 }
@@ -821,26 +830,26 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
                    << "Pending event changes from ";
                 GET_EVENT_STRING(e);
                 ss << " to ";
-                GET_EVENT_STRING(States.ComponentApplication->GetPendingEvent());
+                GET_EVENT_STRING(States.ComponentApplication->GetOutstandingEvent());
                 ss << std::endl;
 
                 SFLOG_DEBUG << ss.str();
 
                 if (forErrorPropagation) {
-                    e = (sm->IsLastTransitionToNormalState() ? sm->GetLastPendingEvent() : sm->GetPendingEvent());
+                    e = (sm->IsLastTransitionToNormalState() ? sm->GetLastOutstandingEvent() : sm->GetOutstandingEvent());
                     SFASSERT(e);
                 } else
-                    e = sm->GetPendingEvent();
+                    e = sm->GetOutstandingEvent();
             }
             // Even if service state remains the same, event of highest severity should be identified.
             else {
                 if (e == 0) {
                     if (forErrorPropagation)
-                        e = (sm->IsLastTransitionToNormalState() ? sm->GetLastPendingEvent() : sm->GetPendingEvent());
+                        e = (sm->IsLastTransitionToNormalState() ? sm->GetLastOutstandingEvent() : sm->GetOutstandingEvent());
                     else
-                        e = sm->GetPendingEvent();
+                        e = sm->GetOutstandingEvent();
                 } else {
-                    const Event * pending = States.ComponentApplication->GetPendingEvent();
+                    const Event * pending = States.ComponentApplication->GetOutstandingEvent();
                     if (pending) {
                         if (e->GetSeverity() < pending->GetSeverity()) {
                             SFLOG_DEBUG << "GCM::GetServiceState (s_A): service state for \"" << providedInterfaceName << "\" remains same - "
@@ -848,10 +857,10 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
                                 << "Pending event changes from " << *e << " to " << *pending
                                 << std::endl;
                             if (forErrorPropagation) {
-                                e = (sm->IsLastTransitionToNormalState() ? sm->GetLastPendingEvent() : sm->GetPendingEvent());
+                                e = (sm->IsLastTransitionToNormalState() ? sm->GetLastOutstandingEvent() : sm->GetOutstandingEvent());
                                 SFASSERT(e);
                             } else
-                                e = States.ComponentApplication->GetPendingEvent();
+                                e = States.ComponentApplication->GetOutstandingEvent();
                         }
                     }
                 }
@@ -869,37 +878,37 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
                    << "Pending event changes from ";
                 GET_EVENT_STRING(e);
                 ss << " to ";
-                GET_EVENT_STRING(sm->GetPendingEvent());
+                GET_EVENT_STRING(sm->GetOutstandingEvent());
                 ss << std::endl;
 
                 SFLOG_DEBUG << ss.str();
 
                 if (forErrorPropagation) {
-                    e = (sm->IsLastTransitionToNormalState() ? sm->GetLastPendingEvent() : sm->GetPendingEvent());
+                    e = (sm->IsLastTransitionToNormalState() ? sm->GetLastOutstandingEvent() : sm->GetOutstandingEvent());
                     SFASSERT(e);
                 } else
-                    e = sm->GetPendingEvent();
+                    e = sm->GetOutstandingEvent();
             }
             // Even if service state remains the same, event of highest severity should be identified.
             else {
                 if (e == 0) {
                     if (forErrorPropagation)
-                        e = (sm->IsLastTransitionToNormalState() ? sm->GetLastPendingEvent() : sm->GetPendingEvent());
+                        e = (sm->IsLastTransitionToNormalState() ? sm->GetLastOutstandingEvent() : sm->GetOutstandingEvent());
                     else
-                        e = sm->GetPendingEvent();
+                        e = sm->GetOutstandingEvent();
                 } else {
-                    const Event * pending = sm->GetPendingEvent();
+                    const Event * pending = sm->GetOutstandingEvent();
                     if (pending) {
-                        if (e && (e->GetSeverity() < sm->GetPendingEvent()->GetSeverity())) {
+                        if (e && (e->GetSeverity() < sm->GetOutstandingEvent()->GetSeverity())) {
                             SFLOG_DEBUG << "GCM::GetServiceState (s_R): service state for \"" << providedInterfaceName << "\" remains same - "
                                 << State::GetStringState(oldState.GetState()) << ", "
                                 << "Pending event changes from " << *e << " to " << *pending
                                 << std::endl;
                             if (forErrorPropagation) {
-                                e = (sm->IsLastTransitionToNormalState() ? sm->GetLastPendingEvent() : sm->GetPendingEvent());
+                                e = (sm->IsLastTransitionToNormalState() ? sm->GetLastOutstandingEvent() : sm->GetOutstandingEvent());
                                 SFASSERT(e);
                             } else
-                                e = sm->GetPendingEvent();
+                                e = sm->GetOutstandingEvent();
                         }
                     }
                 }
@@ -1081,4 +1090,79 @@ void GCM::ResetStatesAndEvents(State::StateMachineType type)
     case State::STATEMACHINE_INVALID:
         return;
     }
+}
+
+unsigned int GCM::GetStateHistory(JSON::JSONVALUE & json, unsigned int baseId)
+{
+    unsigned int count = 0;
+
+    // framework state
+    States.ComponentFramework->GetStateTransitionHistory(json, baseId);
+    {
+        JSON _state;
+        JSON::JSONVALUE & state = _state.GetRoot();
+        state["id"] = baseId;
+
+        std::string label(this->GetComponentName());
+        label += "/Framework";
+        state["label"] = label;
+
+        json["states"].append(state);
+    }
+    ++count;
+
+    // application state
+    States.ComponentApplication->GetStateTransitionHistory(json, baseId + count);
+    {
+        JSON _state;
+        JSON::JSONVALUE & state = _state.GetRoot();
+        state["id"] = baseId + count;
+
+        std::string label(this->GetComponentName());
+        label += "/Application";
+        state["label"] = label;
+
+        json["states"].append(state);
+    }
+    ++count;
+
+    // required interfaces
+    InterfaceStateMachinesType::const_iterator it = States.RequiredInterfaces.begin();
+    for (; it != States.RequiredInterfaces.end(); ++it) {
+        it->second->GetStateTransitionHistory(json, baseId + count);
+        {
+            JSON _state;
+            JSON::JSONVALUE & state = _state.GetRoot();
+            state["id"] = baseId + count;
+
+            std::string label(this->GetComponentName());
+            label += "/R ";
+            label += it->first;
+            state["label"] = label;
+
+            json["states"].append(state);
+        }
+        ++count;
+    }
+
+    // provided interfaces
+    it = States.ProvidedInterfaces.begin();
+    for (; it != States.ProvidedInterfaces.end(); ++it) {
+        it->second->GetStateTransitionHistory(json, baseId + count);
+        {
+            JSON _state;
+            JSON::JSONVALUE & state = _state.GetRoot();
+            state["id"] = baseId + count;
+
+            std::string label(this->GetComponentName());
+            label += "/P ";
+            label += it->first;
+            state["label"] = label;
+
+            json["states"].append(state);
+        }
+        ++count;
+    }
+
+    return count;
 }
