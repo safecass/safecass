@@ -184,8 +184,8 @@ protected:
         SF::State::StateType NewState;
     } StateTransitionEntry;
 
-    typedef std::list<StateTransitionEntry> EventHistoryType;
-    EventHistoryType EventHistory;
+    typedef std::list<StateTransitionEntry> StateHistoryType;
+    StateHistoryType StateHistory;
 
 private:
     /*! Common initializer */
@@ -211,10 +211,10 @@ public:
         pushed to the list of event history. */
     virtual bool ProcessEvent(const State::TransitionType transition, const Event * event);
 
-    // Reset state machine.  EventHistory is reset if resetHistory is true.
+    // Reset state machine.  StateHistory is reset if resetHistory is true.
     void Reset(bool resetHistory = false);
 
-    // Get history of state transitions (used for timeline view)
+    // Get history of state transitions (used for event viewer)
     void GetStateTransitionHistory(SF::JSON::JSONVALUE & json, unsigned int stateMachineId);
 
     //

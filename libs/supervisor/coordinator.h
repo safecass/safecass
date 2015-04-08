@@ -47,6 +47,7 @@ public:
     // EVENTS
     typedef std::map<std::string, Event*> EventsType; // key: event name
     typedef std::map<std::string, EventsType*> EventMapType; // key: component name
+    typedef std::list<JSON::JSONVALUE> EventHistoryType; // JSON-encoded event history
 
     // FILTERS
     typedef std::map<FilterBase::FilterIDType, FilterBase*> FiltersType;
@@ -85,6 +86,7 @@ protected:
     GCMMapType MapGCM;
     // EVENTS
     EventMapType MapEvent;
+    EventHistoryType EventHistory;
     // FILTERS
     FilterMapType MapFilter;
     // CONNECTIONS: connection information is maintained by GCM (see gcm.h)
@@ -192,6 +194,8 @@ public:
     const Event * GetEvent(const std::string & eventName) const;
     // Get information about all the events installed on the component specified
     const std::string GetEventList(const std::string & componentName = "*") const;
+    // Get event history
+    const std::string GetEventHistory(const std::string & componentName = "*");
     // Called by filter when event is generated.  Event information such as timestamp,
     // location, and severity is encoded in JSON.
     // Creates event instance internally and calls the other OnEvent() method

@@ -96,8 +96,8 @@ if (ENABLE_VIS_FRAMEWORK)
 endif (ENABLE_VIS_FRAMEWORK)
 
 # Boost
-find_package (Boost REQUIRED)
-if (Boost_FOUND)
+find_package (BOOST REQUIRED)
+if (BOOST_FOUND)
   set (SF_LIB_STATEMACHINE_INCLUDE_DIR ${BOOST_INCLUDE_DIR}
                                        ${LIB_DIR}/statemachine)
   set (SF_LIB_STATEMACHINE_SRC ${SF_LIB_STATEMACHINE_INCLUDE_DIR}/state.h

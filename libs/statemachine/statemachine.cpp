@@ -50,10 +50,7 @@ StateMachine::StateMachine(const std::string & ownerName, StateEventHandler * ev
 void StateMachine::Initialize(void)
 {
     OutstandingEvent = new Event();
-    OutstandingEvent->SetValid(false);
-
     LastOutstandingEvent = new Event();
-    LastOutstandingEvent->SetValid(false);
 
     State.start();
 }
@@ -216,7 +213,7 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
         entry.Evt = new Event(*event);
         entry.Evt->SetIgnored();
         entry.NewState = State::INVALID;
-        EventHistory.push_back(entry);
+        StateHistory.push_back(entry);
 
         return false;
     }
@@ -234,11 +231,13 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
 
     // Swap out currently active event with new event of higher criticality or equal
     // criticality but higher severity.
-    LastOutstandingEvent->CopyFrom(OutstandingEvent);
+    //LastOutstandingEvent->CopyFrom(OutstandingEvent);
+    *LastOutstandingEvent = *OutstandingEvent;
     if (nextState == State::NORMAL)
         OutstandingEvent->SetValid(false);
     else {
-        OutstandingEvent->CopyFrom(event);
+        //OutstandingEvent->CopyFrom(event);
+        *OutstandingEvent = *event;
         OutstandingEvent->SetValid(true);
     }
 
@@ -256,7 +255,7 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
     StateTransitionEntry entry;
     entry.Evt = new Event(*event);
     entry.NewState = nextState;
-    EventHistory.push_back(entry);
+    StateHistory.push_back(entry);
 
     return true;
 }
@@ -278,12 +277,12 @@ void StateMachine::Reset(bool resetHistory)
     Initialize();
 
     if (resetHistory) {
-        EventHistoryType::const_iterator it = EventHistory.begin();
-        const EventHistoryType::const_iterator itEnd = EventHistory.end();
+        StateHistoryType::const_iterator it = StateHistory.begin();
+        const StateHistoryType::const_iterator itEnd = StateHistory.end();
         for (; it != itEnd; ++it)
             delete it->Evt;
 
-        EventHistory.clear();
+        StateHistory.clear();
     }
 }
 
@@ -333,8 +332,8 @@ std::string StateMachine::GetCounterStatus(void) const
 //#define STATE_HISTORY_DEBUG // MJTEMP
 void StateMachine::GetStateTransitionHistory(SF::JSON::JSONVALUE & json, unsigned int stateMachineId)
 {
-    EventHistoryType::const_iterator it = EventHistory.begin();
-    const EventHistoryType::const_iterator itEnd = EventHistory.end();
+    StateHistoryType::const_iterator it = StateHistory.begin();
+    const StateHistoryType::const_iterator itEnd = StateHistory.end();
 
     /*
                                                   Now 
@@ -413,7 +412,7 @@ void StateMachine::GetStateTransitionHistory(SF::JSON::JSONVALUE & json, unsigne
             std::cout << __LINE__ << ": outstanding event exists: " << *prevEvt << "\n";
 #endif
                 // Update currState
-                if (it != EventHistory.begin()) {
+                if (it != StateHistory.begin()) {
                     --it;
                     currState = it->NewState;
                     ++it;

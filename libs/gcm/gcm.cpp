@@ -215,7 +215,7 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
     // Get current state
     const State::StateType currentState = sm->GetCurrentState();
     // Look for possible transitions from the current state
-    const State::TransitionType transition = event->GetTransition(currentState);
+    const State::TransitionType transition = event->GetPossibleTransitions(currentState);
     if (transition == State::INVALID_TRANSITION) {
         SFLOG_WARNING << "GCM::ProcessStateTransition: invalid transition: " 
                       << "current state: " << State::GetStringState(currentState) << ", "
@@ -1148,6 +1148,15 @@ unsigned int GCM::GetStateHistory(JSON::JSONVALUE & json, unsigned int baseId)
     // provided interfaces
     it = States.ProvidedInterfaces.begin();
     for (; it != States.ProvidedInterfaces.end(); ++it) {
+#ifdef SF_HAS_CISST
+        // TEMP: hide internal interfaces in case of cisst
+        std::string name(it->first);
+        if (name.compare("ExecOut") == 0 ||
+            name.compare("InterfaceInternalProvided") == 0 ||
+            name.compare("StateTableDefault") == 0 ||
+            name.compare("StateTableMonitor") == 0)
+            continue;
+#endif
         it->second->GetStateTransitionHistory(json, baseId + count);
         {
             JSON _state;

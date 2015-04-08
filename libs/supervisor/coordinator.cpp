@@ -774,6 +774,8 @@ bool Coordinator::OnEvent(const std::string & event)
         SFLOG_ERROR << "Coordinator::OnEvent: Failed to read json string: " << event << std::endl;
         return false;
     }
+    // Remember information about event occurred
+    EventHistory.push_back(json.GetRoot());
 
     JSON::JSONVALUE & jsonEvent = json.GetRoot()["event"];
 
@@ -795,7 +797,7 @@ bool Coordinator::OnEvent(const std::string & event)
     Event evt(e->GetName(), e->GetSeverity(), e->GetTransitions());
     evt.SetTimestamp(timestamp ? timestamp : GetCurrentTimeTick());
     evt.SetWhat(what);
-
+    
     jsonEvent = json.GetRoot()["target"];
     const State::StateMachineType targetStateMachineType = 
         static_cast<State::StateMachineType>(JSON::GetSafeValueUInt(jsonEvent, "type"));
@@ -1480,9 +1482,6 @@ const std::string Coordinator::GetStateHistory(const std::string & componentName
 {
     JSON _json;
     JSON::JSONVALUE & json = _json.GetRoot();
-    //jsonRefresh["target"]["safety_coordinator"] = "*";
-    //jsonRefresh["target"]["component"] = "*";
-    //jsonRefresh["request"] = "state_list";
 
     bool allComponents = (componentName.compare("*") == 0);
 
@@ -1495,7 +1494,6 @@ const std::string Coordinator::GetStateHistory(const std::string & componentName
             return ss.str();
         }
 
-        // if component is not yet added, add it first
         GCMMapType::const_iterator it = MapGCM.find(cid);
         SFASSERT(it != MapGCM.end());
 
@@ -1506,13 +1504,48 @@ const std::string Coordinator::GetStateHistory(const std::string & componentName
         const GCMMapType::const_iterator itEnd = MapGCM.end();
         unsigned int id = 0;
         for (; it != itEnd; ++it) {
+#ifdef SF_HAS_CISST
+            // TEMP: hide internal components and interfaces in case of cisst
+            std::string name(GetComponentName(it->first));
+            if (name.compare("MCS") == 0 ||
+                name.compare("LCM_MCC") == 0 ||
+                name.compare("SafetyMonitor") == 0)
+                continue;
+#endif
             gcm = it->second;
             id += gcm->GetStateHistory(json, id);
         }
     }
 
-    // MJMJ
-    std::cout << "################## " << JSON::GetJSONString(json) << std::endl;
-
     return _json.GetJSON();
+}
+
+const std::string Coordinator::GetEventHistory(const std::string & componentName)
+{
+    if (EventHistory.empty())
+        return std::string("No event has not occurred yet in the system.");
+
+    bool allComponents = (componentName.compare("*") == 0);
+
+    EventHistoryType::iterator it = EventHistory.begin();
+    EventHistoryType::iterator itEnd = EventHistory.end();
+
+    JSON _historyJson;
+    JSON::JSONVALUE & historyJson = _historyJson.GetRoot();
+    if (allComponents) {
+        for (; it != itEnd; ++it) {
+            historyJson.append(*it);
+        }
+    } else {
+        for (; it != itEnd; ++it) {
+            JSON::JSONVALUE & json = (*it)["target"];
+            const std::string _componentName = JSON::GetSafeValueString(json, "component");
+            if (componentName.compare(_componentName) != 0)
+                continue;
+
+            historyJson.append(*it);
+        }
+    }
+
+    return _historyJson.GetJSON();
 }
