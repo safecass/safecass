@@ -27,6 +27,7 @@ void handler_event_help(void)
               << "event [command]" << std::endl
               << "    help           : show help for event command"  << std::endl
               << "    list           : show registered events" << std::endl
+              << "    history        : show state transition history with events" << std::endl
               << "    generate|gen   : inject event into the system" << std::endl
               << "    broadcast|bcast: broadcast event" << std::endl;
 }
@@ -37,6 +38,16 @@ void handler_event_list(const std::string & safetyCoordinatorName, const std::st
 
     if (!casrosAccessor->RequestEventList(safetyCoordinatorName, componentName)) {
         std::cerr << "ERROR: failed to request event information" << std::endl;
+        return;
+    }
+}
+
+void handler_event_history(const std::string & safetyCoordinatorName, const std::string & componentName)
+{
+    CASROS_ACCESSOR_CHECK;
+
+    if (!casrosAccessor->RequestEventHistory(safetyCoordinatorName, componentName)) {
+        std::cerr << "ERROR: failed to request event history" << std::endl;
         return;
     }
 }
@@ -70,8 +81,9 @@ void handler_event_broadcast(const std::string & eventName, const std::string & 
 // event list
 //------------------------------------------------------------ 
 typedef enum {
-    HELP,  // show help
-    LIST,  // show event list
+    HELP,     // show help
+    LIST,     // show event list
+    HISTORY,  // show event history
     GENERATE, // generate event
     BROADCAST // broadcast event
 } EventOptionType;
@@ -89,6 +101,8 @@ void handler_event(const std::vector<std::string> & args)
 
     if (cmd.compare("list") == 0)
         option = LIST;
+    else if (cmd.compare("history") == 0)
+        option = HISTORY;
     else if (cmd.compare("gen") == 0 || cmd.compare("generate") == 0)
         option = GENERATE;
     else if (cmd.compare("bcast") == 0 || cmd.compare("broadcast") == 0)
@@ -115,6 +129,21 @@ void handler_event(const std::vector<std::string> & args)
         }
 
         handler_event_list(safetyCoordinatorName, componentName);
+        break;
+
+    case HISTORY:
+        if (n == 1) {
+            safetyCoordinatorName = "*";
+            componentName = "*";
+        } else if (n == 2) {
+            safetyCoordinatorName = args[1];
+            componentName = "*";
+        } else if (n == 3) {
+            safetyCoordinatorName = args[1];
+            componentName = args[2];
+        }
+
+        handler_event_history(safetyCoordinatorName, componentName);
         break;
 
     case GENERATE:

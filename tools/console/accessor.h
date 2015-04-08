@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Mar 21, 2015
+// Last revision: Apr 8, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -49,12 +49,15 @@ public:
     // request list of all states in the system
     bool RequestStateList(const std::string & safetyCoordinatorName = "*",
                           const std::string & componentName = "*") const;
-    // request list of state history with events
+    // request history of states with event information
     bool RequestStateHistory(const std::string & safetyCoordinatorName = "*",
                              const std::string & componentName = "*") const;
     // request list of all events in the system
     bool RequestEventList(const std::string & safetyCoordinatorName = "*",
                           const std::string & componentName = "*") const;
+    // request history of all events occurred in the system
+    bool RequestEventHistory(const std::string & safetyCoordinatorName = "*",
+                             const std::string & componentName = "*") const;
     // request list of all connections in the system
     bool RequestConnectionList(const std::string & safetyCoordinatorName = "*",
                                const std::string & componentName = "*") const;

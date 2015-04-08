@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : May 9, 2014
-// Last revision: Aug 20, 2014
+// Last revision: Apr 8, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -62,21 +62,31 @@ void ConsoleSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType categ
     SF::JSON _json;
     std::cout << "[ topic: " << TopicName << ", category: " << categoryName << " ] received " << std::endl;
     if (_json.Read(json.c_str())) {
-        if (_json.GetRoot().isNull())
+        if (_json.GetRoot().isNull()) {
+            std::cout << "(null)" << std::endl;
             return;
+        }
 
+        // TEMP
+        std::cout << json << std::endl;
+#if 0
         std::string cmd("");
         cmd = SF::JSON::GetSafeValueString(_json.GetRoot(), "cmd");
         cmd = SF::rtrim(cmd);
         if (cmd.compare("message") == 0) {
             std::cout << SF::JSON::GetSafeValueString(json, "msg") << std::endl;
         } else {
-            if (cmd.compare("state_list") != 0) {
+            // TEMP: std::cout for now, but could handle messages differently
+            if (cmd.compare("state_list") != 0)
                 std::cout << json << std::endl;
-            }
+            else
+                std::cout << json << std::endl;
         }
-    } else
+#endif
+    } else {
+        std::cout << "Failed to parse JSON.  Printing out raw string instead:" << std::endl;
         std::cout << json << std::endl;
+    }
 }
 
 //
@@ -206,6 +216,24 @@ bool AccessorConsole::RequestEventList(const std::string & safetyCoordinatorName
     }
 
     std::cout << "requested list of events" << std::endl;
+    osaSleep(0.5);
+
+    return true;
+}
+
+bool AccessorConsole::RequestEventHistory(const std::string & safetyCoordinatorName,
+                                          const std::string & componentName) const
+{
+    std::stringstream ss;
+    ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
+          "\"component\": \"" << componentName << "\" }, "
+          "\"request\": \"event_history\" }";
+    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+        std::cerr << "RequestEventHistory: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
+        return false;
+    }
+
+    std::cout << "requested history of events" << std::endl;
     osaSleep(0.5);
 
     return true;
