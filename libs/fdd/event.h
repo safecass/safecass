@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Mar 23, 2015
+// Last revision: Apr 8, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -62,10 +62,8 @@ protected:
     // event object is valid)
     bool Valid;
 
-    //
-    // Extra attribute for timeline visualization
-    //
     // If event was ignored, i.e., if event did not result in state transition
+    // (used for event visualization)
     bool Ignored;
 
     // 2D array containing boolean mask that defines possible transitions
@@ -81,15 +79,23 @@ protected:
     // Set TransitionMask array based on transition information
     void SetTransitionMask(const TransitionsType & transitions);
 
+    // Prevent use of default constructor by users
     Event(void);
 public:
+    // Default constructor
     Event(const std::string     & name,
           unsigned int            severity,
           const TransitionsType & transitions,
           const std::string     & what = "");
-
+    // Copy constructor
+    Event(const Event & event);
+    // Destructor
     virtual ~Event() {}
 
+    // Operator overloading
+    Event & operator= (const Event & event);
+
+    // Getters
     inline const std::string &   GetName(void) const        { return Name; }
     inline unsigned int          GetSeverity(void) const    { return Severity; }
     inline const TransitionsType GetTransitions(void) const { return Transitions; }
@@ -97,7 +103,7 @@ public:
     inline const std::string &   GetWhat(void) const        { return What; }
 
     // Returns possible transition from the given state
-    State::TransitionType GetTransition(State::StateType currentState) const;
+    State::TransitionType GetPossibleTransitions(State::StateType currentState) const;
 
     //
     // Setters for run-time attributes

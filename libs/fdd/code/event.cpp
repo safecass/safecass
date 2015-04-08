@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Mar 23, 2015
+// Last revision: Apr 8, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -18,7 +18,13 @@ using namespace SF;
 
 
 Event::Event(void)
-    : Name("INVALID"), Severity(0), Transitions(TransitionsType()), Timestamp(0), What(""), Ignored(false)
+    : Name("INVALID"),
+      Severity(0),
+      Transitions(TransitionsType()),
+      Timestamp(0),
+      What(""),
+      Valid(false),
+      Ignored(false)
 {
 }
 
@@ -26,11 +32,40 @@ Event::Event(const std::string     & name,
              unsigned int            severity,
              const TransitionsType & transitions,
              const std::string     & what)
-    : Name(name), Severity(severity), Transitions(transitions), Timestamp(0), What(what), Ignored(false)
+    : Name(name),
+      Severity(severity),
+      Transitions(transitions),
+      Timestamp(0),
+      What(what),
+      Valid(false),
+      Ignored(false)
 {
     memset(TransitionMask, 0, TOTAL_NUMBER_OF_STATES * TOTAL_NUMBER_OF_STATES);
 
     SetTransitionMask(Transitions);
+}
+
+Event::Event(const Event & event)
+    : Name(event.GetName()),
+      Severity(event.GetSeverity()),
+      Transitions(event.GetTransitions()),
+      Timestamp(event.GetTimestamp()),
+      What(event.GetWhat()),
+      Valid(event.GetValid()),
+      Ignored(event.GetIgnored())
+{
+}
+
+// Operator overloading
+Event & Event::operator= (const Event & event)
+{
+    // check self-assignment
+    if (this == &event)
+        return *this;
+
+    CopyFrom(&event);
+
+    return *this;
 }
 
 void Event::SetTransitionMask(const TransitionsType & transitions)
@@ -66,7 +101,7 @@ void Event::SetTransitionMask(const TransitionsType & transitions)
 #undef E
 }
 
-State::TransitionType Event::GetTransition(State::StateType currentState) const
+State::TransitionType Event::GetPossibleTransitions(State::StateType currentState) const
 {
     switch (currentState) {
     case State::NORMAL:
