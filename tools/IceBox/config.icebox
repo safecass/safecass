@@ -36,3 +36,6 @@ IceBox.Service.IceStorm=IceStormService:createIceStorm --Ice.Config=config.servi
 # 1 = trace protocol messages
 #
 #Ice.Trace.Protocol=1
+
+Ice.UDP.SndSize=655350
+Ice.UDP.RcvSize=655350

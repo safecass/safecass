@@ -73,3 +73,6 @@ IceStorm.Flush.Timeout=2000
 # database environment for the IceStorm service.
 #
 Freeze.DbEnv.IceStorm.DbHome=db/Freeze
+
+Ice.UDP.SndSize=655350
+Ice.UDP.RcvSize=655350

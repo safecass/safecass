@@ -20,3 +20,6 @@ TopicManager.Proxy=casros/TopicManager:default -h localhost -p 10000
 # 3 = like 2, but also trace data transfer
 #
 #Ice.Trace.Network=0
+
+Ice.UDP.SndSize=655350
+Ice.UDP.RcvSize=655350
