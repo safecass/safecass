@@ -2,269 +2,101 @@
    "events" : [
       {
          "class" : "WARNING",
-         "desc" : "casros console requested event generation",
-         "end" : "2015-03-26T15:09:04.511Z",
-         "name" : "EVT_THREAD_OVERRUN",
-         "start" : "2015-03-26T15:08:56.782Z",
-         "state" : 29
+         "desc" : "",
+         "end" : "2015-04-10T11:35:29.096Z",
+         "name" : "EVT_WARNING",
+         "start" : "2015-04-10T11:35:27.133Z",
+         "state" : 1
       },
       {
          "class" : "ERROR",
-         "desc" : "casros console requested event generation",
-         "end" : "2015-03-26T15:09:16.268Z",
-         "name" : "EVT_CONTROL_MCS_FORCE_HW_EPO",
-         "start" : "2015-03-26T15:09:09.067Z",
-         "state" : 29
+         "desc" : "",
+         "end" : "2015-04-10T11:35:33.104Z",
+         "name" : "EVT_ERROR",
+         "start" : "2015-04-10T11:35:31.157Z",
+         "state" : 1
       },
       {
          "class" : "WARNING",
-         "desc" : "casros console requested event generation",
-         "end" : "2015-03-26T15:09:27.304Z",
-         "name" : "EVT_THREAD_OVERRUN",
-         "start" : "2015-03-26T15:09:21.239Z",
-         "state" : 29
-      },
-      {
-         "class" : "ERROR",
-         "desc" : "casros console requested event generation",
-         "end" : "2015-03-26T15:09:53.955Z",
-         "name" : "EVT_CONTROL_MCS_FORCE_HW_EPO",
-         "start" : "2015-03-26T15:09:27.304Z",
-         "state" : 29
-      },
-      {
-         "class" : "ERROR",
-         "desc" : "casros console requested event generation",
-         "end" : "2015-03-26T15:10:15.679Z",
-         "name" : "EVT_CONTROL_MCS_FORCE_HW_EPO",
-         "start" : "2015-03-26T15:10:01.065Z",
-         "state" : 29
+         "desc" : "",
+         "end" : "2015-04-10T11:35:37.131Z",
+         "name" : "EVT_WARNING",
+         "start" : "2015-04-10T11:35:35.168Z",
+         "state" : 1
       },
       {
          "class" : "ERROR",
          "desc" : "",
-         "end" : "2015-03-26T15:09:16.268Z",
-         "name" : "EVT_SERVICE_FAILURE",
-         "start" : "2015-03-26T15:09:09.067Z",
-         "state" : 45
+         "end" : "2015-04-10T11:35:39.192Z",
+         "name" : "EVT_ERROR",
+         "start" : "2015-04-10T11:35:37.131Z",
+         "state" : 1
+      },
+      {
+         "class" : "WARNING",
+         "desc" : "",
+         "end" : "2015-04-10T11:35:41.141Z",
+         "name" : "EVT_WARNING",
+         "start" : "2015-04-10T11:35:39.291Z",
+         "state" : 1
       },
       {
          "class" : "ERROR",
          "desc" : "",
-         "end" : "2015-03-26T15:09:53.956Z",
+         "end" : "2015-04-10T11:35:33.104Z",
          "name" : "EVT_SERVICE_FAILURE",
-         "start" : "2015-03-26T15:09:27.304Z",
-         "state" : 45
+         "start" : "2015-04-10T11:35:31.157Z",
+         "state" : 5
       },
       {
          "class" : "ERROR",
          "desc" : "",
-         "end" : "2015-03-26T15:10:15.680Z",
+         "end" : "2015-04-10T11:35:39.192Z",
          "name" : "EVT_SERVICE_FAILURE",
-         "start" : "2015-03-26T15:10:01.065Z",
-         "state" : 45
+         "start" : "2015-04-10T11:35:37.131Z",
+         "state" : 5
       }
    ],
    "states" : [
       {
          "id" : 0,
-         "label" : "MCS/Framework"
+         "label" : "Sensor/Framework"
       },
       {
          "id" : 1,
-         "label" : "MCS/Application"
+         "label" : "Sensor/Application"
       },
       {
          "id" : 2,
-         "label" : "MCS/R InterfaceGCMRequiredForLCM"
+         "label" : "Sensor/P SensorValue"
       },
       {
          "id" : 3,
-         "label" : "MCS/P ExecOut"
+         "label" : "Control/Framework"
       },
       {
          "id" : 4,
-         "label" : "MCS/P StateTableDefault"
+         "label" : "Control/Application"
       },
       {
          "id" : 5,
-         "label" : "MCS/P StateTableMonitor"
+         "label" : "Control/R ReadSensorValue"
       },
       {
          "id" : 6,
-         "label" : "LCM_MCC/Framework"
+         "label" : "Control/P ControlValue"
       },
       {
          "id" : 7,
-         "label" : "LCM_MCC/Application"
+         "label" : "UI/Framework"
       },
       {
          "id" : 8,
-         "label" : "LCM_MCC/R InterfaceComponentRequiredForCONTROL"
+         "label" : "UI/Application"
       },
       {
          "id" : 9,
-         "label" : "LCM_MCC/R InterfaceComponentRequiredForDingus"
-      },
-      {
-         "id" : 10,
-         "label" : "LCM_MCC/R InterfaceComponentRequiredForPendant"
-      },
-      {
-         "id" : 11,
-         "label" : "LCM_MCC/R InterfaceComponentRequiredForSafetyMonitor"
-      },
-      {
-         "id" : 12,
-         "label" : "LCM_MCC/R InterfaceLCMRequired"
-      },
-      {
-         "id" : 13,
-         "label" : "LCM_MCC/P ExecOut"
-      },
-      {
-         "id" : 14,
-         "label" : "LCM_MCC/P StateTableDefault"
-      },
-      {
-         "id" : 15,
-         "label" : "LCM_MCC/P StateTableMonitor"
-      },
-      {
-         "id" : 16,
-         "label" : "SafetyMonitor/Framework"
-      },
-      {
-         "id" : 17,
-         "label" : "SafetyMonitor/Application"
-      },
-      {
-         "id" : 18,
-         "label" : "SafetyMonitor/P ExecOut"
-      },
-      {
-         "id" : 19,
-         "label" : "SafetyMonitor/P InterfaceInternalProvided"
-      },
-      {
-         "id" : 20,
-         "label" : "SafetyMonitor/P StateTableDefault"
-      },
-      {
-         "id" : 21,
-         "label" : "SafetyMonitor/P StateTableMonitor"
-      },
-      {
-         "id" : 22,
-         "label" : "Pendant/Framework"
-      },
-      {
-         "id" : 23,
-         "label" : "Pendant/Application"
-      },
-      {
-         "id" : 24,
-         "label" : "Pendant/P Buttons"
-      },
-      {
-         "id" : 25,
-         "label" : "Pendant/P ExecOut"
-      },
-      {
-         "id" : 26,
-         "label" : "Pendant/P InterfaceInternalProvided"
-      },
-      {
-         "id" : 27,
-         "label" : "Pendant/P StateTableDefault"
-      },
-      {
-         "id" : 28,
-         "label" : "Pendant/P StateTableMonitor"
-      },
-      {
-         "id" : 29,
-         "label" : "CONTROL/Framework"
-      },
-      {
-         "id" : 30,
-         "label" : "CONTROL/Application"
-      },
-      {
-         "id" : 31,
-         "label" : "CONTROL/R AMCInterface"
-      },
-      {
-         "id" : 32,
-         "label" : "CONTROL/R ForceSensor"
-      },
-      {
-         "id" : 33,
-         "label" : "CONTROL/R PendantRequired"
-      },
-      {
-         "id" : 34,
-         "label" : "CONTROL/R RobotSim"
-      },
-      {
-         "id" : 35,
-         "label" : "CONTROL/R RobotSimCutter"
-      },
-      {
-         "id" : 36,
-         "label" : "CONTROL/P ExecOut"
-      },
-      {
-         "id" : 37,
-         "label" : "CONTROL/P InterfaceInternalProvided"
-      },
-      {
-         "id" : 38,
-         "label" : "CONTROL/P Robot"
-      },
-      {
-         "id" : 39,
-         "label" : "CONTROL/P StateTableDefault"
-      },
-      {
-         "id" : 40,
-         "label" : "CONTROL/P StateTableMonitor"
-      },
-      {
-         "id" : 41,
-         "label" : "CONTROL/P prmRobot"
-      },
-      {
-         "id" : 42,
-         "label" : "Dingus/Framework"
-      },
-      {
-         "id" : 43,
-         "label" : "Dingus/Application"
-      },
-      {
-         "id" : 44,
-         "label" : "Dingus/R PendantRequired"
-      },
-      {
-         "id" : 45,
-         "label" : "Dingus/R Robot"
-      },
-      {
-         "id" : 46,
-         "label" : "Dingus/P ExecOut"
-      },
-      {
-         "id" : 47,
-         "label" : "Dingus/P InterfaceInternalProvided"
-      },
-      {
-         "id" : 48,
-         "label" : "Dingus/P StateTableDefault"
-      },
-      {
-         "id" : 49,
-         "label" : "Dingus/P StateTableMonitor"
+         "label" : "UI/R ReadControlValue"
       }
    ]
 }

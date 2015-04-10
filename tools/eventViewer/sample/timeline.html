@@ -75,7 +75,7 @@ THE SOFTWARE.
 }
 
 .error {
-	stroke: blue;/*#F00007;*/
+	stroke: #F00007;
 	fill: #F00007;
 }
 
@@ -215,7 +215,7 @@ var xDateAxis = d3.svg.axis()
 	.tickFormat(d3.time.format('%d'))
 	.tickSize(6, 0, 0);
 
-var x1DateAxis = d3.svg.axis()
+var x1DetailAxis = d3.svg.axis()
 	.scale(x1)
 	.orient('bottom')
 	.ticks(d3.time.days, 1)
@@ -229,7 +229,7 @@ var xMonthAxis = d3.svg.axis()
 	.tickFormat(d3.time.format('%b %Y'))
 	.tickSize(15, 0, 0);
 
-var x1MonthAxis = d3.svg.axis()
+var x1SummaryAxis = d3.svg.axis()
 	.scale(x1)
 	.orient('top')
 	.ticks(d3.time.mondays, 1)
@@ -239,12 +239,12 @@ var x1MonthAxis = d3.svg.axis()
 main.append('g')
 	.attr('transform', 'translate(0,' + mainHeight + ')')
 	.attr('class', 'main axis date')
-	.call(x1DateAxis);
+	.call(x1DetailAxis);
 
 main.append('g')
 	.attr('transform', 'translate(0,0.5)')
 	.attr('class', 'main axis month')
-	.call(x1MonthAxis)
+	.call(x1SummaryAxis)
 	.selectAll('text')
 		.attr('dx', 5)
 		.attr('dy', 12);
@@ -326,39 +326,25 @@ function onBrush() {
 
 	x1.domain([minExtent, maxExtent]);
 
-  /*
-	if ((maxExtent - minExtent) > 1468800000) {
-		x1DateAxis.ticks(d3.time.mondays, 1).tickFormat(d3.time.format('%a %d'))
-		x1MonthAxis.ticks(d3.time.mondays, 1).tickFormat(d3.time.format('%b - Week %W'))		
-	}
-	else if ((maxExtent - minExtent) > 172800000) {
-		x1DateAxis.ticks(d3.time.days, 1).tickFormat(d3.time.format('%a %d'))
-		x1MonthAxis.ticks(d3.time.mondays, 1).tickFormat(d3.time.format('%b - Week %W'))
-	}
-	else {
-		x1DateAxis.ticks(d3.time.hours, 4).tickFormat(d3.time.format('%I %p'))
-		x1MonthAxis.ticks(d3.time.days, 1).tickFormat(d3.time.format('%b %e'))
-	}
-  */
-  var brush_diff = (maxExtent - minExtent) / 5000;
-  if (brush_diff < 1) {
-      x1DateAxis.ticks(d3.time.seconds, 0.1).tickFormat(d3.time.format('.%L'))
-      x1MonthAxis.ticks(d3.time.seconds, 1).tickFormat(d3.time.format('%c'))
-  } else if (brush_diff < 60) { // 1 min
-      x1DateAxis.ticks(d3.time.minutes, 1).tickFormat(d3.time.format(':%S'))
-      x1MonthAxis.ticks(d3.time.minutes, 1).tickFormat(d3.time.format('%c'))
+  var brush_diff = (maxExtent - minExtent) / 1000;
+  if (brush_diff < 10) {
+      x1DetailAxis.ticks(d3.time.seconds, 0.1).tickFormat(d3.time.format(':%S.%L'))
+      x1SummaryAxis.ticks(d3.time.seconds, 0.1).tickFormat(d3.time.format(':%S.%L'))
+  } else if (brush_diff < 20) { // 1 min
+      x1DetailAxis.ticks(d3.time.seconds, 1).tickFormat(d3.time.format(':%M:%S'))
+      x1SummaryAxis.ticks(d3.time.seconds, 1).tickFormat(d3.time.format(':%M:%S'))
   } else if (brush_diff < 3600) { // 1 hour
-      x1DateAxis.ticks(d3.time.hours, 1).tickFormat(d3.time.format(':%M:%S'))
-      x1MonthAxis.ticks(d3.time.hours, 1).tickFormat(d3.time.format('%c'))
+      x1DetailAxis.ticks(d3.time.hours, 1).tickFormat(d3.time.format('ee:%M:%S'))
+      x1SummaryAxis.ticks(d3.time.hours, 1).tickFormat(d3.time.format('ff%c'))
   } else if (brush_diff < 86400) { // 1 day
-      x1DateAxis.ticks(d3.time.days, 1).tickFormat(d3.time.format('%H:%M:%S'))
-      x1MonthAxis.ticks(d3.time.days, 1).tickFormat(d3.time.format('%c'))
+      x1DetailAxis.ticks(d3.time.days, 1).tickFormat(d3.time.format('gg%H:%M:%S'))
+      x1SummaryAxis.ticks(d3.time.days, 1).tickFormat(d3.time.format('hh%c'))
   } else {
-      x1DateAxis.ticks(d3.time.days, 2).tickFormat(d3.time.format('%H:%M:%S'))
-      x1MonthAxis.ticks(d3.time.days, 2).tickFormat(d3.time.format('%c'))
+      x1DetailAxis.ticks(d3.time.days, 2).tickFormat(d3.time.format('ii%H:%M:%S'))
+      x1SummaryAxis.ticks(d3.time.days, 2).tickFormat(d3.time.format('jj%c'))
   }
 
-  /*
+  /* D3 default axis time format
   var format = d3.time.format.multi([
     [".%L", function(d) { return d.getMilliseconds(); }],
     [":%S", function(d) { return d.getSeconds(); }],
@@ -378,8 +364,8 @@ function onBrush() {
 		.attr('x2', x1(now) + 0.5);
 
 	// update the axis
-	main.select('.main.axis.date').call(x1DateAxis);
-	main.select('.main.axis.month').call(x1MonthAxis)
+	main.select('.main.axis.date').call(x1DetailAxis);
+	main.select('.main.axis.month').call(x1SummaryAxis)
 		.selectAll('text')
 			.attr('dx', 0.1)
 			.attr('dy', 12);
