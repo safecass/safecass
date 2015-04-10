@@ -440,7 +440,7 @@ void StateMachine::GetStateTransitionHistory(SF::JSON::JSONVALUE & json, unsigne
                             // Add current outstanding event to timeline
                             entry["name"] = prevEvt->GetName();
                             entry["desc"] = prevEvt->GetWhat();
-                            entry["class"] = State::GetStringState(currState);
+                            entry["class"] = "ERROR-OVERRIDE";//State::GetStringState(currState);
                             entry["start"] = GetUTCTimeString(prevEvt->GetTimestamp());
                             entry["end"] = GetUTCTimeString(currEvt->GetTimestamp());
                         }

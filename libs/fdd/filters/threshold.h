@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 3, 2012
-// Last revision: Aug 5, 2014
+// Last revision: Apr 9, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -42,9 +42,6 @@ protected:
     void Initialize(void);
 
     const std::string GenerateEventInfo(EVENT_TYPE eventType) const;
-
-    // If ABOVE_THRESHOLD event was generated
-    bool IsAboveThreshold;
 
     //--------------------------------------------------
     //  Filter-specific parameters

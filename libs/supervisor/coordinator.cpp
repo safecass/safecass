@@ -1509,7 +1509,9 @@ const std::string Coordinator::GetStateHistory(const std::string & componentName
             std::string name(GetComponentName(it->first));
             if (name.compare("MCS") == 0 ||
                 name.compare("LCM_MCC") == 0 ||
-                name.compare("SafetyMonitor") == 0)
+                name.compare("SafetyMonitor") == 0 ||
+                name.substr(0, 17).compare("StateCollectorFor") == 0 ||
+                name.substr(0, 17).compare("EventCollectorFor") == 0)
                 continue;
 #endif
             gcm = it->second;

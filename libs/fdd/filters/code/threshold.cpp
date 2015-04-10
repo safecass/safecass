@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Sep 3, 2012
-// Last revision: Aug 20, 2014
+// Last revision: Apr 9, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -98,8 +98,8 @@ FilterThreshold::FilterThreshold(const JSON::JSONVALUE & jsonNode)
       Tolerance(JSON::GetSafeValueDouble(jsonNode["argument"], "tolerance")),
       OutputAbove(JSON::GetSafeValueDouble(jsonNode["argument"], "output_above")),
       OutputBelow(JSON::GetSafeValueDouble(jsonNode["argument"], "output_below")),
-      EventNameAbove(JSON::GetSafeValueString(jsonNode["argument"], "event_above")),
-      EventNameBelow(JSON::GetSafeValueString(jsonNode["argument"], "event_below"))
+      EventNameAbove(JSON::GetSafeValueString(jsonNode["argument"], "event_onset")),
+      EventNameBelow(JSON::GetSafeValueString(jsonNode["argument"], "event_completion"))
 {
     Initialize();
 }
@@ -110,8 +110,6 @@ FilterThreshold::~FilterThreshold()
 
 void FilterThreshold::Initialize(void)
 {
-    IsAboveThreshold = false;
-
     // Register this filter to the filter factory
     // filters that casros provides do not need this; this is only for user-defined filters.
     //SF_REGISTER_FILTER_TO_FACTORY(FilterThreshold);
@@ -134,8 +132,8 @@ bool FilterThreshold::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
     Tolerance = JSON::GetSafeValueDouble(jsonNode["argument"], "tolerance");
     OutputAbove = JSON::GetSafeValueDouble(jsonNode["argument"], "output_above");
     OutputBelow = JSON::GetSafeValueDouble(jsonNode["argument"], "output_below");
-    EventNameAbove = JSON::GetSafeValueString(jsonNode["argument"], "event_above");
-    EventNameBelow = JSON::GetSafeValueString(jsonNode["argument"], "event_below");
+    EventNameAbove = JSON::GetSafeValueString(jsonNode["argument"], "event_onset");
+    EventNameBelow = JSON::GetSafeValueString(jsonNode["argument"], "event_completion");
 
     return true;
 }
@@ -166,25 +164,45 @@ void FilterThreshold::RunFilter(void)
 
     // Below threshold
     if (newInput <= Threshold + Tolerance) {
-        if (IsAboveThreshold) {
+        bool generate = (GetFilterState() == FilterBase::DETECTED);
+        if (generate) {
+            // Generate completion event
             const std::string evt = GenerateEventInfo(FilterThreshold::BELOW_THRESHOLD);
-            SafetyCoordinator->OnEvent(evt); // Offset event detected
-            IsAboveThreshold = false;
+            SafetyCoordinator->OnEvent(evt);
+            OutputSignals[0]->SetPlaceholderScalar(OutputBelow);
+
+            // Reset filter status to undetected (i.e., enabled)
+            SetFilterState(FilterBase::ENABLED);
         }
-        OutputSignals[0]->SetPlaceholderScalar(OutputBelow);
         return;
     }
 
-    // Above threshold with tolerance; Generate event
-    // TODO: Right now FilterBase::LastFilterOfPipeline is not being used, which allows
-    // any filter to generate events.  Should filter pipelines be used, it may be
-    // necessary to allow only the last filter to generate events to avoid potential 
-    // event flooding issue.
-    const std::string evt = GenerateEventInfo(FilterThreshold::ABOVE_THRESHOLD);
-    SafetyCoordinator->OnEvent(evt); // Onset event detected
-    OutputSignals[0]->SetPlaceholderScalar(OutputAbove);
+    if (this->EventDetectionMode == FilterBase::EVENT_DETECTION_LEVEL) {
+        // Above threshold with tolerance; Generate event
+        // TODO: Right now FilterBase::LastFilterOfPipeline is not being used, which allows
+        // any filter to generate events.  Should filter pipelines be used, it may be
+        // necessary to allow only the last filter to generate events to avoid potential 
+        // event flooding issue.
+        const std::string evt = GenerateEventInfo(FilterThreshold::ABOVE_THRESHOLD);
+        SafetyCoordinator->OnEvent(evt); // Onset event detected
+        OutputSignals[0]->SetPlaceholderScalar(OutputAbove);
+    } else {
+        SFASSERT(this->EventDetectionMode == FilterBase::EVENT_DETECTION_EDGE);
+        SFASSERT(GetFilterState() != FilterBase::DISABLED);
 
-    IsAboveThreshold = true;
+        if (GetFilterState() != FilterBase::DETECTED) {
+            // Generate onset event
+            const std::string evt = GenerateEventInfo(FilterThreshold::ABOVE_THRESHOLD);
+            SafetyCoordinator->OnEvent(evt); // Onset event detected
+            OutputSignals[0]->SetPlaceholderScalar(OutputAbove);
+
+        } else {
+            // NOP; onset event has already been generated
+        }
+    }
+
+    // Set filter status to detected
+    SetFilterState(FilterBase::DETECTED);
 }
 
 void FilterThreshold::ToStream(std::ostream & outputStream, bool verbose) const
@@ -200,8 +218,7 @@ void FilterThreshold::ToStream(std::ostream & outputStream, bool verbose) const
                     << "OutputAbove: " << OutputAbove << std::endl
                     << "OutputBelow: " << OutputBelow << std::endl
                     << "EventAbove : " << EventNameAbove << std::endl
-                    << "EventBelow : " << EventNameBelow << std::endl
-                    << "Above Th.? : " << (IsAboveThreshold ? "true" : "false") << std::endl;
+                    << "EventBelow : " << EventNameBelow << std::endl;
 }
 
 const std::string FilterThreshold::GenerateEventInfo(EVENT_TYPE eventType) const
@@ -209,7 +226,12 @@ const std::string FilterThreshold::GenerateEventInfo(EVENT_TYPE eventType) const
     JSON json;
     JSON::JSONVALUE & root = json.GetRoot();
     root["event"]["name"] = ((eventType == FilterThreshold::ABOVE_THRESHOLD) ? EventNameAbove : EventNameBelow);
-    root["event"]["timestamp"] = InputSignals[0]->GetTimeLastSampleFetched();
+    // TODO: Currently, event generation timestamp is set to the timing when
+    // event json is generated.  Alternatively, we could use the timestamp of
+    // the sample retrieved from the history buffer.  
+    // In case of cisst, note that the state table maintains elapsed time, rather 
+    // than absolute time.
+    root["event"]["timestamp"] = GetCurrentTimeTick(); //InputSignals[0]->GetTimeLastSampleFetched();
     //root["event"]["severity"] = 255; // TEMP
     root["event"]["fuid"] = this->UID;
 #if 0

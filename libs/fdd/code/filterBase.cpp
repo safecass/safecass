@@ -120,8 +120,10 @@ void FilterBase::Initialize(void)
 
     // To prevent filters from reading and using non-initialized values, filters are 
     // initially disabled.
-    FilterState   = FilterBase::DISABLED;
-    EventDetected = 0;
+    FilterState        = FilterBase::DISABLED;
+    //EventDetectionMode = FilterBase::EVENT_DETECTION_EDGE;
+    EventDetectionMode = FilterBase::EVENT_DETECTION_LEVEL;
+    EventDetected      = 0;
 
     // For event generation and broadcasting
     SafetyCoordinator = 0;
@@ -245,6 +247,7 @@ bool FilterBase::IsEnabled(void) const {
     return (FilterState != FilterBase::DISABLED);
 }
 
+#if 0 // obsolete
 bool FilterBase::HasPendingEvent(void) const {
     // integrity check
     if (FilterState == FilterBase::DETECTED) {
@@ -252,6 +255,7 @@ bool FilterBase::HasPendingEvent(void) const {
     }
     return (FilterState == FilterBase::DETECTED);
 }
+#endif
 
 void FilterBase::Enable(bool enable)
 {
@@ -261,12 +265,14 @@ void FilterBase::Enable(bool enable)
             return;
         FilterState = FilterBase::ENABLED;
     } else {
+#if 0
         // If a filter detected an event which has not been resolved yet, SF should inform
         // the user of the pending event.
         if (HasPendingEvent()) {
             // TODO: print out detailed information about pending event
             SFLOG_WARNING << "Warning: filter [ " << *this << " ] has pending event" << std::endl;
         }
+#endif
         FilterState = FilterBase::DISABLED;
     }
 }
@@ -396,6 +402,7 @@ FilterBase::FilterStateType FilterBase::GetFilterStateFromString(const std::stri
     return DISABLED;
 }
 
+#if 0 // obsolete
 bool FilterBase::SetEventDetected(Event * event)
 {
     if (!event)
@@ -420,6 +427,7 @@ bool FilterBase::SetEventDetected(const std::string & json)
 
     return false; // FIXME
 }
+#endif
 
 void FilterBase::InjectInputScalar(SignalElement::ScalarType input, bool deepInjection)
 {

@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: Aug 20, 2014
+// Last revision: Apr 9, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -102,6 +102,11 @@ public:
     typedef std::queue<SignalElement::ScalarType> InputQueueScalarType;
     typedef std::queue<SignalElement::VectorType> InputQueueVectorType;
 
+    // typedef for event detection and generation
+    typedef enum {
+        EVENT_DETECTION_LEVEL,
+        EVENT_DETECTION_EDGE
+    } EventDetectionModeType;
 private:
     //! UID of this filters
     /*! Multiple filters of the same type may be deployed
@@ -144,6 +149,9 @@ protected:
 
     //! Event detection state
     FilterStateType FilterState;
+
+    //! Event detection type
+    EventDetectionModeType EventDetectionMode;
 
     //! Event that this filter detected, which needs to be handled (or removed)
     Event * EventDetected;
@@ -299,14 +307,14 @@ public:
     //! Enable or disable this filter
     void Enable(bool enable = true);
 
-    //! Set event detected
-    bool SetEventDetected(const std::string & json);
-    bool SetEventDetected(Event * event);
+    //! Set event detected: obsolete
+    //bool SetEventDetected(const std::string & json);
+    //bool SetEventDetected(Event * event);
     //! Does this filter have any pending event?
     /*! TODO: if filter needs to handle multiple types of events, HasPendingEvent() has to
      *  accpet parameter(s) to specify type(s) of events.
      */
-    bool HasPendingEvent(void) const;
+    //bool HasPendingEvent(void) const;
 
     inline size_t GetNumberOfInputs(void) const { return InputSignals.size(); }
     inline size_t GetNumberOfOutputs(void) const { return OutputSignals.size(); }
