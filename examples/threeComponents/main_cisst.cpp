@@ -6,8 +6,8 @@
 //
 //------------------------------------------------------------------------
 //
-// Created on   : April 7, 2015
-// Last revision: April 7, 2015
+// Created on   : Apr 7, 2015
+// Last revision: Apr 7, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -15,117 +15,14 @@
 
 #include "config.h"
 #include "common.h"
-//#include "json.h"
 
 #include <cisstCommon/cmnGetChar.h>
 #include <cisstOSAbstraction/osaSleep.h>
-#include <cisstMultiTask/mtsTaskPeriodic.h>
-#include <cisstMultiTask/mtsTaskManager.h>
-#include <cisstMultiTask/mtsInterfaceProvided.h>
-#include <cisstMultiTask/mtsInterfaceRequired.h>
-#include <cisstMultiTask/mtsCollectorState.h>
 
-//
-// Component: Sensor wrapper
-//
-class SensorWrapper: public mtsTaskPeriodic {
-protected:
-    double SensorValue;
-public:
-    SensorWrapper(const std::string & name, double period)
-        : mtsTaskPeriodic(name, period, false, 10), SensorValue(0.0)
-    {
-        StateTable.AddData(SensorValue, "SensorValue");
+#include "components.h"
 
-        mtsInterfaceProvided * provided = AddInterfaceProvided("SensorValue");
-        SFASSERT(provided);
-        provided->AddCommandReadState(StateTable, SensorValue, "GetSensorValue");
-    }
-    ~SensorWrapper() {}
-
-    void Configure(const std::string & CMN_UNUSED(filename) = "") {}
-    void Startup(void) {}
-    void Run(void) {
-        ProcessQueuedCommands();
-        ProcessQueuedEvents();
-        
-        //double delta = double(rand() % 10) * 0.1;
-        //SensorValue += delta;
-
-        // Generate sine wave
-        SensorValue = 10.0 * // amplitude
-                      sin(2 * cmnPI * static_cast<double>(this->GetTick()) * Period / 10.0);
-        
-        std::cout << "Sensor: " << SensorValue << std::endl;
-
-    }
-    void Cleanup(void) {}
-};
-
-//
-// Component: Control
-//
-class Control: public mtsTaskPeriodic {
-protected:
-    mtsFunctionRead GetSensorValue;
-    double ControlValue;
-public:
-    Control(const std::string & name, double period)
-        : mtsTaskPeriodic(name, period, false, 10), ControlValue(0.0)
-    {
-        mtsInterfaceRequired * required = AddInterfaceRequired("ReadSensorValue", MTS_REQUIRED);
-        SFASSERT(required);
-        required->AddFunction("GetSensorValue", GetSensorValue);
-
-        StateTable.AddData(ControlValue, "ControlValue");
-
-        mtsInterfaceProvided * provided = AddInterfaceProvided("ControlValue");
-        SFASSERT(provided);
-        provided->AddCommandReadState(StateTable, ControlValue, "GetControlValue");
-    }
-    ~Control() {}
-
-    void Configure(const std::string & CMN_UNUSED(filename) = "") {}
-    void Startup(void) {}
-    void Run(void) {
-        ProcessQueuedCommands();
-        ProcessQueuedEvents();
-
-        GetSensorValue(ControlValue);
-        ControlValue *= 2.0;
-    }
-    void Cleanup(void) {}
-};
-
-//
-// Component: User Interface
-//
-class UI: public mtsTaskPeriodic {
-protected:
-    mtsFunctionRead GetControlValue;
-    double UIValue;
-public:
-    UI(const std::string & name, double period)
-        : mtsTaskPeriodic(name, period, false, 10), UIValue(0.0)
-    {
-        mtsInterfaceRequired * required = AddInterfaceRequired("ReadControlValue", MTS_REQUIRED);
-        SFASSERT(required);
-        required->AddFunction("GetControlValue", GetControlValue);
-    }
-    ~UI() {}
-
-    void Configure(const std::string & CMN_UNUSED(filename) = "") {}
-    void Startup(void) {}
-    void Run(void) {
-        ProcessQueuedCommands();
-        ProcessQueuedEvents();
-        
-        GetControlValue(UIValue);
-    }
-    void Cleanup(void) {}
-};
-
-
+// thread period (in sec)
+#define PERIOD 0.1
 
 int main(int argc, char *argv[])
 {
@@ -145,13 +42,20 @@ int main(int argc, char *argv[])
     }
 
     // Create and setup components
-    SensorWrapper sensorWrapper("Sensor", 0.5 * cmn_s);
-    Control control("Control", 0.25 * cmn_s);
-    UI ui("UI", 1.0 * cmn_s);
+    SensorWrapper sensorWrapper("Sensor", PERIOD);
+    Control control("Control", PERIOD);
+    UI ui("UI", PERIOD);
 
     SFASSERT(ComponentManager->AddComponent(&sensorWrapper));
     SFASSERT(ComponentManager->AddComponent(&control));
     SFASSERT(ComponentManager->AddComponent(&ui));
+
+    // Read json file
+    std::string fileName(JSON_FOLDER"/Sensor.json");
+    if (!GetSafetyCoordinator->ReadConfigFile(fileName)) {
+        std::cerr << "Failed to read json file: " << fileName << std::endl;
+        return 1;
+    }
 
     CONNECT_LOCAL(sensorWrapper.GetName(), "SensorValue",
                   control.GetName(), "ReadSensorValue");
@@ -164,18 +68,19 @@ int main(int argc, char *argv[])
                                       sensorWrapper.GetDefaultStateTableName(),
                                       mtsCollectorBase::COLLECTOR_FILE_FORMAT_CSV);
     collectorSensor.AddSignal("SensorValue");
+    collectorSensor.AddSignal("SensorValue2");
 
     // for periods
-    mtsCollectorState collectorControl(control.GetName(),
-                                       control.GetMonitoringStateTableName(),
-                                       mtsCollectorBase::COLLECTOR_FILE_FORMAT_CSV);
-    collectorControl.AddSignal("ExecTimeTotal");
+    //mtsCollectorState collectorControl(control.GetName(),
+                                       //control.GetMonitoringStateTableName(),
+                                       //mtsCollectorBase::COLLECTOR_FILE_FORMAT_CSV);
+    //collectorControl.AddSignal("ExecTimeTotal");
 
     SFASSERT(ComponentManager->AddComponent(&collectorSensor));
-    SFASSERT(ComponentManager->AddComponent(&collectorControl));
+    //SFASSERT(ComponentManager->AddComponent(&collectorControl));
 
     collectorSensor.Connect();
-    collectorControl.Connect();
+    //collectorControl.Connect();
 
     ComponentManager->CreateAll();
     ComponentManager->WaitForStateAll(mtsComponentState::READY);
@@ -184,7 +89,7 @@ int main(int argc, char *argv[])
 
     // start data collection
     collectorSensor.StartCollection(0.0);
-    collectorControl.StartCollection(0.0);
+    //collectorControl.StartCollection(0.0);
 
     std::cout << "Press 'q' to quit." << std::endl;
 
@@ -198,7 +103,7 @@ int main(int argc, char *argv[])
 
     // stop data collection
     collectorSensor.StopCollection(0.0);
-    collectorControl.StopCollection(0.0);
+    //collectorControl.StopCollection(0.0);
 
     std::cout << "Cleaning up... " << std::flush;
 

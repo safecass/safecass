@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : April 7, 2015
-# Last revision: April 7, 2015
+# Last revision: April 9, 2015
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
@@ -25,9 +25,11 @@ if (SF_HAS_CISST)
   find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES} QUIET)
 
   if (cisst_FOUND_AS_REQUIRED)
+    add_definitions(-DJSON_FOLDER="${CMAKE_CURRENT_SOURCE_DIR}")
+
     set (INCLUDE_DIR ${INCLUDE_DIR} ${cisst_INCLUDE_DIR})
     include_directories (${INCLUDE_DIR})
-    add_executable (threeComponents main_cisst.cpp)
+    add_executable (threeComponents main_cisst.cpp components.h components.cpp)
 
     set (REQUIRED_CISST_LIBS cisstCommon cisstOSAbstraction cisstMultiTask)
     cisst_target_link_libraries(threeComponents ${REQUIRED_CISST_LIBS})

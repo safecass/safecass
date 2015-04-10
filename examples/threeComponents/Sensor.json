@@ -1,0 +1,85 @@
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Apr 9, 2015
+// Last revision: Apr 9, 2015
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
+// Event definition for Sensor component
+{
+    "component": "Sensor",
+    "event": [
+        // Warning event
+        {   "name"            : "EVT_WARNING",
+            "severity"        : 10,
+            "state_transition": [ "N2W" ]
+        },
+        {   "name"            : "/EVT_WARNING",
+            "severity"        : 10,
+            "state_transition": [ "W2N" ]
+        },
+        // Error event
+        {
+            "name"            : "EVT_ERROR",
+            "severity"        : 20,
+            "state_transition": [ "N2E", "W2E" ]
+        },
+        {   "name"            : "/EVT_ERROR",
+            "severity"        : 20,
+            "state_transition": [ "E2N", "W2N" ]
+        }
+    ],
+    "filter": [
+        {
+            "class_name"       : "FilterThreshold",
+            "target"           : {
+                "type"         : "s_A",
+                "component"    : "Sensor"
+            },
+            "type"             : "ACTIVE",
+            "argument" : {
+                "input_signal" : "SensorValue",
+                "threshold"    : 5.0,
+                "tolerance"    : 0.0,
+                "output_above" : 1.0,
+                "output_below" : 0.0,
+                "event_onset"     : "EVT_WARNING",
+                "event_completion": "/EVT_WARNING"
+            }
+        },
+        {
+            "class_name"       : "FilterThreshold",
+            "target"           : {
+                "type"         : "s_A",
+                "component"    : "Sensor"
+            },
+            "type"             : "ACTIVE",
+            "argument" : {
+                "input_signal" : "SensorValue2",
+                "threshold"    : 10.0,
+                "tolerance"    : 0.0,
+                "output_above" : 1.0,
+                "output_below" : 0.0,
+                "event_onset"     : "EVT_ERROR",
+                "event_completion": "/EVT_ERROR"
+            }
+        }
+    ],
+    "service" : [
+        {   // provided interface name
+            "name"    : "SensorValue",
+            // dependency information
+            "dependency" : {
+                "s_R" : [ ],
+                "s_A" : true,
+                "s_F" : true
+            }
+        }
+    ]
+}
