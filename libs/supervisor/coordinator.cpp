@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Aug 27, 2014
+// Last revision: Apr 10, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -18,6 +18,31 @@
 #define VERBOSE 0
 
 using namespace SF;
+
+// MJ TEMP: cisst-specific
+#ifdef SF_HAS_CISST
+bool IsInternalComponent(const std::string & name)
+{
+    return (name.compare("MCS") == 0 ||
+            name.compare("LCM_MCC") == 0 ||
+            name.compare("SafetyMonitor") == 0 ||
+            name.substr(0, 17).compare("StateCollectorFor") == 0 ||
+            name.substr(0, 17).compare("EventCollectorFor") == 0);
+}
+
+bool IsInternalInterface(const std::string & name)
+{
+    return (name.compare("ExecOut") == 0 ||
+            name.compare("ExecIn") == 0 ||
+            name.compare("Default") == 0 ||
+            name.compare("Monitor") == 0 ||
+            name.substr(0, 20).compare("ComponentRequiredFor") == 0 ||
+            name.substr(0, 16).compare("InternalProvided") == 0 ||
+            name.substr(0, 25).compare("InterfaceInternalProvided") == 0 ||
+            name.substr(0, 14).compare("GCMRequiredFor") == 0 ||
+            name.substr(0, 11).compare("LCMRequired") == 0);
+}
+#endif
 
 Coordinator::Coordinator(const std::string & name): Name(name), ComponentIdCounter(0)
 {
@@ -191,6 +216,13 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
             if (componentName.compare(it->second->GetComponentName()) != 0)
                 continue;
         }
+#ifdef SF_HAS_CISST
+        // TEMP: hide internal components and interfaces in case of cisst
+        std::string name(it->second->GetComponentName());
+        if (IsInternalComponent(name))
+            continue;
+#endif
+
         if (!first)
             ss << ", ";
         // component name and component states
@@ -222,28 +254,42 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
 
         it->second->GetNamesOfInterfaces(GCM::PROVIDED_INTERFACE, names);
         ss << "\"interfaces_provided\": [ ";
+        int count = 0;
         for (size_t i = 0; i < names.size(); ++i) {
-            if (i != 0)
+            if (count != 0)
                 ss << ", ";
+#ifdef SF_HAS_CISST
+            // TEMP: hide internal components and interfaces in case of cisst
+            if (IsInternalInterface(names[i]))
+                continue;
+#endif
             State::StateType serviceState = gcm->GetServiceState(names[i], e, false);
             ss << "{ \"name\": \"" << names[i] << "\", "
                << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", "
                << "\"service_state\": " << static_cast<int>(serviceState) << ", "
                << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null)
                << " }";
+            ++count;
         }
         ss << " ], ";
 
         names.clear();
         it->second->GetNamesOfInterfaces(GCM::REQUIRED_INTERFACE, names);
         ss << "\"interfaces_required\": [ ";
+        count = 0;
         for (size_t i = 0; i < names.size(); ++i) {
-            if (i != 0)
+            if (count != 0)
                 ss << ", ";
+#ifdef SF_HAS_CISST
+            // TEMP: hide internal components and interfaces in case of cisst
+            if (IsInternalInterface(names[i]))
+                continue;
+#endif
             ss << "{ \"name\": \"" << names[i] << "\", ";
             ss << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::REQUIRED_INTERFACE, e)) << ", "
                << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null)
                << " }";
+            ++count;
         }
         ss << " ] }";
 
@@ -1506,12 +1552,7 @@ const std::string Coordinator::GetStateHistory(const std::string & componentName
         for (; it != itEnd; ++it) {
 #ifdef SF_HAS_CISST
             // TEMP: hide internal components and interfaces in case of cisst
-            std::string name(GetComponentName(it->first));
-            if (name.compare("MCS") == 0 ||
-                name.compare("LCM_MCC") == 0 ||
-                name.compare("SafetyMonitor") == 0 ||
-                name.substr(0, 17).compare("StateCollectorFor") == 0 ||
-                name.substr(0, 17).compare("EventCollectorFor") == 0)
+            if (IsInternalComponent(GetComponentName(it->first)))
                 continue;
 #endif
             gcm = it->second;
