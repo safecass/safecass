@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Apr 7, 2015
-// Last revision: Apr 7, 2015
+// Last revision: Apr 10, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -56,31 +56,27 @@ int main(int argc, char *argv[])
         std::cerr << "Failed to read json file: " << fileName << std::endl;
         return 1;
     }
+    fileName = JSON_FOLDER"/Control.json";
+    if (!GetSafetyCoordinator->ReadConfigFile(fileName)) {
+        std::cerr << "Failed to read json file: " << fileName << std::endl;
+        return 1;
+    }
 
     CONNECT_LOCAL(sensorWrapper.GetName(), "SensorValue",
                   control.GetName(), "ReadSensorValue");
     CONNECT_LOCAL(control.GetName(), "ControlValue",
                   ui.GetName(), "ReadControlValue");
 
-    // Install data collectors
-    // for raw values
+    // Install data collector
     mtsCollectorState collectorSensor(sensorWrapper.GetName(),
                                       sensorWrapper.GetDefaultStateTableName(),
                                       mtsCollectorBase::COLLECTOR_FILE_FORMAT_CSV);
     collectorSensor.AddSignal("SensorValue");
     collectorSensor.AddSignal("SensorValue2");
 
-    // for periods
-    //mtsCollectorState collectorControl(control.GetName(),
-                                       //control.GetMonitoringStateTableName(),
-                                       //mtsCollectorBase::COLLECTOR_FILE_FORMAT_CSV);
-    //collectorControl.AddSignal("ExecTimeTotal");
-
     SFASSERT(ComponentManager->AddComponent(&collectorSensor));
-    //SFASSERT(ComponentManager->AddComponent(&collectorControl));
 
     collectorSensor.Connect();
-    //collectorControl.Connect();
 
     ComponentManager->CreateAll();
     ComponentManager->WaitForStateAll(mtsComponentState::READY);
@@ -89,7 +85,6 @@ int main(int argc, char *argv[])
 
     // start data collection
     collectorSensor.StartCollection(0.0);
-    //collectorControl.StartCollection(0.0);
 
     std::cout << "Press 'q' to quit." << std::endl;
 
@@ -103,7 +98,6 @@ int main(int argc, char *argv[])
 
     // stop data collection
     collectorSensor.StopCollection(0.0);
-    //collectorControl.StopCollection(0.0);
 
     std::cout << "Cleaning up... " << std::flush;
 
