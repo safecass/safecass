@@ -326,13 +326,16 @@ function onBrush() {
 
 	x1.domain([minExtent, maxExtent]);
 
-  var brush_diff = (maxExtent - minExtent) / 1000;
+  var brush_diff = (maxExtent - minExtent) / 1000; // in seconds
   if (brush_diff < 10) {
-      x1DetailAxis.ticks(d3.time.seconds, 0.1).tickFormat(d3.time.format(':%S.%L'))
-      x1SummaryAxis.ticks(d3.time.seconds, 0.1).tickFormat(d3.time.format(':%S.%L'))
-  } else if (brush_diff < 20) { // 1 min
-      x1DetailAxis.ticks(d3.time.seconds, 1).tickFormat(d3.time.format(':%M:%S'))
-      x1SummaryAxis.ticks(d3.time.seconds, 1).tickFormat(d3.time.format(':%M:%S'))
+      x1DetailAxis.ticks(d3.time.seconds, 0.05).tickFormat(d3.time.format(':%S.%L'))
+      x1SummaryAxis.ticks(d3.time.seconds, 0.05).tickFormat(d3.time.format(':%S.%L'))
+  } else if (brush_diff < 20) {
+      x1DetailAxis.ticks(d3.time.seconds, 0.5).tickFormat(d3.time.format(':%M:%S'))
+      x1SummaryAxis.ticks(d3.time.seconds, 0.5).tickFormat(d3.time.format(':%M:%S'))
+  } else if (brush_diff < 60) {
+      x1DetailAxis.ticks(d3.time.seconds, 5).tickFormat(d3.time.format(':%M:%S'))
+      x1SummaryAxis.ticks(d3.time.seconds, 5).tickFormat(d3.time.format(':%M:%S'))
   } else if (brush_diff < 3600) { // 1 hour
       x1DetailAxis.ticks(d3.time.hours, 1).tickFormat(d3.time.format('ee:%M:%S'))
       x1SummaryAxis.ticks(d3.time.hours, 1).tickFormat(d3.time.format('ff%c'))
