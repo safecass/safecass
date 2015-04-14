@@ -256,13 +256,14 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         ss << "\"interfaces_provided\": [ ";
         int count = 0;
         for (size_t i = 0; i < names.size(); ++i) {
-            if (count != 0)
-                ss << ", ";
 #ifdef SF_HAS_CISST
             // TEMP: hide internal components and interfaces in case of cisst
             if (IsInternalInterface(names[i]))
                 continue;
 #endif
+            if (count != 0)
+                ss << ", ";
+
             State::StateType serviceState = gcm->GetServiceState(names[i], e, false);
             ss << "{ \"name\": \"" << names[i] << "\", "
                << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", "
