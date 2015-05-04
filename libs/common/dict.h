@@ -1,15 +1,15 @@
-//------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 //
 // Created on   : July 14, 2012
-// Last revision: May 5, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
+// URL          : https://github.com/minyang/safecass
 //
 #ifndef _dict_h
 #define _dict_h
@@ -22,7 +22,6 @@ namespace SF {
 
 namespace Dict {
 
-DEFINE_KEYWORD(ACTIVE);
 DEFINE_KEYWORD(DETECTED);
 DEFINE_KEYWORD(DISABLED);
 DEFINE_KEYWORD(ENABLED);
@@ -30,8 +29,15 @@ DEFINE_KEYWORD(EVENT);
 DEFINE_KEYWORD(INVALID);
 DEFINE_KEYWORD(OFF);
 DEFINE_KEYWORD(ON);
-DEFINE_KEYWORD(PASSIVE);
 DEFINE_KEYWORD(STREAM);
+
+// Base filter - filtering mode
+DEFINE_KEYWORD(ACTIVE);
+DEFINE_KEYWORD(PASSIVE);
+
+// Base filter - event detection type
+DEFINE_KEYWORD(EDGE);
+DEFINE_KEYWORD(LEVEL);
 
 namespace Json {
     DEFINE_KEYWORD(category);

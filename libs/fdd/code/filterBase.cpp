@@ -2,12 +2,12 @@
 //
 // CASROS: Component-based Architecture for Safe Robotic Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: Aug 20, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -34,7 +34,8 @@ FilterBase::FilterBase(void)
       Name("NONAME"),
       FilterTarget(CreateFilterTarget(NONAME, NONAME, NONAME)),
       FilterType(ACTIVE),
-      LastFilterOfPipeline(false)
+      //LastFilterOfPipeline(false),
+      EventDetectionMode(EVENT_DETECTION_EDGE)
 {
     Initialize();
 }
@@ -43,13 +44,15 @@ FilterBase::FilterBase(const std::string     & filterName,
                        FilteringType           filteringType,
                        State::StateMachineType targetStateMachineType,
                        const std::string     & targetComponentName,
-                       const std::string     & targetInterfaceName)
+                       const std::string     & targetInterfaceName,
+                       EventDetectionModeType  eventDetectionMode)
     : UID(++FilterUID),
       Name(filterName),
       FilterTarget(CreateFilterTarget(targetStateMachineType, targetComponentName, targetInterfaceName)),
       Initialized(false),
       FilterType(filteringType),
-      LastFilterOfPipeline(false)
+      //LastFilterOfPipeline(false),
+      EventDetectionMode(eventDetectionMode)
 {
     Initialize();
 }
@@ -61,13 +64,10 @@ FilterBase::FilterBase(const std::string & filterName, const JSON::JSONVALUE & j
                                       JSON::GetSafeValueString(jsonNode["target"], "component"),
                                       JSON::GetSafeValueString(jsonNode["target"], "interface"))),
       Initialized(false),
-      FilterType(GetFilteringTypeFromString(JSON::GetSafeValueString(jsonNode, Dict::Json::type))),
-      LastFilterOfPipeline(JSON::GetSafeValueBool(jsonNode, Dict::Filter::last_filter))
+      FilterType(GetFilteringTypeFromString(JSON::GetSafeValueString(jsonNode, "type"))),
+      //LastFilterOfPipeline(JSON::GetSafeValueBool(jsonNode, Dict::Filter::last_filter)),
+      EventDetectionMode(GetEventDetectionTypeFromString(JSON::GetSafeValueString(jsonNode, "event_type")))
 {
-    const std::string targetStateMachineType = JSON::GetSafeValueString(jsonNode["target"], "type");
-    const std::string targetComponentName    = JSON::GetSafeValueString(jsonNode["target"], "component");
-    const std::string targetInterfaceName    = JSON::GetSafeValueString(jsonNode["target"], "interface");
-
     Initialize();
 }
 
@@ -118,14 +118,10 @@ void FilterBase::Initialize(void)
     EventPublisher = 0;
     EventLocation  = 0;
 
-    // To prevent filters from reading and using non-initialized values, filters are 
-    // initially disabled.
-    FilterState        = FilterBase::DISABLED;
-    //EventDetectionMode = FilterBase::EVENT_DETECTION_EDGE;
-    EventDetectionMode = FilterBase::EVENT_DETECTION_LEVEL;
-    EventDetected      = 0;
+    // Disable filter at start up in order not to read and use non-initialized values
+    FilterState = FilterBase::DISABLED;
 
-    // For event generation and broadcasting
+    // Initialize safety coordinator instance (used for event generation by derived filter classes)
     SafetyCoordinator = 0;
 }
 
@@ -402,6 +398,16 @@ FilterBase::FilterStateType FilterBase::GetFilterStateFromString(const std::stri
     return DISABLED;
 }
 
+FilterBase::EventDetectionModeType FilterBase::GetEventDetectionTypeFromString(const std::string & str)
+{
+    std::string _str(str);
+    to_uppercase(_str);
+
+    if (_str.compare(Dict::LEVEL) == 0) return EVENT_DETECTION_LEVEL;
+
+    return EVENT_DETECTION_EDGE;
+}
+
 #if 0 // obsolete
 bool FilterBase::SetEventDetected(Event * event)
 {
@@ -542,8 +548,8 @@ void FilterBase::ToStream(std::ostream & out, bool verbose) const
         out << "Filter type: " << (FilterType == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
             << "State: " << GetFilterStateString(FilterState);
         out << ", Event location: " << (EventLocation ? "Available" : "n/a");
-        if (LastFilterOfPipeline)
-            out << ", Event publisher: " << (EventPublisher ? "installed" : "n/a");
+        // if (LastFilterOfPipeline)
+            // out << ", Event publisher: " << (EventPublisher ? "installed" : "n/a");
         out << std::endl;
 
         // Input signals

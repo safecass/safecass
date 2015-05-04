@@ -142,7 +142,7 @@ protected:
     bool Initialized;
 
     //! Is this filter the last filter (of FDD pipeline)?
-    bool LastFilterOfPipeline;
+    // bool LastFilterOfPipeline;
 
     //! Print out internal debug log if true
     bool PrintDebugLog;
@@ -241,7 +241,8 @@ public:
                FilteringType           filteringType,
                State::StateMachineType targetStateMachineType,
                const std::string     & targetComponentName,
-               const std::string     & targetInterfaceName);
+               const std::string     & targetInterfaceName,
+               EventDetectionModeType  eventDetectionMode = EVENT_DETECTION_EDGE);
     //! Constructor using JSON
     FilterBase(const std::string     & filterName,
                const JSON::JSONVALUE & jsonNode);
@@ -267,7 +268,7 @@ public:
     /*! This internally creates a monitor to publish filtering results (e.g., events or 
      *  faults) to the Safety Framework, and attaches the monitor to this filter.
      */
-    inline void DeclareLastFilterOfPipeline(void) { LastFilterOfPipeline = true; }
+    // inline void DeclareLastFilterOfPipeline(void) { LastFilterOfPipeline = true; }
 
     //-------------------------------------------------- 
     //  Fault injection
@@ -297,7 +298,7 @@ public:
     inline const FilterTargetType & GetFilterTarget(void) const { return FilterTarget; }
     inline const std::string & GetNameOfTargetComponent(void) const { return FilterTarget.ComponentName; }
     inline FilteringType       GetFilteringType(void) const { return FilterType; }
-    inline bool IsLastFilterOfPipeline(void) const { return LastFilterOfPipeline; }
+    // inline bool IsLastFilterOfPipeline(void) const { return LastFilterOfPipeline; }
 
     // queries for filter state 
     //! Is this filter disabled?
@@ -359,6 +360,8 @@ public:
     static const std::string GetFilteringTypeString(const FilteringType type);
     //! Convert string to filtering type
     static FilteringType GetFilteringTypeFromString(const std::string & str);
+    //! Convert string to event detection type
+    EventDetectionModeType GetEventDetectionTypeFromString(const std::string & str);
 
     //! Convert filter state to string
     static const std::string GetFilterStateString(const FilterStateType state);

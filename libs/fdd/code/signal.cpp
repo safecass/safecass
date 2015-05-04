@@ -79,6 +79,10 @@ bool SignalElement::FetchNewValueScalar(bool activeFiltering)
     else
         HistoryBuffer->GetNewValueScalar(PlaceholderScalar, TimeLastSampleFetched);
 
+    // TEMP: Should review which timestamp (now or elapsed time from origin
+    // in case of cisst) must be used.
+    TimeLastSampleFetched = GetCurrentTimeTick();
+
     return true;
 }
 
