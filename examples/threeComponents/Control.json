@@ -1,0 +1,30 @@
+//------------------------------------------------------------------------
+//
+// CASROS: Component-based Architecture for Safe Robotic Systems
+//
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+//
+//------------------------------------------------------------------------
+//
+// Created on   : Apr 10, 2015
+// Last revision: Apr 10, 2015
+// Author       : Min Yang Jung (myj@jhu.edu)
+// Github       : https://github.com/minyang/casros
+//
+// Event definition for Control component
+{
+    "component": "Control",
+    "event": [],
+    "filter": [],
+    "service" : [
+        {   // provided interface name
+            "name"    : "ControlValue",
+            // dependency information
+            "dependency" : {
+                "s_R" : [ "ReadSensorValue" ],
+                "s_A" : true,
+                "s_F" : true
+            }
+        }
+    ]
+}
