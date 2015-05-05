@@ -1,19 +1,19 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
 // Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
+#include "filterBase.h"
+
 #include "dict.h"
 #include "utils.h"
-#include "filterBase.h"
 #include "eventPublisherBase.h"
 
 #include <iomanip>
@@ -49,24 +49,24 @@ FilterBase::FilterBase(const std::string     & filterName,
     : UID(++FilterUID),
       Name(filterName),
       FilterTarget(CreateFilterTarget(targetStateMachineType, targetComponentName, targetInterfaceName)),
-      Initialized(false),
       FilterType(filteringType),
+      Initialized(false),
       //LastFilterOfPipeline(false),
       EventDetectionMode(eventDetectionMode)
 {
     Initialize();
 }
 
-FilterBase::FilterBase(const std::string & filterName, const JSON::JSONVALUE & jsonNode)
+FilterBase::FilterBase(const std::string & filterName, const JsonWrapper::JsonValue & jsonNode)
     : UID(++FilterUID),
       Name(filterName),
-      FilterTarget(CreateFilterTarget(JSON::GetSafeValueString(jsonNode["target"], "type"),
-                                      JSON::GetSafeValueString(jsonNode["target"], "component"),
-                                      JSON::GetSafeValueString(jsonNode["target"], "interface"))),
+      FilterTarget(CreateFilterTarget(JsonWrapper::GetSafeValueString(jsonNode["target"], "type"),
+                                      JsonWrapper::GetSafeValueString(jsonNode["target"], "component"),
+                                      JsonWrapper::GetSafeValueString(jsonNode["target"], "interface"))),
+      FilterType(GetFilteringTypeFromString(JsonWrapper::GetSafeValueString(jsonNode, "type"))),
       Initialized(false),
-      FilterType(GetFilteringTypeFromString(JSON::GetSafeValueString(jsonNode, "type"))),
-      //LastFilterOfPipeline(JSON::GetSafeValueBool(jsonNode, Dict::Filter::last_filter)),
-      EventDetectionMode(GetEventDetectionTypeFromString(JSON::GetSafeValueString(jsonNode, "event_type")))
+      //LastFilterOfPipeline(JsonWrapper::GetSafeValueBool(jsonNode, Dict::Filter::last_filter)),
+      EventDetectionMode(GetEventDetectionTypeFromString(JsonWrapper::GetSafeValueString(jsonNode, "event_type")))
 {
     Initialize();
 }
@@ -523,12 +523,19 @@ const std::string FilterBase::ShowInputQueueVector(void) const
     return ss.str();
 }
 
-const std::string FilterBase::GenerateEventInfo(void) const
+void FilterBase::GenerateEventInfo(JsonWrapper::JsonValue & json) const
 {
-    // MJTEMP
-    return "FilterBase::GenerateEventInfo:TODO";
+    json["event"]["fuid"] = UID;
+    // TODO: Currently, event generation timestamp is set to the timing when
+    // event json is generated.  Alternatively, we could use the timestamp of
+    // the sample retrieved from the history buffer.  
+    // In case of cisst, note that the state table maintains elapsed time, rather 
+    // than absolute time.
+    json["event"]["timestamp"] = GetCurrentTimeTick();
 }
 
+// TODO: improve second parameter to handle other options (e.g., json, raw, 
+// verbose, terse, etc.)
 void FilterBase::ToStream(std::ostream & out, bool verbose) const
 {
     if (verbose) {

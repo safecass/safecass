@@ -11,8 +11,9 @@
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/minyang/casros
 #
-add_subdirectory(monitor)
-add_subdirectory(filter)
+# TODO: clean up examples!!!
+#add_subdirectory(monitor)
+#add_subdirectory(filter)
 #add_subdirectory(simple)
 #add_subdirectory(application)
 add_subdirectory(threeComponents)

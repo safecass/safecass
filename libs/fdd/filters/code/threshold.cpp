@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Sep 3, 2012
-// Last revision: Apr 9, 2015
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #include "threshold.h"
 #include "filterFactory.h"
@@ -30,8 +29,8 @@ FilterThreshold::FilterThreshold(void)
       NameOfInputSignal(NONAME),
       Threshold(0.0),
       Tolerance(0.0),
-      OutputBelow(0.0),
       OutputAbove(0.0),
+      OutputBelow(0.0),
       EventNameAbove(NONAME),
       EventNameBelow(NONAME)
 {
@@ -57,8 +56,8 @@ FilterThreshold::FilterThreshold(FilterBase::FilteringType monitoringType,
       NameOfInputSignal(inputSignalName),
       Threshold(threshold),
       Tolerance(tolerance),
-      OutputBelow(outputBelow),
       OutputAbove(outputAbove),
+      OutputBelow(outputBelow),
       EventNameAbove(eventNameAbove),
       EventNameBelow(eventNameBelow)
 {
@@ -83,23 +82,23 @@ FilterThreshold::FilterThreshold(FilterBase::FilteringType monitoringType,
       NameOfInputSignal(inputSignalName),
       Threshold(threshold),
       Tolerance(tolerance),
-      OutputBelow(outputBelow),
       OutputAbove(outputAbove),
+      OutputBelow(outputBelow),
       EventNameAbove(eventNameAbove),
       EventNameBelow(eventNameBelow)
 {
     Initialize();
 }
 
-FilterThreshold::FilterThreshold(const JSON::JSONVALUE & jsonNode)
+FilterThreshold::FilterThreshold(const JsonWrapper::JsonValue & jsonNode)
     : FilterBase(FilterThreshold::Name, jsonNode),
-      NameOfInputSignal(JSON::GetSafeValueString(jsonNode["argument"], "input_signal")),
-      Threshold(JSON::GetSafeValueDouble(jsonNode["argument"], "threshold")),
-      Tolerance(JSON::GetSafeValueDouble(jsonNode["argument"], "tolerance")),
-      OutputAbove(JSON::GetSafeValueDouble(jsonNode["argument"], "output_above")),
-      OutputBelow(JSON::GetSafeValueDouble(jsonNode["argument"], "output_below")),
-      EventNameAbove(JSON::GetSafeValueString(jsonNode["argument"], "event_onset")),
-      EventNameBelow(JSON::GetSafeValueString(jsonNode["argument"], "event_completion"))
+      NameOfInputSignal(JsonWrapper::GetSafeValueString(jsonNode["argument"], "input_signal")),
+      Threshold(JsonWrapper::GetSafeValueDouble(jsonNode["argument"], "threshold")),
+      Tolerance(JsonWrapper::GetSafeValueDouble(jsonNode["argument"], "tolerance")),
+      OutputAbove(JsonWrapper::GetSafeValueDouble(jsonNode["argument"], "output_above")),
+      OutputBelow(JsonWrapper::GetSafeValueDouble(jsonNode["argument"], "output_below")),
+      EventNameAbove(JsonWrapper::GetSafeValueString(jsonNode["argument"], "event_onset")),
+      EventNameBelow(JsonWrapper::GetSafeValueString(jsonNode["argument"], "event_completion"))
 {
     Initialize();
 }
@@ -126,14 +125,14 @@ void FilterThreshold::Initialize(void)
     SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 }
 
-bool FilterThreshold::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
+bool FilterThreshold::ConfigureFilter(const JsonWrapper::JsonValue & jsonNode)
 {
-    Threshold = JSON::GetSafeValueDouble(jsonNode["argument"], "threshold");
-    Tolerance = JSON::GetSafeValueDouble(jsonNode["argument"], "tolerance");
-    OutputAbove = JSON::GetSafeValueDouble(jsonNode["argument"], "output_above");
-    OutputBelow = JSON::GetSafeValueDouble(jsonNode["argument"], "output_below");
-    EventNameAbove = JSON::GetSafeValueString(jsonNode["argument"], "event_onset");
-    EventNameBelow = JSON::GetSafeValueString(jsonNode["argument"], "event_completion");
+    Threshold = JsonWrapper::GetSafeValueDouble(jsonNode["argument"], "threshold");
+    Tolerance = JsonWrapper::GetSafeValueDouble(jsonNode["argument"], "tolerance");
+    OutputAbove = JsonWrapper::GetSafeValueDouble(jsonNode["argument"], "output_above");
+    OutputBelow = JsonWrapper::GetSafeValueDouble(jsonNode["argument"], "output_below");
+    EventNameAbove = JsonWrapper::GetSafeValueString(jsonNode["argument"], "event_onset");
+    EventNameBelow = JsonWrapper::GetSafeValueString(jsonNode["argument"], "event_completion");
 
     return true;
 }
@@ -223,25 +222,22 @@ void FilterThreshold::ToStream(std::ostream & outputStream, bool verbose) const
 
 const std::string FilterThreshold::GenerateEventInfo(EVENT_TYPE eventType) const
 {
-    JSON json;
-    JSON::JSONVALUE & root = json.GetRoot();
-    root["event"]["name"] = ((eventType == FilterThreshold::ABOVE_THRESHOLD) ? EventNameAbove : EventNameBelow);
-    // TODO: Currently, event generation timestamp is set to the timing when
-    // event json is generated.  Alternatively, we could use the timestamp of
-    // the sample retrieved from the history buffer.  
-    // In case of cisst, note that the state table maintains elapsed time, rather 
-    // than absolute time.
-    root["event"]["timestamp"] = GetCurrentTimeTick(); //InputSignals[0]->GetTimeLastSampleFetched();
-    //root["event"]["severity"] = 255; // TEMP
-    root["event"]["fuid"] = this->UID;
-#if 0
-    root["event"]["target"]["type"]      = this->FilterTarget.StateMachineType;
-    root["event"]["target"]["component"] = this->FilterTarget.ComponentName;
-    root["event"]["target"]["interface"] = this->FilterTarget.InterfaceName;
-#endif
-    root["target"]["type"]      = this->FilterTarget.StateMachineType;
-    root["target"]["component"] = this->FilterTarget.ComponentName;
-    root["target"]["interface"] = this->FilterTarget.InterfaceName;
+    JsonWrapper _json;
+    JsonWrapper::JsonValue & json = _json.GetRoot();
 
-    return JSON::GetJSONString(root);
+    // Populate common attributes
+    BaseType::GenerateEventInfo(json);
+
+    json["event"]["name"] = ((eventType == FilterThreshold::ABOVE_THRESHOLD) ? EventNameAbove : EventNameBelow);
+    //json["event"]["severity"] = 255; // TEMP
+#if 0
+    json["event"]["target"]["type"]      = this->FilterTarget.StateMachineType;
+    json["event"]["target"]["component"] = this->FilterTarget.ComponentName;
+    json["event"]["target"]["interface"] = this->FilterTarget.InterfaceName;
+#endif
+    json["target"]["type"]      = this->FilterTarget.StateMachineType;
+    json["target"]["component"] = this->FilterTarget.ComponentName;
+    json["target"]["interface"] = this->FilterTarget.InterfaceName;
+
+    return JsonWrapper::GetJSONString(json);
 }

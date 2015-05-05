@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Sep 17, 2012
-// Last revision: May 19, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #include "jsonSerializer.h"
 #include "dict.h"
@@ -48,17 +47,17 @@ const std::string JSONSerializer::GetJSON(void) const
 
     return ss.str();
 #if 0
-    JSON::JSONVALUE json;
+    JsonWrapper::JsonValue json;
 
     // Common::common
-    JSON::JSONVALUE jsonValue;
+    JsonWrapper::JsonValue jsonValue;
     jsonValue[topic]      = GetTopicTypeString(Common.Topic);
     jsonValue[filter_uid] = Common.FilterUID;
     // EventLocation and Timestamp are populated below as part of localization of event
     json[common] = jsonValue;
     
     // Common::localization
-    JSON::JSONVALUE jsonLocation;
+    JsonWrapper::JsonValue jsonLocation;
     if (Common.EventLocation) {
 #if SF_HAS_CISST
         cisstEventLocation * cisstLocation = dynamic_cast<cisstEventLocation *>(Common.EventLocation);
@@ -81,7 +80,7 @@ const std::string JSONSerializer::GetJSON(void) const
 
     }
 
-    JSON::JSONVALUE jsonLocalization;
+    JsonWrapper::JsonValue jsonLocalization;
     jsonLocalization[timestamp] = Common.Timestamp;
     jsonLocalization[location] = jsonLocation;
     json[localization] = jsonLocalization;
@@ -90,7 +89,7 @@ const std::string JSONSerializer::GetJSON(void) const
 
     // Common::Topic
 
-    JSON::JSONVALUE jsonPayload;
+    JsonWrapper::JsonValue jsonPayload;
     switch (Common.Topic) {
     case Topic::DATA:
         switch (
@@ -98,7 +97,7 @@ const std::string JSONSerializer::GetJSON(void) const
         jsonPayload[category] = 
 
 #if 0
-                JSON::JSONVALUE _json(Monitor.Json);
+                JsonWrapper::JsonValue _json(Monitor.Json);
                 _json[type] = Monitor::GetTargetTypeString(Monitor.Type);
 
                 json[monitor] = _root;
@@ -107,7 +106,7 @@ const std::string JSONSerializer::GetJSON(void) const
 
         case EVENT:
             {
-                JSON::JSONVALUE _json(Event.Json);
+                JsonWrapper::JsonValue _json(Event.Json);
                 _json[type] = Event::GetEventTypeString(Event.Type);
                 //_json[detector] = Fault.DetectorName;
 
@@ -258,12 +257,12 @@ void JSONSerializer::SetTimestamp(TimestampType timestamp)
 
 FilterBase::FilterIDType JSONSerializer::GetFilterUID(void) const
 {
-    return JSON::GetSafeValueUInt(JSONBuffer[Dict::Json::common], Dict::Json::filter_uid);
+    return JsonWrapper::GetSafeValueUInt(JSONBuffer[Dict::Json::common], Dict::Json::filter_uid);
 }
 
 Topic::Type JSONSerializer::GetTopicType(void) const
 {
-    int value = JSON::GetSafeValueInt(JSONBuffer[Dict::Json::common], Dict::Json::topic);
+    int value = JsonWrapper::GetSafeValueInt(JSONBuffer[Dict::Json::common], Dict::Json::topic);
 
     Topic::Type type = static_cast<Topic::Type>(value);
 
@@ -281,7 +280,7 @@ const EventLocationBase & JSONSerializer::GetEventLocation(void) const
 
 TimestampType JSONSerializer::GetTimestamp(void) const
 {
-    return JSON::GetSafeValueDouble(JSONBuffer[Dict::Json::localization], Dict::Json::timestamp);
+    return JsonWrapper::GetSafeValueDouble(JSONBuffer[Dict::Json::localization], Dict::Json::timestamp);
 }
 
 //------------------------------------------------------------ 
@@ -327,7 +326,7 @@ Event::EventType JSONSerializer::GetEventType(void) const
     return Event::INVALID;
 }
 
-JSON::JSONVALUE & JSONSerializer::GetEventSpecificJson(void)
+JsonWrapper::JsonValue & JSONSerializer::GetEventSpecificJson(void)
 {
     // FIXME
     return JSONBuffer;
@@ -349,7 +348,7 @@ Monitor::TargetType JSONSerializer::GetMonitorTargetType(void) const
     return Monitor::TARGET_INVALID;
 }
 
-JSON::JSONVALUE & JSONSerializer::GetMonitorFields(void)
+JsonWrapper::JsonValue & JSONSerializer::GetMonitorFields(void)
 {
     // FIXME
     return JSONBuffer;

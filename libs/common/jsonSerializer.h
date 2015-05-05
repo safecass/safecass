@@ -1,20 +1,19 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Sep 17, 2012
-// Last revision: May 20, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #ifndef _jsonSerializer_h
 #define _jsonSerializer_h
 
-#include "json.h"
+#include "jsonwrapper.h"
 #include "monitor.h"
 #include "event.h"
 #include "filterBase.h"
@@ -30,12 +29,12 @@ namespace SF {
 //! JSON serializer and deserializer
 /** 
     JSONSerializer implements serialization and deserialization of JSON messages
-    for data exchange within CASROS.
+    for data exchange within SAFECASS.
 */
 class SFLIB_EXPORT JSONSerializer {
 protected:
     //! JSON value buffer
-    JSON::JSONVALUE JSONBuffer;
+    JsonWrapper::JsonValue JSONBuffer;
 
 #if SF_HAS_CISST
     cisstEventLocation EventLocation;
@@ -95,7 +94,7 @@ public:
      */
     /** @{ */
     Monitor::TargetType GetMonitorTargetType(void) const;
-    JSON::JSONVALUE &   GetMonitorFields(void);
+    JsonWrapper::JsonValue &   GetMonitorFields(void);
     void SetMonitorTargetType(Monitor::TargetType target);
     /** @} */
 
@@ -105,7 +104,7 @@ public:
     /** @{ */
     //! Event::Type
     //Event::EventType  GetEventType(void) const;
-    //JSON::JSONVALUE & GetEventSpecificJson(void);
+    //JsonWrapper::JsonValue & GetEventSpecificJson(void);
     //void SetEvent(const SF::Event & event);
     //void SetEventType(Event::EventType eventType);
     //void SetEventName(const std::string & name);

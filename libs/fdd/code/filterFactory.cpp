@@ -60,7 +60,7 @@ bool FilterFactory::RegisterFilter(const std::string & filterName,
 }
 
 FilterBase * FilterFactory::CreateFilter(const std::string & filterName,
-                                         const JSON::JSONVALUE & jsonNode) const
+                                         const JsonWrapper::JsonValue & jsonNode) const
 {
     SFLOG_DEBUG << "FilterFactory::CreateFilter: " << (double*) this << std::endl;
     SFLOG_DEBUG << "FilterFactory::CreateFilter: creating filter: \"" << filterName  << "\"" << std::endl;

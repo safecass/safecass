@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Aug 27, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #ifndef _coordinator_h
 #define _coordinator_h
@@ -47,7 +46,7 @@ public:
     // EVENTS
     typedef std::map<std::string, Event*> EventsType; // key: event name
     typedef std::map<std::string, EventsType*> EventMapType; // key: component name
-    typedef std::list<JSON::JSONVALUE> EventHistoryType; // JSON-encoded event history
+    typedef std::list<JsonWrapper::JsonValue> EventHistoryType; // JSON-encoded event history
 
     // FILTERS
     typedef std::map<FilterBase::FilterIDType, FilterBase*> FiltersType;
@@ -153,7 +152,7 @@ public:
     // Get all filters installed on the component specified
     FiltersType * GetFilters(const std::string & componentName) const;
     // Install filter from JSON
-    bool AddFilters(const SF::JSON::JSONVALUE & filters);
+    bool AddFilters(const SF::JsonWrapper::JsonValue & filters);
     // Install filter from JSON string
     bool AddFilterFromJSON(const std::string & jsonString);
     // Install filter from JSON file
@@ -177,7 +176,7 @@ public:
     // Add event using event instance
     bool AddEvent(const std::string & componentName, Event * event);
     // Add event using JSON array object
-    bool AddEvents(const std::string & componentName, const JSON::JSONVALUE & events);
+    bool AddEvents(const std::string & componentName, const JsonWrapper::JsonValue & events);
     // Add event using JSON string
     bool AddEventFromJSON(const std::string & jsonString);
     // Add event using file containing JSON string
@@ -201,7 +200,7 @@ public:
     // Creates event instance internally and calls the other OnEvent() method
     bool OnEvent(const std::string & event);
     // Called by subscriber when service state change is propagated from other component.
-    bool OnEventPropagation(const JSON::JSONVALUE & json);
+    bool OnEventPropagation(const JsonWrapper::JsonValue & json);
     // TEMP: Coordinator does not have casros accessor and cannot publish messages. As
     // temporary solution, we use pure virtual method for publishing messages.
     virtual bool PublishMessage(Topic::Control::CategoryType category, const std::string & msg) = 0;

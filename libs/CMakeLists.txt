@@ -1,15 +1,15 @@
-#------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------
 #
-# CASROS: Component-based Architecture for Safe Robotic Systems
+# SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 #
-# Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+# Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 #
-#------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
-# Last revision: Aug 27, 2014
+# Last revision: May 4, 2015
 # Author       : Min Yang Jung (myj@jhu.edu)
-# Github       : https://github.com/minyang/casros
+# URL          : https://github.com/minyang/safecass
 #
 
 #---------------------------------
@@ -27,8 +27,8 @@ set (LIB_DIR ${PROJECT_SOURCE_DIR})
 set (SF_LIB_COMMON_SRC ${LIB_DIR}/common/common.h ${LIB_DIR}/common/common.cpp
                        ${LIB_DIR}/common/common.h ${LIB_DIR}/common/utils.cpp
                        ${LIB_DIR}/common/dict.h ${LIB_DIR}/common/dict.cpp
-                       ${LIB_DIR}/common/json.h ${LIB_DIR}/common/json.cpp
-                       ${LIB_DIR}/common/jsonSerializer.h ${LIB_DIR}/common/jsonSerializer.cpp
+                       ${LIB_DIR}/common/jsonwrapper.h ${LIB_DIR}/common/jsonwrapper.cpp
+                       #${LIB_DIR}/common/jsonSerializer.h ${LIB_DIR}/common/jsonSerializer.cpp
                        ${LIB_DIR}/common/color_console.h
                        )
 set (SF_LIB_COMMON_INCLUDE_DIR ${LIB_DIR} ${LIB_DIR}/common)
@@ -84,8 +84,8 @@ if (SF_HAS_CISST)
 endif (SF_HAS_CISST)
 
 # Add Curl wrapper if visualization is enabled
-set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/db/MongoDB.h
-                             ${LIB_DIR}/db/MongoDB.cpp)
+# set (SF_LIB_COMMUNICATOR_SRC ${LIB_DIR}/db/MongoDB.h
+                             # ${LIB_DIR}/db/MongoDB.cpp)
 if (ENABLE_VIS_FRAMEWORK)
     find_package(CURL REQUIRED)
     set (SF_LIB_COMMUNICATOR_SRC ${SF_LIB_COMMUNICATOR_SRC}

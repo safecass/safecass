@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Apr 8, 2015
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #include "event.h"
 #include <iomanip> // std::setprecision
@@ -75,8 +74,8 @@ void Event::SetTransitionMask(const TransitionsType & transitions)
 #define E 2
     // Counters to check if this event has multiple next states for one current state
     int fromN = 0, fromW = 0, fromE = 0;
-    for (size_t i = 0; i < Transitions.size(); ++i) {
-        switch (Transitions[i]) {
+    for (size_t i = 0; i < transitions.size(); ++i) {
+        switch (transitions[i]) {
         case State::NORMAL_TO_WARNING: TransitionMask[N][W] = true; ++fromN; break;
         case State::NORMAL_TO_ERROR  : TransitionMask[N][E] = true; ++fromN; break;
         case State::WARNING_TO_NORMAL: TransitionMask[W][N] = true; ++fromW; break;
@@ -174,10 +173,10 @@ void Event::ToStream(std::ostream & os) const
         os << ", \"" << What << "\"";
 }
 
-const JSON::JSONVALUE Event::SerializeJSON(bool includeStateTransition) const
+const JsonWrapper::JsonValue Event::SerializeJSON(bool includeStateTransition) const
 {
-    JSON _json;
-    JSON::JSONVALUE & json = _json.GetRoot();
+    JsonWrapper _json;
+    JsonWrapper::JsonValue & json = _json.GetRoot();
     json["name"] = Name;
     json["severity"] = Severity;
     json["timestamp"] = Timestamp;
@@ -185,7 +184,7 @@ const JSON::JSONVALUE Event::SerializeJSON(bool includeStateTransition) const
         json["what"] = What;
 
     if (includeStateTransition)
-        for (size_t i = 0; i < Transitions.size(); ++i) {
+        for (Json::ArrayIndex i = 0; i < Transitions.size(); ++i) {
             switch (Transitions[i]) {
             case State::NORMAL_TO_ERROR  : json["state_transition"][i] = "N2E"; break;
             case State::ERROR_TO_NORMAL  : json["state_transition"][i] = "E2N"; break;
@@ -196,13 +195,13 @@ const JSON::JSONVALUE Event::SerializeJSON(bool includeStateTransition) const
             default:                       json["state_transition"][i] = "INVALID";
             }
         }
-    
+
     return json;
 }
 
 const std::string Event::SerializeString(bool includeStateTransition) const
 {
-    return JSON::GetJSONString(SerializeString(includeStateTransition));
+    return JsonWrapper::GetJSONString(SerializeString(includeStateTransition));
 }
 
 void Event::CopyFrom(const Event * event)
@@ -215,7 +214,7 @@ void Event::CopyFrom(const Event * event)
     this->Transitions = event->GetTransitions();
     this->Timestamp = event->GetTimestamp();
     this->What = event->GetWhat();
-    
+
     this->Valid = event->GetValid();
     this->Ignored = event->GetIgnored();
 

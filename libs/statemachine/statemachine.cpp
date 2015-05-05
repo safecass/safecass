@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Mar 23, 2015
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #include "statemachine.h"
 #include "event.h"
@@ -330,7 +329,7 @@ std::string StateMachine::GetCounterStatus(void) const
 // time (in second) to represent standalone events
 #define DEFAULT_WIDTH 0.1
 //#define STATE_HISTORY_DEBUG // MJTEMP
-void StateMachine::GetStateTransitionHistory(SF::JSON::JSONVALUE & json, unsigned int stateMachineId)
+void StateMachine::GetStateTransitionHistory(JsonWrapper::JsonValue & json, unsigned int stateMachineId)
 {
     StateHistoryType::const_iterator it = StateHistory.begin();
     const StateHistoryType::const_iterator itEnd = StateHistory.end();
@@ -358,8 +357,8 @@ void StateMachine::GetStateTransitionHistory(SF::JSON::JSONVALUE & json, unsigne
             std::cout << __LINE__ << "             prevEvt: NULL\n";
 #endif
 
-        JSON _entry;
-        JSON::JSONVALUE & entry = _entry.GetRoot();
+        JsonWrapper _entry;
+        JsonWrapper::JsonValue & entry = _entry.GetRoot();
 
         // numeric id of state machine
         entry["state"] = stateMachineId;

@@ -105,9 +105,14 @@ void FilterChangeDetection::RunFilter(void)
     //if (LastFilterOfPipeline) {}
 }
 
-void FilterChangeDetection::ToStream(std::ostream & outputStream) const
+void FilterChangeDetection::ToStream(std::ostream & outputStream, bool verbose) const
 {
     BaseType::ToStream(outputStream);
+
+    // TEMP
+    if (verbose) {
+        ;
+    }
 
     outputStream << "----- Filter-specifics: " << std::endl 
                  << "Signal Type    : SCALAR" << std::endl

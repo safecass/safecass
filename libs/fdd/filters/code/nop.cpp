@@ -1,20 +1,17 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Aug 20, 2014
-// Last revision: Aug 20, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #include "nop.h"
-#include "filterFactory.h"
-//#include "dict.h"
-//#include "coordinator.h"
+//#include "filterFactory.h"
 
 using namespace SF;
 
@@ -45,9 +42,9 @@ FilterNOP::FilterNOP(const std::string &       targetComponentName,
     Initialize();
 }
 
-FilterNOP::FilterNOP(const JSON::JSONVALUE & json)
+FilterNOP::FilterNOP(const JsonWrapper::JsonValue & json)
     : FilterBase(FilterNOP::Name, json),
-      NameOfInputSignal(JSON::GetSafeValueString(json["argument"], "input_signal"))
+      NameOfInputSignal(JsonWrapper::GetSafeValueString(json["argument"], "input_signal"))
 {
     Initialize();
 }
@@ -76,7 +73,7 @@ bool FilterNOP::InitFilter(void)
     return true;
 }
 
-bool FilterNOP::ConfigureFilter(const JSON::JSONVALUE & json)
+bool FilterNOP::ConfigureFilter(const JsonWrapper::JsonValue & UNUSED(json))
 {
     return true;
 }

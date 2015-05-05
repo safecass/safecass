@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : May 27, 2012
-// Last revision: Mar 23, 2015
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #include "utils.h"
 #include <time.h>
@@ -57,9 +56,9 @@
 std::string SF::GetCurrentUTCTimeString(void)
 {
     // TODO:  this const could be re-defined as enum to support different time zones
-    static const int MST = -7;
+    // static const int MST = -7;
     static const int UTC = 0;
-    static const int CCT = +8;
+    // static const int CCT = +8;
 
     time_t rawtime;
     time(&rawtime);
@@ -79,13 +78,13 @@ std::string SF::GetCurrentUTCTimeString(void)
 
 std::string SF::GetUTCTimeString(TimestampType timestamp)
 {
-    static const int MST = -7;
+    // static const int MST = -7;
     static const int UTC = 0;
-    static const int CCT = +8;
+    // static const int CCT = +8;
 
     double fractpart, intpart;
     fractpart = modf(timestamp, &intpart);
-  
+
     time_t tick = (time_t)intpart;
     struct tm * ptm = gmtime(&tick);
 

@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Aug 27, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 // This class implements the Generic Component Model (GCM).
 //
@@ -20,7 +19,7 @@
 #include "statemachine.h"
 #include "state.h"
 #include "event.h"
-#include "json.h"
+#include "jsonwrapper.h"
 
 #include <map>
 
@@ -85,12 +84,12 @@ protected:
     ServiceStateDependencyInfoType ServiceStateDependencyInfo2;
 
     // Get json representation of service state change
-    void GetJSONForServiceStateChange(const std::string & providedInterfaceName, JSON::JSONVALUE & json);
+    void GetJSONForServiceStateChange(const std::string & providedInterfaceName, JsonWrapper::JsonValue & json);
     // Get statemachine instance
     const StateMachine * GetStateMachineComponent(ComponentStateViews view) const;
     const StateMachine * GetStateMachineInterface(const std::string & name, InterfaceTypes type) const;
 
-    void PopulateStateUpdateJSON(const std::string & providedInterfaceName, JSON::JSONVALUE & json) const;
+    void PopulateStateUpdateJSON(const std::string & providedInterfaceName, JsonWrapper::JsonValue & json) const;
 
 private:
     /*! Component associated with GCM has to be declared */
@@ -111,16 +110,16 @@ public:
     /*! Remove interface */
     bool RemoveInterface(const std::string & name, InterfaceTypes type);
     // Add service state dependency information
-    void AddServiceStateDependency(const JSON::JSONVALUE & services);
+    void AddServiceStateDependency(const JsonWrapper::JsonValue & services);
     bool AddServiceStateDependencyEntry(const std::string & providedInterfaceName,
                                         const std::string & name);
 
     // Process state transition event and returns transition and json object that contains 
     // service state changes.
-    State::TransitionType ProcessStateTransition(State::StateMachineType type,
-                                                 const Event *           event,
-                                                 const std::string &     interfaceName,
-                                                 JSON::JSONVALUE &       json);
+    State::TransitionType ProcessStateTransition(State::StateMachineType  type,
+                                                 const Event *            event,
+                                                 const std::string &      interfaceName,
+                                                 JsonWrapper::JsonValue & json);
 
     // Add connection information (about required interface) to provided interface
     // This information is used to build up json for error propagation.
@@ -137,7 +136,7 @@ public:
     // Extract state transition history from state machines and populate JSON object.
     // baseId is used as the id of the first entry (state machine).
     // Returns a number of state machines extracted.
-    unsigned int GetStateHistory(JSON::JSONVALUE & json, unsigned int baseId = 0);
+    unsigned int GetStateHistory(JsonWrapper::JsonValue & json, unsigned int baseId = 0);
 
     //
     // Getters

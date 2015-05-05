@@ -1,18 +1,18 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 23, 2012
-// Last revision: Mar 23, 2015
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
+// URL          : https://github.com/minyang/safecass
 //
-// CASROS uses the Boost Meta State Machine (MSM) library to implement the state 
-// cmachine of the generic component model (GCM).  MSM enables quick and easy 
+// SAFECASS uses the Boost Meta State Machine (MSM) library to implement the state 
+// machine of the generic component model (GCM).  MSM enables quick and easy 
 // cimplementation of state machines of high performance.  For more details, refer 
 // to http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html 
 //
@@ -22,7 +22,7 @@
 #include "common.h"
 #include "config.h"
 #include "stateEventHandler.h"
-#include "json.h"
+#include "jsonwrapper.h"
 #include <iostream>
 
 // boost msm
@@ -215,7 +215,7 @@ public:
     void Reset(bool resetHistory = false);
 
     // Get history of state transitions (used for event viewer)
-    void GetStateTransitionHistory(SF::JSON::JSONVALUE & json, unsigned int stateMachineId);
+    void GetStateTransitionHistory(JsonWrapper::JsonValue & json, unsigned int stateMachineId);
 
     //
     // Getters

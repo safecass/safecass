@@ -1,17 +1,15 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: September 14, 2012
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//-----------------------------------------------------------------------------------
+//
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
+//
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+//
+//-----------------------------------------------------------------------------------
+//
+// Created on   : Sep 14, 2012
+// Last revision: May 4, 2015
+// Author       : Min Yang Jung (myj@jhu.edu)
+//
 #include "eventLocationBase.h"
 #include "dict.h"
 
@@ -76,12 +74,14 @@ void EventLocationBase::ExportToJSON(::Json::Value & root) const
         root[interface_required] = InterfaceRequiredName;
 }
 
-void EventLocationBase::ImportFromJSON(const ::Json::Value & value)
+void EventLocationBase::ImportFromJSON(const ::Json::Value & UNUSED(value))
 {
-    ProcessName           = JSON::GetSafeValueString(value, process);
-    ComponentName         = JSON::GetSafeValueString(value, component);
-    InterfaceProvidedName = JSON::GetSafeValueString(value, interface_provided);
-    InterfaceRequiredName = JSON::GetSafeValueString(value, interface_required);
+#if 0
+    ProcessName           = JsonWrapper::GetSafeValueString(value, process);
+    ComponentName         = JsonWrapper::GetSafeValueString(value, component);
+    InterfaceProvidedName = JsonWrapper::GetSafeValueString(value, interface_provided);
+    InterfaceRequiredName = JsonWrapper::GetSafeValueString(value, interface_required);
+#endif
 }
 
 void EventLocationBase::ToStream(std::ostream & outputStream) const

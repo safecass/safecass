@@ -1,19 +1,19 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Apr 24, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
+// URL          : https://github.com/minyang/safecass
 //
 #include "monitor.h"
 #include "dict.h"
-#include "json.h"
+#include "jsonwrapper.h"
 #include "utils.h"
 
 namespace SF {
@@ -46,24 +46,24 @@ Monitor::Monitor(const TargetType target,
     Initialize();
 }
 
-Monitor::Monitor(const JSON::JSONVALUE & jsonNode)
+Monitor::Monitor(const JsonWrapper::JsonValue & jsonNode)
     : UID(++UIDCounter),
       LastSamplingTick(0)
 {
     Initialize();
 
     // Extract and set common (base) fields
-    this->Target       = GetTargetTypeFromString(JSON::GetSafeValueString(jsonNode, Json::type));
-    this->State        = GetStateTypeFromString(JSON::GetSafeValueString(jsonNode, Json::state));
-    this->Output       = GetOutputTypeFromString(JSON::GetSafeValueString(jsonNode, Json::output_type));
-    this->SamplingRate = JSON::GetSafeValueUInt(jsonNode, Json::sampling_rate);
+    this->Target       = GetTargetTypeFromString(JsonWrapper::GetSafeValueString(jsonNode, Json::type));
+    this->State        = GetStateTypeFromString(JsonWrapper::GetSafeValueString(jsonNode, Json::state));
+    this->Output       = GetOutputTypeFromString(JsonWrapper::GetSafeValueString(jsonNode, Json::output_type));
+    this->SamplingRate = JsonWrapper::GetSafeValueUInt(jsonNode, Json::sampling_rate);
 
     // Extract target information
-    const JSON::JSONVALUE location(jsonNode[Json::location]);
-    const std::string processName           = JSON::GetSafeValueString(location, Json::process);
-    const std::string componentName         = JSON::GetSafeValueString(location, Json::component);
-    const std::string interfaceProvidedName = JSON::GetSafeValueString(location, Json::interface_provided);
-    const std::string interfaceRequiredName = JSON::GetSafeValueString(location, Json::interface_required);
+    const JsonWrapper::JsonValue location(jsonNode[Json::location]);
+    const std::string processName           = JsonWrapper::GetSafeValueString(location, Json::process);
+    const std::string componentName         = JsonWrapper::GetSafeValueString(location, Json::component);
+    const std::string interfaceProvidedName = JsonWrapper::GetSafeValueString(location, Json::interface_provided);
+    const std::string interfaceRequiredName = JsonWrapper::GetSafeValueString(location, Json::interface_required);
 
     this->LocationID = new EventLocationBase(processName, componentName,
                                              interfaceProvidedName, interfaceRequiredName);

@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 14, 2012
-// Last revision: Apr 10, 2015
+// Last revision: MAy 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #include "coordinator.h"
 #include "filterFactory.h"
@@ -229,7 +228,7 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         //if (allComponents)
             //ss << "\n";
 
-        // MJTODO: replace this manual build-up with SF::JSON
+        // MJTODO: replace this manual build-up with JsonWrapper
         ss << "{ \"name\": \"" << it->second->GetComponentName() << "\", "
            << "\"s\": " << static_cast<int>(gcm->GetComponentState(GCM::SYSTEM_VIEW)) << ", ";
 
@@ -237,17 +236,17 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
         const Event * e = 0;
         State::StateType stateComponentFramework = gcm->GetComponentState(GCM::FRAMEWORK_VIEW, e);
         ss << "\"s_F\": { \"state\": " << static_cast<int>(stateComponentFramework) << ", "
-           << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null) << " }, ";
+           << "\"event\": " << (e ? e->SerializeJSON() : JsonWrapper::JsonValue::null) << " }, ";
         // component state - application view
         e = 0;
         State::StateType stateComponentApp = gcm->GetComponentState(GCM::APPLICATION_VIEW, e);
         ss << "\"s_A\": { \"state\": " << static_cast<int>(stateComponentApp) << ", "
-           << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null) << " }, ";
+           << "\"event\": " << (e ? e->SerializeJSON() : JsonWrapper::JsonValue::null) << " }, ";
         // required interface state
         e = 0;
         State::StateType stateReq = gcm->GetInterfaceState(GCM::REQUIRED_INTERFACE, e);
         ss << "\"s_R\": { \"state\": " << static_cast<int>(stateReq) << ", "
-           << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null) << " }, ";
+           << "\"event\": " << (e ? e->SerializeJSON() : JsonWrapper::JsonValue::null) << " }, ";
 
         StrVecType names;
         std::string eventInfo;
@@ -268,7 +267,7 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
             ss << "{ \"name\": \"" << names[i] << "\", "
                << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::PROVIDED_INTERFACE)) << ", "
                << "\"service_state\": " << static_cast<int>(serviceState) << ", "
-               << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null)
+               << "\"event\": " << (e ? e->SerializeJSON() : JsonWrapper::JsonValue::null)
                << " }";
             ++count;
         }
@@ -288,7 +287,7 @@ const std::string Coordinator::GetStateSnapshot(const std::string & componentNam
 #endif
             ss << "{ \"name\": \"" << names[i] << "\", ";
             ss << "\"state\": " << static_cast<int>(gcm->GetInterfaceState(names[i], GCM::REQUIRED_INTERFACE, e)) << ", "
-               << "\"event\": " << (e ? e->SerializeJSON() : JSON::JSONVALUE::null)
+               << "\"event\": " << (e ? e->SerializeJSON() : JsonWrapper::JsonValue::null)
                << " }";
             ++count;
         }
@@ -349,7 +348,7 @@ bool Coordinator::AddFilterFromJSONFileToComponent(const std::string & jsonFileN
                                                    const std::string & targetComponentName)
 {
     // Construct JSON structure from JSON file
-    JSON json;
+    JsonWrapper json;
     if (!json.ReadFromFile(jsonFileName)) {
         SFLOG_ERROR << "AddFilterFromJSONFileToComponent: Failed to read json file: " << jsonFileName << std::endl;
         return false;
@@ -357,9 +356,9 @@ bool Coordinator::AddFilterFromJSONFileToComponent(const std::string & jsonFileN
     SFLOG_DEBUG << "AddFilterFromJSONFileToComponent: Successfully read json file: " << jsonFileName << std::endl;
 
     // Replace placeholder for target component name with actual target component name
-    JSON::JSONVALUE & filters = json.GetRoot()["filter"];
-    for (size_t i = 0; i < filters.size(); ++i) {
-        JSON::JSONVALUE & filter = filters[i];
+    JsonWrapper::JsonValue & filters = json.GetRoot()["filter"];
+    for (Json::ArrayIndex i = 0; i < filters.size(); ++i) {
+        JsonWrapper::JsonValue & filter = filters[i];
         filter["target"]["component"] = targetComponentName;
     }
 
@@ -377,13 +376,13 @@ bool Coordinator::AddFilterFromJSONFileToComponent(const std::string & jsonFileN
 bool Coordinator::AddFilterFromJSONFile(const std::string & jsonFileName)
 {
     // Construct JSON structure from JSON file
-    JSON json;
+    JsonWrapper json;
     if (!json.ReadFromFile(jsonFileName)) {
         SFLOG_ERROR << "AddFilterFromJSONFile: Failed to read json file: " << jsonFileName << std::endl;
         return false;
     }
 
-    bool ret = AddFilterFromJSON(JSON::GetJSONString(json.GetRoot()));
+    bool ret = AddFilterFromJSON(JsonWrapper::GetJSONString(json.GetRoot()));
     if (!ret) {
         SFLOG_ERROR << "AddFilterFromJSONFile: Failed to add filter(s) from JSON file: " << jsonFileName << std::endl;
         return false;
@@ -397,13 +396,13 @@ bool Coordinator::AddFilterFromJSONFile(const std::string & jsonFileName)
 bool Coordinator::AddFilterFromJSON(const std::string & jsonString)
 {
     // Construct JSON structure from JSON string
-    JSON json;
+    JsonWrapper json;
     if (!json.Read(jsonString.c_str())) {
         SFLOG_ERROR << "AddFilterFromJSON: Failed to read json string: " << jsonString << std::endl;
         return false;
     }
 
-    const JSON::JSONVALUE filters = json.GetRoot()["filter"];
+    const JsonWrapper::JsonValue filters = json.GetRoot()["filter"];
     bool ret = AddFilters(filters);
     if (!ret) {
         SFLOG_DEBUG << "AddFilterFromJSON: Failed to add filter(s) using json string: " << jsonString << std::endl;
@@ -415,7 +414,7 @@ bool Coordinator::AddFilterFromJSON(const std::string & jsonString)
     return true;
 }
 
-bool Coordinator::AddFilters(const JSON::JSONVALUE & filters)
+bool Coordinator::AddFilters(const JsonWrapper::JsonValue & filters)
 {
     if (filters.isNull() || filters.size() == 0) {
         SFLOG_DEBUG << "AddFilter: No filter specification found in json: " << filters << std::endl;
@@ -427,12 +426,12 @@ bool Coordinator::AddFilters(const JSON::JSONVALUE & filters)
     // Figure out how many filters are defined, and 
     // create and install filter instances while iterating each filter specification
     std::string filterClassName;
-    FilterBase * filter = 0; 
+    FilterBase * filter = 0;
     bool enableLog = false;
-    for (size_t i = 0; i < filters.size(); ++i) {
-        filterClassName = JSON::GetSafeValueString(filters[i], "class_name");
-        enableLog = JSON::GetSafeValueBool(filters[i], "debug");
-        
+    for (Json::ArrayIndex i = 0; i < filters.size(); ++i) {
+        filterClassName = JsonWrapper::GetSafeValueString(filters[i], "class_name");
+        enableLog = JsonWrapper::GetSafeValueBool(filters[i], "debug");
+
         // Create filter instance based on filter class name using filter factory
         filter = FilterFactory::GetInstance()->CreateFilter(filterClassName, filters[i]);
         if (!filter) {
@@ -446,7 +445,7 @@ bool Coordinator::AddFilters(const JSON::JSONVALUE & filters)
             delete filter;
             return false;
         }
-        
+
         // configure filter (process filter-specific arguments)
         if (!filter->ConfigureFilter(filters[i])) {
             SFLOG_ERROR << "AddFilter: Failed to process filter-specfic parts for filter instance: \"" << filterClassName << "\"\n";
@@ -609,10 +608,10 @@ bool Coordinator::AddEvent(const std::string & componentName, Event * event)
     return true;
 }
 
-bool Coordinator::AddEvents(const std::string & componentName, const JSON::JSONVALUE & events)
+bool Coordinator::AddEvents(const std::string & componentName, const JsonWrapper::JsonValue & events)
 {
     if (events.isNull() || events.size() == 0) {
-        SFLOG_INFO << "AddEvents: No event specification found in json: " << JSON::GetJSONString(events) << std::endl;
+        SFLOG_INFO << "AddEvents: No event specification found in json: " << JsonWrapper::GetJSONString(events) << std::endl;
         return true;
     }
 
@@ -620,15 +619,15 @@ bool Coordinator::AddEvents(const std::string & componentName, const JSON::JSONV
     std::string  eventName, smId;
     unsigned int severity;
     SF::Event    *event = 0;
-    for (size_t i = 0; i < events.size(); ++i) {
+    for (Json::ArrayIndex i = 0; i < events.size(); ++i) {
         // event name
-        eventName = SF::JSON::GetSafeValueString(events[i], "name");
+        eventName = JsonWrapper::GetSafeValueString(events[i], "name");
         if (eventName.size() == 0) {
             SFLOG_ERROR << "AddEvents: null event name. JSON: " << events[i] << std::endl;
             return false;
         }
         // severity (1: lowest priority, ..., 255: highest priority)
-        severity = SF::JSON::GetSafeValueUInt(events[i], "severity");
+        severity = JsonWrapper::GetSafeValueUInt(events[i], "severity");
         if ((severity == 0) || (severity > 255)) {
             SFLOG_ERROR << "AddEvents: Invalid severity: " << severity << ", JSON: " << events[i] << std::endl;
             return false;
@@ -638,8 +637,8 @@ bool Coordinator::AddEvents(const std::string & componentName, const JSON::JSONV
         State::TransitionType t;
         Event::TransitionsType ts;
 
-        const JSON::JSONVALUE & ts_json = events[i]["state_transition"];
-        for (size_t j = 0; j < ts_json.size(); ++j) {
+        const JsonWrapper::JsonValue & ts_json = events[i]["state_transition"];
+        for (Json::ArrayIndex j = 0; j < ts_json.size(); ++j) {
             tname = ts_json[j].asString();
             if (tname.compare("N2E") == 0)
                 t = State::NORMAL_TO_ERROR;
@@ -679,14 +678,14 @@ bool Coordinator::AddEvents(const std::string & componentName, const JSON::JSONV
 bool Coordinator::AddEventFromJSON(const std::string & jsonString)
 {
     // Construct JSON structure from JSON string
-    SF::JSON json;
+    JsonWrapper json;
     if (!json.Read(jsonString.c_str())) {
         SFLOG_ERROR << "AddEventFromJSON: Failed to read json string: " << jsonString << std::endl;
         return false;
     }
 
-    const SF::JSON::JSONVALUE events = json.GetRoot()["event"];
-    const std::string componentName = JSON::GetSafeValueString(json.GetRoot(), "component");
+    const SF::JsonWrapper::JsonValue events = json.GetRoot()["event"];
+    const std::string componentName = JsonWrapper::GetSafeValueString(json.GetRoot(), "component");
     bool ret = AddEvents(componentName, events);
     if (!ret) {
         SFLOG_ERROR << "AddEventFromJSON: Failed to add events from JSON: " << jsonString << std::endl;
@@ -703,13 +702,13 @@ bool Coordinator::AddEventFromJSON(const std::string & jsonString)
 bool Coordinator::AddEventFromJSONFile(const std::string & jsonFileName)
 {
     // Construct JSON structure from JSON file
-    SF::JSON json;
+    JsonWrapper json;
     if (!json.ReadFromFile(jsonFileName)) {
         SFLOG_ERROR << "AddEventFromJSONFile: Failed to read json file: " << jsonFileName << std::endl;
         return false;
     }
 
-    bool ret = AddEventFromJSON(SF::JSON::GetJSONString(json.GetRoot()));
+    bool ret = AddEventFromJSON(JsonWrapper::GetJSONString(json.GetRoot()));
     if (!ret) {
         SFLOG_ERROR << "AddEventFromJSONFile: Failed to add events from JSON file: " << jsonFileName << std::endl;
         return false;
@@ -726,7 +725,7 @@ bool Coordinator::AddEventFromJSONFileToComponent(const std::string & jsonFileNa
                                                   const std::string & targetComponentName)
 {
     // Construct JSON structure from JSON file
-    SF::JSON json;
+    JsonWrapper json;
     if (!json.ReadFromFile(jsonFileName)) {
         SFLOG_ERROR << "AddEventFromJSONFileToComponent: Failed to read json file: " << jsonFileName << std::endl;
         return false;
@@ -735,7 +734,7 @@ bool Coordinator::AddEventFromJSONFileToComponent(const std::string & jsonFileNa
     // Insert target component name
     json.GetRoot()["component"] = targetComponentName;
 
-    bool ret = AddEventFromJSON(SF::JSON::GetJSONString(json.GetRoot()));
+    bool ret = AddEventFromJSON(JsonWrapper::GetJSONString(json.GetRoot()));
     if (!ret) {
         SFLOG_ERROR << "AddEventFromJSONFileToComponent: Failed to add events from JSON file: " << jsonFileName << std::endl;
         return false;
@@ -816,7 +815,7 @@ bool Coordinator::FindEvent(const std::string & eventName) const
 bool Coordinator::OnEvent(const std::string & event)
 {
     // Construct JSON instance from JSON-encoded string
-    JSON json;
+    JsonWrapper json;
     if (!json.Read(event.c_str())) {
         SFLOG_ERROR << "Coordinator::OnEvent: Failed to read json string: " << event << std::endl;
         return false;
@@ -824,13 +823,15 @@ bool Coordinator::OnEvent(const std::string & event)
     // Remember information about event occurred
     EventHistory.push_back(json.GetRoot());
 
-    JSON::JSONVALUE & jsonEvent = json.GetRoot()["event"];
+    JsonWrapper::JsonValue & jsonEvent = json.GetRoot()["event"];
 
-    const FilterBase::FilterIDType fuid = JSON::GetSafeValueUInt(jsonEvent, "fuid");
-    const std::string eventName         = JSON::GetSafeValueString(jsonEvent, "name");
-    const unsigned int severity         = JSON::GetSafeValueUInt(jsonEvent, "severity");
-    const TimestampType timestamp       = JSON::GetSafeValueDouble(jsonEvent, "timestamp");
-    const std::string what              = JSON::GetSafeValueString(jsonEvent, "what");
+    const std::string eventName         = JsonWrapper::GetSafeValueString(jsonEvent, "name");
+    const TimestampType timestamp       = JsonWrapper::GetSafeValueDouble(jsonEvent, "timestamp");
+    const std::string what              = JsonWrapper::GetSafeValueString(jsonEvent, "what");
+#if VERBOSE
+    const FilterBase::FilterIDType fuid = JsonWrapper::GetSafeValueUInt(jsonEvent, "fuid");
+    const unsigned int severity         = JsonWrapper::GetSafeValueUInt(jsonEvent, "severity");
+#endif
 
     // check if event is registered
     const Event * e = GetEvent(eventName);
@@ -844,12 +845,12 @@ bool Coordinator::OnEvent(const std::string & event)
     Event evt(e->GetName(), e->GetSeverity(), e->GetTransitions());
     evt.SetTimestamp(timestamp ? timestamp : GetCurrentTimeTick());
     evt.SetWhat(what);
-    
+
     jsonEvent = json.GetRoot()["target"];
     const State::StateMachineType targetStateMachineType = 
-        static_cast<State::StateMachineType>(JSON::GetSafeValueUInt(jsonEvent, "type"));
-    const std::string targetComponentName = JSON::GetSafeValueString(jsonEvent, "component");
-    const std::string targetInterfaceName = JSON::GetSafeValueString(jsonEvent, "interface");
+        static_cast<State::StateMachineType>(JsonWrapper::GetSafeValueUInt(jsonEvent, "type"));
+    const std::string targetComponentName = JsonWrapper::GetSafeValueString(jsonEvent, "component");
+    const std::string targetInterfaceName = JsonWrapper::GetSafeValueString(jsonEvent, "interface");
 
 #if VERBOSE
     SFLOG_DEBUG << "fuid: " << fuid << std::endl
@@ -893,8 +894,8 @@ bool Coordinator::OnEvent(const std::string & event)
         SFASSERT(gcm);
 
         // For error propagation
-        JSON _jsonServiceStateChange;
-        JSON::JSONVALUE & jsonServiceStateChange = _jsonServiceStateChange.GetRoot();
+        JsonWrapper _jsonServiceStateChange;
+        JsonWrapper::JsonValue & jsonServiceStateChange = _jsonServiceStateChange.GetRoot();
         const State::TransitionType transition = 
             gcm->ProcessStateTransition(targetStateMachineType, &evt, targetInterfaceName, jsonServiceStateChange);
         if (transition == State::INVALID_TRANSITION) {
@@ -905,11 +906,11 @@ bool Coordinator::OnEvent(const std::string & event)
         }
 
         // Publish service state change message
-        if (jsonServiceStateChange != JSON::JSONVALUE::null) {
-            PublishMessage(Topic::Control::STATE_UPDATE, JSON::GetJSONString(jsonServiceStateChange));
+        if (jsonServiceStateChange != JsonWrapper::JsonValue::null) {
+            PublishMessage(Topic::Control::STATE_UPDATE, JsonWrapper::GetJSONString(jsonServiceStateChange));
             SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << " : " << targetInterfaceName << " ] "
                         << "event [ " << evt << " ] occurred.  Publishing error propagation json:\n"
-                        << JSON::GetJSONString(jsonServiceStateChange) << std::endl;
+                        << JsonWrapper::GetJSONString(jsonServiceStateChange) << std::endl;
         }
         else
             SFLOG_DEBUG << "OnEvent: [ " << targetComponentName << " : " << targetInterfaceName << " ] "
@@ -918,12 +919,12 @@ bool Coordinator::OnEvent(const std::string & event)
     }
 
     // Refresh state viewer
-    JSON _jsonRefresh;
-    JSON::JSONVALUE & jsonRefresh = _jsonRefresh.GetRoot();
+    JsonWrapper _jsonRefresh;
+    JsonWrapper::JsonValue & jsonRefresh = _jsonRefresh.GetRoot();
     jsonRefresh["target"]["safety_coordinator"] = "*";
     jsonRefresh["target"]["component"] = "*";
     jsonRefresh["request"] = "state_list";
-    PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
+    PublishMessage(Topic::Control::READ_REQ, JsonWrapper::GetJSONString(jsonRefresh));
 
     // Call event hook for middleware
     return OnEventHandler(&evt);
@@ -946,15 +947,15 @@ GCM * Coordinator::GetGCMInstance(unsigned int componentId) const
 bool Coordinator::AddServiceStateDependencyFromJSON(const std::string & jsonString)
 {
     // Construct JSON structure from JSON string
-    JSON json;
+    JsonWrapper json;
     if (!json.Read(jsonString.c_str())) {
         SFLOG_ERROR << "AddServiceStateDependencyFromJSON: Failed to read json string: " << jsonString << std::endl;
         return false;
     }
 
-    const JSON::JSONVALUE & services = json.GetRoot()["service"];
-    if (services != JSON::JSONVALUE::null) {
-        const std::string componentName = JSON::GetSafeValueString(json.GetRoot(), "component");
+    const JsonWrapper::JsonValue & services = json.GetRoot()["service"];
+    if (services != JsonWrapper::JsonValue::null) {
+        const std::string componentName = JsonWrapper::GetSafeValueString(json.GetRoot(), "component");
         GCM * gcm = GetGCMInstance(componentName);
         if (!gcm) {
             SFLOG_ERROR << "AddServiceStateDependencyFromJSON: no component found: \"" << componentName << "\"" << std::endl;
@@ -972,13 +973,13 @@ bool Coordinator::AddServiceStateDependencyFromJSON(const std::string & jsonStri
 bool Coordinator::AddServiceStateDependencyFromJSONFile(const std::string & jsonFileName)
 {
     // Construct JSON structure from JSON file
-    JSON json;
+    JsonWrapper json;
     if (!json.ReadFromFile(jsonFileName)) {
         SFLOG_ERROR << "AddServiceStateDependencyFromJSONFile: Failed to read json file: " << jsonFileName << std::endl;
         return false;
     }
 
-    bool ret = AddServiceStateDependencyFromJSON(JSON::GetJSONString(json.GetRoot()));
+    bool ret = AddServiceStateDependencyFromJSON(JsonWrapper::GetJSONString(json.GetRoot()));
     if (!ret) {
         SFLOG_ERROR << "AddServiceStateDependencyFromJSONFile: Failed to add service state dependency from JSON file: " << jsonFileName << std::endl;
         return false;
@@ -989,7 +990,7 @@ bool Coordinator::AddServiceStateDependencyFromJSONFile(const std::string & json
     return ret;
 }
 
-bool Coordinator::OnEventPropagation(const JSON::JSONVALUE & json)
+bool Coordinator::OnEventPropagation(const JsonWrapper::JsonValue & json)
 {
     if (json.size() == 0) {
         SFLOG_ERROR << "OnEventPropagation: no error propagation info" << std::endl;
@@ -997,38 +998,38 @@ bool Coordinator::OnEventPropagation(const JSON::JSONVALUE & json)
     }
 
     std::string scName, componentName, interfaceName;
-    for (size_t i = 0; i < json.size(); ++i) {
-        const JSON::JSONVALUE & src = json[i];
+    for (Json::ArrayIndex i = 0; i < json.size(); ++i) {
+        const JsonWrapper::JsonValue & src = json[i];
 
         // deserialize event information
-        State::StateType state  = static_cast<State::StateType>(JSON::GetSafeValueUInt(src, "state"));
-        unsigned int severity   = JSON::GetSafeValueUInt(src["event"], "severity");
-        TimestampType timestamp = JSON::GetSafeValueDouble(src["event"], "timestamp");
-        std::string eventName   = JSON::GetSafeValueString(src["event"], "name");
+        State::StateType state  = static_cast<State::StateType>(JsonWrapper::GetSafeValueUInt(src, "state"));
+        unsigned int severity   = JsonWrapper::GetSafeValueUInt(src["event"], "severity");
+        TimestampType timestamp = JsonWrapper::GetSafeValueDouble(src["event"], "timestamp");
+        std::string eventName   = JsonWrapper::GetSafeValueString(src["event"], "name");
 
-        for (size_t j = 0; j < src["target"].size(); ++j) {
-            const JSON::JSONVALUE & target = src["target"][j];
+        for (Json::ArrayIndex j = 0; j < src["target"].size(); ++j) {
+            const JsonWrapper::JsonValue & target = src["target"][j];
 
-            scName = JSON::GetSafeValueString(target, "safety_coordinator");
+            scName = JsonWrapper::GetSafeValueString(target, "safety_coordinator");
             if (this->Name.compare(scName) != 0)
                 continue; // this error propagation target is not for this safety coordinator
 
-            componentName = JSON::GetSafeValueString(target, "component");
+            componentName = JsonWrapper::GetSafeValueString(target, "component");
             GCM * gcm = GetGCMInstance(componentName);
             if (!gcm) {
                 SFLOG_ERROR << "OnEventPropagation: no component found: \"" << componentName << "\"" << std::endl;
                 continue;
             }
 
-            interfaceName = JSON::GetSafeValueString(target, "interface");
+            interfaceName = JsonWrapper::GetSafeValueString(target, "interface");
             if (!gcm->FindInterface(interfaceName, GCM::REQUIRED_INTERFACE)) {
                 SFLOG_ERROR << "OnEventPropagation: no required interface found: \"" << interfaceName << "\"" << std::endl;
                 continue;
             }
 
             // Generate service failure event based on event information received
-            JSON _jsonEvent;
-            JSON::JSONVALUE & jsonEvent = _jsonEvent.GetRoot();
+            JsonWrapper _jsonEvent;
+            JsonWrapper::JsonValue & jsonEvent = _jsonEvent.GetRoot();
             jsonEvent["event"]["severity"] = severity;
             jsonEvent["event"]["timestamp"] = timestamp;
             if (state == State::ERROR || state == State::FAILURE)
@@ -1043,11 +1044,11 @@ bool Coordinator::OnEventPropagation(const JSON::JSONVALUE & json)
             jsonEvent["target"]["component"] = componentName;
             jsonEvent["target"]["interface"] = interfaceName;
 
-            SFLOG_DEBUG << "OnEventPropagation: Propagating service failure event:\n" << JSON::GetJSONString(jsonEvent) << std::endl;
+            SFLOG_DEBUG << "OnEventPropagation: Propagating service failure event:\n" << JsonWrapper::GetJSONString(jsonEvent) << std::endl;
 
-            if (!OnEvent(JSON::GetJSONString(jsonEvent))) {
+            if (!OnEvent(JsonWrapper::GetJSONString(jsonEvent))) {
                 SFLOG_ERROR << "OnEventPropagation: Failed to propagate service failure state:\n"
-                            << JSON::GetJSONString(jsonEvent) << std::endl;
+                            << JsonWrapper::GetJSONString(jsonEvent) << std::endl;
                 continue;
             }
 
@@ -1210,8 +1211,8 @@ void Coordinator::GenerateEvent(const std::string &     eventName,
     evt.SetTimestamp(tick);
     evt.SetWhat(what);
 
-    JSON _json;
-    JSON::JSONVALUE & json = _json.GetRoot();
+    JsonWrapper _json;
+    JsonWrapper::JsonValue & json = _json.GetRoot();
     json["event"]["severity"]   = evt.GetSeverity();
     json["event"]["name"]       = evt.GetName();
     json["event"]["timestamp"]  = evt.GetTimestamp();
@@ -1220,12 +1221,12 @@ void Coordinator::GenerateEvent(const std::string &     eventName,
     json["target"]["component"] = componentName;
     json["target"]["interface"] = interfaceName;
 
-    SFLOG_INFO << "Coordinator::GenerateEvent: \n" << JSON::GetJSONString(json) << std::endl;
+    SFLOG_INFO << "Coordinator::GenerateEvent: \n" << JsonWrapper::GetJSONString(json) << std::endl;
 
-    if (!OnEvent(JSON::GetJSONString(json)))
-        SFLOG_ERROR << "Coordinator::GenerateEvent: Failed to handle event:\n" << JSON::GetJSONString(json) << std::endl;
+    if (!OnEvent(JsonWrapper::GetJSONString(json)))
+        SFLOG_ERROR << "Coordinator::GenerateEvent: Failed to handle event:\n" << JsonWrapper::GetJSONString(json) << std::endl;
     else
-        SFLOG_DEBUG << "Coordinator::GenerateEvent: Successfully generated and handled event:\n" << JSON::GetJSONString(json) << std::endl;
+        SFLOG_DEBUG << "Coordinator::GenerateEvent: Successfully generated and handled event:\n" << JsonWrapper::GetJSONString(json) << std::endl;
 }
 
 bool Coordinator::BroadcastEvent(const std::string & eventName, const std::string & what)
@@ -1457,23 +1458,23 @@ void Coordinator::ResetStateMachines(bool resetAll)
     SFLOG_INFO << ss.str();
 
     // Refresh state viewer
-    JSON _jsonRefresh;
-    JSON::JSONVALUE & jsonRefresh = _jsonRefresh.GetRoot();
+    JsonWrapper _jsonRefresh;
+    JsonWrapper::JsonValue & jsonRefresh = _jsonRefresh.GetRoot();
     jsonRefresh["target"]["safety_coordinator"] = "*";
     jsonRefresh["target"]["component"] = "*";
     jsonRefresh["request"] = "state_list";
-    PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
+    PublishMessage(Topic::Control::READ_REQ, JsonWrapper::GetJSONString(jsonRefresh));
 
     if (resetAll) {
         // Broadcast event to reset state machines of the other safety coordinators as well
-        JSON _json;
-        JSON::JSONVALUE & json = _json.GetRoot();
+        JsonWrapper _json;
+        JsonWrapper::JsonValue & json = _json.GetRoot();
         json["target"]["safety_coordinator"] = "*";
         json["source"] = GetName();
         json["request"] = "state_reset";
-        PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(json));
+        PublishMessage(Topic::Control::READ_REQ, JsonWrapper::GetJSONString(json));
 
-        SFLOG_INFO << "[ " << GetName() << " ] " << JSON::GetJSONString(json) << std::endl;
+        SFLOG_INFO << "[ " << GetName() << " ] " << JsonWrapper::GetJSONString(json) << std::endl;
     }
 }
 
@@ -1517,18 +1518,18 @@ void Coordinator::ResetStateMachines(const std::string & componentName, State::S
     SFLOG_INFO << ss.str();
 
     // Refresh state viewer
-    JSON _jsonRefresh;
-    JSON::JSONVALUE & jsonRefresh = _jsonRefresh.GetRoot();
+    JsonWrapper _jsonRefresh;
+    JsonWrapper::JsonValue & jsonRefresh = _jsonRefresh.GetRoot();
     jsonRefresh["target"]["safety_coordinator"] = "*";
     jsonRefresh["target"]["component"] = "*";
     jsonRefresh["request"] = "state_list";
-    PublishMessage(Topic::Control::READ_REQ, JSON::GetJSONString(jsonRefresh));
+    PublishMessage(Topic::Control::READ_REQ, JsonWrapper::GetJSONString(jsonRefresh));
 }
 
 const std::string Coordinator::GetStateHistory(const std::string & componentName) const
 {
-    JSON _json;
-    JSON::JSONVALUE & json = _json.GetRoot();
+    JsonWrapper _json;
+    JsonWrapper::JsonValue & json = _json.GetRoot();
 
     bool allComponents = (componentName.compare("*") == 0);
 
@@ -1574,16 +1575,16 @@ const std::string Coordinator::GetEventHistory(const std::string & componentName
     EventHistoryType::iterator it = EventHistory.begin();
     EventHistoryType::iterator itEnd = EventHistory.end();
 
-    JSON _historyJson;
-    JSON::JSONVALUE & historyJson = _historyJson.GetRoot();
+    JsonWrapper _historyJson;
+    JsonWrapper::JsonValue & historyJson = _historyJson.GetRoot();
     if (allComponents) {
         for (; it != itEnd; ++it) {
             historyJson.append(*it);
         }
     } else {
         for (; it != itEnd; ++it) {
-            JSON::JSONVALUE & json = (*it)["target"];
-            const std::string _componentName = JSON::GetSafeValueString(json, "component");
+            JsonWrapper::JsonValue & json = (*it)["target"];
+            const std::string _componentName = JsonWrapper::GetSafeValueString(json, "component");
             if (componentName.compare(_componentName) != 0)
                 continue;
 

@@ -1,17 +1,15 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: July 8, 2012
-
-  Copyright (C) 2012 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//-----------------------------------------------------------------------------------
+//
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
+//
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+//
+//-----------------------------------------------------------------------------------
+//
+// Created on   : Jul 8, 2012
+// Last revision: May 4, 2015
+// Author       : Min Yang Jung (myj@jhu.edu)
+//
 #ifndef _cisstMonitor_h
 #define _cisstMonitor_h
 
@@ -35,7 +33,7 @@ public:
                  // zero sampling rate for event-type monitoring
                  const SamplingRateType    samplingRate = 0);
     //! Constructor using instance of JSON structure
-    cisstMonitor(const JSON::JSONVALUE & jsonNode);
+    cisstMonitor(const JsonWrapper::JsonValue & jsonNode);
     //! Constructor using JSON string.
     /*! Internally calls constructor with JSON structure */
     //Monitor(const std::string & jsonMonitorSpecString);

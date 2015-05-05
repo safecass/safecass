@@ -1,13 +1,13 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Apr 24, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -15,6 +15,7 @@
 #define _monitor_h
 
 #include "common.h"
+#include "jsonwrapper.h"
 #include "eventLocationBase.h"
 
 namespace SF {
@@ -130,7 +131,7 @@ public:
             const SamplingRateType samplingRate = 0, // unsigned int type (Hz)
             double lastSamplingTick = 0.0);
     //! Constructor using instance of JSON structure
-    Monitor(const JSON::JSONVALUE & jsonNode);
+    Monitor(const JsonWrapper::JsonValue & jsonNode);
     //! Constructor using JSON string.
     /*! Internally calls constructor with JSON structure */
     //Monitor(const std::string & jsonMonitorSpecString);

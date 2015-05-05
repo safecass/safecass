@@ -1,15 +1,15 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
-// Last revision: Mar 23, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
+// URL          : https://github.com/minyang/safecass
 //
 #ifndef _SFJSONTest_h
 #define _SFJSONTest_h
@@ -19,7 +19,7 @@
 #include <iostream>
 #include <sstream>
 
-class SFJSONTest: public Test::Suite 
+class SFJsonTest: public Test::Suite
 {
     std::stringstream SampleJSON;
 
@@ -29,8 +29,8 @@ class SFJSONTest: public Test::Suite
     void TestJSONWriteToFile(void);
 
 public:
-    SFJSONTest();
-    ~SFJSONTest() {}
+    SFJsonTest();
+    ~SFJsonTest() {}
 };
 
 #endif // _SFJSONTest_h

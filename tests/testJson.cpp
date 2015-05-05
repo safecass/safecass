@@ -1,23 +1,22 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
 // Last revision: Mar 23, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #include "testJson.h"
-#include "json.h"
+#include "jsonwrapper.h"
 #include "config.h"
 
 using namespace SF;
 
-class JSONTest: public JSON {
+class JsonTest: public JsonWrapper {
 public:
     bool Parse(void) {
         return true;
@@ -31,13 +30,13 @@ const std::string VALUE_PLUGIN3 = "ruby";
 const unsigned int VALUE_LENGTH = 3;
 const bool VALUE_USE_SPACE = true;
 
-SFJSONTest::SFJSONTest()
+SFJsonTest::SFJsonTest()
 {
     // Test registration
-    TEST_ADD(SFJSONTest::TestJSONRead);
-    TEST_ADD(SFJSONTest::TestJSONReadFromFile);
-    TEST_ADD(SFJSONTest::TestJSONWrite);
-    TEST_ADD(SFJSONTest::TestJSONWriteToFile);
+    TEST_ADD(SFJsonTest::TestJSONRead);
+    TEST_ADD(SFJsonTest::TestJSONReadFromFile);
+    TEST_ADD(SFJsonTest::TestJSONWrite);
+    TEST_ADD(SFJsonTest::TestJSONWriteToFile);
 
     // Sample JSON from JsonCpp documentation:
     SampleJSON << "// Configuration options\n";
@@ -58,9 +57,9 @@ SFJSONTest::SFJSONTest()
     SampleJSON << "}\n";
 }
 
-void SFJSONTest::TestJSONRead(void)
+void SFJsonTest::TestJSONRead(void)
 {
-    JSONTest test;
+    JsonTest test;
     const std::string sample(SampleJSON.str());
 
     TEST_ASSERT(test.Read(sample.c_str()));
@@ -78,9 +77,9 @@ void SFJSONTest::TestJSONRead(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
 }
 
-void SFJSONTest::TestJSONReadFromFile(void)
+void SFJsonTest::TestJSONReadFromFile(void)
 {
-    JSONTest test;
+    JsonTest test;
     TEST_ASSERT(test.ReadFromFile(SF_SOURCE_ROOT_DIR"/tests/sample.json"));
 
     std::string encoding = test.GetRoot().get("encoding", "ERROR" ).asString();
@@ -96,9 +95,9 @@ void SFJSONTest::TestJSONReadFromFile(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
 }
 
-void SFJSONTest::TestJSONWrite(void)
+void SFJsonTest::TestJSONWrite(void)
 {
-    JSONTest test;
+    JsonTest test;
     TEST_ASSERT(test.Read(SampleJSON.str().c_str()));
 
     const std::string newEncoding = "Korean";
@@ -129,9 +128,9 @@ void SFJSONTest::TestJSONWrite(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == newUseSpace);
 }
 
-void SFJSONTest::TestJSONWriteToFile(void)
+void SFJsonTest::TestJSONWriteToFile(void)
 {
-    JSONTest test;
+    JsonTest test;
     TEST_ASSERT(test.Read(SampleJSON.str().c_str()));
 
     const std::string newEncoding = "Korean";

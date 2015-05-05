@@ -1,25 +1,23 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Aug 20, 2014
-// Last revision: Aug 20, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #ifndef _FilterNOP_h
 #define _FilterNOP_h
 
 #include "filterBase.h"
-#include "event.h"
 
 namespace SF {
 
-/* 
+/*
    No-operation (NOP) filter
 
    This filter does nothing and is inteded to be used for fault injection.
@@ -46,19 +44,19 @@ protected:
     // Input signal type
     SignalElement::SignalType InputSignalType;
 
-    //-------------------------------------------------- 
+    //--------------------------------------------------
     //  Methods required by the base class
-    //-------------------------------------------------- 
-    bool ConfigureFilter(const JSON::JSONVALUE & json);
+    //--------------------------------------------------
+    bool ConfigureFilter(const JsonWrapper::JsonValue & UNUSED(json));
     bool InitFilter(void);
     void RunFilter(void);
     void CleanupFilter(void) {}
 
 public:
-    FilterNOP(const std::string &       targetComponentName, 
+    FilterNOP(const std::string &       targetComponentName,
               const std::string &       inputSignalName,
               SignalElement::SignalType inputSignalType);
-    FilterNOP(const JSON::JSONVALUE & json);
+    FilterNOP(const JsonWrapper::JsonValue & json);
     ~FilterNOP();
 
     inline const std::string & GetNameOfInputSignal(void) const { return NameOfInputSignal; }

@@ -16,7 +16,7 @@
 
 #include "config.h"
 #include "common.h"
-#include "json.h"
+#include "jsonwrapper.h"
 #include "monitor.h"
 #include "cisstMonitor.h"
 #include "threshold.h"

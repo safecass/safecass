@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jun 30, 2014
-// Last revision: Jul 8, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #ifndef _FilterOnOff_h
 #define _FilterOnOff_h
@@ -19,7 +18,7 @@
 
 namespace SF {
 
-/* 
+/*
    On/off (1-bit change) detection filter
 
    This filter detects if the input bit is zero or non-zero.
@@ -63,7 +62,7 @@ protected:
     //-------------------------------------------------- 
     //  Methods required by the base class
     //-------------------------------------------------- 
-    bool ConfigureFilter(const JSON::JSONVALUE & jsonNode);
+    bool ConfigureFilter(const JsonWrapper::JsonValue & jsonNode);
     bool InitFilter(void);
     void RunFilter(void); //< Implements filtering algorithm
     void CleanupFilter(void);
@@ -76,7 +75,7 @@ public:
                 const std::string &       targetInterfaceName,
                 const std::string &       inputSignalName);
     //! Constructor using JSON
-    FilterOnOff(const JSON::JSONVALUE & jsonNode);
+    FilterOnOff(const JsonWrapper::JsonValue & jsonNode);
     //! Destructor
     ~FilterOnOff();
 

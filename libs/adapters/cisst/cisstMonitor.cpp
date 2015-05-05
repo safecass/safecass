@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : July 8, 2012
-// Last revision: May 8, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #include "cisstMonitor.h"
 
@@ -19,10 +18,7 @@
 
 #include <sstream>
 
-namespace SF {
-
-using namespace Dict;
-using namespace Dict::Json;
+using namespace SF;
 
 cisstMonitor::cisstMonitor(const Monitor::TargetType target,
                            cisstEventLocation *      locationID,
@@ -33,23 +29,23 @@ cisstMonitor::cisstMonitor(const Monitor::TargetType target,
 {
 }
 
-cisstMonitor::cisstMonitor(const JSON::JSONVALUE & jsonNode)
+cisstMonitor::cisstMonitor(const JsonWrapper::JsonValue & jsonNode)
     : Monitor(jsonNode)
 {
     // Extract target information
-    const JSON::JSONVALUE location = jsonNode[Json::location];
+    const JsonWrapper::JsonValue location = jsonNode["location"];
 
     std::string processName, componentName;
     std::string interfaceProvidedName, interfaceRequiredName;
     std::string commandName, eventHandlerName;
     std::string functionName, eventGeneratorName;
-    
-    commandName           = JSON::GetSafeValueString(location, Json::command);
-    eventHandlerName      = JSON::GetSafeValueString(location, Json::event_handler);
-    functionName          = JSON::GetSafeValueString(location, Json::function);
-    eventGeneratorName    = JSON::GetSafeValueString(location, Json::event_generator);
 
-    cisstEventLocation * locationID = 
+    commandName           = JsonWrapper::GetSafeValueString(location, Dict::Json::command);
+    eventHandlerName      = JsonWrapper::GetSafeValueString(location, Dict::Json::event_handler);
+    functionName          = JsonWrapper::GetSafeValueString(location, Dict::Json::function);
+    eventGeneratorName    = JsonWrapper::GetSafeValueString(location, Dict::Json::event_generator);
+
+    cisstEventLocation * locationID =
         new cisstEventLocation(this->LocationID->GetProcessName(),
                                this->LocationID->GetComponentName(),
                                this->LocationID->GetInterfaceProvidedName(),
@@ -76,7 +72,10 @@ cisstEventLocation * cisstMonitor::GetLocationID(void) const
 
 const std::string cisstMonitor::GetMonitorJSON(void) const
 {
-    JSON::JSONVALUE root;
+    return "";
+    // TEMP
+#if 0
+    JsonWrapper::JsonValue root;
     cisstEventLocation * locationID = GetLocationID();
     if (!locationID)
         return std::string("ERROR: no location information");
@@ -84,7 +83,7 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
     root[name] = this->GetUIDAsString();
 
     // Monitor target type
-    {   JSON::JSONVALUE _root;
+    {   JsonWrapper::JsonValue _root;
         _root[type] = Monitor::GetTargetTypeString(Target);
 
         { ::Json::Value __root;
@@ -94,15 +93,15 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
           __root[interface_required]     = locationID->GetInterfaceRequiredName();
           __root[cisst::command]         = locationID->GetCommandName();
           __root[cisst::function]        = locationID->GetFunctionName();
-          __root[cisst::event_generator] = locationID->GetEventGeneratorName();
-          __root[cisst::event_handler]   = locationID->GetEventHandlerName();
-          _root[location] = __root;
+          // __root[cisst::event_generator] = locationID->GetEventGeneratorName();
+          // __root[cisst::event_handler]   = locationID->GetEventHandlerName();
+          // _root[location] = __root;
         }
         root[localization] = _root;
     }
 
     // Monitor behaviors
-    {   JSON::JSONVALUE _root;
+    {   JsonWrapper::JsonValue _root;
         _root[type] = Monitor::GetOutputTypeString(Output);
         {   ::Json::Value __root;
             {
@@ -143,10 +142,13 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
     ss << root;
 
     return ss.str();
+#endif
 }
 
 const std::string cisstMonitor::GetJsonForPublish(double sample, double currentTick) const
 {
+    return "FIXME";
+#if 0
     // Create JSONSerializer instance 
     JSONSerializer serializer;
     cisstEventLocation * locationID = dynamic_cast<cisstEventLocation*>(this->LocationID);
@@ -186,6 +188,7 @@ const std::string cisstMonitor::GetJsonForPublish(double sample, double currentT
     }
 
     return serializer.GetJSON();
+#endif
 }
 
 /*
@@ -334,5 +337,3 @@ void cisstMonitor::ToStream(std::ostream & outputStream, bool includeLocation) c
             outputStream << *LocationID;
     }
 }
-
-};

@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: Apr 9, 2015
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #ifndef _FilterBase_h
 #define _FilterBase_h
@@ -20,7 +19,7 @@
 
 #include "signal.h"
 #include "eventLocationBase.h"
-#include "json.h"
+#include "jsonwrapper.h"
 #include "event.h"
 
 namespace SF {
@@ -31,7 +30,7 @@ class EventPublisherBase;
 // Helper macros to ease implementation of Create() function
 #define SF_DEFINE_FACTORY_CREATE(_className)\
     static const std::string Name;\
-    static FilterBase * Create(const SF::JSON::JSONVALUE & jsonNode) {\
+    static FilterBase * Create(const JsonWrapper::JsonValue & jsonNode) {\
         return new _className(jsonNode);\
     }\
     static _className __instance;
@@ -85,7 +84,7 @@ public:
     //typedef std::vector<std::string> SignalNamesType;
 
     //! Typedef for filter factory class registration
-    typedef FilterBase * (*CreateFilterFuncType)(const JSON::JSONVALUE & jsonNode);
+    typedef FilterBase * (*CreateFilterFuncType)(const JsonWrapper::JsonValue & jsonNode);
 
     /*! \enum SF::FilterBase::FilterState
      * Typedef for internal state of filter.  A filter has to be explicitly enabled to be
@@ -209,7 +208,7 @@ protected:
     //virtual const std::string GenerateFDIJSON(double severity, double timestamp) const;
 
     // Encode event information in JSON format
-    virtual const std::string GenerateEventInfo(void) const;
+    void GenerateEventInfo(JsonWrapper::JsonValue & json) const;
 
     //-------------------------------------------------- 
     //  Middleware-specific Instances (cisst)
@@ -244,8 +243,7 @@ public:
                const std::string     & targetInterfaceName,
                EventDetectionModeType  eventDetectionMode = EVENT_DETECTION_EDGE);
     //! Constructor using JSON
-    FilterBase(const std::string     & filterName,
-               const JSON::JSONVALUE & jsonNode);
+    FilterBase(const std::string & filterName, const JsonWrapper::JsonValue & jsonNode);
     //! Destructor
     virtual ~FilterBase();
 
@@ -253,7 +251,7 @@ public:
     //  Pure virtual methods
     //-------------------------------------------------- 
     //! Configure filter-specific arguments
-    virtual bool ConfigureFilter(const JSON::JSONVALUE & jsonNode) = 0;
+    virtual bool ConfigureFilter(const JsonWrapper::JsonValue & jsonNode) = 0;
 
     //! Initialize filter
     virtual bool InitFilter(void) = 0;

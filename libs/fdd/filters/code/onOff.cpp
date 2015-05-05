@@ -54,9 +54,9 @@ FilterOnOff::FilterOnOff(FilterBase::FilteringType monitoringType,
     Initialize();
 }
 
-FilterOnOff::FilterOnOff(const JSON::JSONVALUE & jsonNode)
+FilterOnOff::FilterOnOff(const JsonWrapper::JsonValue & jsonNode)
     : FilterBase(FilterOnOff::Name, jsonNode),
-      NameOfInputSignal(JSON::GetSafeValueString(jsonNode["argument"], "input_signal")),
+      NameOfInputSignal(JsonWrapper::GetSafeValueString(jsonNode["argument"], "input_signal")),
       LastValue(0),
       EventNameOn(NONAME),
       EventNameOff(NONAME)
@@ -85,10 +85,10 @@ void FilterOnOff::Initialize(void)
     SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 }
 
-bool FilterOnOff::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
+bool FilterOnOff::ConfigureFilter(const JsonWrapper::JsonValue & jsonNode)
 {
-    EventNameOn  = JSON::GetSafeValueString(jsonNode["argument"], "event_on");
-    EventNameOff = JSON::GetSafeValueString(jsonNode["argument"], "event_off");
+    EventNameOn  = JsonWrapper::GetSafeValueString(jsonNode["argument"], "event_on");
+    EventNameOff = JsonWrapper::GetSafeValueString(jsonNode["argument"], "event_off");
     
     return true;
 }
@@ -168,20 +168,22 @@ void FilterOnOff::ToStream(std::ostream & outputStream, bool verbose) const
 
 const std::string FilterOnOff::GenerateEventInfo(EVENT_TYPE eventType) const
 {
-    JSON json;
-    JSON::JSONVALUE & root = json.GetRoot();
-    root["event"]["name"] = ((eventType == FilterOnOff::ONSET) ? EventNameOn : EventNameOff);
-    root["event"]["timestamp"] = InputSignals[0]->GetTimeLastSampleFetched();
-    //root["event"]["severity"] = 255; // TEMP
-    root["event"]["fuid"] = this->UID;
-#if 0
-    root["event"]["target"]["type"]      = this->FilterTarget.StateMachineType;
-    root["event"]["target"]["component"] = this->FilterTarget.ComponentName;
-    root["event"]["target"]["interface"] = this->FilterTarget.InterfaceName;
-#endif
-    root["target"]["type"]      = this->FilterTarget.StateMachineType;
-    root["target"]["component"] = this->FilterTarget.ComponentName;
-    root["target"]["interface"] = this->FilterTarget.InterfaceName;
+    JsonWrapper _json;
+    JsonWrapper::JsonValue & json = _json.GetRoot();
 
-    return JSON::GetJSONString(root);
+    // Populate common attributes
+    BaseType::GenerateEventInfo(json);
+
+    json["event"]["name"] = ((eventType == FilterOnOff::ONSET) ? EventNameOn : EventNameOff);
+    //json["event"]["severity"] = 255; // TEMP
+#if 0
+    json["event"]["target"]["type"]      = this->FilterTarget.StateMachineType;
+    json["event"]["target"]["component"] = this->FilterTarget.ComponentName;
+    json["event"]["target"]["interface"] = this->FilterTarget.InterfaceName;
+#endif
+    json["target"]["type"]      = this->FilterTarget.StateMachineType;
+    json["target"]["component"] = this->FilterTarget.ComponentName;
+    json["target"]["interface"] = this->FilterTarget.InterfaceName;
+
+    return JsonWrapper::GetJSONString(json);
 }

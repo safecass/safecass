@@ -1,21 +1,18 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : May 31, 2013
-// Last revision: May 7, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #ifndef _FilterFactory_h
 #define _FilterFactory_h
 
-#include <string>
-#include <map>
 #include "filterBase.h"
 
 namespace SF {
@@ -37,7 +34,7 @@ public:
 
     bool RegisterFilter(const std::string & filterName, FilterBase::CreateFilterFuncType createFunc);
 
-    FilterBase * CreateFilter(const std::string & filterName, const JSON::JSONVALUE & jsonNode) const;
+    FilterBase * CreateFilter(const std::string & filterName, const JsonWrapper::JsonValue & jsonNode) const;
 };
 
 };

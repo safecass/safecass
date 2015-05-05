@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: May 8, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #include "baseIce.h"
 #include "dict.h"
@@ -17,19 +16,19 @@
 using namespace SF;
 
 BaseIce::BaseIce(void)
-    : TopicName(NONAME),
+    : State(INVALID),
+      TopicName(NONAME),
       Topic(Topic::INVALID),
-      IcePropertyFileName(NONAME),
-      State(INVALID)
+      IcePropertyFileName(NONAME)
 {
     // Default constructor should not be used
     SFASSERT(false);
 }
 
 BaseIce::BaseIce(const std::string & topicName, const std::string & propertyFileName)
-    : TopicName(topicName),
-      IcePropertyFileName(propertyFileName),
-      State(INIT)
+    : State(INIT),
+      TopicName(topicName),
+      IcePropertyFileName(propertyFileName)
 {
     // Determine type of subscriber depending on topic
     if (TopicName.compare(SF::Dict::TopicNames::CONTROL) == 0)

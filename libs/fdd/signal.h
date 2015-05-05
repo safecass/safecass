@@ -126,7 +126,7 @@ public:
     void PushNewValueVector(const VectorType & value);
 
     /*! Returns human readable outputs */
-    virtual std::string ToString(void) const  {
+    std::string ToString(void) const  {
         std::stringstream ss;
         ToStream(ss);
         return ss.str();

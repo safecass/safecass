@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : May 6, 2014
-// Last revision: Jul 8, 2014
+// Last revision: May 4, 2014
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #ifndef _FilterChangeDetection_h
 #define _FilterChangeDetection_h
@@ -18,7 +17,7 @@
 
 namespace SF {
 
-/* 
+/*
    Change detection filter
 
    This filter detects if the current input is different from its previous value.
@@ -48,10 +47,10 @@ protected:
     /*! Local cache of the last value */
     SignalElement::ScalarType LastValue;
 
-    //-------------------------------------------------- 
+    //--------------------------------------------------
     //  Methods required by the base class
-    //-------------------------------------------------- 
-    bool ConfigureFilter(const JSON::JSONVALUE & jsonNode);
+    //--------------------------------------------------
+    bool ConfigureFilter(const JsonWrapper::JsonValue & jsonNode);
     bool InitFilter(void);
     void RunFilter(void); //< Implements filtering algorithm to detect change
     void CleanupFilter(void);
@@ -63,7 +62,7 @@ public:
                           // below are filter-specific arguments
                           const std::string &             inputSignalName);
     //! Constructor using JSON
-    FilterChangeDetection(const JSON::JSONVALUE & jsonNode);
+    FilterChangeDetection(const JsonWrapper::JsonValue & jsonNode);
 
     //! Destructor
     ~FilterChangeDetection();
@@ -74,7 +73,7 @@ public:
     inline SignalElement::SignalType GetSignalType(void) const  { return SignalElement::SCALAR; }
 
     /*! Returns human readable representation of this filter */
-    void ToStream(std::ostream & outputStream) const;
+    void ToStream(std::ostream & outputStream, bool verbose = true) const;
 
     //! For filter factory
     SF_DEFINE_FACTORY_CREATE(FilterChangeDetection);

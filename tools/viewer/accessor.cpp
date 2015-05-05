@@ -1,13 +1,13 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 10, 2014
-// Last revision: Jul 28, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -24,8 +24,8 @@ using namespace SF;
 // JSON object that has complete information of all states of the entire system (including 
 // multiple processes)
 // TODO: issue of shared resource with this
-SF::JSON CasrosSystemStates;
-SF::JSON::JSONVALUE & CasrosSystemStatesRoot = CasrosSystemStates.GetRoot();
+JsonWrapper CasrosSystemStates;
+JsonWrapper::JsonValue & CasrosSystemStatesRoot = CasrosSystemStates.GetRoot();
 
 // for safety coordinator color selection
 static int SCColorCode = 0;
@@ -116,22 +116,22 @@ const std::string GetColorCodeForSafetyCoordinator(void)
 //
 // Subscriber callback
 //
-void ViewerSubscriberCallback::CallbackControl(SF::Topic::Control::CategoryType category, const std::string & json)
+void ViewerSubscriberCallback::CallbackControl(Topic::Control::CategoryType category, const std::string & json)
 {
     SFASSERT(false);
 }
 
-void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType category, const std::string & json)
+void ViewerSubscriberCallback::CallbackData(Topic::Data::CategoryType category, const std::string & json)
 {
     std::string categoryName;
     switch (category) {
-    case SF::Topic::Data::MONITOR:
+    case Topic::Data::MONITOR:
         categoryName = "MONITOR";
         break;
-    case SF::Topic::Data::EVENT:
+    case Topic::Data::EVENT:
         categoryName = "EVENT";
         break;
-    case SF::Topic::Data::READ_RES:
+    case Topic::Data::READ_RES:
         categoryName = "READ_RES";
         break;
     default:
@@ -143,31 +143,31 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
 
 #if VERBOSE
     SFLOG_INFO << "message received - topic: " << TopicName << ", category: " << categoryName << " ]" << std::endl;
-    if (category == SF::Topic::Data::READ_RES) {
+    if (category == Topic::Data::READ_RES) {
         std::cout << "ViewerSubscriberCallback:" << __LINE__ << " Received json => " << json << std::endl;
     }
 #endif
 
     // input JSON: state information from CASROS
-    SF::JSON in;
+    JsonWrapper in;
     if (!in.Read(json.c_str())) {
         SFLOG_ERROR << "Failed to parse json: " << json << std::endl;
         return;
     }
 
-    const SF::JSON::JSONVALUE & inroot = in.GetRoot();
+    const JsonWrapper::JsonValue & inroot = in.GetRoot();
 
     // Get target safety coordinator (assigned as process name in cisst)
     //const std::string targetProcessName = 
-        //JSON::GetSafeValueString(inroot["target"], "safety_coordinator");
+        //JsonWrapper::GetSafeValueString(inroot["target"], "safety_coordinator");
     //const std::string thisProcessName = mtsManagerLocal::GetInstance()->GetProcessName();
     //if (targetProcessName.compare("*") != 0 && (targetProcessName != thisProcessName))
         //return;
 
     // Check command type
-    const std::string cmd = SF::JSON::GetSafeValueString(inroot, "cmd");
+    const std::string cmd = JsonWrapper::GetSafeValueString(inroot, "cmd");
     if (cmd.compare("message") == 0) {
-        std::cout << SF::JSON::GetSafeValueString(inroot, "msg") << std::endl;
+        std::cout << JsonWrapper::GetSafeValueString(inroot, "msg") << std::endl;
         return;
     } else {
         if (cmd.compare("state_list") != 0) {
@@ -177,27 +177,27 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
     }
 
     // extract name of safety coordinator
-    const std::string nameOfThisSC = SF::JSON::GetSafeValueString(inroot, "safety_coordinator");
+    const std::string nameOfThisSC = JsonWrapper::GetSafeValueString(inroot, "safety_coordinator");
     // update state cache (overwrite)
     CasrosSystemStatesRoot[nameOfThisSC] = inroot;
 
     // placeholder for D3
-    SF::JSON D3States;
-    SF::JSON::JSONVALUE D3StatesRoot = D3States.GetRoot();
+    JsonWrapper D3States;
+    JsonWrapper::JsonValue D3StatesRoot = D3States.GetRoot();
 
     // iterate each state cache instance, convert it to D3 format, and stack it up.
-    size_t cntSC = 0;
-    JSON::JSONVALUE::iterator it = CasrosSystemStatesRoot.begin();
-    const JSON::JSONVALUE::iterator itEnd = CasrosSystemStatesRoot.end();
+    Json::ArrayIndex cntSC = 0;
+    JsonWrapper::JsonValue::iterator it = CasrosSystemStatesRoot.begin();
+    const JsonWrapper::JsonValue::iterator itEnd = CasrosSystemStatesRoot.end();
     for (; it != itEnd; ++it) {
-        SF::JSON outSC;
-        SF::JSON::JSONVALUE & outSCroot = outSC.GetRoot();
+        JsonWrapper outSC;
+        JsonWrapper::JsonValue & outSCroot = outSC.GetRoot();
         GenerateD3JSON(*it, outSCroot);
         D3StatesRoot[cntSC++] = outSCroot;
     }
 
     // get json-encoded string for state viewer
-    const std::string outJson = SF::JSON::GetJSONString(D3StatesRoot);
+    const std::string outJson = JsonWrapper::GetJSONString(D3StatesRoot);
 
     // Reset color code
     SCColorCode = 0;
@@ -206,82 +206,82 @@ void ViewerSubscriberCallback::CallbackData(SF::Topic::Data::CategoryType catego
     QJsApiHandler::UpdateJSONState(outJson);
 }
 
-void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JSON::JSONVALUE & outSCroot)
+void ViewerSubscriberCallback::GenerateD3JSON(const JsonWrapper::JsonValue & inroot, JsonWrapper::JsonValue & outSCroot)
 {
     // safety coordinator name
-    outSCroot["name"] = SF::JSON::GetSafeValueString(inroot, "safety_coordinator");
+    outSCroot["name"] = JsonWrapper::GetSafeValueString(inroot, "safety_coordinator");
     outSCroot["color"] = GetColorCodeForState(State::NORMAL, LAYER_PROCESS);
 
     // for each component
-    const JSON::JSONVALUE inComponents = inroot["components"];
-    for (size_t i = 0; i < inComponents.size(); ++i) {
+    const JsonWrapper::JsonValue inComponents = inroot["components"];
+    for (Json::ArrayIndex i = 0; i < inComponents.size(); ++i) {
         // inputs for component
-        const JSON::JSONVALUE inComponent = inComponents[i];
+        const JsonWrapper::JsonValue inComponent = inComponents[i];
         // outputs for component
-        SF::JSON outComponent;
-        SF::JSON::JSONVALUE & outComponentRoot = outComponent.GetRoot();
+        JsonWrapper outComponent;
+        JsonWrapper::JsonValue & outComponentRoot = outComponent.GetRoot();
         {
             // component name
             outComponentRoot["name"] = inComponent["name"];
-            outComponentRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent, "s"), LAYER_COMPONENT);
+            outComponentRoot["color"] = GetColorCodeForState(JsonWrapper::GetSafeValueUInt(inComponent, "s"), LAYER_COMPONENT);
 
             // outputs for component state (three views: system, framework, application)
-            SF::JSON outStateComponent;
-            SF::JSON::JSONVALUE & outStateComponentRoot = outStateComponent.GetRoot();
+            JsonWrapper outStateComponent;
+            JsonWrapper::JsonValue & outStateComponentRoot = outStateComponent.GetRoot();
             // Get system view of component state
-            SF::State stateComponentSystemView, stateComponentFrameworkView, stateComponentAppView;
-            stateComponentFrameworkView = static_cast<State::StateType>(JSON::GetSafeValueUInt(inComponent["s_F"], "state"));
-            stateComponentAppView       = static_cast<State::StateType>(JSON::GetSafeValueUInt(inComponent["s_A"], "state"));
+            State stateComponentSystemView, stateComponentFrameworkView, stateComponentAppView;
+            stateComponentFrameworkView = static_cast<State::StateType>(JsonWrapper::GetSafeValueUInt(inComponent["s_F"], "state"));
+            stateComponentAppView       = static_cast<State::StateType>(JsonWrapper::GetSafeValueUInt(inComponent["s_A"], "state"));
             stateComponentSystemView = stateComponentFrameworkView * stateComponentAppView;
 
             outStateComponentRoot["name"] = "Component";
             outStateComponentRoot["color"] = GetColorCodeForState(stateComponentSystemView.GetState(), LAYER_META);
             {
-                size_t cntComponentState = 0;
-                SF::JSON outStateFramework;
-                SF::JSON::JSONVALUE & outStateFrameworkRoot = outStateFramework.GetRoot();
+                Json::ArrayIndex cntComponentState = 0;
+                JsonWrapper outStateFramework;
+                JsonWrapper::JsonValue & outStateFrameworkRoot = outStateFramework.GetRoot();
                 {
                     outStateFrameworkRoot["name"] = "Framework";
                     outStateFrameworkRoot["color"] = GetColorCodeForState(stateComponentFrameworkView.GetState());
-                    if (inComponent["s_F"]["event"] != JSON::JSONVALUE::null)
-                        outStateFrameworkRoot["pendingevent"] = JSON::GetJSONString(inComponent["s_F"]["event"]);
+                    if (inComponent["s_F"]["event"] != JsonWrapper::JsonValue::null)
+                        outStateFrameworkRoot["pendingevent"] = JsonWrapper::GetJSONString(inComponent["s_F"]["event"]);
                 }
                 outStateComponentRoot["children"][cntComponentState++] = outStateFrameworkRoot;
 
-                SF::JSON outStateApp;
-                SF::JSON::JSONVALUE & outStateAppRoot = outStateApp.GetRoot();
+                JsonWrapper outStateApp;
+                JsonWrapper::JsonValue & outStateAppRoot = outStateApp.GetRoot();
                 {
                     outStateAppRoot["name"] = "Application";
                     outStateAppRoot["color"] = GetColorCodeForState(stateComponentAppView.GetState());
-                    if (inComponent["s_A"]["event"] != JSON::JSONVALUE::null)
-                        outStateAppRoot["pendingevent"] = JSON::GetJSONString(inComponent["s_A"]["event"]);
+                    if (inComponent["s_A"]["event"] != JsonWrapper::JsonValue::null)
+                        outStateAppRoot["pendingevent"] = JsonWrapper::GetJSONString(inComponent["s_A"]["event"]);
                 }
                 outStateComponentRoot["children"][cntComponentState++] = outStateAppRoot;
             }
-            size_t j = 0;
+            Json::ArrayIndex j = 0;
             outComponentRoot["children"][j++] = outStateComponentRoot;
 
             // outputs for provided interface
             // for each interface
-            const JSON::JSONVALUE inPrvInterfaces = inComponent["interfaces_provided"];
-            const size_t cntProvided = inPrvInterfaces.size();
-            for (size_t k = 0; k < cntProvided; ++k) {
+            const JsonWrapper::JsonValue inPrvInterfaces = inComponent["interfaces_provided"];
+            const Json::ArrayIndex cntProvided = inPrvInterfaces.size();
+            for (Json::ArrayIndex k = 0; k < cntProvided; ++k) {
                 // input for provided interface
-                const JSON::JSONVALUE inPrvInterface = inPrvInterfaces[k];
+                const JsonWrapper::JsonValue inPrvInterface = inPrvInterfaces[k];
                 // output for provided interface
-                SF::JSON outInterfaceProvidedEach;
-                SF::JSON::JSONVALUE & outInterfaceProvidedEachRoot = outInterfaceProvidedEach.GetRoot();
+                JsonWrapper outInterfaceProvidedEach;
+                JsonWrapper::JsonValue & outInterfaceProvidedEachRoot = outInterfaceProvidedEach.GetRoot();
                 {
                     outInterfaceProvidedEachRoot["name"] = "Service";
                     outInterfaceProvidedEachRoot["color"] = 
-                        GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "service_state"), LAYER_META);
+                        GetColorCodeForState(JsonWrapper::GetSafeValueUInt(inPrvInterface, "service_state"), LAYER_META);
 
-                    size_t cnt = 0;
+                    Json::ArrayIndex cnt = 0;
                     outInterfaceProvidedEachRoot["children"][cnt]["name"] = inPrvInterface["name"];
                     outInterfaceProvidedEachRoot["children"][cnt]["color"] =
-                        GetColorCodeForState(JSON::GetSafeValueUInt(inPrvInterface, "state"));
-                    if (inPrvInterface["event"] != JSON::JSONVALUE::null)
-                        outInterfaceProvidedEachRoot["pendingevent"] = JSON::GetJSONString(inPrvInterface["event"]);
+                        GetColorCodeForState(JsonWrapper::GetSafeValueUInt(inPrvInterface, "state"));
+                    if (inPrvInterface["event"] != JsonWrapper::JsonValue::null)
+                        outInterfaceProvidedEachRoot["pendingevent"] = JsonWrapper::GetJSONString(inPrvInterface["event"]);
                 }
                 //outInterfaceProvidedRoot["children"][k] = outInterfaceProvidedEachRoot;
 
@@ -289,30 +289,30 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
             }
 
             // outputs for required interface
-            SF::JSON outInterfaceRequired;
-            SF::JSON::JSONVALUE & outInterfaceRequiredRoot = outInterfaceRequired.GetRoot();
-            size_t cntRequired = 0;
+            JsonWrapper outInterfaceRequired;
+            JsonWrapper::JsonValue & outInterfaceRequiredRoot = outInterfaceRequired.GetRoot();
+            Json::ArrayIndex cntRequired = 0;
             {
                 outInterfaceRequiredRoot["name"] = "Required";
-                outInterfaceRequiredRoot["color"] = GetColorCodeForState(JSON::GetSafeValueUInt(inComponent["s_R"], "state"), LAYER_META);
-                if (inComponent["s_R"]["event"] != JSON::JSONVALUE::null)
-                    outInterfaceRequiredRoot["pendingevent"] = JSON::GetJSONString(inComponent["s_R"]["event"]);
+                outInterfaceRequiredRoot["color"] = GetColorCodeForState(JsonWrapper::GetSafeValueUInt(inComponent["s_R"], "state"), LAYER_META);
+                if (inComponent["s_R"]["event"] != JsonWrapper::JsonValue::null)
+                    outInterfaceRequiredRoot["pendingevent"] = JsonWrapper::GetJSONString(inComponent["s_R"]["event"]);
 
                 // for each interface
-                const JSON::JSONVALUE inReqInterfaces = inComponent["interfaces_required"];
+                const JsonWrapper::JsonValue inReqInterfaces = inComponent["interfaces_required"];
                 cntRequired = inReqInterfaces.size();
-                for (size_t k = 0; k < cntRequired; ++k) {
+                for (Json::ArrayIndex k = 0; k < cntRequired; ++k) {
                     // input for provided interface
-                    const JSON::JSONVALUE inReqInterface = inReqInterfaces[k];
+                    const JsonWrapper::JsonValue inReqInterface = inReqInterfaces[k];
                     // output for provided interface
-                    SF::JSON outInterfaceRequiredEach;
-                    SF::JSON::JSONVALUE & outInterfaceRequiredEachRoot = outInterfaceRequiredEach.GetRoot();
+                    JsonWrapper outInterfaceRequiredEach;
+                    JsonWrapper::JsonValue & outInterfaceRequiredEachRoot = outInterfaceRequiredEach.GetRoot();
                     {
                         outInterfaceRequiredEachRoot["name"] = inReqInterface["name"];
                         outInterfaceRequiredEachRoot["color"] =
-                            GetColorCodeForState(JSON::GetSafeValueUInt(inReqInterface, "state"));
-                        if (inReqInterface["event"] != JSON::JSONVALUE::null)
-                            outInterfaceRequiredEachRoot["pendingevent"] = JSON::GetJSONString(inReqInterface["event"]);
+                            GetColorCodeForState(JsonWrapper::GetSafeValueUInt(inReqInterface, "state"));
+                        if (inReqInterface["event"] != JsonWrapper::JsonValue::null)
+                            outInterfaceRequiredEachRoot["pendingevent"] = JsonWrapper::GetJSONString(inReqInterface["event"]);
                     }
                     outInterfaceRequiredRoot["children"][k] = outInterfaceRequiredEachRoot;
                 }
@@ -322,19 +322,19 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JSON::JSONVALUE & inroot, JS
         }
         outSCroot["children"][i] = outComponentRoot;
     }
-    //std::cout << "###### " << JSON::GetJSONString(outSCroot) << std::endl;
+    //std::cout << "###### " << JsonWrapper::GetJSONString(outSCroot) << std::endl;
 }
 
 //
 // CASROS accessor for console
 //
 AccessorViewer::AccessorViewer(void)
-    : SF::cisstAccessor(true,  // enablePublisherControl
+    : cisstAccessor(true,  // enablePublisherControl
                         false, // enablePublisherData
                         false,  // enableSubscriberControl
                         true,  // enableSubscriberData
-                        0,//new ViewerSubscriberCallback(SF::Dict::TopicNames::CONTROL),
-                        new ViewerSubscriberCallback(SF::Dict::TopicNames::DATA))
+                        0,//new ViewerSubscriberCallback(Dict::TopicNames::CONTROL),
+                        new ViewerSubscriberCallback(Dict::TopicNames::DATA))
 {
 }
 
@@ -345,7 +345,7 @@ bool AccessorViewer::RequestStateList(const std::string & safetyCoordinatorName,
     ss << "{ \"target\": { \"safety_coordinator\": \"" << safetyCoordinatorName << "\", "
           "\"component\": \"" << componentName << "\" }, "
           "\"request\": \"state_list\" }";
-    if (!Publishers.Control->PublishControl(SF::Topic::Control::READ_REQ, ss.str())) {
+    if (!Publishers.Control->PublishControl(Topic::Control::READ_REQ, ss.str())) {
         std::cerr << "RequestStateList: Failed to publish message (Control, READ_REQ): " << ss.str() << std::endl;
         return false;
     }

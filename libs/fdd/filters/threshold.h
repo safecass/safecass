@@ -1,15 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Sep 3, 2012
-// Last revision: Apr 9, 2015
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #ifndef _FilterThreshold_h
 #define _FilterThreshold_h
@@ -19,11 +18,11 @@
 
 namespace SF {
 
-/* 
+/*
    Threshold Filter
 
-   Given constant threshold T and tolerance t, 
-   
+   Given constant threshold T and tolerance t,
+
       Output Y = Y1 if X > (T + t)
                  Y0 otherwise
 
@@ -52,18 +51,18 @@ protected:
     SignalElement::ScalarType Threshold;
     //! Threshold tolerance
     SignalElement::ScalarType Tolerance;
-    //! Output when input does not exceed threshold with margin of tolerance
-    SignalElement::ScalarType OutputBelow;
     //! Output when input exceeds threshold by more than margin of tolerance
     SignalElement::ScalarType OutputAbove;
+    //! Output when input does not exceed threshold with margin of tolerance
+    SignalElement::ScalarType OutputBelow;
     //! Names of events generated
     std::string EventNameAbove;
     std::string EventNameBelow;
 
-    //-------------------------------------------------- 
+    //--------------------------------------------------
     //  Methods required by the base class
-    //-------------------------------------------------- 
-    bool ConfigureFilter(const JSON::JSONVALUE & jsonNode);
+    //--------------------------------------------------
+    bool ConfigureFilter(const JsonWrapper::JsonValue & jsonNode);
     bool InitFilter(void);
     void RunFilter(void); //< Implements filtering algorithm
     void CleanupFilter(void);
@@ -81,7 +80,7 @@ public:
                     SignalElement::ScalarType outputAbove,
                     const std::string &       eventNameAbove,
                     const std::string &       eventNameBelow);
-    // Constructor to deploy filter to interface (component name and 
+    // Constructor to deploy filter to interface (component name and
     // interface name are required)
     FilterThreshold(FilterBase::FilteringType monitoringType,
                     State::StateMachineType   targetStateMachineType,
@@ -95,7 +94,7 @@ public:
                     const std::string &       eventNameAbove,
                     const std::string &       eventNameBelow);
     //! Constructor using JSON
-    FilterThreshold(const JSON::JSONVALUE & jsonNode);
+    FilterThreshold(const JsonWrapper::JsonValue & jsonNode);
     //! Destructor
     ~FilterThreshold();
 

@@ -14,7 +14,7 @@
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
 # Project name
-project(SafetyFramework)
+project(SAFECASS)
 
 # Set the version number
 set (SF_VERSION_MAJOR "0")

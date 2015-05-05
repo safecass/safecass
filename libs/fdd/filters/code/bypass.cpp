@@ -211,20 +211,22 @@ void FilterBypass::ToStream(std::ostream & outputStream, bool verbose) const
 
 const std::string FilterBypass::GenerateEventInfo(EVENT_TYPE eventType) const
 {
-    JSON json;
-    JSON::JSONVALUE & root = json.GetRoot();
-    root["event"]["name"] = ((eventType == FilterBypass::ONSET) ? EventNameOn : EventNameOff);
-    root["event"]["timestamp"] = InputSignals[0]->GetTimeLastSampleFetched();
-    //root["event"]["severity"] = 255; // TEMP
-    root["event"]["fuid"] = this->UID;
-#if 0
-    root["event"]["target"]["type"]      = this->FilterTarget.StateMachineType;
-    root["event"]["target"]["component"] = this->FilterTarget.ComponentName;
-    root["event"]["target"]["interface"] = this->FilterTarget.InterfaceName;
-#endif
-    root["target"]["type"]      = this->FilterTarget.StateMachineType;
-    root["target"]["component"] = this->FilterTarget.ComponentName;
-    root["target"]["interface"] = this->FilterTarget.InterfaceName;
+    JsonWrapper _json;
+    JsonWrapper::JsonValue & json = _json.Getjson();
 
-    return JSON::GetJSONString(root);
+    // Populate common attributes
+    BaseType::GenerateEventInfo(json);
+
+    json["event"]["name"] = ((eventType == FilterBypass::ONSET) ? EventNameOn : EventNameOff);
+    //json["event"]["severity"] = 255; // TEMP
+#if 0
+    json["event"]["target"]["type"]      = this->FilterTarget.StateMachineType;
+    json["event"]["target"]["component"] = this->FilterTarget.ComponentName;
+    json["event"]["target"]["interface"] = this->FilterTarget.InterfaceName;
+#endif
+    json["target"]["type"]      = this->FilterTarget.StateMachineType;
+    json["target"]["component"] = this->FilterTarget.ComponentName;
+    json["target"]["interface"] = this->FilterTarget.InterfaceName;
+
+    return JsonWrapper::GetJSONString(json);
 }

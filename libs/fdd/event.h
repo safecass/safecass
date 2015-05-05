@@ -1,22 +1,21 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Apr 8, 2015
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
 //
 #ifndef _event_h
 #define _event_h
 
 #include "utils.h" // for TimestampType
 #include "state.h"
-#include "json.h"
+#include "jsonwrapper.h"
 
 namespace SF {
 
@@ -26,7 +25,7 @@ class SFLIB_EXPORT Event
 
 public:
     typedef std::vector<State::TransitionType> TransitionsType;
-    
+
     // severity definition
     enum {
         SEVERITY_APP_MIN       = 1,
@@ -127,7 +126,7 @@ public:
     // Returns human readable outputs
     virtual void ToStream(std::ostream & outputStream) const;
     // Serialize this object in json
-    const JSON::JSONVALUE SerializeJSON(bool includeStateTransition = true) const;
+    const JsonWrapper::JsonValue SerializeJSON(bool includeStateTransition = true) const;
     // Serialize this object in string
     const std::string SerializeString(bool includeStateTransition = true) const;
 };

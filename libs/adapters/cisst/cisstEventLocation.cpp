@@ -33,7 +33,7 @@ cisstEventLocation::cisstEventLocation(const std::string & processName,
                                        const std::string & eventGeneratorName,
                                        const std::string & eventHandlerName)
     : EventLocationBase(processName, componentName, interfaceProvidedName, interfaceRequiredName),
-      CommandName(commandName), FunctionName(functionName), 
+      CommandName(commandName), FunctionName(functionName),
       EventGeneratorName(eventGeneratorName), EventHandlerName(eventHandlerName)
 {}
 
@@ -90,10 +90,13 @@ void cisstEventLocation::ImportFromJSON(const ::Json::Value & value)
 {
     EventLocationBase::ImportFromJSON(value);
 
-    CommandName        = JSON::GetSafeValueString(value, cisst::command);
-    FunctionName       = JSON::GetSafeValueString(value, cisst::function);
-    EventGeneratorName = JSON::GetSafeValueString(value, cisst::event_generator);
-    EventHandlerName   = JSON::GetSafeValueString(value, cisst::event_handler);
+    // FIXME
+#if 0
+    CommandName        = JsonWrapper::GetSafeValueString(value, cisst::command);
+    FunctionName       = JsonWrapper::GetSafeValueString(value, cisst::function);
+    EventGeneratorName = JsonWrapper::GetSafeValueString(value, cisst::event_generator);
+    EventHandlerName   = JsonWrapper::GetSafeValueString(value, cisst::event_handler);
+#endif
 }
 
 void cisstEventLocation::ToStream(std::ostream & outputStream) const

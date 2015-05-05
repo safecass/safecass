@@ -1,13 +1,13 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 31, 2012
-// Last revision: May 8, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -17,7 +17,7 @@
 
 #define DEBUGLOG 0
 
-namespace SF {
+using namespace SF;
 
 // Publisher id (unique within a process)
 unsigned int Publisher::Id = 0;
@@ -73,21 +73,21 @@ bool Publisher::Startup(void)
 
     // Retrieve the topic.
     IceStorm::TopicPrx topic;
-    try {   
+    try {
         topic = manager->retrieve(this->TopicName);
-    } catch(const IceStorm::NoSuchTopic&) {   
-        try {   
+    } catch(const IceStorm::NoSuchTopic&) {
+        try {
             topic = manager->create(this->TopicName);
-        } 
-        catch(const IceStorm::TopicExists&) {   
+        }
+        catch(const IceStorm::TopicExists&) {
             SFLOG_ERROR << PUBLISHER_INFO << "Topic not found. Try again." << std::endl;
             return false;
-        }   
-    }   
+        }
+    }
 
     // Get the topic's publisher object, and create topic proxy
     Ice::ObjectPrx publisher = topic->getPublisher();
-    
+
     // Get the topic's publisher object, and create a proper proxy depending on
     // the topic.
     switch (this->Topic) {
@@ -174,5 +174,3 @@ const std::string Publisher::GetDefaultConfigFilePath(void)
 
     return path;
 }
-
-};

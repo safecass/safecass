@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Jul 10, 2014
-// Last revision: Jul 10, 2014
+// Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -31,7 +31,7 @@ public:
     void CallbackControl(SF::Topic::Control::CategoryType category, const std::string & json);
     void CallbackData   (SF::Topic::Data::CategoryType    category, const std::string & json);
 
-    void GenerateD3JSON(const SF::JSON::JSONVALUE & inroot, SF::JSON::JSONVALUE & outSCroot);
+    void GenerateD3JSON(const SF::JsonWrapper::JsonValue & inroot, SF::JsonWrapper::JsonValue & outSCroot);
 };
 
 //
