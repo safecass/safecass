@@ -128,7 +128,7 @@ void FilterOnOff::RunFilter(void)
     }
 
     // value changes; edge is detected
-    double newOutput;
+    double newOutput = 0.0;
     SCASSERT(SafetyCoordinator);
     if (newInput == 0) {
         // offset event

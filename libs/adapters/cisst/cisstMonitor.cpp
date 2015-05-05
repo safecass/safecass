@@ -145,7 +145,7 @@ const std::string cisstMonitor::GetMonitorJSON(void) const
 #endif
 }
 
-const std::string cisstMonitor::GetJsonForPublish(double sample, double currentTick) const
+const std::string cisstMonitor::GetJsonForPublish(double UNUSED(sample), double UNUSED(currentTick)) const
 {
     return "FIXME";
 #if 0

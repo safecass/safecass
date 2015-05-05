@@ -315,11 +315,11 @@ std::string StateMachine::GetCounterStatus(void) const
 {
     std::stringstream ss;
     ss << "Transition: ";
-    for (int i = 0; i < State.EventHandlerInstance->CountTransition.size(); ++i)
+    for (size_t i = 0; i < State.EventHandlerInstance->CountTransition.size(); ++i)
         ss << State.EventHandlerInstance->CountTransition[i] << " | ";
     ss << std::endl;
     ss << "Entry/Exit: ";
-    for (int i = 0; i < State.EventHandlerInstance->CountEntryExit.size(); ++i)
+    for (size_t i = 0; i < State.EventHandlerInstance->CountEntryExit.size(); ++i)
         ss << State.EventHandlerInstance->CountEntryExit[i] << " | ";
 
     return ss.str();
