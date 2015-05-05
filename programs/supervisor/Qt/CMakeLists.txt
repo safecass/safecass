@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------
 #
-# CASROS: Component-based Architecture for Safe Robotic Systems
+# SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 #
 # Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
 #

@@ -92,7 +92,7 @@ void ConsoleSubscriberCallback::CallbackData(Topic::Data::CategoryType category,
 }
 
 //
-// CASROS accessor for console
+// SAFECASS accessor for console
 //
 AccessorConsole::AccessorConsole(void)
     : cisstAccessor(true,  // enablePublisherControl

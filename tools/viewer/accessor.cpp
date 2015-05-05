@@ -148,7 +148,7 @@ void ViewerSubscriberCallback::CallbackData(Topic::Data::CategoryType category, 
     }
 #endif
 
-    // input JSON: state information from CASROS
+    // input JSON: state information from SAFECASS
     JsonWrapper in;
     if (!in.Read(json.c_str())) {
         SCLOG_ERROR << "Failed to parse json: " << json << std::endl;
@@ -326,7 +326,7 @@ void ViewerSubscriberCallback::GenerateD3JSON(const JsonWrapper::JsonValue & inr
 }
 
 //
-// CASROS accessor for console
+// SAFECASS accessor for console
 //
 AccessorViewer::AccessorViewer(void)
     : cisstAccessor(true,  // enablePublisherControl

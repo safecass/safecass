@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
 //
@@ -11,7 +11,7 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
-// This file defines the state-based semantics for CASROS, which consists of states, state
+// This file defines the state-based semantics for SAFECASS, which consists of states, state
 // entry and exist, and state transitions.
 //
 // References:

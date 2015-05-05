@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
@@ -33,7 +33,7 @@ public:
 };
 
 //
-// CASROS accessors
+// SAFECASS accessors
 //
 class AccessorConsole : public SC::cisstAccessor {
 public:
@@ -81,7 +81,7 @@ public:
 };
 
 // Aux macro
-#define CASROS_ACCESSOR_CHECK\
+#define SAFECASS_ACCESSOR_CHECK\
     if (!casrosAccessor) {\
         std::cerr << "ERROR: accessor is not initialized" << std::endl;\
         return;\

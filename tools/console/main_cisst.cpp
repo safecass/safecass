@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
 //
@@ -41,7 +41,7 @@ void handler_help(const std::vector<std::string> &)
     std::stringstream ss;
 
 #define NL << std::endl
-    ss << "CASROS console utility" NL NL
+    ss << "SAFECASS console utility" NL NL
        << "USAGE: console [command]"NL NL
        << "commands:"NL
        << "    state"NL
@@ -52,7 +52,7 @@ void handler_help(const std::vector<std::string> &)
        << "    help      : show this help"NL
        << "    exit/quit : exit console"NL NL
        << "For more information:"NL
-       << "    CASROS on Github: https://github.com/minyang/casros"NL NL;
+       << "    SAFECASS on Github: https://github.com/minyang/casros"NL NL;
 
     std::cout << ss.str();
 }

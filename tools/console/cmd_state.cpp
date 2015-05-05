@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
@@ -33,7 +33,7 @@ void handler_state_help(void)
 void handler_state_list(const std::string & safetyCoordinatorName,
                         const std::string & componentName)
 {
-    CASROS_ACCESSOR_CHECK;
+    SAFECASS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestStateList(safetyCoordinatorName, componentName)) {
         std::cerr << "ERROR: failed to request state information" << std::endl;
@@ -45,7 +45,7 @@ void handler_state_list(const std::string & safetyCoordinatorName,
 void handler_state_history(const std::string & safetyCoordinatorName,
                            const std::string & componentName)
 {
-    CASROS_ACCESSOR_CHECK;
+    SAFECASS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestStateHistory(safetyCoordinatorName, componentName)) {
         std::cerr << "ERROR: failed to request state history" << std::endl;

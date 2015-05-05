@@ -64,7 +64,7 @@
    <set>Qt::TopDockWidgetArea</set>
   </property>
   <property name="windowTitle">
-   <string>CASROS Supervisor</string>
+   <string>SAFECASS Supervisor</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout_2">

@@ -1,7 +1,11 @@
-CASROS
-=======
+SAFECASS
+========
 
-Component-based Architecture for Safe RObot Systems
+Safety Architecture For Engineering Computer-Assisted Surgical Systems
+
+Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+
+Wiki Link: https://github.com/minyang/safecass/wiki
 
 References
 ----------

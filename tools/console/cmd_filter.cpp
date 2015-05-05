@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
 //
@@ -37,12 +37,12 @@ void handler_filter_help(void)
 void handler_filter_list(const std::string & safetyCoordinatorName,
                          const std::string & componentName)
 {
-#define CASROS_ACCESSOR_CHECK\
+#define SAFECASS_ACCESSOR_CHECK\
     if (!casrosAccessor) {\
         std::cerr << "ERROR: accessor is not initialized" << std::endl;\
         return;\
     }
-    CASROS_ACCESSOR_CHECK;
+    SAFECASS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestFilterList(safetyCoordinatorName, componentName)) {
         std::cerr << "ERROR: failed to request filter list" << std::endl;
@@ -53,7 +53,7 @@ void handler_filter_list(const std::string & safetyCoordinatorName,
 void handler_filter_info(const std::string & safetyCoordinatorName,
                          const std::string & componentName)
 {
-    CASROS_ACCESSOR_CHECK;
+    SAFECASS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestFilterInfo(safetyCoordinatorName, componentName)) {
         std::cerr << "ERROR: failed to request filter info" << std::endl;
@@ -66,7 +66,7 @@ void handler_filter_inject(const std::string & safetyCoordinatorName,
                            const SC::DoubleVecType & inputs,
                            bool deepInjection)
 {
-    CASROS_ACCESSOR_CHECK;
+    SAFECASS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestFilterFaultInject(safetyCoordinatorName, fuid, inputs, deepInjection)) {
         std::cerr << "ERROR: failed to request filter list" << std::endl;
@@ -78,14 +78,14 @@ void handler_filter_inject_load(const std::string & safetyCoordinatorName,
                                 const SC::FilterBase::FilterIDType fuid,
                                 const std::string & fileName)
 {
-    CASROS_ACCESSOR_CHECK;
+    SAFECASS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestFilterFaultInjectLoad(safetyCoordinatorName, fuid, fileName)) {
         std::cerr << "ERROR: failed to request filter list" << std::endl;
         return;
     }
 }
-#undef CASROS_ACCESSOR_CHECK
+#undef SAFECASS_ACCESSOR_CHECK
 
 //------------------------------------------------------------ 
 //  filter

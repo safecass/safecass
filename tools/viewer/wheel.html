@@ -1,7 +1,7 @@
 <!--
 //------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Component-based Architecture for Safe Robotic Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
@@ -14,9 +14,9 @@
 //
 -->
 <!DOCTYPE html>
-<title>CASROS System State Viewer</title>
+<title>SAFECASS System State Viewer</title>
 <meta charset="utf-8">
-<meta name="description" content="CASROS system state viewer">
+<meta name="description" content="SAFECASS system state viewer">
 <!--<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>-->
 <script type="text/javascript" src="./d3.min.js"></script>
 
@@ -27,7 +27,7 @@
 <script type="text/javascript" src="./tooltip.js"></script>
 
 <body onload='connect_qt()'>
-<h1>CASROS System State Viewer</h1>
+<h1>SAFECASS System State Viewer</h1>
 <div id="vis"></div>
 <script>
 var width = 700,
@@ -268,7 +268,7 @@ function brightness(rgb) {
   }
 
   function requestRefresh() {
-    // TODO: send READ_REQ to CASROS network
+    // TODO: send READ_REQ to SAFECASS network
   }
 </script>
 

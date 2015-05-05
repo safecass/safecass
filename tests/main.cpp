@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2014 Min Yang Jung
 //
@@ -135,7 +135,7 @@ int main(int argc, char ** argv)
                 cout << "failed" << endl;
             }
 
-            output.generate(outputFile, true, "CASROS");
+            output.generate(outputFile, true, "SAFECASS");
             outputFile.close();
 
             return 0;

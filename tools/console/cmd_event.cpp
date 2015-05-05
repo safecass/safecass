@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
@@ -34,7 +34,7 @@ void handler_event_help(void)
 
 void handler_event_list(const std::string & safetyCoordinatorName, const std::string & componentName)
 {
-    CASROS_ACCESSOR_CHECK;
+    SAFECASS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestEventList(safetyCoordinatorName, componentName)) {
         std::cerr << "ERROR: failed to request event information" << std::endl;
@@ -44,7 +44,7 @@ void handler_event_list(const std::string & safetyCoordinatorName, const std::st
 
 void handler_event_history(const std::string & safetyCoordinatorName, const std::string & componentName)
 {
-    CASROS_ACCESSOR_CHECK;
+    SAFECASS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestEventHistory(safetyCoordinatorName, componentName)) {
         std::cerr << "ERROR: failed to request event history" << std::endl;
@@ -55,7 +55,7 @@ void handler_event_history(const std::string & safetyCoordinatorName, const std:
 void handler_event_generate(const std::string & eventName, const std::string & eventType, const std::string & safetyCoordinatorName,
                             const std::string & componentName, const std::string & interfaceName)
 {
-    CASROS_ACCESSOR_CHECK;
+    SAFECASS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestEventGeneration(eventName, eventType, safetyCoordinatorName, componentName, interfaceName)) {
         std::cerr << "ERROR: failed to request event generation" << std::endl;
@@ -66,7 +66,7 @@ void handler_event_generate(const std::string & eventName, const std::string & e
 
 void handler_event_broadcast(const std::string & eventName, const std::string & safetyCoordinatorName)
 {
-    CASROS_ACCESSOR_CHECK;
+    SAFECASS_ACCESSOR_CHECK;
 
     if (!casrosAccessor->RequestEventBroadcast(eventName, safetyCoordinatorName)) {
         std::cerr << "ERROR: failed to request event broadcast" << std::endl;

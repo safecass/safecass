@@ -20,7 +20,7 @@
 // Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 //
-// CASROS imported Clipo on May 7, 2014.
+// SAFECASS imported Clipo on May 7, 2014.
 //
 
 #ifndef BOOST_COMMAND_LINE_INTERPRETER
