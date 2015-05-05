@@ -23,9 +23,9 @@
 
 #include <map>
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT GCM
+class SCLIB_EXPORT GCM
 {
     friend class Coordinator;
 

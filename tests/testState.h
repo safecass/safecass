@@ -11,28 +11,28 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
-#ifndef _SFStateTest_h
-#define _SFStateTest_h
+#ifndef _SCStateTest_h
+#define _SCStateTest_h
 
 #include "cpptest.h"
 
 class mtsManagerLocal;
 
-class SFStateTest: public Test::Suite 
+class SCStateTest: public Test::Suite 
 {
 protected:
     void setup(void);
     void tear_down(void);
 
-    /*! Correctness tests against SF::StateMachine class for basic feature implementation */
+    /*! Correctness tests against SC::StateMachine class for basic feature implementation */
     void TestStateMachineBasics(void);
 
     /*! State product operation */
     void TestStateProductOperator(void);
 
 public:
-    SFStateTest(void);
-    ~SFStateTest(void);
+    SCStateTest(void);
+    ~SCStateTest(void);
 };
 
-#endif // _SFStateTest_h
+#endif // _SCStateTest_h

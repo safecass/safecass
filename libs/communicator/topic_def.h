@@ -14,7 +14,7 @@
 #ifndef _topic_def_h
 #define _topic_def_h
 
-namespace SF {
+namespace SC {
 
 namespace Topic {
     //! Typedef for topics in use

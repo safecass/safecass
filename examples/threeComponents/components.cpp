@@ -29,7 +29,7 @@ SensorWrapper::SensorWrapper(const std::string & name, double period)
     StateTable.AddData(SensorValue2, "SensorValue2");
 
     mtsInterfaceProvided * provided = AddInterfaceProvided("SensorValue");
-    SFASSERT(provided);
+    SCASSERT(provided);
     provided->AddCommandReadState(StateTable, SensorValue, "GetSensorValue");
 }
 
@@ -121,7 +121,7 @@ void SensorWrapper::TestEvent(void)
 #define GENERATE_WARNING_ONSET\
         std::cout << "Generating WARNING event" << std::endl;\
         GetSafetyCoordinator->GenerateEvent("EVT_WARNING",\
-                                            SF::State::STATEMACHINE_APP,\
+                                            SC::State::STATEMACHINE_APP,\
                                             "WARNING event generated",\
                                             this->GetName());
         std::cout << "[ " << Step << " ]: ";
@@ -131,7 +131,7 @@ void SensorWrapper::TestEvent(void)
 #define GENERATE_WARNING_COMPLETION\
         std::cout << "Generating /WARNING event" << std::endl;\
         GetSafetyCoordinator->GenerateEvent("/EVT_WARNING",\
-                                            SF::State::STATEMACHINE_APP,\
+                                            SC::State::STATEMACHINE_APP,\
                                             "/WARNING event generated",\
                                             this->GetName());
         std::cout << "[ " << Step << " ]: ";
@@ -141,7 +141,7 @@ void SensorWrapper::TestEvent(void)
 #define GENERATE_ERROR_ONSET\
         std::cout << "Generating ERROR event" << std::endl;\
         GetSafetyCoordinator->GenerateEvent("EVT_ERROR",\
-                                            SF::State::STATEMACHINE_APP,\
+                                            SC::State::STATEMACHINE_APP,\
                                             "ERROR event generated",\
                                             this->GetName());
         std::cout << "[ " << Step << " ]: ";
@@ -151,7 +151,7 @@ void SensorWrapper::TestEvent(void)
 #define GENERATE_ERROR_COMPLETION\
         std::cout << "Generating /ERROR event" << std::endl;\
         GetSafetyCoordinator->GenerateEvent("/EVT_ERROR",\
-                                            SF::State::STATEMACHINE_APP,\
+                                            SC::State::STATEMACHINE_APP,\
                                             "/ERROR event generated",\
                                             this->GetName());
         std::cout << "[ " << Step << " ]: ";
@@ -184,13 +184,13 @@ Control::Control(const std::string & name, double period)
     : mtsTaskPeriodic(name, period, false, 1000), ControlValue(0.0)
 {
     mtsInterfaceRequired * required = AddInterfaceRequired("ReadSensorValue", MTS_REQUIRED);
-    SFASSERT(required);
+    SCASSERT(required);
     required->AddFunction("GetSensorValue", GetSensorValue);
 
     StateTable.AddData(ControlValue, "ControlValue");
 
     mtsInterfaceProvided * provided = AddInterfaceProvided("ControlValue");
-    SFASSERT(provided);
+    SCASSERT(provided);
     provided->AddCommandReadState(StateTable, ControlValue, "GetControlValue");
 }
 
@@ -210,7 +210,7 @@ UI::UI(const std::string & name, double period)
     : mtsTaskPeriodic(name, period, false, 1000), UIValue(0.0)
 {
     mtsInterfaceRequired * required = AddInterfaceRequired("ReadControlValue", MTS_REQUIRED);
-    SFASSERT(required);
+    SCASSERT(required);
     required->AddFunction("GetControlValue", GetControlValue);
 }
 

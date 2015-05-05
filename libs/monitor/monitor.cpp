@@ -16,7 +16,7 @@
 #include "jsonwrapper.h"
 #include "utils.h"
 
-namespace SF {
+namespace SC {
 
 // unique id within process
 Monitor::UIDType UIDCounter = 0;

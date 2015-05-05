@@ -22,29 +22,29 @@
 #include "jsonwrapper.h"
 #include "event.h"
 
-namespace SF {
+namespace SC {
 
 class HistoryBufferBase;
 class EventPublisherBase;
 
 // Helper macros to ease implementation of Create() function
-#define SF_DEFINE_FACTORY_CREATE(_className)\
+#define SC_DEFINE_FACTORY_CREATE(_className)\
     static const std::string Name;\
     static FilterBase * Create(const JsonWrapper::JsonValue & jsonNode) {\
         return new _className(jsonNode);\
     }\
     static _className __instance;
 
-#define SF_IMPLEMENT_FACTORY(_className)\
+#define SC_IMPLEMENT_FACTORY(_className)\
     const std::string _className::Name = #_className;\
-    SFLIB_EXPORT _className _className::__instance;
+    SCLIB_EXPORT _className _className::__instance;
 
-#define SF_REGISTER_FILTER_TO_FACTORY(_className)\
+#define SC_REGISTER_FILTER_TO_FACTORY(_className)\
     FilterFactory::GetInstance()->RegisterFilter(#_className, &_className::Create);
 
 class Coordinator;
 
-class SFLIB_EXPORT FilterBase
+class SCLIB_EXPORT FilterBase
 {
 public:
     //! Typedef of numerical representation of unique filter id
@@ -86,7 +86,7 @@ public:
     //! Typedef for filter factory class registration
     typedef FilterBase * (*CreateFilterFuncType)(const JsonWrapper::JsonValue & jsonNode);
 
-    /*! \enum SF::FilterBase::FilterState
+    /*! \enum SC::FilterBase::FilterState
      * Typedef for internal state of filter.  A filter has to be explicitly enabled to be
      * used because its internal state is initialized as DISABLED.
      */

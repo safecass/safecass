@@ -13,7 +13,7 @@
 //
 // CppTest macros: http://cpptest.sourceforge.net/cpptest-assert_8h.html
 //
-// SF configurations
+// SC configurations
 #include "config.h"
 
 // external packages
@@ -21,13 +21,13 @@
 #include <boost/program_options.hpp>
 
 // disable obsolete tests for GCM
-#undef SF_HAS_CISST
-#define SF_HAS_CISST 0
+#undef SC_HAS_CISST
+#define SC_HAS_CISST 0
 
 // test suites
 #include "testJson.h"
 #include "testState.h"
-#if SF_HAS_CISST
+#if SC_HAS_CISST
 #include "testGCM.h"
 #endif
 #include "testUtil.h"
@@ -91,16 +91,16 @@ int main(int argc, char ** argv)
 
     // Define test suites
     Test::Suite suite;
-    suite.add(auto_ptr<Test::Suite>(new SFJSONTest));
-    suite.add(auto_ptr<Test::Suite>(new SFStateTest));
-    suite.add(auto_ptr<Test::Suite>(new SFUtilTest));
-#if SF_HAS_CISST
-    SFGCMTest * GCMTest = 0;
+    suite.add(auto_ptr<Test::Suite>(new SCJsonTest));
+    suite.add(auto_ptr<Test::Suite>(new SCStateTest));
+    suite.add(auto_ptr<Test::Suite>(new SCUtilTest));
+#if SC_HAS_CISST
+    SCGCMTest * GCMTest = 0;
     try {
-        GCMTest = new SFGCMTest;
+        GCMTest = new SCGCMTest;
         suite.add(auto_ptr<Test::Suite>(GCMTest));
     } catch (...) {
-        cerr << "Skipped SFGCMTest: Failed to initialize cisst" << endl;
+        cerr << "Skipped SCGCMTest: Failed to initialize cisst" << endl;
     }
 #endif
 

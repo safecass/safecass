@@ -18,9 +18,9 @@
 #include "config.h" // to check if unit-test is enabled
 #include "state.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT StateEventHandler {
+class SCLIB_EXPORT StateEventHandler {
 protected:
     /*! Name of owner of this state machine */
     const std::string OwnerName;

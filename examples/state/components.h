@@ -55,16 +55,16 @@ public:
     } ErrorCodes;
 
     // state transition event handler derived from default state event handler
-    // (SF::StateEventHandler)
-    class ForceSensorEventHandler: public SF::StateEventHandler {
+    // (SC::StateEventHandler)
+    class ForceSensorEventHandler: public SC::StateEventHandler {
     public:
         ForceSensorEventHandler();
         ~ForceSensorEventHandler();
 
         // override methods of the base class
-        void OnEntry(const SF::State::StateEntryExitType entryType);
-        void OnExity(const SF::State::StateEntryExitType exitType);
-        void OnTransition(const SF::State::TransitionType transition);
+        void OnEntry(const SC::State::StateEntryExitType entryType);
+        void OnExity(const SC::State::StateEntryExitType exitType);
+        void OnTransition(const SC::State::TransitionType transition);
     };
 
 protected:

@@ -13,7 +13,7 @@
 //
 #include "GCMHelper.h"
 
-using namespace SF;
+using namespace SC;
 
 ForceSensorComp * GCMHelper::ForceSensor = 0;
 ControlComp     * GCMHelper::Control = 0;
@@ -88,7 +88,7 @@ ForceSensorComp::ForceSensorComp(const std::string & name, double period)
     StateTable.AddData(ForceXYZ, "ForceXYZ");
 
     mtsInterfaceProvided * provided = AddInterfaceProvided("P1");
-    SFASSERT(provided);
+    SCASSERT(provided);
 
     provided->AddCommandReadState(StateTable, ForceX, "GetForceX");
     provided->AddCommandReadState(StateTable, ForceXYZ, "GetForceXYZ");
@@ -121,12 +121,12 @@ ControlComp::ControlComp(const std::string & name, double period)
     : mtsTaskPeriodic(name, period, false, 5000)
 {
     mtsInterfaceRequired * required = AddInterfaceRequired("R1", MTS_OPTIONAL);
-    SFASSERT(required);
+    SCASSERT(required);
     required->AddFunction("GetForceX", ReadForceX);
     required->AddFunction("GetForceXYZ", ReadForceXYZ);
 
     mtsInterfaceProvided * provided = AddInterfaceProvided("P1");
-    SFASSERT(provided);
+    SCASSERT(provided);
     // TODO: STOP and PAUSE event generators
 }
 
@@ -142,7 +142,7 @@ WorkflowComp::WorkflowComp(const std::string & name, double period)
     : mtsTaskPeriodic(name, period, false, 5000)
 {
     mtsInterfaceRequired * required = AddInterfaceRequired("R1", MTS_OPTIONAL);
-    SFASSERT(required);
+    SCASSERT(required);
     // TODO: STOP and PAUSE event handlers
 }
 

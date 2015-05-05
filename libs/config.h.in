@@ -14,27 +14,27 @@
 #ifndef _COMMON_CONFIG_H
 #define _COMMON_CONFIG_H
 
-#define SF_SOURCE_ROOT_DIR "@CMAKE_SOURCE_DIR@"
-#define SF_BINARY_ROOT_DIR "@CMAKE_BINARY_DIR@"
+#define SC_SOURCE_ROOT_DIR "@CMAKE_SOURCE_DIR@"
+#define SC_BINARY_ROOT_DIR "@CMAKE_BINARY_DIR@"
 
-#define SF_COMMUNICATOR_CONFIG_DIR "@CMAKE_SOURCE_DIR@/libs/communicator"
+#define SC_COMMUNICATOR_CONFIG_DIR "@CMAKE_SOURCE_DIR@/libs/communicator"
 
-// Global macro to enable or disable SF
-#cmakedefine01 SF_ACTIVATED
+// Global macro to enable or disable SC
+#cmakedefine01 SC_ACTIVATED
 
 // Logger
-#cmakedefine01 SF_USE_G2LOG
+#cmakedefine01 SC_USE_G2LOG
 
 // Unit-test
 #cmakedefine01 ENABLE_UNIT_TEST
 
 // Operating system
-#cmakedefine01 SF_ON_MAC
-#cmakedefine01 SF_ON_WINDOWS
-#cmakedefine01 SF_ON_LINUX
-#cmakedefine01 SF_ON_QNX
+#cmakedefine01 SC_ON_MAC
+#cmakedefine01 SC_ON_WINDOWS
+#cmakedefine01 SC_ON_LINUX
+#cmakedefine01 SC_ON_QNX
 
 // Component-based middleware in use
-#cmakedefine01 SF_HAS_CISST
+#cmakedefine01 SC_HAS_CISST
 
 #endif // _COMMON_CONFIG_H

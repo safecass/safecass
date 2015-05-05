@@ -15,9 +15,9 @@
 #include "cisstEventLocation.h"
 #include "cisstDic.h"
 
-using namespace SF::Dict::Json;
+using namespace SC::Dict::Json;
 
-namespace SF {
+namespace SC {
 
 cisstEventLocation::cisstEventLocation(void)
     : EventLocationBase(),

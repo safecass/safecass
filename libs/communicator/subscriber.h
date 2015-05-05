@@ -18,10 +18,10 @@
 
 #include <messages.h>
 
-namespace SF {
+namespace SC {
 
 // Adapter class: almost empty but pure virtual methods
-class SFLIB_EXPORT Subscriber: public BaseIce {
+class SCLIB_EXPORT Subscriber: public BaseIce {
 private:
     /*! Default constructor should not be used */
     Subscriber(void);
@@ -39,10 +39,10 @@ protected:
     IceStorm::TopicPrx Topic;
     Ice::ObjectPrx     SubscriberObj;
 
-    SFCallback * CallbackInstance;
+    SCCallback * CallbackInstance;
 
 public:
-    Subscriber(const std::string & topicName, SFCallback * callbackInstance);
+    Subscriber(const std::string & topicName, SCCallback * callbackInstance);
     Subscriber(const std::string & topicName, const std::string & propertyFileName);
     virtual ~Subscriber();
 

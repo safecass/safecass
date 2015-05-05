@@ -22,13 +22,13 @@
 
 #include <map>
 
-namespace SF {
+namespace SC {
 
 // TODO: casros accessor is not included here.  If accessor is implemented without cisst,
 // it should be moved to this base class.
 // TODO: extensive code review for any potential concurrency issues
 
-class SFLIB_EXPORT Coordinator {
+class SCLIB_EXPORT Coordinator {
 public:
     //! Typedef for map of monitoring targets
     /*! key: string of monitoring target UID
@@ -152,7 +152,7 @@ public:
     // Get all filters installed on the component specified
     FiltersType * GetFilters(const std::string & componentName) const;
     // Install filter from JSON
-    bool AddFilters(const SF::JsonWrapper::JsonValue & filters);
+    bool AddFilters(const SC::JsonWrapper::JsonValue & filters);
     // Install filter from JSON string
     bool AddFilterFromJSON(const std::string & jsonString);
     // Install filter from JSON file
@@ -161,7 +161,7 @@ public:
     virtual bool AddFilterFromJSONFileToComponent(const std::string & jsonFileName,
                                                   const std::string & targetComponentName);
     // Install filter using filter instance (Component-based framework-specific)
-    virtual bool AddFilter(SF::FilterBase * filter) = 0;
+    virtual bool AddFilter(SC::FilterBase * filter) = 0;
     // Register filter instance to Coordinator
     bool AddFilter(const std::string & componentName, FilterBase * filter);
     // Get information about all the filters installed on the component specified
@@ -289,7 +289,7 @@ public:
 
     //! Reset particular type of state machine of a component in this coordinator
     /*! \param componentName Name of component in the current coordinator
-        \param type Type of state machine to reset (refer to SF::State::StateMachineType)
+        \param type Type of state machine to reset (refer to SC::State::StateMachineType)
      */ 
     void ResetStateMachines(const std::string & componentName, State::StateMachineType type);
 

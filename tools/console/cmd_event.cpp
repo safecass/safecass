@@ -97,7 +97,7 @@ void handler_event(const std::vector<std::string> & args)
     const size_t n = args.size();
 
     std::string cmd(args[0]);
-    SF::to_lowercase(cmd);
+    SC::to_lowercase(cmd);
 
     if (cmd.compare("list") == 0)
         option = LIST;

@@ -32,7 +32,7 @@
 #include <sys/mman.h>
 #endif
 
-using namespace SF;
+using namespace SC;
 
 bool InstallFilter(const std::string & targetComponentName);
 
@@ -94,17 +94,17 @@ int main(int argc, char *argv[])
     // Filter factory testing codes
 #if 0
     // Construct JSON structure from JSON file
-    const std::string jsonFileName(SF_SOURCE_ROOT_DIR"/examples/filter/filter.json");
-    SF::JSON json;
+    const std::string jsonFileName(SC_SOURCE_ROOT_DIR"/examples/filter/filter.json");
+    SC::JSON json;
     if (!json.ReadFromFile(jsonFileName)) {
         std::cerr << "AddFilterFromJSONFile: Failed to read json file: " << jsonFileName << std::endl;
         return 1;
     }
 
-    const SF::JSON::JSONVALUE filters = json.GetRoot()["filter"];
+    const SC::JSON::JSONVALUE filters = json.GetRoot()["filter"];
     //std::cout << filters[(unsigned int)0] << std::endl;
 
-    SF::FilterBase * filter = SF::FilterFactory::GetInstance()->CreateFilter(
+    SC::FilterBase * filter = SC::FilterFactory::GetInstance()->CreateFilter(
         "FilterThreshold", filters[(unsigned int)0]);
 
     if (!filter)
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 
     srand(time(NULL));
 
-#if SF_USE_G2LOG
+#if SC_USE_G2LOG
     // Logger setup
     g2LogWorker logger(argv[0], "./");
     g2::initializeLogging(&logger);
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     try {
         ComponentManager = mtsComponentManager::GetInstance();
     } catch (...) {
-        SFLOG_ERROR << "Failed to initialize local component manager" << std::endl;
+        SCLOG_ERROR << "Failed to initialize local component manager" << std::endl;
         return 1;
     }
 
@@ -147,24 +147,24 @@ int main(int argc, char *argv[])
     const std::string componentName("sensorWrapper");
     SensorReadingTask * task = new SensorReadingTask(componentName, 100 * cmn_ms);
     if (!ComponentManager->AddComponent(task)) {
-        SFLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
+        SCLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
         return 1;
     }
 
     // Install filters
     if (!InstallFilter(componentName)) {
-        SFLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
+        SCLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
         return 1;
     }
     
     // Activate all the monitors and filters installed
     if (ComponentManager->GetCoordinator()) {
         if (!ComponentManager->GetCoordinator()->DeployMonitorsAndFDDs()) {
-            SFLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
+            SCLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
             return 1;
         }
     } else {
-        SFLOG_ERROR  << "Failed to get coordinator in this process";
+        SCLOG_ERROR  << "Failed to get coordinator in this process";
         return 1;
     }
 
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     // Clean up resources
-    SFLOG_INFO << "Cleaning up..." << std::endl;
+    SCLOG_INFO << "Cleaning up..." << std::endl;
 
     ComponentManager->KillAll();
     ComponentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
@@ -200,11 +200,11 @@ bool InstallFilter(const std::string & targetComponentName)
 {
     // Active filter
 #if 0
-    SF::FilterThreshold * filterThresholdActive = 
+    SC::FilterThreshold * filterThresholdActive = 
         new FilterThreshold(// Common arguments
-                            SF::FilterBase::FEATURE, // filter category
+                            SC::FilterBase::FEATURE, // filter category
                             targetComponentName,     // name of target component
-                            SF::FilterBase::ACTIVE,  // monitoring type
+                            SC::FilterBase::ACTIVE,  // monitoring type
                             // Arguments specific to this filter
                             "ForceY", // name of input signal: name of state vector
                             10.0,     // threshold
@@ -217,21 +217,21 @@ bool InstallFilter(const std::string & targetComponentName)
 
     // Install filter to the target component [active monitoring]
     if (!SafetyCoordinator->AddFilter(filterThresholdActive)) {
-        SFLOG_ERROR << "Failed to add ACTIVE filter \"" << filterThresholdActive->GetFilterName() << "\""
+        SCLOG_ERROR << "Failed to add ACTIVE filter \"" << filterThresholdActive->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdActive->GetFilterName() << "\"" << std::endl;
+    SCLOG_INFO << "Successfully installed filter: \"" << filterThresholdActive->GetFilterName() << "\"" << std::endl;
     std::cout << *filterThresholdActive << std::endl;
 #endif
 
     // Passive filter
 #if 0
-    SF::FilterThreshold * filterThresholdPassive = 
+    SC::FilterThreshold * filterThresholdPassive = 
         new FilterThreshold(// Common arguments
-                            SF::FilterBase::FEATURE, // filter category
+                            SC::FilterBase::FEATURE, // filter category
                             targetComponentName,     // name of target component
-                            SF::FilterBase::PASSIVE, // monitoring type
+                            SC::FilterBase::PASSIVE, // monitoring type
                             // Arguments specific to this filter
                             /*
                             filterThresholdActive->GetNameOfInputSignal(),
@@ -249,17 +249,17 @@ bool InstallFilter(const std::string & targetComponentName)
 
     // Install filter to the target component [passive monitoring]
     if (!SafetyCoordinator->AddFilter(filterThresholdPassive)) {
-        SFLOG_ERROR << "Failed to add PASSIVE filter \"" << filterThresholdPassive->GetFilterName() << "\""
+        SCLOG_ERROR << "Failed to add PASSIVE filter \"" << filterThresholdPassive->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully installed filter: \"" << filterThresholdPassive->GetFilterName() << "\"" << std::endl;
+    SCLOG_INFO << "Successfully installed filter: \"" << filterThresholdPassive->GetFilterName() << "\"" << std::endl;
     std::cout << *filterThresholdPassive << std::endl;
 #endif
     
-    const std::string jsonFileName(SF_SOURCE_ROOT_DIR"/examples/filter/filter.json");
+    const std::string jsonFileName(SC_SOURCE_ROOT_DIR"/examples/filter/filter.json");
     if (!SafetyCoordinator->AddFilterFromJSONFile(jsonFileName)) {
-        SFLOG_ERROR << "Failed to add filter(s) from file: \"" << jsonFileName << "\"" << std::endl;
+        SCLOG_ERROR << "Failed to add filter(s) from file: \"" << jsonFileName << "\"" << std::endl;
         return false;
     }
 

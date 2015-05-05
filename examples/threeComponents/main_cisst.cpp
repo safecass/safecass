@@ -46,9 +46,9 @@ int main(int argc, char *argv[])
     Control control("Control", PERIOD);
     UI ui("UI", PERIOD);
 
-    SFASSERT(ComponentManager->AddComponent(&sensorWrapper));
-    SFASSERT(ComponentManager->AddComponent(&control));
-    SFASSERT(ComponentManager->AddComponent(&ui));
+    SCASSERT(ComponentManager->AddComponent(&sensorWrapper));
+    SCASSERT(ComponentManager->AddComponent(&control));
+    SCASSERT(ComponentManager->AddComponent(&ui));
 
     // Read json file
     std::string fileName(JSON_FOLDER"/Sensor.json");
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     collectorSensor.AddSignal("SensorValue");
     collectorSensor.AddSignal("SensorValue2");
 
-    SFASSERT(ComponentManager->AddComponent(&collectorSensor));
+    SCASSERT(ComponentManager->AddComponent(&collectorSensor));
 
     collectorSensor.Connect();
 

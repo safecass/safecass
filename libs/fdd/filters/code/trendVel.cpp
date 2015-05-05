@@ -14,13 +14,13 @@
 
 #include "trendVel.h"
 
-namespace SF {
+namespace SC {
 
 const std::string FilterTrendVel::Name = "TrendVel";
 
 FilterTrendVel::FilterTrendVel(BaseType::FilterCategory      category, 
                                const std::string &           targetComponentName,
-                               SF::FilterBase::FilteringType monitoringType,
+                               SC::FilterBase::FilteringType monitoringType,
                                // filter-specific arguments
                                const std::string &           inputSignalName,
                                SignalElement::SignalType     signalType,
@@ -31,7 +31,7 @@ FilterTrendVel::FilterTrendVel(BaseType::FilterCategory      category,
       TimeScaling(timeScaling)
 {
     // Define inputs
-    SFASSERT(this->AddInputSignal(NameOfInputSignal, SignalType));
+    SCASSERT(this->AddInputSignal(NameOfInputSignal, SignalType));
 
     // Define outputs
     const std::string outputSignalName(
@@ -39,7 +39,7 @@ FilterTrendVel::FilterTrendVel(BaseType::FilterCategory      category,
                                        FilterTrendVel::Name,
                                        this->UID,
                                        0));
-    SFASSERT(this->AddOutputSignal(outputSignalName, SignalType));
+    SCASSERT(this->AddOutputSignal(outputSignalName, SignalType));
 
     // Initialize local cache for previous value
     PreviousValue.Initialized = false;
@@ -60,7 +60,7 @@ void FilterTrendVel::DoFiltering(void)
     if (SignalType == SignalElement::SCALAR) {
         // Fetch new value from history buffer
         if (!InputSignals[0]->FetchNewValueScalar((this->Type == FilterBase::ACTIVE))) {
-            SFLOG_ERROR << "FilterTrendVel: failed to fetch new scalar value from history buffer" << std::endl;
+            SCLOG_ERROR << "FilterTrendVel: failed to fetch new scalar value from history buffer" << std::endl;
             // If failed, placeholders are set as zero internally.
             this->Enable(false); // for no further error messages
             return;
@@ -102,7 +102,7 @@ void FilterTrendVel::DoFiltering(void)
     } else {
         // Fetch new value from history buffer
         if (!InputSignals[0]->FetchNewValueVector((this->Type == FilterBase::ACTIVE))) {
-            SFLOG_ERROR << "FilterTrendVel: failed to fetch new scalar value from history buffer" << std::endl;
+            SCLOG_ERROR << "FilterTrendVel: failed to fetch new scalar value from history buffer" << std::endl;
             // If failed, placeholders are set as zero internally.
             this->Enable(false); // for no further error messages
             return;
@@ -158,7 +158,7 @@ void FilterTrendVel::DoFiltering(void)
 
     // This filter cannot be the last one of a pipeline (no criteria for publishing events can be specified)
     if (this->LastFilterOfPipeline) {
-        SFLOG_WARNING << "FilterTrendVel: this type of filter cannot publish envets " << std::endl;
+        SCLOG_WARNING << "FilterTrendVel: this type of filter cannot publish envets " << std::endl;
     }
 }
 

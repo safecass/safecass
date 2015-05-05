@@ -21,7 +21,7 @@
 #include <iostream>
 #include <string.h>
 
-namespace SF {
+namespace SC {
 
 // callback function to receive the data (called by Curl)
 size_t static Callback(void *buffer, size_t size, size_t nmemb, void *userp)

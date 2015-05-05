@@ -14,7 +14,7 @@
 #include "jsonwrapper.h"
 #include "config.h"
 
-using namespace SF;
+using namespace SC;
 
 class JsonTest: public JsonWrapper {
 public:
@@ -30,13 +30,13 @@ const std::string VALUE_PLUGIN3 = "ruby";
 const unsigned int VALUE_LENGTH = 3;
 const bool VALUE_USE_SPACE = true;
 
-SFJsonTest::SFJsonTest()
+SCJsonTest::SCJsonTest()
 {
     // Test registration
-    TEST_ADD(SFJsonTest::TestJSONRead);
-    TEST_ADD(SFJsonTest::TestJSONReadFromFile);
-    TEST_ADD(SFJsonTest::TestJSONWrite);
-    TEST_ADD(SFJsonTest::TestJSONWriteToFile);
+    TEST_ADD(SCJsonTest::TestJSONRead);
+    TEST_ADD(SCJsonTest::TestJSONReadFromFile);
+    TEST_ADD(SCJsonTest::TestJSONWrite);
+    TEST_ADD(SCJsonTest::TestJSONWriteToFile);
 
     // Sample JSON from JsonCpp documentation:
     SampleJSON << "// Configuration options\n";
@@ -57,7 +57,7 @@ SFJsonTest::SFJsonTest()
     SampleJSON << "}\n";
 }
 
-void SFJsonTest::TestJSONRead(void)
+void SCJsonTest::TestJSONRead(void)
 {
     JsonTest test;
     const std::string sample(SampleJSON.str());
@@ -77,10 +77,10 @@ void SFJsonTest::TestJSONRead(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
 }
 
-void SFJsonTest::TestJSONReadFromFile(void)
+void SCJsonTest::TestJSONReadFromFile(void)
 {
     JsonTest test;
-    TEST_ASSERT(test.ReadFromFile(SF_SOURCE_ROOT_DIR"/tests/sample.json"));
+    TEST_ASSERT(test.ReadFromFile(SC_SOURCE_ROOT_DIR"/tests/sample.json"));
 
     std::string encoding = test.GetRoot().get("encoding", "ERROR" ).asString();
     TEST_ASSERT(encoding.compare("UTF-8") == 0);
@@ -95,7 +95,7 @@ void SFJsonTest::TestJSONReadFromFile(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == VALUE_USE_SPACE);
 }
 
-void SFJsonTest::TestJSONWrite(void)
+void SCJsonTest::TestJSONWrite(void)
 {
     JsonTest test;
     TEST_ASSERT(test.Read(SampleJSON.str().c_str()));
@@ -128,7 +128,7 @@ void SFJsonTest::TestJSONWrite(void)
     TEST_ASSERT(test.GetRoot()["indent"].get("use_space", false).asBool() == newUseSpace);
 }
 
-void SFJsonTest::TestJSONWriteToFile(void)
+void SCJsonTest::TestJSONWriteToFile(void)
 {
     JsonTest test;
     TEST_ASSERT(test.Read(SampleJSON.str().c_str()));
@@ -148,7 +148,7 @@ void SFJsonTest::TestJSONWriteToFile(void)
     test.GetRoot()["indent"]["length"] = newLength;
     test.GetRoot()["indent"]["use_space"] = newUseSpace;
 
-    std::string newFileName(SF_BINARY_ROOT_DIR);
+    std::string newFileName(SC_BINARY_ROOT_DIR);
     newFileName += "/output.json";
     TEST_ASSERT(test.WriteToFile(newFileName));
 

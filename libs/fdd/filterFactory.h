@@ -15,9 +15,9 @@
 
 #include "filterBase.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT FilterFactory
+class SCLIB_EXPORT FilterFactory
 {
 private:
     FilterFactory(void);

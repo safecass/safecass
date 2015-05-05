@@ -22,10 +22,10 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 
-namespace SF {
+namespace SC {
 
 // Base class for Ice proxies
-class SFLIB_EXPORT BaseIce
+class SCLIB_EXPORT BaseIce
 {
 public:
     //! Typedef for Ice comminucators
@@ -131,37 +131,37 @@ public:
 //  Auxiliary Class Definitions
 //-----------------------------------------------------
 /*! Logger class using the cisst's internal logging mechanism */
-class SFLogger : public Ice::Logger
+class SCLogger : public Ice::Logger
 {
 public:
     inline void print(const ::std::string & message) {
-        SFLOG_INFO << "ICE: " << message << std::endl;
+        SCLOG_INFO << "ICE: " << message << std::endl;
     }
     inline void trace(const ::std::string & category, const ::std::string & message) {
-        SFLOG_DEBUG << "ICE: " << category << " :: " << message << std::endl;
+        SCLOG_DEBUG << "ICE: " << category << " :: " << message << std::endl;
     }
     inline void warning(const ::std::string & message) {
-        SFLOG_WARNING << "ICE: " << message << std::endl;
+        SCLOG_WARNING << "ICE: " << message << std::endl;
     }
     inline void error(const ::std::string & message) {
-        SFLOG_ERROR << "ICE: " << message << std::endl;
+        SCLOG_ERROR << "ICE: " << message << std::endl;
     }
     // Support for Ice 3.4 or above (used by IceBox)
     // MJ: This does not get called in the current implementation and thus
     // can return null.  However, to be on the safe side, it returns a new
     // instance of itself.
     ::Ice::LoggerPtr cloneWithPrefix(const ::std::string&) {
-        return new SFLogger;
+        return new SCLogger;
     }
 };
 
 /*! Callback for subscriber.  When a subscriber receives messages from the topic
     that it has subscribed for, this callback is called by the communication layer 
     (IceStorm at this moment). */
-class SFCallback {
+class SCCallback {
 public:
-    SFCallback(void) {}
-    virtual ~SFCallback() {}
+    SCCallback(void) {}
+    virtual ~SCCallback() {}
 
     virtual void CallbackControl(Topic::Control::CategoryType category, 
                                  const std::string & json) = 0;

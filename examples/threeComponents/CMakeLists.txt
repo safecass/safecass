@@ -13,14 +13,14 @@
 #
 project(threeCmponents)
 
-set (REQUIRED_SF_LIBS SFLib ${JSONCPP_LIBRARIES})
+set (REQUIRED_SC_LIBS SCLib ${JSONCPP_LIBRARIES})
 if (ENABLE_G2LOG)
-  set (REQUIRED_SF_LIBS ${REQUIRED_SF_LIBS} ${G2LOG_LIBRARIES})
+  set (REQUIRED_SC_LIBS ${REQUIRED_SC_LIBS} ${G2LOG_LIBRARIES})
 endif (ENABLE_G2LOG)
 
-set (INCLUDE_DIR ${SF_LIB_INCLUDE_DIR})
+set (INCLUDE_DIR ${SC_LIB_INCLUDE_DIR})
 
-if (SF_HAS_CISST)
+if (SC_HAS_CISST)
   # find cisst and make sure the required libraries have been compiled
   find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES} QUIET)
 
@@ -34,8 +34,8 @@ if (SF_HAS_CISST)
     set (REQUIRED_CISST_LIBS cisstCommon cisstOSAbstraction cisstMultiTask)
     cisst_target_link_libraries(threeComponents ${REQUIRED_CISST_LIBS})
 
-    target_link_libraries (threeComponents ${REQUIRED_SF_LIBS})
+    target_link_libraries (threeComponents ${REQUIRED_SC_LIBS})
   else (cisst_FOUND_AS_REQUIRED)
     cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
   endif (cisst_FOUND_AS_REQUIRED)
-endif (SF_HAS_CISST)
+endif (SC_HAS_CISST)

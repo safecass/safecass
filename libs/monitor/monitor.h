@@ -18,14 +18,14 @@
 #include "jsonwrapper.h"
 #include "eventLocationBase.h"
 
-namespace SF {
+namespace SC {
 
 //! Class Monitor
 /** 
     Monitor defines and implements a monitoring instance that monitors a quantity
     in the system.
 */
-class SFLIB_EXPORT Monitor {
+class SCLIB_EXPORT Monitor {
 public:
     //! Typedef of numerical representation of unique id of monitor targets
     typedef unsigned int UIDType;
@@ -39,7 +39,7 @@ public:
         TARGET_THREAD_DUTYCYCLE_TOTAL : "dutycycle_total"
         TARGET_FILTER_EVENT           : "filter_event"
         TARGET_CUSTOM                 : "custom"
-        \sa SF::Dict::Json (libs/common/dict.h)
+        \sa SC::Dict::Json (libs/common/dict.h)
     */
     typedef enum {
         TARGET_INVALID,                /*!< initial value (invalid) */
@@ -48,7 +48,7 @@ public:
         TARGET_THREAD_DUTYCYCLE_TOTAL, /*!< duty cycle of thread (see FAULT_COMPONENT_OVERRUN) */
         TARGET_FILTER_EVENT,           /*!< MJTEMP: events from filter (usually faults) */
         TARGET_CUSTOM                  /*!< custom monitoring target */
-        // [SFUPDATE]
+        // [SCUPDATE]
     } TargetType;
 
     //! Typedef for set of monitor targets
@@ -59,7 +59,7 @@ public:
         STATE_INVALID : "invalid"
         STATE_OFF     : "off"
         STATE_ON      : "on"
-        \sa SF::Dict::Json (libs/common/dict.h)
+        \sa SC::Dict::Json (libs/common/dict.h)
     */
     typedef enum {
         STATE_INVALID, /*!< initial value (invalid) */
@@ -72,7 +72,7 @@ public:
         OUTPUT_INVALID : "invalid"
         OUTPUT_STREAM  : "stream"
         OUTPUT_EVENT   : "event"
-        \sa SF::Dict::Json (libs/common/dict.h)
+        \sa SC::Dict::Json (libs/common/dict.h)
     */
     typedef enum {
         OUTPUT_INVALID, /*!< initial value (invalid) */
@@ -89,7 +89,7 @@ protected:
 
     //! Target location 
     /*! Declared as pointer to support middleware-specific classes
-        which derive from SF::EventLocationBase).  An instance of EventLocationBase 
+        which derive from SC::EventLocationBase).  An instance of EventLocationBase 
         needs to be created outside of this class and it will be cleaned up by this 
         class, i.e., the instance should not be deleted outside of this class.
     */

@@ -20,7 +20,7 @@
 #
 # About CURL [2]:
 #   - Supported protocols: DICT, FILE, FTP, FTPS, Gopher, HTTP, HTTPS, IMAP, IMAPS, 
-#     LDAP, LDAPS, POP3, POP3S, RTMP, RTSP, SCP, SFTP, SMTP, SMTPS, Telnet and TFTP.
+#     LDAP, LDAPS, POP3, POP3S, RTMP, RTSP, SCP, SCTP, SMTP, SMTPS, Telnet and TFTP.
 #   - Supported features: SSL certificates, HTTP POST, HTTP PUT, FTP uploading, HTTP 
 #     form based upload, proxies, cookies, user+password authentication (Basic, Digest, 
 #     NTLM, Negotiate, Kerberos), file transfer resume, http proxy tunneling

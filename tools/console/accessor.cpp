@@ -16,7 +16,7 @@
 
 #include <cisstOSAbstraction/osaSleep.h>
 
-using namespace SF;
+using namespace SC;
 
 //
 // Subscriber callback
@@ -40,7 +40,7 @@ void ConsoleSubscriberCallback::CallbackControl(Topic::Control::CategoryType UNU
 
     _PROBE << "[ topic \"" << TopicName << "\", category \"" << categoryName << "\" ] received: " << json << std::endl;
     */
-    SFASSERT(false);
+    SCASSERT(false);
 }
 
 void ConsoleSubscriberCallback::CallbackData(Topic::Data::CategoryType category, const std::string & json)

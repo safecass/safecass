@@ -18,7 +18,7 @@
 
 #include <iomanip>
 
-using namespace SF;
+using namespace SC;
 
 FilterBase::FilterIDType FilterBase::FilterUID = 0;
 
@@ -141,7 +141,7 @@ bool FilterBase::AddInputSignal(const std::string &       signalName,
 {
     for (size_t i = 0; i < InputSignals.size(); ++i) {
         if (InputSignals[i]->GetName().compare(signalName) == 0) {
-            SFLOG_ERROR << "AddInputSignal: failed to add input signal (duplicate name): \"" << signalName << "\"" << std::endl;
+            SCLOG_ERROR << "AddInputSignal: failed to add input signal (duplicate name): \"" << signalName << "\"" << std::endl;
             return false;
         }
     }
@@ -149,7 +149,7 @@ bool FilterBase::AddInputSignal(const std::string &       signalName,
     SignalElement * newSignal = new SignalElement(signalName, signalType);
     InputSignals.push_back(newSignal);
 
-    SFLOG_DEBUG << "AddInputSignal: Successfully added input signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
+    SCLOG_DEBUG << "AddInputSignal: Successfully added input signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
 
     return true;
 }
@@ -159,7 +159,7 @@ bool FilterBase::AddOutputSignal(const std::string &      signalName,
 {
     for (size_t i = 0; i < OutputSignals.size(); ++i) {
         if (OutputSignals[i]->GetName().compare(signalName) == 0) {
-            SFLOG_ERROR << "AddOutputSignal: failed to add output signal (duplicate name): \"" << signalName << "\"" << std::endl;
+            SCLOG_ERROR << "AddOutputSignal: failed to add output signal (duplicate name): \"" << signalName << "\"" << std::endl;
             return false;
         }
     }
@@ -167,7 +167,7 @@ bool FilterBase::AddOutputSignal(const std::string &      signalName,
     SignalElement * newSignal = new SignalElement(signalName, signalType);
     OutputSignals.push_back(newSignal);
 
-    SFLOG_DEBUG << "AddOutputSignal: Successfully added output signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
+    SCLOG_DEBUG << "AddOutputSignal: Successfully added output signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
 
     return true;
 }
@@ -175,7 +175,7 @@ bool FilterBase::AddOutputSignal(const std::string &      signalName,
 bool FilterBase::RefreshSamples(void)
 {
     if (!Initialized) {
-        SFLOG_WARNING << "FilterBase: Filter is not properly initialized: " << *this << std::endl;
+        SCLOG_WARNING << "FilterBase: Filter is not properly initialized: " << *this << std::endl;
         return false;
     }
     if (!IsEnabled())
@@ -195,7 +195,7 @@ bool FilterBase::RefreshSamples(void)
         } else {
             // Fetch new value from history buffer
             if (!InputSignals[0]->FetchNewValueScalar((FilterType == FilterBase::ACTIVE))) {
-                SFLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
+                SCLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
                 this->Enable(false); // suppress further error messages due to the same issue
                 // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
                 // is usable.  There should be another way(s) to enable this filter again.
@@ -212,7 +212,7 @@ bool FilterBase::RefreshSamples(void)
         } else {
             // Fetch new value from history buffer
             if (!InputSignals[0]->FetchNewValueVector((FilterType == FilterBase::ACTIVE))) {
-                SFLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
+                SCLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
                 this->Enable(false); // suppress further error messages due to the same issue
                 // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
                 // is usable.  There should be another way(s) to enable this filter again.
@@ -247,7 +247,7 @@ bool FilterBase::IsEnabled(void) const {
 bool FilterBase::HasPendingEvent(void) const {
     // integrity check
     if (FilterState == FilterBase::DETECTED) {
-        SFASSERT(EventDetected);
+        SCASSERT(EventDetected);
     }
     return (FilterState == FilterBase::DETECTED);
 }
@@ -262,11 +262,11 @@ void FilterBase::Enable(bool enable)
         FilterState = FilterBase::ENABLED;
     } else {
 #if 0
-        // If a filter detected an event which has not been resolved yet, SF should inform
+        // If a filter detected an event which has not been resolved yet, SC should inform
         // the user of the pending event.
         if (HasPendingEvent()) {
             // TODO: print out detailed information about pending event
-            SFLOG_WARNING << "Warning: filter [ " << *this << " ] has pending event" << std::endl;
+            SCLOG_WARNING << "Warning: filter [ " << *this << " ] has pending event" << std::endl;
         }
 #endif
         FilterState = FilterBase::DISABLED;
@@ -276,7 +276,7 @@ void FilterBase::Enable(bool enable)
 std::string FilterBase::GetInputSignalName(size_t index) const
 {
     if (index >= InputSignals.size()) {
-        SFLOG_ERROR << "GetInputSignalName: index " << index << " out of range (total input signal count: " << InputSignals.size() << ")" << std::endl;
+        SCLOG_ERROR << "GetInputSignalName: index " << index << " out of range (total input signal count: " << InputSignals.size() << ")" << std::endl;
         return InvalidSignalName;
     }
 
@@ -286,7 +286,7 @@ std::string FilterBase::GetInputSignalName(size_t index) const
 std::string FilterBase::GetOutputSignalName(size_t index) const
 {
     if (index >= OutputSignals.size()) {
-        SFLOG_ERROR << "GetOutputSignalName: index " << index << " out of range (total output signal count: " << OutputSignals.size() << ")" << std::endl;
+        SCLOG_ERROR << "GetOutputSignalName: index " << index << " out of range (total output signal count: " << OutputSignals.size() << ")" << std::endl;
         return InvalidSignalName;
     }
 
@@ -422,7 +422,7 @@ bool FilterBase::SetEventDetected(Event * event)
 bool FilterBase::SetEventDetected(const std::string & json)
 {
     if (!HasPendingEvent()) {
-        SFLOG_ERROR << "SetEventDetected: this filter already found event: \n" << json << std::endl;
+        SCLOG_ERROR << "SetEventDetected: this filter already found event: \n" << json << std::endl;
         return false;
     }
 

@@ -17,13 +17,13 @@
 #include "onOff.h"
 #include "nop.h"
 
-namespace SF {
+namespace SC {
 
 FilterFactory::FilterFactory(void)
 {
     // Register filters that casros defines.  Application-specific filters should
-    // be registered using SF_REGISTER_FILTER_TO_FACTORY macro, e.g.,
-    // SF_REGISTER_FILTER_TO_FACTORY(FilterMyApplication);
+    // be registered using SC_REGISTER_FILTER_TO_FACTORY macro, e.g.,
+    // SC_REGISTER_FILTER_TO_FACTORY(FilterMyApplication);
 
 #define REGISTER_FILTER(_name)\
     RegisterFilter(_name::Name, _name::Create);
@@ -37,12 +37,12 @@ FilterFactory::FilterFactory(void)
 bool FilterFactory::RegisterFilter(const std::string & filterName, 
                                    FilterBase::CreateFilterFuncType createFunc)
 {
-    SFLOG_DEBUG << "FilterFactory::RegisterFilter: " << (double*) this << std::endl;
-    SFLOG_DEBUG << "FilterFactory::RegisterFilter: registering filter: \"" << filterName  << "\""
+    SCLOG_DEBUG << "FilterFactory::RegisterFilter: " << (double*) this << std::endl;
+    SCLOG_DEBUG << "FilterFactory::RegisterFilter: registering filter: \"" << filterName  << "\""
                 << ", " << (double*)createFunc << std::endl;
 
     if (FactoryMap.find(filterName) != FactoryMap.end()) {
-        SFLOG_DEBUG << "FilterFactory::RegisterFilter: already registered filter: \"" << filterName  << "\"" << std::endl;
+        SCLOG_DEBUG << "FilterFactory::RegisterFilter: already registered filter: \"" << filterName  << "\"" << std::endl;
         return false;
     }
 
@@ -50,9 +50,9 @@ bool FilterFactory::RegisterFilter(const std::string & filterName,
 
 #if 1
     FactoryMapType::const_iterator it = FactoryMap.find(filterName);
-    SFASSERT(it != FactoryMap.end());
+    SCASSERT(it != FactoryMap.end());
 
-    SFLOG_DEBUG << "FilterFactory::RegisterFilter: registered filter: \"" << it->first << "\""
+    SCLOG_DEBUG << "FilterFactory::RegisterFilter: registered filter: \"" << it->first << "\""
                 << ", " << (double*)it->second << std::endl;
 #endif
 
@@ -62,29 +62,29 @@ bool FilterFactory::RegisterFilter(const std::string & filterName,
 FilterBase * FilterFactory::CreateFilter(const std::string & filterName,
                                          const JsonWrapper::JsonValue & jsonNode) const
 {
-    SFLOG_DEBUG << "FilterFactory::CreateFilter: " << (double*) this << std::endl;
-    SFLOG_DEBUG << "FilterFactory::CreateFilter: creating filter: \"" << filterName  << "\"" << std::endl;
+    SCLOG_DEBUG << "FilterFactory::CreateFilter: " << (double*) this << std::endl;
+    SCLOG_DEBUG << "FilterFactory::CreateFilter: creating filter: \"" << filterName  << "\"" << std::endl;
                 //<< " with JSON: " << jsonNode << std::endl;
 
     FactoryMapType::const_iterator it = FactoryMap.find(filterName);
     if (it == FactoryMap.end()) {
         // try again with lower case
         std::string _filterName(filterName);
-        SF::to_lowercase(_filterName);
+        SC::to_lowercase(_filterName);
         it = FactoryMap.find(filterName);
     }
 
     if (it == FactoryMap.end()) {
         FactoryMapType::const_iterator it2 = FactoryMap.begin();
-        SFLOG_DEBUG << "FACTORY MAP SIZE: " << FactoryMap.size() << std::endl;
+        SCLOG_DEBUG << "FACTORY MAP SIZE: " << FactoryMap.size() << std::endl;
         for (; it2 != FactoryMap.end(); ++it2)
-            SFLOG_DEBUG << "FACTORY MAP: " << it2->first << ", " << (double*)it2->second << std::endl;
+            SCLOG_DEBUG << "FACTORY MAP: " << it2->first << ", " << (double*)it2->second << std::endl;
 
-        SFLOG_ERROR << "FilterFactory::CreateFilter: no filter found: \"" << filterName  << "\"" << std::endl;
+        SCLOG_ERROR << "FilterFactory::CreateFilter: no filter found: \"" << filterName  << "\"" << std::endl;
         return 0;
     }
 
-    SFLOG_DEBUG << "FilterFactory::CreateFilter: filter found: \"" << filterName  << "\"" << std::endl;
+    SCLOG_DEBUG << "FilterFactory::CreateFilter: filter found: \"" << filterName  << "\"" << std::endl;
 
     return (it->second)(jsonNode);
 }

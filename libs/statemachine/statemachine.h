@@ -29,14 +29,14 @@
 #include <boost/msm/back/state_machine.hpp> // back-end
 #include <boost/msm/front/state_machine_def.hpp> // front-end
 
-namespace SF {
+namespace SC {
 
 namespace msm = ::boost::msm;
 namespace mpl = ::boost::mpl;
 
 class Event;
 
-class SFLIB_EXPORT StateMachine 
+class SCLIB_EXPORT StateMachine 
 {
 protected:
     // Macros to define msm event
@@ -149,7 +149,7 @@ protected:
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
         {
-            SFLOG_ERROR << "GCMStateMachine: no transition from state " << state
+            SCLOG_ERROR << "GCMStateMachine: no transition from state " << state
                         << " on event " << typeid(e).name() << std::endl;
         }
     };
@@ -179,9 +179,9 @@ protected:
         // 3. UTC <> osaGetTime correctness test
         // 4. define and handle various cases of onset/offset event visualization 
         // on the timeline chart (e.g., N -> W -> E -> W -> N)
-        SF::Event * Evt;
+        SC::Event * Evt;
         // new state due to event (INVALID if e was ignored)
-        SF::State::StateType NewState;
+        SC::State::StateType NewState;
     } StateTransitionEntry;
 
     typedef std::list<StateTransitionEntry> StateHistoryType;

@@ -17,9 +17,9 @@
 #include "cisstDic.h"
 #include "cisstEventLocation.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT cisstMonitor: public Monitor {
+class SCLIB_EXPORT cisstMonitor: public Monitor {
 protected:
     //! cisstMonitor should be created with explicit arguments
     cisstMonitor(void) {}

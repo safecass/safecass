@@ -17,9 +17,9 @@
 
 #include "common.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT Curl {
+class SCLIB_EXPORT Curl {
 protected:
     std::string BaseURL;
 

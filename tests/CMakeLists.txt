@@ -23,11 +23,11 @@ elseif ()
   message (FATAL_ERROR "JSONCPP not found")
 endif ()
 
-set (UNIT_TEST_INCLUDE_DIR ${SF_LIB_INCLUDE_DIR} ${CPPTEST_INCLUDE_DIR})
+set (UNIT_TEST_INCLUDE_DIR ${SC_LIB_INCLUDE_DIR} ${CPPTEST_INCLUDE_DIR})
 set (UNIT_TEST_SRC testJson.h testJson.cpp)
 
 # Enable cisst-specific unit-tests if cisst is ON
-if (SF_HAS_CISST)
+if (SC_HAS_CISST)
   set (REQUIRED_CISST_LIBS cisstCommon cisstVector cisstOSAbstraction cisstMultiTask)
 
   # find cisst and make sure the required libraries have been compiled
@@ -44,16 +44,16 @@ if (SF_HAS_CISST)
                      #testJson.h testJson.cpp
                      testState.h testState.cpp
                      testUtil.h testUtil.cpp)
-endif (SF_HAS_CISST)
+endif (SC_HAS_CISST)
 
 # Define project settings
 include_directories (${UNIT_TEST_INCLUDE_DIR})
 
 add_executable (tests main.cpp ${UNIT_TEST_SRC})
 
-target_link_libraries (tests SFLib ${SF_LIB_DEPENDENCY_LIBS} 
+target_link_libraries (tests SCLib ${SC_LIB_DEPENDENCY_LIBS} 
                                    ${CPPTEST_LIBRARY}
                                    ${BOOST_LIB_PROGRAM_OPTION})
-if (SF_HAS_CISST)
+if (SC_HAS_CISST)
   cisst_target_link_libraries(tests ${REQUIRED_CISST_LIBS})
 endif()

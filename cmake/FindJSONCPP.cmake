@@ -32,12 +32,12 @@
 
 set (JSONCPP_FOUND OFF)
 
-if (SF_ON_MAC)
+if (SC_ON_MAC)
   set (JSONCPP_INCLUDE_DEFAULT_PATH "/opt/local/include/json") # mac port
   set (JSONCPP_LIB_DEFAULT_PATH "/opt/local/lib/") # mac port
-elseif (SF_ON_WINDOWS)
+elseif (SC_ON_WINDOWS)
   # TODO
-elseif (SF_ON_LINUX)
+elseif (SC_ON_LINUX)
   # TODO
 endif ()
 
@@ -77,15 +77,15 @@ else ()
                                           -DJSONCPP_WITH_TESTS:BOOL=OFF
                                           -DJSONCPP_LIB_BUILD_SHARED:BOOL=ON
                                           -DJSONCPP_WITH_POST_BUILD_UNITTEST:BOOL=OFF
-                                          -DCMAKE_INSTALL_PREFIX:FILEPATH=${SF_BUILD_ROOT}/external/json
-                        INSTALL_DIR ${SF_BUILD_ROOT}/external/json
+                                          -DCMAKE_INSTALL_PREFIX:FILEPATH=${SC_BUILD_ROOT}/external/json
+                        INSTALL_DIR ${SC_BUILD_ROOT}/external/json
                         )
     
     # Set all JSON variables based on install directory
-    set (JSONCPP_INCLUDE_DIR "${SF_BUILD_ROOT}/external/json/include")
+    set (JSONCPP_INCLUDE_DIR "${SC_BUILD_ROOT}/external/json/include")
     set (JSONCPP_INCLUDE_DIR ${JSONCPP_INCLUDE_DIR} PARENT_SCOPE)
 
-    set (JSONCPP_LIBRARY_DIRS "${SF_BUILD_ROOT}/external/json/lib")
+    set (JSONCPP_LIBRARY_DIRS "${SC_BUILD_ROOT}/external/json/lib")
     set (JSONCPP_LIBRARY_DIRS ${JSONCPP_LIBRARY_DIRS} PARENT_SCOPE)
     set (JSONCPP_LIBRARIES jsoncpp)
     set (JSONCPP_LIBRARIES ${JSONCPP_LIBRARIES} PARENT_SCOPE)

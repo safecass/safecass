@@ -20,9 +20,9 @@
 #include <reader.h>
 #include <string>
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT JsonWrapper {
+class SCLIB_EXPORT JsonWrapper {
     // for unit-tests
     friend class JSONTest;
 public:

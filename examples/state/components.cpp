@@ -42,7 +42,7 @@
 // State event handler for ForceSensorComponent
 //-------------------------------------------------- 
 ForceSensorComponent::ForceSensorEventHandler::ForceSensorEventHandler()
-    : SF::StateEventHandler()
+    : SC::StateEventHandler()
 {
     std::cout << "ForceSensorComponent state transition event handler: created\n";
 }
@@ -53,19 +53,19 @@ ForceSensorComponent::ForceSensorEventHandler::~ForceSensorEventHandler()
 }
 
 
-void ForceSensorComponent::ForceSensorEventHandler::OnEntry(const SF::State::StateEntryExitType entryType)
+void ForceSensorComponent::ForceSensorEventHandler::OnEntry(const SC::State::StateEntryExitType entryType)
 {
-    std::cout << "ForceSensorComponent onEntry: " << SF::State::GetString(entryType) << std::endl;
+    std::cout << "ForceSensorComponent onEntry: " << SC::State::GetString(entryType) << std::endl;
 }
 
-void ForceSensorComponent::ForceSensorEventHandler::OnExity(const SF::State::StateEntryExitType exitType)
+void ForceSensorComponent::ForceSensorEventHandler::OnExity(const SC::State::StateEntryExitType exitType)
 {
-    std::cout << "ForceSensorComponent onExit: " << SF::State::GetString(exitType) << std::endl;
+    std::cout << "ForceSensorComponent onExit: " << SC::State::GetString(exitType) << std::endl;
 }
 
-void ForceSensorComponent::ForceSensorEventHandler::OnStateTransition(const SF::State::TransitionType transition)
+void ForceSensorComponent::ForceSensorEventHandler::OnStateTransition(const SC::State::TransitionType transition)
 {
-    std::cout << "ForceSensorComponent onTransition: " << SF::State::GetString(transition) << std::endl;
+    std::cout << "ForceSensorComponent onTransition: " << SC::State::GetString(transition) << std::endl;
 }
 
 //-------------------------------------------------- 
@@ -91,7 +91,7 @@ ForceSensorComponent::ForceSensorComponent(const std::string & name, double peri
     provided->AddCommandReadState(StateTable, ForceVector, "GetForceVector");
 
     // If an application wants to handle state transition events, create a new event
-    // handler class which is derived from SF::StateEventHandler and replace the default
+    // handler class which is derived from SC::StateEventHandler and replace the default
     // state event handler with it by calling mtsComponent::ReplaceStateEventHandler().
     ForceSensorComponent::ForceSensorEventHandler * newEventHandler
         = new ForceSensorComponent::ForceSensorEventHandler;
@@ -122,10 +122,10 @@ void ForceSensorComponent::Run(void)
     }
 #endif
     switch (GetFaultState()) {
-        case SF::State::NORMAL:  RunNormal(); break;
-        case SF::State::FAULT:   RunFault(); break;
-        case SF::State::ERROR:   RunError(); break;
-        case SF::State::FAILURE: RunFailure(); break;
+        case SC::State::NORMAL:  RunNormal(); break;
+        case SC::State::FAULT:   RunFault(); break;
+        case SC::State::ERROR:   RunError(); break;
+        case SC::State::FAILURE: RunFailure(); break;
         default: break;                         
     }
 }
@@ -138,7 +138,7 @@ void ForceSensorComponent::RunNormal(void)
     } else {
         std::cout << "Force sensor status error: error code = " << ErrorCode << std::endl;
 
-        // Determine the severity of the fault and inform the SF state machine of 
+        // Determine the severity of the fault and inform the SC state machine of 
         // the fault/error/failure event depending on its severity.
         switch (ErrorCode) {
             case ERROR_DATA_RECEPTION_ERROR:
@@ -155,8 +155,8 @@ void ForceSensorComponent::RunNormal(void)
                 break;
         }
 
-        // Print-out current SF state
-        std::cout << "CURRENT SF STATE: " << SF::State::GetString(this->FaultState->GetState()) << std::endl;
+        // Print-out current SC state
+        std::cout << "CURRENT SC STATE: " << SC::State::GetString(this->FaultState->GetState()) << std::endl;
     }
 }
 
@@ -246,7 +246,7 @@ void ControlComponent::Run(void)
             count = 0;
         }
     }
-    //this->FaultState.ProcessEvent(SF::State::FAULT_DETECTION);
+    //this->FaultState.ProcessEvent(SC::State::FAULT_DETECTION);
     //std::cout << this->FaultState.GetStateString() << std::endl;
 }
 

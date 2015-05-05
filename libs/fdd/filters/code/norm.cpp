@@ -17,13 +17,13 @@
 #include "jsonSerializer.h"
 #include "eventPublisherBase.h"
 
-namespace SF {
+namespace SC {
 
 const std::string FilterThreshold::Name = "Threshold";
 
 FilterThreshold::FilterThreshold(BaseType::FilterCategory      category, 
                                  const std::string &           targetComponentName,
-                                 SF::FilterBase::FilteringType monitoringType,
+                                 SC::FilterBase::FilteringType monitoringType,
                                  // filter-specific arguments
                                  const std::string &           inputSignalName,
                                  SignalElement::ScalarType     threshold,
@@ -38,7 +38,7 @@ FilterThreshold::FilterThreshold(BaseType::FilterCategory      category,
       Output1(output1)
 {
     // Define inputs
-    SFASSERT(this->AddInputSignal(NameOfInputSignal,
+    SCASSERT(this->AddInputSignal(NameOfInputSignal,
                                   SignalElement::SCALAR));
 
     // Define outputs
@@ -47,7 +47,7 @@ FilterThreshold::FilterThreshold(BaseType::FilterCategory      category,
                                        FilterThreshold::Name,
                                        this->UID,
                                        0));
-    SFASSERT(this->AddOutputSignal(outputSignalName,
+    SCASSERT(this->AddOutputSignal(outputSignalName,
                                    SignalElement::SCALAR));
 }
 
@@ -61,7 +61,7 @@ void FilterThreshold::DoFiltering(bool debug)
 
     // Fetch new value from history buffer and update output value
     if (!InputSignals[0]->FetchNewValueScalar((this->Type == FilterBase::ACTIVE))) {
-        SFLOG_ERROR << "FilterThreshold: failed to fetch new scalar value from history buffer" << std::endl;
+        SCLOG_ERROR << "FilterThreshold: failed to fetch new scalar value from history buffer" << std::endl;
         // If failed, placeholders are set as zero internally.
         this->Enable(false); // for no further error messages
     }
@@ -82,7 +82,7 @@ void FilterThreshold::DoFiltering(bool debug)
                 double severity = InputSignals[0]->GetPlaceholderScalar() - Threshold;
                 this->EventPublisher->PublishEvent(GenerateFDIJSON(severity, timestamp));
             } else {
-                SFLOG_ERROR << "FilterThreshold: No event publisher is active and thus event cannot be published" << std::endl;
+                SCLOG_ERROR << "FilterThreshold: No event publisher is active and thus event cannot be published" << std::endl;
             }
         }
     } else {
@@ -98,7 +98,7 @@ void FilterThreshold::DoFiltering(bool debug)
 const std::string FilterThreshold::GenerateFDIJSON(double severity, double timestamp) const
 {
     if (!EventLocation) {
-        SFLOG_ERROR << "GenerateFDIJSON: No event location instance available" << std::endl;
+        SCLOG_ERROR << "GenerateFDIJSON: No event location instance available" << std::endl;
         return "ERROR: no event location available";
     }
 
@@ -116,7 +116,7 @@ const std::string FilterThreshold::GenerateFDIJSON(double severity, double times
 
     // Populate fault-specific fields
     ::Json::Value & fields = serializer.GetFaultFields();
-    fields[SF::Dict::Json::severity] = severity;
+    fields[SC::Dict::Json::severity] = severity;
 
     return serializer.GetJSON();
 }

@@ -47,12 +47,12 @@
 
 # Set default search paths
 # TODO: expand default search paths on other platforms
-if (SF_ON_MAC)
+if (SC_ON_MAC)
   set (BOOST_INCLUDE_DEFAULT_PATH "/opt/local/include") # mac port
   set (BOOST_LIBS_DEFAULT_PATH "/opt/local/lib/") # mac port
-elseif (SF_ON_WINDOWS)
+elseif (SC_ON_WINDOWS)
   # TODO
-elseif (SF_ON_LINUX)
+elseif (SC_ON_LINUX)
   # TODO
 endif ()
 

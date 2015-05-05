@@ -18,7 +18,7 @@
 
 #define DEFINE_KEYWORD(_key) const std::string _key = #_key;
 
-namespace SF {
+namespace SC {
 
 namespace Dict {
 
@@ -139,9 +139,9 @@ namespace FilterThreshold {
     DEFINE_KEYWORD(output1);
 }
 
-}; // SF::Dict
+}; // SC::Dict
 
-}; // SF
+}; // SC
 
 #undef DEFINE_KEYWORD
 

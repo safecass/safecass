@@ -17,9 +17,9 @@
 #include "common.h"
 #include "jsonSerializer.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT MongoDB {
+class SCLIB_EXPORT MongoDB {
 protected:
 
     //! Convert Monitor topic messages from JSON to MongoDB entry format

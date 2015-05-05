@@ -16,9 +16,9 @@
 
 #include "signal.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT HistoryBufferBase
+class SCLIB_EXPORT HistoryBufferBase
 {
 public:
     HistoryBufferBase(void) {}

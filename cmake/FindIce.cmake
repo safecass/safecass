@@ -38,12 +38,12 @@ set (ICE_VERSIONS 3.3.0 3.3.1
 # set default search paths
 # TODO: expand default search paths on other platforms
 set (ICE_DEFAULT_PATH)
-if (SF_ON_MAC)
+if (SC_ON_MAC)
   set (ICE_INCLUDE_DEFAULT_PATH "/opt/local/include") # mac port
   set (ICE_LIB_DEFAULT_PATH "/opt/local/lib/") # mac port
-elseif (SF_ON_WINDOWS)
+elseif (SC_ON_WINDOWS)
   # TODO
-elseif (SF_ON_LINUX)
+elseif (SC_ON_LINUX)
   # TODO
 endif ()
 

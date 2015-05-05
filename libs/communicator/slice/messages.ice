@@ -19,7 +19,7 @@
 
 //#include <communicator.ice>
 
-module SF
+module SC
 {
     // interface for the "Control" topic
     interface Control {

@@ -13,7 +13,7 @@
 #include "event.h"
 #include <iomanip> // std::setprecision
 
-using namespace SF;
+using namespace SC;
 
 
 Event::Event(void)
@@ -87,10 +87,10 @@ void Event::SetTransitionMask(const TransitionsType & transitions)
     }
 #if 0 // check this out later when working on sanity check on event spec file
     if (fromN >= 2 || fromW >= 2 || fromE >= 2) {
-        SFLOG_ERROR << "Event transition error: event \"" << Name << "\" has multiple next states" << std::endl;
-        SFLOG_ERROR << (int) TransitionMask[N][N] << " " << (int) TransitionMask[N][W] << " " << (int) TransitionMask[N][E] << std::endl;
-        SFLOG_ERROR << (int) TransitionMask[W][N] << " " << (int) TransitionMask[W][W] << " " << (int) TransitionMask[W][E] << std::endl;
-        SFLOG_ERROR << (int) TransitionMask[E][N] << " " << (int) TransitionMask[E][W] << " " << (int) TransitionMask[E][E] << std::endl;
+        SCLOG_ERROR << "Event transition error: event \"" << Name << "\" has multiple next states" << std::endl;
+        SCLOG_ERROR << (int) TransitionMask[N][N] << " " << (int) TransitionMask[N][W] << " " << (int) TransitionMask[N][E] << std::endl;
+        SCLOG_ERROR << (int) TransitionMask[W][N] << " " << (int) TransitionMask[W][W] << " " << (int) TransitionMask[W][E] << std::endl;
+        SCLOG_ERROR << (int) TransitionMask[E][N] << " " << (int) TransitionMask[E][W] << " " << (int) TransitionMask[E][E] << std::endl;
         throw("Event error");
     }
 #endif

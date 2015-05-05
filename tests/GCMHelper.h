@@ -11,15 +11,15 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
-#ifndef _SFGCMHelper_h
-#define _SFGCMHelper_h
+#ifndef _SCGCMHelper_h
+#define _SCGCMHelper_h
 
 #include <cisstMultiTask/mtsTaskPeriodic.h>
 #include <cisstMultiTask/mtsTaskManager.h>
 #include <cisstMultiTask/mtsInterfaceProvided.h>
 #include <cisstMultiTask/mtsInterfaceRequired.h>
 
-namespace SF {
+namespace SC {
 
 //-------------------------------------------------- 
 // ForceSensor component
@@ -88,6 +88,6 @@ public:
     static void cisstCleanup(void);
 };
 
-} // namespace SF
+} // namespace SC
 
-#endif // _SFGCMHelper_h
+#endif // _SCGCMHelper_h

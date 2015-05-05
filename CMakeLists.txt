@@ -1,15 +1,14 @@
-#------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------
 #
-# CASROS: Component-based Architecture for Safe Robotic Systems
+# SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 #
-# Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+# Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 #
-#------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------
 #
 # Created on   : Jul 1, 2012
-# Last revision: Jul 29, 2014
+# Last revision: May 4, 2015
 # Author       : Min Yang Jung (myj@jhu.edu)
-# Github       : https://github.com/minyang/casros
 #
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
@@ -17,16 +16,16 @@ cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 project(SAFECASS)
 
 # Set the version number
-set (SF_VERSION_MAJOR "0")
-set (SF_VERSION_MINOR "0")
-set (SF_VERSION_PATCH "1")
-set (SF_VERSION "${SF_VERSION_MAJOR}.${SF_VERSION_MINOR}.${SF_VERSION_PATCH}")
+set (SC_VERSION_MAJOR "0")
+set (SC_VERSION_MINOR "0")
+set (SC_VERSION_PATCH "1")
+set (SC_VERSION "${SC_VERSION_MAJOR}.${SC_VERSION_MINOR}.${SC_VERSION_PATCH}")
 
-# Enable or disable casros (used by external project where SF is deployed)
-set (SF_ACTIVATED TRUE)
+# Enable or disable casros (used by external project where SC is deployed)
+set (SC_ACTIVATED TRUE)
 
 # Set the current project as casros
-set (CURRENT_PROJECT_IS_SF ON)
+set (CURRENT_PROJECT_IS_SC ON)
 
 # Project settings for output (generated) files
 set (BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
@@ -34,75 +33,75 @@ set (EXECUTABLE_OUTPUT_PATH "${BUILD_ROOT}/bin")
 set (LIBRARY_OUTPUT_PATH "${BUILD_ROOT}/lib")
 
 # OS recognition
-set (SF_ON_MAC     FALSE)
-set (SF_ON_WINDOWS FALSE)
-set (SF_ON_LINUX   FALSE)
+set (SC_ON_MAC     FALSE)
+set (SC_ON_WINDOWS FALSE)
+set (SC_ON_LINUX   FALSE)
 # Mac/Apple
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-  set (SF_ON_MAC TRUE)
+  set (SC_ON_MAC TRUE)
   message("OS: Apple/Mac detected")
 else ()
   if (UNIX)
-    set (SF_ON_LINUX TRUE)
+    set (SC_ON_LINUX TRUE)
     message("OS: Linux detected")
   endif ()
 endif ()
 # Windows
 if (WIN32)
-  set (SF_ON_WINDOWS TRUE)
+  set (SC_ON_WINDOWS TRUE)
   message("OS: Windows detected")
 endif ()
 # QNX
 #if ("${CMAKE_SYSTEM_NAME}" strequal "QNX")
-#    set (SF_ON_QNX ON)
+#    set (SC_ON_QNX ON)
 #else if (UNIX)
 
 # Detecting compiler
-set (SF_COMPILER "")
-if (SF_ON_WINDOWS)
+set (SC_COMPILER "")
+if (SC_ON_WINDOWS)
   if (MINGW) # MinGW compiler in Windows
-    set (SF_COMPILER "MinGW") 
+    set (SC_COMPILER "MinGW") 
   elseif (MSYS) # MSYS developer environment in Windows
-    set (SF_COMPILER "MSYS")
+    set (SC_COMPILER "MSYS")
   elseif (BORLAND) # Borland compiler in Windows
-    set (SF_COMPILER "Borland")
+    set (SC_COMPILER "Borland")
   elseif (WATCOM) # Open Watcom compiler in Windows
-    set (SF_COMPILER "Watcom")
+    set (SC_COMPILER "Watcom")
     #elseif (MSVC OR MSVC_IDE OR MSVC60 OR MSVC70 OR MSVC71 OR MSVC80 OR
     #        CMAKE_COMPILER_2005 OR MSVC90) # Microsoft Visual Studio
   elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set (SF_COMPILER "MSVC")
+    set (SC_COMPILER "MSVC")
   endif()
-else (SF_ON_WINDOWS)
+else (SC_ON_WINDOWS)
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set (SF_COMPILER "Clang")
+    set (SC_COMPILER "Clang")
   elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    set (SF_COMPILER "GCC")
+    set (SC_COMPILER "GCC")
   elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-    set (SF_COMPILER "Intel")
+    set (SC_COMPILER "Intel")
     #if (CMAKE_COMPILER_IS_GNUCC) # variant of GCC
-    #      set (SF_COMPILER "gcc variant")
+    #      set (SC_COMPILER "gcc variant")
     #  elseif (CMAKE_COMPILER_IS_GNUCXX) # variant of g++
-    #      set (SF_COMPILER "g++ variant")
+    #      set (SC_COMPILER "g++ variant")
   elseif (CYGWIN) # Cygwin
-    set (SF_COMPILER "Cygwin")
+    set (SC_COMPILER "Cygwin")
   endif()
-endif (SF_ON_WINDOWS)
+endif (SC_ON_WINDOWS)
 
-message("Compiler: ${SF_COMPILER} detected")
+message("Compiler: ${SC_COMPILER} detected")
 
 # option to organize targets in folders
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Project settings for source files
-set (SF_BUILD_ROOT ${BUILD_ROOT})
-set (SF_SOURCE_DIR ${SafetyFramework_SOURCE_DIR})
-set (SF_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}) # where to find SFLib build library
-set (SF_INCLUDE_DIR "${SF_SOURCE_DIR}/libs") # where to find header files
+set (SC_BUILD_ROOT ${BUILD_ROOT})
+set (SC_SOURCE_DIR ${Safecass_SOURCE_DIR})
+set (SC_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}) # where to find SCLib build library
+set (SC_INCLUDE_DIR "${SC_SOURCE_DIR}/libs") # where to find header files
 
 # Set cmake module path
-set (SF_CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SF_CMAKE_MODULE_PATH})
+set (SC_CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SC_CMAKE_MODULE_PATH})
 
 # If BOOST_ROOT was defined in the environment, use it.
 if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
@@ -122,7 +121,7 @@ option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the Cpp
 # Option to use g2log
 option (ENABLE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
 if (ENABLE_G2LOG)
-  set (SF_USE_G2LOG ${ENABLE_G2LOG})
+  set (SC_USE_G2LOG ${ENABLE_G2LOG})
 endif()
 # Option to build shared library
 option (BUILD_SHARED_LIBS "Build shared libraries" OFF)
@@ -133,8 +132,8 @@ elseif ()
 endif ()
 
 # Option to use robot middleware packages
-option (SF_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)
-if (SF_HAS_CISST)
+option (SC_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)
+if (SC_HAS_CISST)
   message("cisst support enabled")
   # find cisst
   set (CISST_LIBRARIES_REQUIRED cisstCommon cisstVector cisstOSAbstraction cisstMultiTask)
@@ -145,14 +144,14 @@ if (SF_HAS_CISST)
     include (${CISST_USE_FILE})
     # Print out cisst information
     message("CISST ${CISST_VERSION} found: ${CISST_BINARY_DIR}")
-    add_definitions(-DSF_HAS_CISST)
+    add_definitions(-DSC_HAS_CISST)
     #
     # TODO
     #
   else ()
     message(FATAL_ERROR "Failed to find cisst")
   endif ()
-endif (SF_HAS_CISST)
+endif (SC_HAS_CISST)
 
 # Options to enable visualizataion framework using Qt and D3/cubism
 option (ENABLE_VIS_FRAMEWORK "Enable visualization framework using Qt and visualization packages" OFF)
@@ -180,10 +179,10 @@ endif ()
 
 # Update compiler configuration accordingly
 if (ENABLE_G2LOG)
-    set (SF_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    set (SC_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 endif()
 
 # Create configuration files
-configure_file ("${SF_CMAKE_MODULE_PATH}/SFConfig.cmake.in"
-                "${SF_BUILD_ROOT}/SFConfig.cmake"
+configure_file ("${SC_CMAKE_MODULE_PATH}/SCConfig.cmake.in"
+                "${SC_BUILD_ROOT}/SCConfig.cmake"
                 @ONLY)

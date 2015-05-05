@@ -16,7 +16,7 @@
 
 #include "common.h"
 
-namespace SF {
+namespace SC {
 
 //-------------------------------------------------- 
 // String

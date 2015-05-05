@@ -16,7 +16,7 @@
 #include "filterBase.h"
 #include "event.h"
 
-namespace SF {
+namespace SC {
 
 /*
    Threshold Filter
@@ -29,7 +29,7 @@ namespace SF {
    where Y1 and Y0 are two const values for outputs.  All inputs and outputs are scalar.
 */
 
-class SFLIB_EXPORT FilterThreshold: public FilterBase
+class SCLIB_EXPORT FilterThreshold: public FilterBase
 {
 public:
     typedef enum { BELOW_THRESHOLD, ABOVE_THRESHOLD } EVENT_TYPE;
@@ -111,7 +111,7 @@ public:
     void ToStream(std::ostream & outputStream, bool verbose = false) const;
 
     //! For filter factory
-    SF_DEFINE_FACTORY_CREATE(FilterThreshold);
+    SC_DEFINE_FACTORY_CREATE(FilterThreshold);
 };
 
 };

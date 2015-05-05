@@ -73,7 +73,7 @@ void handler_state(const std::vector<std::string> &args)
     const size_t n = args.size();
 
     std::string cmd(args[0]);
-    SF::to_lowercase(cmd);
+    SC::to_lowercase(cmd);
     if (cmd.compare("list") == 0) {
         option = LIST;
         safetyCoordinatorName = "*";
@@ -117,7 +117,7 @@ void handler_state(const std::vector<std::string> &args)
             componentName = "*";
         } else if (n == 2) {
             std::string arg(args[1]);
-            SF::to_lowercase(arg);
+            SC::to_lowercase(arg);
             if (arg.compare("help") == 0) {
                 std::cout << "usage: state history [scName] [cName]" << std::endl
                           << "   scName: name of safety coordinator (default: all)" << std::endl

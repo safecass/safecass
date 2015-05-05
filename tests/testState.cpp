@@ -14,24 +14,24 @@
 #include "testState.h"
 #include "statemachine.h"
 
-using namespace SF;
+using namespace SC;
 
-SFStateTest::SFStateTest(void)
+SCStateTest::SCStateTest(void)
 {
     // test registration
-    TEST_ADD(SFStateTest::TestStateMachineBasics);
-    TEST_ADD(SFStateTest::TestStateProductOperator);
+    TEST_ADD(SCStateTest::TestStateMachineBasics);
+    TEST_ADD(SCStateTest::TestStateProductOperator);
 }
 
-SFStateTest::~SFStateTest(void) {}
+SCStateTest::~SCStateTest(void) {}
 
-void SFStateTest::setup() {}
-void SFStateTest::tear_down() {}
+void SCStateTest::setup() {}
+void SCStateTest::tear_down() {}
 
-void SFStateTest::TestStateMachineBasics(void)
+void SCStateTest::TestStateMachineBasics(void)
 {
 #if 0
-    SF::StateMachine sm;
+    SC::StateMachine sm;
 
     // initialization: state entry/exit
     TEST_ASSERT(sm.GetCountEntryExit(State::STATEMACHINE_ON_ENTRY) == 1);
@@ -177,7 +177,7 @@ void SFStateTest::TestStateMachineBasics(void)
 #endif
 }
 
-void SFStateTest::TestStateProductOperator(void)
+void SCStateTest::TestStateProductOperator(void)
 {
 #if 0
     State s1, s2;

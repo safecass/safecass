@@ -20,7 +20,7 @@
 //
 // Callback class for subscribers
 //
-class ViewerSubscriberCallback : public SF::SFCallback {
+class ViewerSubscriberCallback : public SC::SCCallback {
 protected:
     const std::string TopicName;
 
@@ -28,16 +28,16 @@ public:
     ViewerSubscriberCallback(const std::string & topic) : TopicName(topic) {}
     ~ViewerSubscriberCallback() {}
 
-    void CallbackControl(SF::Topic::Control::CategoryType category, const std::string & json);
-    void CallbackData   (SF::Topic::Data::CategoryType    category, const std::string & json);
+    void CallbackControl(SC::Topic::Control::CategoryType category, const std::string & json);
+    void CallbackData   (SC::Topic::Data::CategoryType    category, const std::string & json);
 
-    void GenerateD3JSON(const SF::JsonWrapper::JsonValue & inroot, SF::JsonWrapper::JsonValue & outSCroot);
+    void GenerateD3JSON(const SC::JsonWrapper::JsonValue & inroot, SC::JsonWrapper::JsonValue & outSCroot);
 };
 
 //
 // CASROS accessors
 //
-class AccessorViewer : public SF::cisstAccessor {
+class AccessorViewer : public SC::cisstAccessor {
 public:
     AccessorViewer(void);
     ~AccessorViewer() {}

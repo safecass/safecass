@@ -17,7 +17,7 @@
 
 #include "filterBase.h"
 
-namespace SF {
+namespace SC {
 
 /* 
    Trend Velocity Filter (1st-order differentiator)
@@ -25,7 +25,7 @@ namespace SF {
    Output Y = (x(t(k+1)) - x(t(k))) / (t(k+1) - t(k))
 */
 
-class SFLIB_EXPORT FilterTrendVel: public FilterBase
+class SCLIB_EXPORT FilterTrendVel: public FilterBase
 {
 protected:
     // Filter should be instantiated with explicit arguments
@@ -54,7 +54,7 @@ protected:
 public:
     FilterTrendVel(BaseType::FilterCategory      category, 
                    const std::string &           targetComponentName,
-                   SF::FilterBase::FilteringType monitoringType,
+                   SC::FilterBase::FilteringType monitoringType,
                    // below are filter-specific arguments
                    const std::string &           inputSignalName,
                    SignalElement::SignalType     signalType,

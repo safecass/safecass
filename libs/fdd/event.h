@@ -17,9 +17,9 @@
 #include "state.h"
 #include "jsonwrapper.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT Event
+class SCLIB_EXPORT Event
 {
     friend class StateMachine;
 

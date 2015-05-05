@@ -17,7 +17,7 @@
 
 #include <Ice/Application.h>
 
-using namespace SF;
+using namespace SC;
 
 // Subscriber id (unique within a process)
 unsigned int Subscriber::Id = 0;
@@ -26,9 +26,9 @@ unsigned int Subscriber::Id = 0;
 
 class DataI: public Data {
 protected:
-    SFCallback * CallbackInstance;
+    SCCallback * CallbackInstance;
 public:
-    DataI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
+    DataI(SCCallback * callbackInstance): CallbackInstance(callbackInstance) {}
     void Monitor(const std::string & json, const Ice::Current &) {
         CallbackInstance->CallbackData(Topic::Data::MONITOR, json);
     }
@@ -42,9 +42,9 @@ public:
 
 class ControlI: public Control {
 protected:
-    SFCallback * CallbackInstance;
+    SCCallback * CallbackInstance;
 public:
-    ControlI(SFCallback * callbackInstance): CallbackInstance(callbackInstance) {}
+    ControlI(SCCallback * callbackInstance): CallbackInstance(callbackInstance) {}
     void Command(const std::string & json, const Ice::Current &) {
         CallbackInstance->CallbackControl(Topic::Control::COMMAND, json);
     }
@@ -59,10 +59,10 @@ public:
 Subscriber::Subscriber(void): BaseIce(NONAME, NONAME), CallbackInstance(0)
 {
     // Default constructor should not be used
-    SFASSERT(false);
+    SCASSERT(false);
 }
 
-Subscriber::Subscriber(const std::string & topicName, SFCallback * callbackInstance)
+Subscriber::Subscriber(const std::string & topicName, SCCallback * callbackInstance)
     : BaseIce(topicName, GetDefaultConfigFilePath()), 
       CallbackInstance(callbackInstance)
 {
@@ -86,8 +86,8 @@ void Subscriber::Init(void)
 {
     ++Id;
 
-    SFLOG_INFO << SUBSCRIBER_INFO << "Created with config file: " << this->IcePropertyFileName << std::endl;
-    SFLOG_INFO << SUBSCRIBER_INFO << "Created with topic name: " << this->TopicName << std::endl;
+    SCLOG_INFO << SUBSCRIBER_INFO << "Created with config file: " << this->IcePropertyFileName << std::endl;
+    SCLOG_INFO << SUBSCRIBER_INFO << "Created with topic name: " << this->TopicName << std::endl;
 }
 
 bool Subscriber::Startup(void)
@@ -98,12 +98,12 @@ bool Subscriber::Startup(void)
     try {
         manager = IceStorm::TopicManagerPrx::checkedCast(this->IceCommunicator->propertyToProxy("TopicManager.Proxy"));
     } catch (const Ice::ConnectionRefusedException & e) {
-        SFLOG_ERROR << SUBSCRIBER_INFO << "Failed to initialize IceStorm.  Check if IceBox is running." << std::endl;
+        SCLOG_ERROR << SUBSCRIBER_INFO << "Failed to initialize IceStorm.  Check if IceBox is running." << std::endl;
         return false;
     }
  
     if (!manager) {
-        SFLOG_ERROR << SUBSCRIBER_INFO << "Invalid proxy" << std::endl;
+        SCLOG_ERROR << SUBSCRIBER_INFO << "Invalid proxy" << std::endl;
         return false;
     }
 
@@ -114,7 +114,7 @@ bool Subscriber::Startup(void)
         try {   
             Topic = manager->create(this->TopicName);
         } catch(const IceStorm::TopicExists&) {   
-            SFLOG_ERROR << SUBSCRIBER_INFO << "Topic not found. Try again." << std::endl;
+            SCLOG_ERROR << SUBSCRIBER_INFO << "Topic not found. Try again." << std::endl;
             return false;
         }   
     }   
@@ -141,7 +141,7 @@ bool Subscriber::Startup(void)
         SubscriberObj = adapter->add(new DataI(CallbackInstance), subId);
         break;
     default:
-        SFASSERT(false);
+        SCASSERT(false);
     }
 
     IceStorm::QoS qos;
@@ -159,7 +159,7 @@ bool Subscriber::Startup(void)
         if (id.empty())
             throw;
 
-        SFLOG_ERROR << SUBSCRIBER_INFO << "Reactivating persistent subscriber" << std::endl;
+        SCLOG_ERROR << SUBSCRIBER_INFO << "Reactivating persistent subscriber" << std::endl;
     }
     adapter->activate();
 
@@ -177,7 +177,7 @@ void Subscriber::Run(void)
 
     Topic->unsubscribe(SubscriberObj);
 
-    SFLOG_INFO << SUBSCRIBER_INFO << "Unsubscribed from topic" << std::endl;
+    SCLOG_INFO << SUBSCRIBER_INFO << "Unsubscribed from topic" << std::endl;
     
     //BaseType::Stop();
 }
@@ -192,7 +192,7 @@ void Subscriber::Stop(void)
 
 const std::string Subscriber::GetDefaultConfigFilePath(void)
 {
-    std::string path(SF_COMMUNICATOR_CONFIG_DIR);
+    std::string path(SC_COMMUNICATOR_CONFIG_DIR);
     path += "/config.sub";
 
     return path;

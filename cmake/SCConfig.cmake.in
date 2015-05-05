@@ -1,0 +1,51 @@
+#-----------------------------------------------------------------------------------
+#
+# SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
+#
+# Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+#
+#-----------------------------------------------------------------------------------
+#
+# Created on   : Oct 25, 2012
+# Last revision: May 4, 2015
+# Author       : Min Yang Jung (myj@jhu.edu)
+#
+# Version
+set (SC_VERSION_MAJOR "@SC_VERSION_MAJOR@")
+set (SC_VERSION_MINOR "@SC_VERSION_MINOR@")
+set (SC_VERSION_PATCH "@SC_VERSION_PATCH@")
+set (SC_VERSION       "@SC_VERSION@")
+
+# Component-based framework
+set (SC_HAS_CISST "@SC_HAS_CISST@")
+
+# Paths
+set (SC_BUILD_ROOT            "@SC_BUILD_ROOT@")
+set (SC_BUILD_EXECUTABLE_PATH "@EXECUTABLE_OUTPUT_PATH@")
+set (SC_BUILD_LIBRARY_DIR     "@LIBRARY_OUTPUT_PATH@")
+
+# For external project that uses SC
+set (SC_SOURCE_DIR  "@SC_SOURCE_DIR@")
+set (SC_LIBRARY_DIR "@SC_LIBRARY_DIR@")
+set (SC_INCLUDE_DIR "@SC_INCLUDE_DIR@")
+set (SC_CMAKE_MODULE_PATH "@SC_CMAKE_MODULE_PATH@")
+
+# External dependencies of CASROS
+set (SC_BUILD_SHARED_LIBS          "@BUILD_SHARED_LIBS@")
+set (SC_LIB_DEPENDENCY_LIBS        "@SC_LIB_DEPENDENCY_LIBS@")
+set (SC_LIB_DEPENDENCY_INCLUDE_DIR "@SC_LIB_INCLUDE_DIR@")
+
+# Logger option
+set (SC_USE_G2LOG "@SC_USE_G2LOG@")
+
+# locate cisst use file
+find_file (SC_USE_FILE UseSC.cmake ${SC_CMAKE_MODULE_PATH})
+
+# Compiler options (e.g., g2log requires c++11 standard)
+set (SC_CXX_FLAGS "@SC_CXX_FLAGS@")
+
+# On Windows, CMake uses a different compiler at configuration time
+#set (CISST_CMAKE_COMPILER_IS_MSVC_64 @CISST_CMAKE_COMPILER_IS_MSVC_64@)
+
+# Which flags have been set and include path/libs
+#set (CISST_HAS_SAFETY_PLUGINS @CISST_HAS_SAFETY_PLUGINS@)

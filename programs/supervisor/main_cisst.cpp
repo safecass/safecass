@@ -21,7 +21,7 @@
 #include <cisstMultiTask/mtsManagerLocal.h>
 #include <cisstMultiTask/mtsSafetySupervisor.h>
 
-using namespace SF;
+using namespace SC;
 
 /* TODO
  * 3. add subscriber to Supervisor to listen to a topic for monitor (i.e., period sample)
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-#if SF_USE_G2LOG
+#if SC_USE_G2LOG
     // Logger setup
     g2LogWorker logger(argv[0], "./");
     g2::initializeLogging(&logger);
@@ -73,8 +73,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    SFLOG_INFO << "Publisher configuration file: " << configPub << std::endl;
-    SFLOG_INFO << "Subscriber configuration file: " << configSub << std::endl;
+    SCLOG_INFO << "Publisher configuration file: " << configPub << std::endl;
+    SCLOG_INFO << "Subscriber configuration file: " << configSub << std::endl;
 
     // Print information about middleware(s) available
     StrVecType info;
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
         }
     }
     ss << std::endl;
-    SFLOG_INFO << ss.str();
+    SCLOG_INFO << ss.str();
 
     // Create supervisor instance
     mtsSafetySupervisor * supervisor = new mtsSafetySupervisor;

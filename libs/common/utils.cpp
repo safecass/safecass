@@ -18,7 +18,7 @@
 //#include <iomanip> // std::setprecision
 #include <math.h> // modf
 //#include <locale>
-#if SF_HAS_CISST
+#if SC_HAS_CISST
 #include <cisstOSAbstraction/osaGetTime.h>
 #endif
 
@@ -53,7 +53,7 @@
         : http://www.tutorialspoint.com/cplusplus/cpp_date_time.htm
 */
 // TODO: (at least) millisecond resolution?
-std::string SF::GetCurrentUTCTimeString(void)
+std::string SC::GetCurrentUTCTimeString(void)
 {
     // TODO:  this const could be re-defined as enum to support different time zones
     // static const int MST = -7;
@@ -76,7 +76,7 @@ std::string SF::GetCurrentUTCTimeString(void)
     return std::string(buf);
 }
 
-std::string SF::GetUTCTimeString(TimestampType timestamp)
+std::string SC::GetUTCTimeString(TimestampType timestamp)
 {
     // static const int MST = -7;
     static const int UTC = 0;
@@ -106,7 +106,7 @@ std::string GetCurrentLocalTimeString(void)
 {}
 */
 
-std::string & SF::ltrim(std::string &s)
+std::string & SC::ltrim(std::string &s)
 {
     s.erase(s.begin(), std::find_if(s.begin(), 
                                     s.end(), 
@@ -115,7 +115,7 @@ std::string & SF::ltrim(std::string &s)
 }
 
 // trim from end
-std::string & SF::rtrim(std::string &s)
+std::string & SC::rtrim(std::string &s)
 {
     s.erase(std::find_if(s.rbegin(), 
                          s.rend(), 
@@ -124,26 +124,26 @@ std::string & SF::rtrim(std::string &s)
 }
 
 // trim from both ends
-std::string & SF::trim(std::string &s)
+std::string & SC::trim(std::string &s)
 {
     return ltrim(rtrim(s));
 }
 
 // to lowercase
-void SF::to_lowercase(std::string & s)
+void SC::to_lowercase(std::string & s)
 {
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
 // to uppercase 
-void SF::to_uppercase(std::string & s)
+void SC::to_uppercase(std::string & s)
 {
     std::transform(s.begin(), s.end(), s.begin(), ::toupper);
 }
 
-SF::TimestampType SF::GetCurrentTimeTick(void)
+SC::TimestampType SC::GetCurrentTimeTick(void)
 {
-#if SF_HAS_CISST
+#if SC_HAS_CISST
     return osaGetTime();
 #else
     return 0.0;

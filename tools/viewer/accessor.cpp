@@ -19,7 +19,7 @@
 
 #define VERBOSE 0
 
-using namespace SF;
+using namespace SC;
 
 // JSON object that has complete information of all states of the entire system (including 
 // multiple processes)
@@ -63,7 +63,7 @@ const std::string GetColorCodeForState(unsigned int state, LayerType layer = LAY
         case State::NORMAL: ; // fall through
     }
 
-    SFASSERT(state == static_cast<State::StateType>(State::NORMAL));
+    SCASSERT(state == static_cast<State::StateType>(State::NORMAL));
 
     switch (layer) {
         case LAYER_PROCESS:   return COLOR_PROCESS;
@@ -118,7 +118,7 @@ const std::string GetColorCodeForSafetyCoordinator(void)
 //
 void ViewerSubscriberCallback::CallbackControl(Topic::Control::CategoryType category, const std::string & json)
 {
-    SFASSERT(false);
+    SCASSERT(false);
 }
 
 void ViewerSubscriberCallback::CallbackData(Topic::Data::CategoryType category, const std::string & json)
@@ -142,7 +142,7 @@ void ViewerSubscriberCallback::CallbackData(Topic::Data::CategoryType category, 
     std::cout << json << std::endl;
 
 #if VERBOSE
-    SFLOG_INFO << "message received - topic: " << TopicName << ", category: " << categoryName << " ]" << std::endl;
+    SCLOG_INFO << "message received - topic: " << TopicName << ", category: " << categoryName << " ]" << std::endl;
     if (category == Topic::Data::READ_RES) {
         std::cout << "ViewerSubscriberCallback:" << __LINE__ << " Received json => " << json << std::endl;
     }
@@ -151,7 +151,7 @@ void ViewerSubscriberCallback::CallbackData(Topic::Data::CategoryType category, 
     // input JSON: state information from CASROS
     JsonWrapper in;
     if (!in.Read(json.c_str())) {
-        SFLOG_ERROR << "Failed to parse json: " << json << std::endl;
+        SCLOG_ERROR << "Failed to parse json: " << json << std::endl;
         return;
     }
 
@@ -171,7 +171,7 @@ void ViewerSubscriberCallback::CallbackData(Topic::Data::CategoryType category, 
         return;
     } else {
         if (cmd.compare("state_list") != 0) {
-            SFLOG_INFO << "not state information: " << cmd << std::endl;
+            SCLOG_INFO << "not state information: " << cmd << std::endl;
             return;
         }
     }

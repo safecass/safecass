@@ -18,9 +18,9 @@
 #include "common.h"
 //#include "monitor.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT Supervisor {
+class SCLIB_EXPORT Supervisor {
 public:
     Supervisor();
     virtual ~Supervisor();

@@ -13,7 +13,7 @@
 #include "baseIce.h"
 #include "dict.h"
 
-using namespace SF;
+using namespace SC;
 
 BaseIce::BaseIce(void)
     : State(INVALID),
@@ -22,7 +22,7 @@ BaseIce::BaseIce(void)
       IcePropertyFileName(NONAME)
 {
     // Default constructor should not be used
-    SFASSERT(false);
+    SCASSERT(false);
 }
 
 BaseIce::BaseIce(const std::string & topicName, const std::string & propertyFileName)
@@ -31,15 +31,15 @@ BaseIce::BaseIce(const std::string & topicName, const std::string & propertyFile
       IcePropertyFileName(propertyFileName)
 {
     // Determine type of subscriber depending on topic
-    if (TopicName.compare(SF::Dict::TopicNames::CONTROL) == 0)
+    if (TopicName.compare(SC::Dict::TopicNames::CONTROL) == 0)
         Topic = Topic::CONTROL;
-    else if (TopicName.compare(SF::Dict::TopicNames::DATA) == 0)
+    else if (TopicName.compare(SC::Dict::TopicNames::DATA) == 0)
         Topic = Topic::DATA;
     else {
         std::stringstream ss;
         ss << "Invalid topic name: \"" << topicName << "\"" << std::endl;
-        SFLOG_ERROR << ss.str() << std::endl;
-        SFTHROW(ss.str());
+        SCLOG_ERROR << ss.str() << std::endl;
+        SCTHROW(ss.str());
     }
 }
 
@@ -121,7 +121,7 @@ void BaseIce::IceInitialize(void)
     IceInitData.properties->load(IcePropertyFileName);
 
     // Create logger
-    IceInitData.logger = new SFLogger();
+    IceInitData.logger = new SCLogger();
 
     // Initialize Ice communicator and Ice logger
     IceCommunicator = Ice::initialize(IceInitData);

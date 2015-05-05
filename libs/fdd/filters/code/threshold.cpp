@@ -16,9 +16,9 @@
 #include "coordinator.h"
 #include <iomanip>
 
-using namespace SF;
+using namespace SC;
 
-SF_IMPLEMENT_FACTORY(FilterThreshold);
+SC_IMPLEMENT_FACTORY(FilterThreshold);
 
 FilterThreshold::FilterThreshold(void)
     : FilterBase(FilterThreshold::Name,  // filter name
@@ -111,10 +111,10 @@ void FilterThreshold::Initialize(void)
 {
     // Register this filter to the filter factory
     // filters that casros provides do not need this; this is only for user-defined filters.
-    //SF_REGISTER_FILTER_TO_FACTORY(FilterThreshold);
+    //SC_REGISTER_FILTER_TO_FACTORY(FilterThreshold);
 
     // Define inputs
-    SFASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
+    SCASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
 
     // Define outputs
     const std::string outputSignalName(
@@ -122,7 +122,7 @@ void FilterThreshold::Initialize(void)
                                        FilterThreshold::Name,
                                        this->UID,
                                        0));
-    SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
+    SCASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 }
 
 bool FilterThreshold::ConfigureFilter(const JsonWrapper::JsonValue & jsonNode)
@@ -186,8 +186,8 @@ void FilterThreshold::RunFilter(void)
         SafetyCoordinator->OnEvent(evt); // Onset event detected
         OutputSignals[0]->SetPlaceholderScalar(OutputAbove);
     } else {
-        SFASSERT(this->EventDetectionMode == FilterBase::EVENT_DETECTION_EDGE);
-        SFASSERT(GetFilterState() != FilterBase::DISABLED);
+        SCASSERT(this->EventDetectionMode == FilterBase::EVENT_DETECTION_EDGE);
+        SCASSERT(GetFilterState() != FilterBase::DISABLED);
 
         if (GetFilterState() != FilterBase::DETECTED) {
             // Generate onset event

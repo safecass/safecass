@@ -13,7 +13,7 @@
 #include "statemachine.h"
 #include "event.h"
 
-using namespace SF;
+using namespace SC;
 
 StateMachine::StateMachine(void)
 {
@@ -33,7 +33,7 @@ StateMachine::StateMachine(const std::string & ownerName)
 StateMachine::StateMachine(StateEventHandler * eventHandler)
 {
     if (!eventHandler)
-        SFTHROW("StateMachine: null event handler");
+        SCTHROW("StateMachine: null event handler");
 
     Initialize(NONAME, eventHandler);
 }
@@ -41,7 +41,7 @@ StateMachine::StateMachine(StateEventHandler * eventHandler)
 StateMachine::StateMachine(const std::string & ownerName, StateEventHandler * eventHandler)
 {
     if (!eventHandler)
-        SFTHROW("StateMachine: null event handler");
+        SCTHROW("StateMachine: null event handler");
 
     Initialize(ownerName, eventHandler);
 }
@@ -91,12 +91,12 @@ void StateMachine::SetStateEventHandler(StateEventHandler * instance)
 
     ss << "\"" << State.EventHandlerInstance->GetOwnerName() << "\"" << std::endl;
 
-    SFLOG_DEBUG << ss.str();
+    SCLOG_DEBUG << ss.str();
 }
 
 bool StateMachine::ProcessEvent(const State::TransitionType transition, const Event * event)
 {
-    SFASSERT(event);
+    SCASSERT(event);
 
     // Check transition type: getting worse or getting better
     bool gettingWorse;
@@ -171,8 +171,8 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
     if (!OutstandingEvent->GetValid())
         ignore = false;
     else {
-        SFLOG_DEBUG << "OUTSTANDING EVENT: " << *OutstandingEvent << std::endl;
-        SFLOG_DEBUG << "NEW EVENT: " << *event << std::endl;
+        SCLOG_DEBUG << "OUTSTANDING EVENT: " << *OutstandingEvent << std::endl;
+        SCLOG_DEBUG << "NEW EVENT: " << *event << std::endl;
         // Getting worse case
         if (gettingWorse) {
             // Check criticality
@@ -206,7 +206,7 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
     }
 
     if (ignore) {
-        SFLOG_WARNING << "StateMachine::ProcessEvent: event \"" << *event << "\" is ignored" << std::endl;
+        SCLOG_WARNING << "StateMachine::ProcessEvent: event \"" << *event << "\" is ignored" << std::endl;
 
         StateTransitionEntry entry;
         entry.Evt = new Event(*event);
@@ -226,7 +226,7 @@ bool StateMachine::ProcessEvent(const State::TransitionType transition, const Ev
     else {
         ss << " and new active event is installed as [ " << *event << " ].";
     }
-    SFLOG_DEBUG << ss.str() << std::endl;
+    SCLOG_DEBUG << ss.str() << std::endl;
 
     // Swap out currently active event with new event of higher criticality or equal
     // criticality but higher severity.
@@ -478,7 +478,7 @@ void StateMachine::GetStateTransitionHistory(JsonWrapper::JsonValue & json, unsi
                     }
                     // onset event ("getting worse")
                     else {
-                        SFASSERT(currState < nextState);
+                        SCASSERT(currState < nextState);
                         if (currState == State::WARNING) {
 #if STATE_HISTORY_DEBUG
             std::cout << __LINE__ << ": warning\n";

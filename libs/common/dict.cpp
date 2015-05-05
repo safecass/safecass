@@ -13,10 +13,10 @@
 //
 #include "dict.h"
 
-namespace SF {
+namespace SC {
 
 namespace Dict {
 
 }; // Dict
 
-}; // SF
+}; // SC

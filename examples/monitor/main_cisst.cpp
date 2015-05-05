@@ -30,7 +30,7 @@
 #include <sys/mman.h>
 #endif
 
-using namespace SF;
+using namespace SC;
 
 class PeriodicTask: public mtsTaskPeriodic {
 protected:
@@ -124,7 +124,7 @@ PeriodicTask * task = 0;
 
 int main(int argc, char *argv[])
 {
-#if SF_USE_G2LOG
+#if SC_USE_G2LOG
     // Logger setup
     g2LogWorker logger(argv[0], "./");
     g2::initializeLogging(&logger);
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
     try {
         ComponentManager = mtsComponentManager::GetInstance();
     } catch (...) {
-        SFLOG_ERROR << "Failed to initialize local component manager" << std::endl;
+        SCLOG_ERROR << "Failed to initialize local component manager" << std::endl;
         return 1;
     }
 
@@ -185,23 +185,23 @@ int main(int argc, char *argv[])
 
         // Create periodic task
         if (!CreatePeriodicThread(componentName, 1.0 / (double)f[i])) {
-            SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
+            SCLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
             return 1;
         }
         // Install monitor 
         if (!InstallMonitor(componentName, f[i])) {
-            SFLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
+            SCLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
             return 1;
         }
     }
     
     if (ComponentManager->GetCoordinator()) {
         if (!ComponentManager->GetCoordinator()->DeployMonitorsAndFDDs()) {
-            SFLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
+            SCLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
             return 1;
         }
     } else {
-        SFLOG_ERROR  << "Failed to get coordinator in this process";
+        SCLOG_ERROR  << "Failed to get coordinator in this process";
         return 1;
     }
 
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     // Clean up resources
-    SFLOG_INFO << "Cleaning up..." << std::endl;
+    SCLOG_INFO << "Cleaning up..." << std::endl;
 
 #if (CISST_OS != CISST_LINUX_XENOMAI)
     ComponentManager->KillAll();
@@ -242,7 +242,7 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
     // Create periodic thread
     task = new PeriodicTask(componentName, period);
     if (!ComponentManager->AddComponent(task)) {
-        SFLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
+        SCLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
         return false;
     }
 
@@ -253,7 +253,7 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
 {
     mtsSafetyCoordinator * coordinator = ComponentManager->GetCoordinator();
     if (!coordinator) {
-        SFLOG_ERROR  << "Failed to get coordinator in this process";
+        SCLOG_ERROR  << "Failed to get coordinator in this process";
         return false;
     }
 
@@ -274,11 +274,11 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
     // MJ TODO: Run system for a few minutes, collect experimental data,
     // and determine variance of period with upper/lower limits and thresholds.
     if (!coordinator->AddMonitorTarget(monitor)) {
-        SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-        SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
+        SCLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
+        SCLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully added monitor target: " << *monitor << std::endl;
+    SCLOG_INFO << "Successfully added monitor target: " << *monitor << std::endl;
 
     // Install monitor for execution time (user)
     monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_USER,
@@ -288,11 +288,11 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
                                frequency);
 
     if (!coordinator->AddMonitorTarget(monitor)) {
-        SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-        SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
+        SCLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
+        SCLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully added monitor target: " << *monitor << std::endl;
+    SCLOG_INFO << "Successfully added monitor target: " << *monitor << std::endl;
 
     // Install monitor for execution time (total)
     monitor = new cisstMonitor(Monitor::TARGET_THREAD_DUTYCYCLE_TOTAL,
@@ -302,15 +302,15 @@ bool InstallMonitor(const std::string & targetComponentName, unsigned int freque
                                frequency);
 
     if (!coordinator->AddMonitorTarget(monitor)) {
-        SFLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
-        SFLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
+        SCLOG_ERROR << "Failed to add new monitor target for component \"" << targetComponentName << "\"" << std::endl;
+        SCLOG_ERROR << "JSON: " << monitor->GetMonitorJSON() << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully added monitor target: " << *monitor << std::endl;
+    SCLOG_INFO << "Successfully added monitor target: " << *monitor << std::endl;
 #else
-    const std::string jsonFileName(SF_SOURCE_ROOT_DIR"/examples/monitor/monitor.json");
+    const std::string jsonFileName(SC_SOURCE_ROOT_DIR"/examples/monitor/monitor.json");
     if (!coordinator->AddMonitorTargetFromJSONFile(jsonFileName)) {
-        SFLOG_ERROR << "Failed to install monitoring target file: \"" << jsonFileName << "\"" << std::endl;
+        SCLOG_ERROR << "Failed to install monitoring target file: \"" << jsonFileName << "\"" << std::endl;
         return false;
     }
 #endif

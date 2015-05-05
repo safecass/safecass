@@ -18,9 +18,9 @@
 #include "common.h"
 #include "json.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT EventLocationBase
+class SCLIB_EXPORT EventLocationBase
 {
 protected:
     //! Middleware independent fields

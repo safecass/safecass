@@ -13,18 +13,18 @@
 //
 #include "cisstAccessor.h"
 
-using namespace SF;
+using namespace SC;
 
 cisstAccessor::cisstAccessor(bool enablePublisherControl,  bool enablePublisherData,
                              bool enableSubscriberControl, bool enableSubscriberData,
-                             SF::SFCallback * cbSubscriberControl,
-                             SF::SFCallback * cbSubscriberData)
+                             SC::SCCallback * cbSubscriberControl,
+                             SC::SCCallback * cbSubscriberData)
 
 {
-    Enabled[PUBLISHER][SF::Topic::CONTROL]  = enablePublisherControl;
-    Enabled[PUBLISHER][SF::Topic::DATA]     = enablePublisherData;
-    Enabled[SUBSCRIBER][SF::Topic::CONTROL] = enableSubscriberControl;
-    Enabled[SUBSCRIBER][SF::Topic::DATA]    = enableSubscriberData;
+    Enabled[PUBLISHER][SC::Topic::CONTROL]  = enablePublisherControl;
+    Enabled[PUBLISHER][SC::Topic::DATA]     = enablePublisherData;
+    Enabled[SUBSCRIBER][SC::Topic::CONTROL] = enableSubscriberControl;
+    Enabled[SUBSCRIBER][SC::Topic::DATA]    = enableSubscriberData;
 
     // sanity check
     if (enableSubscriberControl && !cbSubscriberControl)
@@ -33,7 +33,7 @@ cisstAccessor::cisstAccessor(bool enablePublisherControl,  bool enablePublisherD
         cmnThrow("cisstAccessor: callback for DATA subscriber is null.");
 
 #define INIT_PUBLISHER(_instance, _topic)\
-    Publishers._instance = new SF::Publisher(_topic);\
+    Publishers._instance = new SC::Publisher(_topic);\
     if (!Publishers._instance->Startup()) {\
         std::stringstream ss;\
         ss << "cisstAccessor: Failed to initialize publisher for topic \""\
@@ -42,30 +42,30 @@ cisstAccessor::cisstAccessor(bool enablePublisherControl,  bool enablePublisherD
     }
 
     if (enablePublisherControl) {
-        INIT_PUBLISHER(Control, SF::Dict::TopicNames::CONTROL);
+        INIT_PUBLISHER(Control, SC::Dict::TopicNames::CONTROL);
     }
     if (enablePublisherData) {
-        INIT_PUBLISHER(Data, SF::Dict::TopicNames::DATA);
+        INIT_PUBLISHER(Data, SC::Dict::TopicNames::DATA);
     }
 #undef INIT_PUBLISHER
 
 #define INIT_SUBSCRIBER(_index, _instance, _topic, _callback)\
-    Subscribers._instance = new SF::Subscriber(_topic, _callback);\
+    Subscribers._instance = new SC::Subscriber(_topic, _callback);\
     ThreadSubscribers[_index].Thread.Create<cisstAccessor, unsigned int>(this, &cisstAccessor::StartSubscriber, _index);\
     ThreadSubscribers[_index].ThreadEventBegin.Wait();
 
     if (enableSubscriberControl) {
         SubscriberCallbacks.Control = cbSubscriberControl;
-        INIT_SUBSCRIBER(SF::Topic::CONTROL, 
+        INIT_SUBSCRIBER(SC::Topic::CONTROL, 
                         Control, 
-                        SF::Dict::TopicNames::CONTROL, 
+                        SC::Dict::TopicNames::CONTROL, 
                         SubscriberCallbacks.Control);
     }
     if (enableSubscriberData) {
         SubscriberCallbacks.Data = cbSubscriberData;
-        INIT_SUBSCRIBER(SF::Topic::DATA,
+        INIT_SUBSCRIBER(SC::Topic::DATA,
                         Data,
-                        SF::Dict::TopicNames::DATA,
+                        SC::Dict::TopicNames::DATA,
                         SubscriberCallbacks.Data);
     }
 #undef INIT_SUBSCRIBER
@@ -91,12 +91,12 @@ cisstAccessor::~cisstAccessor()
 
 void * cisstAccessor::StartSubscriber(unsigned int idx)
 {
-    SFASSERT(0 <= idx && idx < SF::Topic::TOTAL_TOPIC_COUNT);
+    SCASSERT(0 <= idx && idx < SC::Topic::TOTAL_TOPIC_COUNT);
 
     ThreadSubscribers[idx].Running = true;
     ThreadSubscribers[idx].ThreadEventBegin.Raise();
 
-    SF::Subscriber * sub = ((idx == SF::Topic::CONTROL) ? Subscribers.Control : Subscribers.Data);
+    SC::Subscriber * sub = ((idx == SC::Topic::CONTROL) ? Subscribers.Control : Subscribers.Data);
     try {
         sub->Startup();
         while (ThreadSubscribers[idx].Running)
@@ -116,51 +116,51 @@ void * cisstAccessor::StartSubscriber(unsigned int idx)
 
 void cisstAccessor::StopSubscriber(void)
 {
-    if (Subscribers.Control && ThreadSubscribers[SF::Topic::CONTROL].Running) {
-        ThreadSubscribers[SF::Topic::CONTROL].Running = false;
+    if (Subscribers.Control && ThreadSubscribers[SC::Topic::CONTROL].Running) {
+        ThreadSubscribers[SC::Topic::CONTROL].Running = false;
         // Terminating subscriber needs to call shutdown() on the Ice cisstAccessor
         Subscribers.Control->Stop();
-        ThreadSubscribers[SF::Topic::CONTROL].ThreadEventEnd.Wait();
+        ThreadSubscribers[SC::Topic::CONTROL].ThreadEventEnd.Wait();
     }
 
-    if (Subscribers.Data && ThreadSubscribers[SF::Topic::DATA].Running) {
-        ThreadSubscribers[SF::Topic::DATA].Running = false;
+    if (Subscribers.Data && ThreadSubscribers[SC::Topic::DATA].Running) {
+        ThreadSubscribers[SC::Topic::DATA].Running = false;
         // Terminating subscriber needs to call shutdown() on the Ice cisstAccessor
         Subscribers.Data->Stop();
-        ThreadSubscribers[SF::Topic::DATA].ThreadEventEnd.Wait();
+        ThreadSubscribers[SC::Topic::DATA].ThreadEventEnd.Wait();
     }
 }
 
-SF::Publisher * cisstAccessor::GetPublisher(SF::Topic::Type topicType) const
+SC::Publisher * cisstAccessor::GetPublisher(SC::Topic::Type topicType) const
 {
     switch (topicType) {
-    case SF::Topic::CONTROL:
+    case SC::Topic::CONTROL:
         return Publishers.Control;
-    case SF::Topic::DATA:
+    case SC::Topic::DATA:
         return Publishers.Data;
     default:
         return 0;
     }
 }
 
-SF::Subscriber * cisstAccessor::GetSubscriber(SF::Topic::Type topicType) const
+SC::Subscriber * cisstAccessor::GetSubscriber(SC::Topic::Type topicType) const
 {
     switch (topicType) {
-    case SF::Topic::CONTROL:
+    case SC::Topic::CONTROL:
         return Subscribers.Control;
-    case SF::Topic::DATA:
+    case SC::Topic::DATA:
         return Subscribers.Data;
     default:
         return 0;
     }
 }
 
-SF::SFCallback * cisstAccessor::GetSubscriberCallback(SF::Topic::Type topicType) const
+SC::SCCallback * cisstAccessor::GetSubscriberCallback(SC::Topic::Type topicType) const
 {
     switch (topicType) {
-    case SF::Topic::CONTROL:
+    case SC::Topic::CONTROL:
         return SubscriberCallbacks.Control;
-    case SF::Topic::DATA:
+    case SC::Topic::DATA:
         return SubscriberCallbacks.Data;
     default:
         return 0;

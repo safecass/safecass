@@ -25,12 +25,12 @@ supervisorQtComponent::supervisorQtComponent(const std::string & componentName):
     supervisorWidget.setupUi(&CentralWidget);
 
     std::stringstream url;
-    url << "file://" << SF_SOURCE_ROOT_DIR << "/programs/supervisor/Qt/html/cubism/period.html";
+    url << "file://" << SC_SOURCE_ROOT_DIR << "/programs/supervisor/Qt/html/cubism/period.html";
     QUrl startURL = QUrl(url.str().c_str());
     supervisorWidget.webViewMonitor->setUrl(startURL);
 
     url.str("");
-    url << "file://" << SF_SOURCE_ROOT_DIR << "/programs/supervisor/Qt/html/states.html";
+    url << "file://" << SC_SOURCE_ROOT_DIR << "/programs/supervisor/Qt/html/states.html";
     startURL = QUrl(url.str().c_str());
     supervisorWidget.webViewMonitorState->setUrl(startURL);
 

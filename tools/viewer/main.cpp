@@ -17,7 +17,7 @@
 #include "accessor.h"
 #include "viewerQtComponent.h"
 
-using namespace SF;
+using namespace SC;
 
 const std::string GetColorCodeForState(unsigned int state);
 

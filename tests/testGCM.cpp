@@ -17,32 +17,32 @@
 #include <cisstOSAbstraction/osaSleep.h>
 #include <cisstMultiTask/mtsManagerLocal.h>
 
-using namespace SF;
+using namespace SC;
 
-SFGCMTest::SFGCMTest(void)
+SCGCMTest::SCGCMTest(void)
 {
     // test registration
-    TEST_ADD(SFGCMTest::TestInitialStates);
-    TEST_ADD(SFGCMTest::TestFilterInstalled);
-    TEST_ADD(SFGCMTest::TestEventPropagation);
+    TEST_ADD(SCGCMTest::TestInitialStates);
+    TEST_ADD(SCGCMTest::TestFilterInstalled);
+    TEST_ADD(SCGCMTest::TestEventPropagation);
 
     GCMHelper::cisstInit();
 }
 
-SFGCMTest::~SFGCMTest(void)
+SCGCMTest::~SCGCMTest(void)
 {
     GCMHelper::cisstCleanup();
 }
 
-void SFGCMTest::setup()
+void SCGCMTest::setup()
 {
 }
 
-void SFGCMTest::tear_down()
+void SCGCMTest::tear_down()
 {
 }
 
-void SFGCMTest::TestInitialStates(void)
+void SCGCMTest::TestInitialStates(void)
 {
     // 1. Check initial states of all states (components, interfaces)
     mtsComponent * component;
@@ -51,9 +51,9 @@ void SFGCMTest::TestInitialStates(void)
     // Workflow component
     {
         component = GCMHelper::Workflow;
-        SFASSERT(component);
+        SCASSERT(component);
         gcm = component->GCMInstance;
-        SFASSERT(gcm);
+        SCASSERT(gcm);
 
         // component states
         TEST_ASSERT(gcm->GetComponentState(GCM::SYSTEM_VIEW)      == State::NORMAL);
@@ -66,9 +66,9 @@ void SFGCMTest::TestInitialStates(void)
     // Control component
     {
         component = GCMHelper::Control;
-        SFASSERT(component);
+        SCASSERT(component);
         gcm = component->GCMInstance;
-        SFASSERT(gcm);
+        SCASSERT(gcm);
 
         // component states
         TEST_ASSERT(gcm->GetComponentState(GCM::SYSTEM_VIEW)      == State::NORMAL);
@@ -82,9 +82,9 @@ void SFGCMTest::TestInitialStates(void)
     // ForceSensor component
     {
         component = GCMHelper::ForceSensor;
-        SFASSERT(component);
+        SCASSERT(component);
         gcm = component->GCMInstance;
-        SFASSERT(gcm);
+        SCASSERT(gcm);
 
         // component states
         TEST_ASSERT(gcm->GetComponentState(GCM::SYSTEM_VIEW)      == State::NORMAL);
@@ -95,7 +95,7 @@ void SFGCMTest::TestInitialStates(void)
     }
 }
 
-void SFGCMTest::TestFilterInstalled(void)
+void SCGCMTest::TestFilterInstalled(void)
 {
     // Check if framework filters are installed properly
     // 1. f_{F}^{1} : exception filter
@@ -105,7 +105,7 @@ void SFGCMTest::TestFilterInstalled(void)
     // TODO: install app-specific filters
 }
 
-void SFGCMTest::TestEventPropagation(void)
+void SCGCMTest::TestEventPropagation(void)
 {
     // TODO: change each state one by one and see if relevant state changes occur.
 

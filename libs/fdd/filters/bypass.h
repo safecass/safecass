@@ -17,7 +17,7 @@
 #include "filterBase.h"
 #include "event.h"
 
-namespace SF {
+namespace SC {
 
 /* 
    Bypass Filter
@@ -28,7 +28,7 @@ namespace SF {
     Y is determined by the type of X.
 */
 
-class SFLIB_EXPORT FilterBypass : public FilterBase
+class SCLIB_EXPORT FilterBypass : public FilterBase
 {
 protected:
     // Filter should be instantiated with explicit arguments
@@ -72,7 +72,7 @@ public:
     void ToStream(std::ostream & outputStream, bool verbose = false) const;
 
     //! For filter factory
-    SF_DEFINE_FACTORY_CREATE(FilterBypass);
+    SC_DEFINE_FACTORY_CREATE(FilterBypass);
 };
 
 };

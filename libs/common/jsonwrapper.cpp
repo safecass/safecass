@@ -16,7 +16,7 @@
 #include <fstream>
 #include <sstream>
 
-using namespace SF;
+using namespace SC;
 
 JsonWrapper::JsonWrapper(void): _JsonValue(0), _JsonReader(0)
 {

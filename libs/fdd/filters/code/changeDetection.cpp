@@ -15,9 +15,9 @@
 #include "filterFactory.h"
 #include "dict.h"
 
-using namespace SF;
+using namespace SC;
 
-SF_IMPLEMENT_FACTORY(FilterChangeDetection);
+SC_IMPLEMENT_FACTORY(FilterChangeDetection);
 
 FilterChangeDetection::FilterChangeDetection(void)
 {
@@ -51,10 +51,10 @@ FilterChangeDetection::~FilterChangeDetection()
 void FilterChangeDetection::Initialize(void)
 {
     // filters that casros provides do not need this; this is only for user-defined filters.
-    //SF_REGISTER_FILTER_TO_FACTORY(FilterChangeDetection);
+    //SC_REGISTER_FILTER_TO_FACTORY(FilterChangeDetection);
 
     // Define inputs
-    SFASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
+    SCASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
 
     // Define outputs
     const std::string outputSignalName(
@@ -62,7 +62,7 @@ void FilterChangeDetection::Initialize(void)
                                        FilterChangeDetection::Name,
                                        this->UID,
                                        0));
-    SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
+    SCASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 }
 
 bool FilterChangeDetection::ConfigureFilter(const JSON::JSONVALUE & jsonNode)

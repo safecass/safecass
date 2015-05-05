@@ -14,7 +14,7 @@
 #include "signal.h"
 #include "historyBufferBase.h"
 
-using namespace SF;
+using namespace SC;
 
 const SignalElement::HistoryBufferIndexType SignalElement::INVALID_HISTORY_BUFFER_INDEX = -1;
 
@@ -68,7 +68,7 @@ void SignalElement::SetHistoryBufferInstance(HistoryBufferBase * buffer)
 bool SignalElement::FetchNewValueScalar(bool activeFiltering)
 {
     if (!HistoryBuffer) {
-        SFLOG_ERROR << "FetchNewValueScalar: Failed to fetch new value - NULL history buffer" << std::endl;
+        SCLOG_ERROR << "FetchNewValueScalar: Failed to fetch new value - NULL history buffer" << std::endl;
         PlaceholderScalar = 0.0;
         TimeLastSampleFetched = 0.0;
         return false;
@@ -89,7 +89,7 @@ bool SignalElement::FetchNewValueScalar(bool activeFiltering)
 bool SignalElement::FetchNewValueVector(bool activeFiltering)
 {
     if (!HistoryBuffer) {
-        SFLOG_ERROR << "FetchNewValueVector: Failed to fetch new value - NULL history buffer" << std::endl;
+        SCLOG_ERROR << "FetchNewValueVector: Failed to fetch new value - NULL history buffer" << std::endl;
         PlaceholderVector.clear();
         TimeLastSampleFetched = 0.0;
         return false;
@@ -123,12 +123,12 @@ void SignalElement::ToStream(std::ostream & outputStream) const
 
 void SignalElement::PushNewValueScalar(ScalarType value)
 {
-    SFASSERT(HistoryBuffer);
+    SCASSERT(HistoryBuffer);
     HistoryBuffer->PushNewValueScalar(HistoryBufferIndex, value);
 }
 
 void SignalElement::PushNewValueVector(const VectorType & value)
 {
-    SFASSERT(HistoryBuffer);
+    SCASSERT(HistoryBuffer);
     HistoryBuffer->PushNewValueVector(HistoryBufferIndex, value);
 }

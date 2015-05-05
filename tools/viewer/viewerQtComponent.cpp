@@ -43,7 +43,7 @@ viewerQtComponent::viewerQtComponent(const std::string & componentName):
     viewerWidget.setupUi(&CentralWidget);
 
     std::stringstream url;
-    url << "file://" << SF_SOURCE_ROOT_DIR << "/tools/viewer/wheel.html";
+    url << "file://" << SC_SOURCE_ROOT_DIR << "/tools/viewer/wheel.html";
     std::cout << url.str() << std::endl;
     QUrl startURL = QUrl(url.str().c_str());
     viewerWidget.webView->setUrl(startURL);

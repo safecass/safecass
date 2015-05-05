@@ -62,8 +62,8 @@ void handler_filter_info(const std::string & safetyCoordinatorName,
 }
 
 void handler_filter_inject(const std::string & safetyCoordinatorName,
-                           const SF::FilterBase::FilterIDType fuid,
-                           const SF::DoubleVecType & inputs,
+                           const SC::FilterBase::FilterIDType fuid,
+                           const SC::DoubleVecType & inputs,
                            bool deepInjection)
 {
     CASROS_ACCESSOR_CHECK;
@@ -75,7 +75,7 @@ void handler_filter_inject(const std::string & safetyCoordinatorName,
 }
 
 void handler_filter_inject_load(const std::string & safetyCoordinatorName,
-                                const SF::FilterBase::FilterIDType fuid,
+                                const SC::FilterBase::FilterIDType fuid,
                                 const std::string & fileName)
 {
     CASROS_ACCESSOR_CHECK;
@@ -114,7 +114,7 @@ void handler_filter(const std::vector<std::string> & args)
     const size_t n = args.size();
 
     std::string cmd(args[0]);
-    SF::to_lowercase(cmd);
+    SC::to_lowercase(cmd);
     if (cmd.compare("help") == 0)
         option = HELP;
     else if (cmd.compare("list") == 0)

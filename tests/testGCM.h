@@ -13,14 +13,14 @@
 //
 // Unit tests for the three-component system that SafeComp14 paper describes.
 //
-#ifndef _SFGCMTest_h
-#define _SFGCMTest_h
+#ifndef _SCGCMTest_h
+#define _SCGCMTest_h
 
 #include "cpptest.h"
 
 class mtsManagerLocal;
 
-class SFGCMTest: public Test::Suite 
+class SCGCMTest: public Test::Suite 
 {
 protected:
     /*! Setup for this test suite */
@@ -40,10 +40,10 @@ protected:
 
 public:
     /*! Constructor */
-    SFGCMTest(void);
+    SCGCMTest(void);
 
     /*! Destructor */
-    ~SFGCMTest(void);
+    ~SCGCMTest(void);
 };
 
-#endif // _SFGCMTest_h
+#endif // _SCGCMTest_h

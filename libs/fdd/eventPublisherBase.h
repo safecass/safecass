@@ -17,9 +17,9 @@
 
 #include "filterBase.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT EventPublisherBase
+class SCLIB_EXPORT EventPublisherBase
 {
 protected:
     /*! Filtering type (active or passive) */

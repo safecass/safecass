@@ -13,9 +13,9 @@
 #include "nop.h"
 //#include "filterFactory.h"
 
-using namespace SF;
+using namespace SC;
 
-SF_IMPLEMENT_FACTORY(FilterNOP);
+SC_IMPLEMENT_FACTORY(FilterNOP);
 
 FilterNOP::FilterNOP(void)
     : FilterBase(FilterNOP::Name,    // filter name
@@ -55,7 +55,7 @@ FilterNOP::~FilterNOP()
 
 void FilterNOP::Initialize(void)
 {
-    SFASSERT(this->AddInputSignal(NameOfInputSignal, InputSignalType));
+    SCASSERT(this->AddInputSignal(NameOfInputSignal, InputSignalType));
 
 #if 0
     const std::string outputSignalName(
@@ -63,7 +63,7 @@ void FilterNOP::Initialize(void)
                                        FilterNOP::Name,
                                        this->UID,
                                        0));
-    SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
+    SCASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 #endif
 }
 
@@ -105,7 +105,7 @@ void FilterNOP::RunFilter(void)
 
     // value changes; edge is detected
     double newOutput;
-    SFASSERT(SafetyCoordinator);
+    SCASSERT(SafetyCoordinator);
     if (newInput == 0) {
         // offset event
         const std::string evt = GenerateEventInfo(FilterNOP::OFFSET);

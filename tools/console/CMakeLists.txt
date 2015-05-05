@@ -21,16 +21,16 @@
 # 
 project(console)
 
-if (SF_HAS_CISST)
+if (SC_HAS_CISST)
   set (REQUIRED_CISST_LIBS cisstCommon cisstOSAbstraction)
-  set (REQUIRED_SF_LIBS SFLib)
+  set (REQUIRED_SC_LIBS SCLib)
 
   # find cisst and make sure the required libraries have been compiled
   find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES} QUIET)
   #find_package (Curses REQUIRED QUIET)
 
   if (cisst_FOUND_AS_REQUIRED)
-    include_directories (${SF_LIB_INCLUDE_DIR})
+    include_directories (${SC_LIB_INCLUDE_DIR})
     add_executable (console main_cisst.cpp
                             # casros network accessor
                             accessor.h accessor.cpp
@@ -41,12 +41,12 @@ if (SF_HAS_CISST)
                             cmd_connection.cpp
                             cmd_service.cpp)
     cisst_target_link_libraries(console ${REQUIRED_CISST_LIBS})
-    target_link_libraries (console ${REQUIRED_SF_LIBS} 
-                                   ${SF_LIB_DEPENDENCY_LIBS}
+    target_link_libraries (console ${REQUIRED_SC_LIBS} 
+                                   ${SC_LIB_DEPENDENCY_LIBS}
                                    ${BOOST_LIB_PROGRAM_OPTION}
                                    #ncurses
                                    )
   else ()
     cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
   endif ()
-endif (SF_HAS_CISST)
+endif (SC_HAS_CISST)

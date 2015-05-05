@@ -18,7 +18,7 @@
 
 #include <sstream>
 
-using namespace SF;
+using namespace SC;
 
 cisstMonitor::cisstMonitor(const Monitor::TargetType target,
                            cisstEventLocation *      locationID,
@@ -55,7 +55,7 @@ cisstMonitor::cisstMonitor(const JsonWrapper::JsonValue & jsonNode)
                                eventGeneratorName,
                                eventHandlerName);
 
-    // Replace eventLocationBase instance that base class (SF::Monitor) created
+    // Replace eventLocationBase instance that base class (SC::Monitor) created
     // with cisstEventLocation instance.
     delete this->LocationID;
     this->LocationID = locationID;
@@ -179,9 +179,9 @@ const std::string cisstMonitor::GetJsonForPublish(double sample, double currentT
             break;
         case TARGET_FILTER_EVENT:
             // MJ: Filter events (i.e., faults) are handled separately
-            SFASSERT(false);
+            SCASSERT(false);
             break;
-            // [SFUPDATE]
+            // [SCUPDATE]
         case TARGET_INVALID:
         default:
             break;
@@ -230,8 +230,8 @@ const std::string cisstMonitor::GetJsonForPublishingPeriod(double sample) const
 
     // Populate monitor-specific fields
     ::Json::Value & fields = serializer.GetMonitorFields();
-    fields[SF::Dict::Json::period_expected] = GetSamplingPeriod();
-    fields[SF::Dict::Json::sample] = sample;
+    fields[SC::Dict::Json::period_expected] = GetSamplingPeriod();
+    fields[SC::Dict::Json::sample] = sample;
 
     return serializer.GetJSON();
 } 
@@ -274,8 +274,8 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycleUser(double dutyCyc
 
     // Populate monitor-specific fields
     ::Json::Value & fields = serializer.GetMonitorFields();
-    fields[SF::Dict::Json::period_expected] = GetSamplingPeriod();
-    fields[SF::Dict::Json::sample] = dutyCycle;
+    fields[SC::Dict::Json::period_expected] = GetSamplingPeriod();
+    fields[SC::Dict::Json::sample] = dutyCycle;
 
     return serializer.GetJSON();
 }
@@ -318,8 +318,8 @@ const std::string cisstMonitor::GetJsonForPublishingDutyCycleTotal(double dutyCy
 
     // Populate monitor-specific fields
     ::Json::Value & fields = serializer.GetMonitorFields();
-    fields[SF::Dict::Json::period_expected] = GetSamplingPeriod();
-    fields[SF::Dict::Json::sample] = dutyCycle;
+    fields[SC::Dict::Json::period_expected] = GetSamplingPeriod();
+    fields[SC::Dict::Json::sample] = dutyCycle;
 
     return serializer.GetJSON();
 }

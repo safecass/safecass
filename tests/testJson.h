@@ -11,15 +11,15 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // URL          : https://github.com/minyang/safecass
 //
-#ifndef _SFJSONTest_h
-#define _SFJSONTest_h
+#ifndef _SCJSONTest_h
+#define _SCJSONTest_h
 
 #include "cpptest.h"
 
 #include <iostream>
 #include <sstream>
 
-class SFJsonTest: public Test::Suite
+class SCJsonTest: public Test::Suite
 {
     std::stringstream SampleJSON;
 
@@ -29,8 +29,8 @@ class SFJsonTest: public Test::Suite
     void TestJSONWriteToFile(void);
 
 public:
-    SFJsonTest();
-    ~SFJsonTest() {}
+    SCJsonTest();
+    ~SCJsonTest() {}
 };
 
-#endif // _SFJSONTest_h
+#endif // _SCJSONTest_h

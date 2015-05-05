@@ -32,7 +32,7 @@
 #include <sys/mman.h>
 #endif
 
-using namespace SF;
+using namespace SC;
 
 // Both work fine
 #define USE_MTS_DOUBLE_VEC 0
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     mlockall(MCL_CURRENT|MCL_FUTURE);
 #endif
 
-#if SF_USE_G2LOG
+#if SC_USE_G2LOG
     // Logger setup
     g2LogWorker logger(argv[0], "./");
     g2::initializeLogging(&logger);
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     try {
         ComponentManager = mtsComponentManager::GetInstance();
     } catch (...) {
-        SFLOG_ERROR << "Failed to initialize local component manager" << std::endl;
+        SCLOG_ERROR << "Failed to initialize local component manager" << std::endl;
         return 1;
     }
 
@@ -159,24 +159,24 @@ int main(int argc, char *argv[])
 
     // Create periodic task
     if (!CreatePeriodicThread(componentName, 100 * cmn_ms)) {
-        SFLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
+        SCLOG_ERROR << "Failed to add periodic component \"" << componentName << "\"" << std::endl;
         return 1;
     }
 
     // Install filters
     if (!InstallFilter(componentName)) {
-        SFLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
+        SCLOG_ERROR << "Failed to install monitor for periodic component \"" << componentName << "\"" << std::endl;
         return 1;
     }
     
     // Activate all the monitors and filters installed
     if (ComponentManager->GetCoordinator()) {
         if (!ComponentManager->GetCoordinator()->DeployMonitorsAndFDDs()) {
-            SFLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
+            SCLOG_ERROR << "Failed to deploy monitors and FDDs" << std::endl;
             return 1;
         }
     } else {
-        SFLOG_ERROR  << "Failed to get coordinator in this process";
+        SCLOG_ERROR  << "Failed to get coordinator in this process";
         return 1;
     }
 
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     // Clean up resources
-    SFLOG_INFO << "Cleaning up..." << std::endl;
+    SCLOG_INFO << "Cleaning up..." << std::endl;
 
 #if (CISST_OS != CISST_LINUX_XENOMAI)
     ComponentManager->KillAll();
@@ -217,7 +217,7 @@ bool CreatePeriodicThread(const std::string & componentName, double period)
     // Create periodic thread
     task = new SensorReadingTask(componentName, period);
     if (!ComponentManager->AddComponent(task)) {
-        SFLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
+        SCLOG_ERROR << "Failed to add component \"" << componentName << "\"" << std::endl;
         return false;
     }
 
@@ -228,7 +228,7 @@ bool InstallFilter(const std::string & targetComponentName)
 {
     mtsSafetyCoordinator * coordinator = ComponentManager->GetCoordinator();
     if (!coordinator) {
-        SFLOG_ERROR  << "Failed to get coordinator in this process";
+        SCLOG_ERROR  << "Failed to get coordinator in this process";
         return false;
     }
 
@@ -237,74 +237,74 @@ bool InstallFilter(const std::string & targetComponentName)
     //
     // Create trend velocity filter for scalar with active filtering
 #if 1
-    SF::FilterTrendVel * filterTrendVelScalar = 
+    SC::FilterTrendVel * filterTrendVelScalar = 
         new FilterTrendVel(// Common arguments
-                           SF::FilterBase::FEATURE, // filter category
+                           SC::FilterBase::FEATURE, // filter category
                            targetComponentName,     // name of target component
-                           SF::FilterBase::ACTIVE,  // monitoring type
+                           SC::FilterBase::ACTIVE,  // monitoring type
                            // Arguments specific to this filter
                            "Force",                   // name of input signal: name of state vector
-                           SF::SignalElement::SCALAR, // input signal type
+                           SC::SignalElement::SCALAR, // input signal type
                            false);                    // time scaling
     // Enable debug log
     filterTrendVelScalar->EnableDebugLog(true);
 
     // Install filter to the target component
     if (!coordinator->AddFilter(filterTrendVelScalar)) {
-        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar->GetFilterName() << "\""
+        SCLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar->GetFilterName() << "\"" << std::endl;
+    SCLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar->GetFilterName() << "\"" << std::endl;
     std::cout << *filterTrendVelScalar << std::endl;
 #endif
 
     // If two trend velocity filters are cascaded into a filter pipeline, the pipeline 
     // acts as a trend accelerometer filter.
 #if 0
-    SF::FilterTrendVel * filterTrendVelScalar2 = 
+    SC::FilterTrendVel * filterTrendVelScalar2 = 
         new FilterTrendVel(// Common arguments
-                           SF::FilterBase::FEATURE_VECTOR, // filter category
+                           SC::FilterBase::FEATURE_VECTOR, // filter category
                            targetComponentName,     // name of target component
-                           SF::FilterBase::ACTIVE,  // monitoring type
+                           SC::FilterBase::ACTIVE,  // monitoring type
                            // Arguments specific to this filter
                            filterTrendVelScalar->GetOutputSignalName(0),
-                           SF::SignalElement::SCALAR, // input signal type
+                           SC::SignalElement::SCALAR, // input signal type
                            false);                    // time scaling
     // Enable debug log
     filterTrendVelScalar2->EnableDebugLog(true);
 
     // Install filter to the target component
     if (!coordinator->AddFilter(filterTrendVelScalar2)) {
-        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar2->GetFilterName() << "\""
+        SCLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar2->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar2->GetFilterName() << "\"" << std::endl;
+    SCLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar2->GetFilterName() << "\"" << std::endl;
     std::cout << *filterTrendVelScalar2 << std::endl;
 #endif
 
     // Create trend velocity filter for vector with active filtering
 #if 0
-    SF::FilterTrendVel * filterTrendVelVector = 
+    SC::FilterTrendVel * filterTrendVelVector = 
         new FilterTrendVel(// Common arguments
-                           SF::FilterBase::FEATURE, // filter category
+                           SC::FilterBase::FEATURE, // filter category
                            targetComponentName,     // name of target component
-                           SF::FilterBase::ACTIVE,  // monitoring type
+                           SC::FilterBase::ACTIVE,  // monitoring type
                            // Arguments specific to this filter
                            "ForceReadings",           // name of input signal: name of state vector
-                           SF::SignalElement::VECTOR, // input signal type
+                           SC::SignalElement::VECTOR, // input signal type
                            false);                     // time scaling
     // Enable debug log
     filterTrendVelVector->EnableDebugLog(true);
 
     // Install filter to the target component
     if (!coordinator->AddFilter(filterTrendVelVector)) {
-        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelVector->GetFilterName() << "\""
+        SCLOG_ERROR << "Failed to add filter \"" << filterTrendVelVector->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelVector->GetFilterName() << "\"" << std::endl;
+    SCLOG_INFO << "Successfully installed filter: \"" << filterTrendVelVector->GetFilterName() << "\"" << std::endl;
     std::cout << *filterTrendVelVector << std::endl;
 #endif
 

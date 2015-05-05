@@ -21,21 +21,21 @@
 // import build tree configurations
 #include "config.h"
 // for dynamic library support
-#include "SFDLLDefines.h"
+#include "SCDLLDefines.h"
 
-#if SF_USE_G2LOG
+#if SC_USE_G2LOG
   #include "g2logworker.h"
   #include "g2log.h"
   #include <iomanip>
 #endif
 
-#if SF_HAS_CISST
+#if SC_HAS_CISST
   #include <cisstCommon/cmnPortability.h>
   #include <cisstCommon/cmnLogger.h>
   #include <cisstCommon/cmnAssert.h>
 #endif
 
-namespace SF {
+namespace SC {
 
 //--------------------------------------------------
 //  Common type definitions
@@ -57,7 +57,7 @@ StrVecType GetMiddlewareInfo(void);
 void GetMiddlewareInfo(StrVecType & info);
 
 /*! Get information about cisst detected */
-#if SF_HAS_CISST
+#if SC_HAS_CISST
 std::string GetCISSTInfo(void);
 #endif
 
@@ -65,7 +65,7 @@ std::string GetCISSTInfo(void);
 
 //! Macro to suppress unused parameter warnings
 /*
-#if SF_ON_WINDOWS
+#if SC_ON_WINDOWS
   #define UNUSED(argument) MARKED_AS_UNUSED ## argument
 #else // for gcc or clang compiler
   #define UNUSED(argument) MARKED_AS_UNUSED ## argument __attribute__((unused))
@@ -74,7 +74,7 @@ std::string GetCISSTInfo(void);
 #ifndef UNUSED
 #if defined(__GNUC__) || defined(__clang__)
     #define UNUSED(arg) UNUSED_##arg __attribute__((unused))
-#elif SF_ON_WINDOWS
+#elif SC_ON_WINDOWS
     #define UNUSED(arg) UNUSED_##arg
 #endif
 #endif // UNUSED
@@ -83,30 +83,30 @@ std::string GetCISSTInfo(void);
 //  Common macro definitions
 //--------------------------------------------------
 // Logger macros
-#if SF_USE_G2LOG
-  #define SFLOG_INFO    LOG(INFO)
-  #define SFLOG_DEBUG   LOG(DEBUG)
-  #define SFLOG_WARNING LOG(WARNING)
-  #define SFLOG_ERROR   LOG(WARNING)
-  #define SFLOG_FATAL   LOG(FATAL)
+#if SC_USE_G2LOG
+  #define SCLOG_INFO    LOG(INFO)
+  #define SCLOG_DEBUG   LOG(DEBUG)
+  #define SCLOG_WARNING LOG(WARNING)
+  #define SCLOG_ERROR   LOG(WARNING)
+  #define SCLOG_FATAL   LOG(FATAL)
 #else
-  #if SF_HAS_CISST
-    #define SFLOG_INFO    CMN_LOG_RUN_VERBOSE
-    #define SFLOG_DEBUG   CMN_LOG_RUN_DEBUG
-    #define SFLOG_WARNING CMN_LOG_RUN_WARNING << __FILE__ << ":" << __LINE__ << " "
-    #define SFLOG_ERROR   CMN_LOG_RUN_ERROR << __FILE__ << ":" << __LINE__ << " "
-    #define SFLOG_FATAL   CMN_LOG_INIT_ERROR << __FILE__ << ":" << __LINE__ << " "
+  #if SC_HAS_CISST
+    #define SCLOG_INFO    CMN_LOG_RUN_VERBOSE
+    #define SCLOG_DEBUG   CMN_LOG_RUN_DEBUG
+    #define SCLOG_WARNING CMN_LOG_RUN_WARNING << __FILE__ << ":" << __LINE__ << " "
+    #define SCLOG_ERROR   CMN_LOG_RUN_ERROR << __FILE__ << ":" << __LINE__ << " "
+    #define SCLOG_FATAL   CMN_LOG_INIT_ERROR << __FILE__ << ":" << __LINE__ << " "
   #else
-    #define SFLOG_INFO    std::cout << "INFO   : "
-    #define SFLOG_DEBUG   std::cout << "DEBUG  : "
-    #define SFLOG_WARNING std::cout << "WARNING: "
-    #define SFLOG_ERROR   std::cout << "ERROR  : "
-    #define SFLOG_FATAL   std::cout << "FATAL  : "
-  #endif // SF_HAS_CISST
+    #define SCLOG_INFO    std::cout << "INFO   : "
+    #define SCLOG_DEBUG   std::cout << "DEBUG  : "
+    #define SCLOG_WARNING std::cout << "WARNING: "
+    #define SCLOG_ERROR   std::cout << "ERROR  : "
+    #define SCLOG_FATAL   std::cout << "FATAL  : "
+  #endif // SC_HAS_CISST
 #endif
 
 // Assertion macro
-#if SF_USE_G2LOG
+#if SC_USE_G2LOG
   /* G2LOG CHECK macro usage examples:
      (from http://www.codeproject.com/Articles/288827/g2log-An-efficient-asynchronous-logger-using-Cplus#TOC_design_by_contract)
 
@@ -116,19 +116,19 @@ std::string GetCISSTInfo(void);
      const std::string arg = "CHECKF";
      CHECKF(1 > 2, "This is a test to see if %s works", arg.c_str());
   */
-  #define SFASSERT CHECK
+  #define SCASSERT CHECK
 #else
-  #if SF_HAS_CISST
-    #define SFASSERT CMN_ASSERT
+  #if SC_HAS_CISST
+    #define SCASSERT CMN_ASSERT
   #else
     #include <assert.h>
-    #define SFASSERT assert
+    #define SCASSERT assert
   #endif
 #endif
 };
 
 // Throw macro
-#define SFTHROW(_msg) throw(std::runtime_error(std::string(_msg)));
+#define SCTHROW(_msg) throw(std::runtime_error(std::string(_msg)));
 
 //--------------------------------------------------
 //  Common macro definitions
@@ -142,19 +142,19 @@ std::string GetCISSTInfo(void);
 
 // Define which middleware is active
 #if 0
-#define SF_PACKAGE_CISST  0
-#define SF_PACKAGE_ROS    1
-#define SF_PACKAGE_OROCOS 2
+#define SC_PACKAGE_CISST  0
+#define SC_PACKAGE_ROS    1
+#define SC_PACKAGE_OROCOS 2
 
-#if SF_HAS_CISST
-    #define SF_PACKAGE SF_PACKAGE_CISST
+#if SC_HAS_CISST
+    #define SC_PACKAGE SC_PACKAGE_CISST
 #endif
-#ifdef SF_HAS_ROS
-    #undef SF_PACKAGE
-    #define SF_PACKAGE SF_PACKAGE_ROS
+#ifdef SC_HAS_ROS
+    #undef SC_PACKAGE
+    #define SC_PACKAGE SC_PACKAGE_ROS
 #endif
-#ifdef SF_HAS_OROCOS
-    #undef SF_PACKAGE
-    #define SF_PACKAGE SF_PACKAGE_OROCOS
+#ifdef SC_HAS_OROCOS
+    #undef SC_PACKAGE
+    #define SC_PACKAGE SC_PACKAGE_OROCOS
 #endif
 #endif

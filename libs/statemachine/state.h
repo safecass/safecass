@@ -27,9 +27,9 @@
 
 #define TOTAL_NUMBER_OF_STATES 3
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT State
+class SCLIB_EXPORT State
 {
 public:
     /*! States */
@@ -143,6 +143,6 @@ public:
 };
 
 
-}; // SF
+}; // SC
 
 #endif // _state_h

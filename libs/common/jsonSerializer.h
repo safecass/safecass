@@ -18,25 +18,25 @@
 #include "event.h"
 #include "filterBase.h"
 #include "topic_def.h"
-#if SF_HAS_CISST
+#if SC_HAS_CISST
 #include "cisstEventLocation.h"
 #else
 #include "eventLocation.h"
 #endif
 
-namespace SF {
+namespace SC {
 
 //! JSON serializer and deserializer
 /** 
     JSONSerializer implements serialization and deserialization of JSON messages
     for data exchange within SAFECASS.
 */
-class SFLIB_EXPORT JSONSerializer {
+class SCLIB_EXPORT JSONSerializer {
 protected:
     //! JSON value buffer
     JsonWrapper::JsonValue JSONBuffer;
 
-#if SF_HAS_CISST
+#if SC_HAS_CISST
     cisstEventLocation EventLocation;
 #else
     EventLocationBase  EventLocation;
@@ -63,7 +63,7 @@ public:
     /** @{ */
     FilterBase::FilterIDType  GetFilterUID(void) const;
     Topic::Type               GetTopicType(void) const;
-#if SF_HAS_CISST
+#if SC_HAS_CISST
     const cisstEventLocation & GetEventLocation(void) const;
 #else
     const EventLocationBase & GetEventLocation(void) const;
@@ -105,7 +105,7 @@ public:
     //! Event::Type
     //Event::EventType  GetEventType(void) const;
     //JsonWrapper::JsonValue & GetEventSpecificJson(void);
-    //void SetEvent(const SF::Event & event);
+    //void SetEvent(const SC::Event & event);
     //void SetEventType(Event::EventType eventType);
     //void SetEventName(const std::string & name);
     /** @} */

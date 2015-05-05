@@ -18,9 +18,9 @@
 
 #include <messages.h>
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT Publisher: public BaseIce {
+class SCLIB_EXPORT Publisher: public BaseIce {
 private:
     /*! Default constructor should not be used */
     Publisher(void);

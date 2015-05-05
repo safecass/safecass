@@ -17,9 +17,9 @@
 
 #include "eventLocationBase.h"
 
-namespace SF {
+namespace SC {
 
-class SFLIB_EXPORT cisstEventLocation: public EventLocationBase {
+class SCLIB_EXPORT cisstEventLocation: public EventLocationBase {
 protected:
     // Middleware-specific fields
     std::string CommandName;

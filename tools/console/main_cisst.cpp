@@ -19,7 +19,7 @@
 
 namespace po = boost::program_options;
 
-using namespace SF;
+using namespace SC;
 
 //
 // command handlers
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     // TODO: if argc = 1, interactive mode; argc >= 2, one-time execution of input commands
     // TODO: connect to icebox
 
-#if SF_USE_G2LOG
+#if SC_USE_G2LOG
     // Logger setup
     g2LogWorker logger(argv[0], "./");
     g2::initializeLogging(&logger);

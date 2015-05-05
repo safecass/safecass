@@ -19,11 +19,11 @@
 #include "common.h"
 #include "common/utils.h" // to prevent naming conflict with other packages
 
-namespace SF {
+namespace SC {
 
 class HistoryBufferBase;
 
-class SFLIB_EXPORT SignalElement {
+class SCLIB_EXPORT SignalElement {
 
 public:
     /*! Typedef for scalar and vector types */

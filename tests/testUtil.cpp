@@ -14,39 +14,39 @@
 #include "testUtil.h"
 #include "utils.h"
 
-using namespace SF;
+using namespace SC;
 
-SFUtilTest::SFUtilTest(void)
+SCUtilTest::SCUtilTest(void)
 {
     // test registration
-    TEST_ADD(SFUtilTest::TestGetUTCTimeString);
+    TEST_ADD(SCUtilTest::TestGetUTCTimeString);
 }
 
-SFUtilTest::~SFUtilTest(void)
+SCUtilTest::~SCUtilTest(void)
 {
 }
 
-void SFUtilTest::setup()
+void SCUtilTest::setup()
 {
 }
 
-void SFUtilTest::tear_down()
+void SCUtilTest::tear_down()
 {
 }
 
-void SFUtilTest::TestGetUTCTimeString(void)
+void SCUtilTest::TestGetUTCTimeString(void)
 {
     //GMT: March 23, 2015 11:33:29 GMT
     //EDT: March 23, 2015 7:33:29 AM EDT GMT-4:00 DST
     double tick = 1427110409.0;
     std::string expected = "2015-03-23T11:33:29.000Z";
-    TEST_ASSERT(expected.compare(SF::GetUTCTimeString(tick)) == 0);
+    TEST_ASSERT(expected.compare(SC::GetUTCTimeString(tick)) == 0);
 
     tick = 1427110409.123;
     expected = "2015-03-23T11:33:29.123Z";
-    TEST_ASSERT(expected.compare(SF::GetUTCTimeString(tick)) == 0);
+    TEST_ASSERT(expected.compare(SC::GetUTCTimeString(tick)) == 0);
 
     tick = 1427110409.678;
     expected = "2015-03-23T11:33:29.678Z";
-    TEST_ASSERT(expected.compare(SF::GetUTCTimeString(tick)) == 0);
+    TEST_ASSERT(expected.compare(SC::GetUTCTimeString(tick)) == 0);
 }

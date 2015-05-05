@@ -13,12 +13,12 @@
 //
 // Unit tests for utilities.
 //
-#ifndef _SFUtilTest_h
-#define _SFUtilTest_h
+#ifndef _SCUtilTest_h
+#define _SCUtilTest_h
 
 #include "cpptest.h"
 
-class SFUtilTest: public Test::Suite 
+class SCUtilTest: public Test::Suite 
 {
 protected:
     /*! Setup for this test suite */
@@ -32,10 +32,10 @@ protected:
 
 public:
     /*! Constructor */
-    SFUtilTest(void);
+    SCUtilTest(void);
 
     /*! Destructor */
-    ~SFUtilTest(void);
+    ~SCUtilTest(void);
 };
 
-#endif // _SFGCMTest_h
+#endif // _SCGCMTest_h

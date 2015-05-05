@@ -17,9 +17,9 @@
 #include "coordinator.h"
 #include "utils.h" // GetCurrentTimeTick
 
-using namespace SF;
+using namespace SC;
 
-SF_IMPLEMENT_FACTORY(FilterOnOff);
+SC_IMPLEMENT_FACTORY(FilterOnOff);
 
 FilterOnOff::FilterOnOff(void)
     : FilterBase(FilterOnOff::Name,  // filter name
@@ -71,10 +71,10 @@ FilterOnOff::~FilterOnOff()
 void FilterOnOff::Initialize(void)
 {
     // filters that casros provides do not need this; this is only for user-defined filters.
-    //SF_REGISTER_FILTER_TO_FACTORY(FilterOnOff);
+    //SC_REGISTER_FILTER_TO_FACTORY(FilterOnOff);
 
     // Define inputs
-    SFASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
+    SCASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
 
     // Define outputs
     const std::string outputSignalName(
@@ -82,7 +82,7 @@ void FilterOnOff::Initialize(void)
                                        FilterOnOff::Name,
                                        this->UID,
                                        0));
-    SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
+    SCASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 }
 
 bool FilterOnOff::ConfigureFilter(const JsonWrapper::JsonValue & jsonNode)
@@ -129,7 +129,7 @@ void FilterOnOff::RunFilter(void)
 
     // value changes; edge is detected
     double newOutput;
-    SFASSERT(SafetyCoordinator);
+    SCASSERT(SafetyCoordinator);
     if (newInput == 0) {
         // offset event
         const std::string evt = GenerateEventInfo(FilterOnOff::OFFSET);

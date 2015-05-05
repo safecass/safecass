@@ -17,7 +17,7 @@
 
 #define DEFINE_KEYWORD(_key) const std::string _key = #_key;
 
-namespace SF {
+namespace SC {
 
     namespace Dict {
 
@@ -36,8 +36,8 @@ namespace SF {
             };
         }
 
-    }; // SF::Dict
+    }; // SC::Dict
 
-}; // SF
+}; // SC
 
 #endif // _cisstDic_h

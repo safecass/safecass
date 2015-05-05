@@ -20,7 +20,7 @@
 //
 // Callback class for subscribers
 //
-class ConsoleSubscriberCallback : public SF::SFCallback {
+class ConsoleSubscriberCallback : public SC::SCCallback {
 protected:
     const std::string TopicName;
 
@@ -28,14 +28,14 @@ public:
     ConsoleSubscriberCallback(const std::string & topic) : TopicName(topic) {}
     ~ConsoleSubscriberCallback() {}
 
-    void CallbackControl(SF::Topic::Control::CategoryType category, const std::string & json);
-    void CallbackData   (SF::Topic::Data::CategoryType    category, const std::string & json);
+    void CallbackControl(SC::Topic::Control::CategoryType category, const std::string & json);
+    void CallbackData   (SC::Topic::Data::CategoryType    category, const std::string & json);
 };
 
 //
 // CASROS accessors
 //
-class AccessorConsole : public SF::cisstAccessor {
+class AccessorConsole : public SC::cisstAccessor {
 public:
     AccessorConsole(void);
     ~AccessorConsole() {}
@@ -66,12 +66,12 @@ public:
                                       const std::string & componentName = "*") const;
     // request fault injection
     bool RequestFilterFaultInject(const std::string & safetyCoordinatorName,
-                                  const SF::FilterBase::FilterIDType fuid,
-                                  const SF::DoubleVecType & inputs,
+                                  const SC::FilterBase::FilterIDType fuid,
+                                  const SC::DoubleVecType & inputs,
                                   bool deepInjection = false) const;
     // load input file and request fault injection (deep injection only)
     bool RequestFilterFaultInjectLoad(const std::string & safetyCoordinatorName,
-                                      const SF::FilterBase::FilterIDType fuid,
+                                      const SC::FilterBase::FilterIDType fuid,
                                       const std::string & fileName) const;
     // request event generation
     bool RequestEventGeneration(const std::string & eventName, const std::string & eventType, const std::string & safetyCoordinatorName,

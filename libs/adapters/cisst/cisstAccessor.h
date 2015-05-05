@@ -23,7 +23,7 @@
 #include <cisstOSAbstraction/osaThread.h>
 #include <cisstOSAbstraction/osaThreadSignal.h>
 
-namespace SF {
+namespace SC {
 
 class cisstAccessor {
 public:
@@ -37,21 +37,21 @@ public:
     enum { PUBLISHER = 0, SUBSCRIBER };
 
 protected:
-    bool Enabled[SUBSCRIBER + 1][SF::Topic::TOTAL_TOPIC_COUNT];
+    bool Enabled[SUBSCRIBER + 1][SC::Topic::TOTAL_TOPIC_COUNT];
 
     struct {
-        SF::Publisher * Control;
-        SF::Publisher * Data;
+        SC::Publisher * Control;
+        SC::Publisher * Data;
     } Publishers;
 
     struct {
-        SF::Subscriber * Control;
-        SF::Subscriber * Data;
+        SC::Subscriber * Control;
+        SC::Subscriber * Data;
     } Subscribers;
 
     struct {
-        SF::SFCallback * Control;
-        SF::SFCallback * Data;
+        SC::SCCallback * Control;
+        SC::SCCallback * Data;
     } SubscriberCallbacks;
 
     InternalThreadType ThreadSubscribers[2]; // 2: total # of topics to subscribe
@@ -59,8 +59,8 @@ protected:
 public:
     cisstAccessor(bool enablePublisherControl,  bool enablePublisherData,
                   bool enableSubscriberControl, bool enableSubscriberData,
-                  SF::SFCallback * cbSubscriberControl = 0,
-                  SF::SFCallback * cbSubscriberData = 0);
+                  SC::SCCallback * cbSubscriberControl = 0,
+                  SC::SCCallback * cbSubscriberData = 0);
     virtual ~cisstAccessor();
 
     // start and stop
@@ -68,11 +68,11 @@ public:
     void StopSubscriber(void);
 
     //! Getters
-    SF::Publisher * GetPublisher(SF::Topic::Type topicType) const;
-    SF::Subscriber * GetSubscriber(SF::Topic::Type topicType) const;
-    SF::SFCallback * GetSubscriberCallback(SF::Topic::Type topicType) const;
+    SC::Publisher * GetPublisher(SC::Topic::Type topicType) const;
+    SC::Subscriber * GetSubscriber(SC::Topic::Type topicType) const;
+    SC::SCCallback * GetSubscriberCallback(SC::Topic::Type topicType) const;
 };
 
-}; // SF
+}; // SC
 
 #endif // _cisst_ice_casros_accessor_h

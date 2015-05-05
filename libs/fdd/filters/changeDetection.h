@@ -15,7 +15,7 @@
 
 #include "filterBase.h"
 
-namespace SF {
+namespace SC {
 
 /*
    Change detection filter
@@ -27,7 +27,7 @@ namespace SF {
    Output: 1 if x(t) is different from x(t-1), 0 otherwise
 */
 
-class SFLIB_EXPORT FilterChangeDetection: public FilterBase
+class SCLIB_EXPORT FilterChangeDetection: public FilterBase
 {
 protected:
     // Filter should be instantiated with explicit arguments
@@ -76,7 +76,7 @@ public:
     void ToStream(std::ostream & outputStream, bool verbose = true) const;
 
     //! For filter factory
-    SF_DEFINE_FACTORY_CREATE(FilterChangeDetection);
+    SC_DEFINE_FACTORY_CREATE(FilterChangeDetection);
 };
 
 };

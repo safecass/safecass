@@ -8,15 +8,17 @@
 //  See http://www.boost.org/LICENSE_1_0.txt for licensing.
 //  See http://code.google.com/p/clipo/ for library home page.
 
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
-// CASROS: Component-based Architecture for Safe Robotic Systems
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-//------------------------------------------------------------------------
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+//
+//-----------------------------------------------------------------------------------
 //
 // Created on   : May 7, 2014
-// Last revision: May 7, 2014
-// Github       : https://github.com/minyang/casros
+// Last revision: May 4, 2015
+// Author       : Min Yang Jung (myj@jhu.edu)
 //
 // CASROS imported Clipo on May 7, 2014.
 //
@@ -38,7 +40,7 @@ struct Snake{
     char s = 'O'; // logo
 } snake;
 // to support arrow
-#if SF_ON_WINDOWS
+#if SC_ON_WINDOWS
 #include <conio.h>
 #else
 #include <curses.h>

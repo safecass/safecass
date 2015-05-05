@@ -15,7 +15,7 @@
 
 #include "filterBase.h"
 
-namespace SF {
+namespace SC {
 
 /*
    No-operation (NOP) filter
@@ -27,7 +27,7 @@ namespace SF {
    Output: none
 */
 
-class SFLIB_EXPORT FilterNOP: public FilterBase
+class SCLIB_EXPORT FilterNOP: public FilterBase
 {
 protected:
     // Filter should be instantiated with explicit arguments
@@ -62,7 +62,7 @@ public:
     inline const std::string & GetNameOfInputSignal(void) const { return NameOfInputSignal; }
     inline SignalElement::SignalType GetSignalType(void) const  { return InputSignalType; }
 
-    SF_DEFINE_FACTORY_CREATE(FilterNOP);
+    SC_DEFINE_FACTORY_CREATE(FilterNOP);
 };
 
 };

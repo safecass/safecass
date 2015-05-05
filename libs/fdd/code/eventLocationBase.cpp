@@ -13,7 +13,7 @@
 #include "eventLocationBase.h"
 #include "dict.h"
 
-namespace SF {
+namespace SC {
 
 using namespace Dict::Json;
 

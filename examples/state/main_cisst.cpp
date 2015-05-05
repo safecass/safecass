@@ -36,7 +36,7 @@
 // To use predefined components
 #include "components.h"
 
-using namespace SF;
+using namespace SC;
 
 int main(int argc, char *argv[])
 {
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     mlockall(MCL_CURRENT|MCL_FUTURE);
 #endif
 
-#if SF_USE_G2LOG
+#if SC_USE_G2LOG
     // Logger setup
     g2LogWorker logger(argv[0], "./");
     g2::initializeLogging(&logger);
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     try {
         ComponentManager = mtsComponentManager::GetInstance();
     } catch (...) {
-        SFLOG_ERROR << "Failed to initialize local component manager" << std::endl;
+        SCLOG_ERROR << "Failed to initialize local component manager" << std::endl;
         return 1;
     }
 
@@ -80,29 +80,29 @@ int main(int argc, char *argv[])
     // Create thresholding filter for scalar with active filtering
     mtsSafetyCoordinator * coordinator = ComponentManager->GetCoordinator();
     if (!coordinator) {
-        SFLOG_ERROR  << "Failed to get coordinator in this process";
+        SCLOG_ERROR  << "Failed to get coordinator in this process";
         return false;
     }
 
-    SF::FilterThreshold * filterTrendVelScalar = 
+    SC::FilterThreshold * filterTrendVelScalar = 
         new FilterTrendVel(// Common arguments
-                           SF::FilterBase::FEATURE, // filter category
+                           SC::FilterBase::FEATURE, // filter category
                            targetComponentName,     // name of target component
-                           SF::FilterBase::ACTIVE,  // monitoring type
+                           SC::FilterBase::ACTIVE,  // monitoring type
                            // Arguments specific to this filter
                            ForceSensorComponent::NameOfScalarSignal, // inputSignalName
-                           SF::SignalElement::SCALAR, // input signal type
+                           SC::SignalElement::SCALAR, // input signal type
                            false);                    // time scaling
     // Enable debug log
     filterTrendVelScalar->EnableDebugLog(true);
 
     // Install the filter to the target component
     if (!coordinator->AddFilter(filterTrendVelScalar)) {
-        SFLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar->GetFilterName() << "\""
+        SCLOG_ERROR << "Failed to add filter \"" << filterTrendVelScalar->GetFilterName() << "\""
             << " to target component \"" << targetComponentName << "\"" << std::endl;
         return false;
     }
-    SFLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar->GetFilterName() << "\"" << std::endl;
+    SCLOG_INFO << "Successfully installed filter: \"" << filterTrendVelScalar->GetFilterName() << "\"" << std::endl;
     std::cout << *filterTrendVelScalar << std::endl;
 #endif
 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     // Clean up resources
-    SFLOG_INFO << "Cleaning up..." << std::endl;
+    SCLOG_INFO << "Cleaning up..." << std::endl;
 
 #if (CISST_OS != CISST_LINUX_XENOMAI)
     ComponentManager->KillAll();

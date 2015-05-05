@@ -13,7 +13,7 @@
 //
 #include "state.h"
 
-namespace SF {
+namespace SC {
 
 State::State(void) : CurrentState(State::NORMAL)
 {}
@@ -107,5 +107,5 @@ State & State::operator= (const State & rhs)
     return *this;
 }
 
-}; // SF
+}; // SC
 

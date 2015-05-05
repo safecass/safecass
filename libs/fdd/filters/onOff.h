@@ -16,7 +16,7 @@
 #include "filterBase.h"
 #include "event.h"
 
-namespace SF {
+namespace SC {
 
 /*
    On/off (1-bit change) detection filter
@@ -32,7 +32,7 @@ namespace SF {
    with each case is generated via the event publisher.
 */
 
-class SFLIB_EXPORT FilterOnOff: public FilterBase
+class SCLIB_EXPORT FilterOnOff: public FilterBase
 {
 public:
     typedef enum { ONSET, OFFSET } EVENT_TYPE;
@@ -87,7 +87,7 @@ public:
     void ToStream(std::ostream & outputStream, bool verbose = false) const;
 
     //! For filter factory
-    SF_DEFINE_FACTORY_CREATE(FilterOnOff);
+    SC_DEFINE_FACTORY_CREATE(FilterOnOff);
 };
 
 };

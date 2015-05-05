@@ -14,7 +14,7 @@
 
 #include "supervisor.h"
 
-namespace SF {
+namespace SC {
 
 Supervisor::Supervisor()
 {

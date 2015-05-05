@@ -17,7 +17,7 @@
 
 #include "filterBase.h"
 
-namespace SF {
+namespace SC {
 
 /* 
    Threshold Filter
@@ -30,7 +30,7 @@ namespace SF {
     X should be scalar and thus Y is scalar as well.
 */
 
-class SFLIB_EXPORT FilterThreshold: public FilterBase
+class SCLIB_EXPORT FilterThreshold: public FilterBase
 {
 protected:
     // Filter should be created with explicit arguments
@@ -53,7 +53,7 @@ protected:
 public:
     FilterThreshold(BaseType::FilterCategory      category, 
                     const std::string &           targetComponentName,
-                    SF::FilterBase::FilteringType monitoringType,
+                    SC::FilterBase::FilteringType monitoringType,
                     // below are filter-specific arguments
                     const std::string &           inputSignalName,
                     SignalElement::ScalarType     threshold,

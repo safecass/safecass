@@ -20,8 +20,8 @@
 
 #include <iostream>
 
-using namespace SF;
-using namespace SF::Dict::Json;
+using namespace SC;
+using namespace SC::Dict::Json;
 
 MongoDB::MongoDB(void)
 {}
@@ -43,7 +43,7 @@ const std::string MongoDB::ConvertTopicMessageToDBEntry(const Topic::Type topic,
         case JSONSerializer::SUPERVISOR:
         case JSONSerializer::INVALID:
         default:
-            return std::string("SF::MongoDB::ConvertTopicMessageToDBEntry - invalid topic type");
+            return std::string("SC::MongoDB::ConvertTopicMessageToDBEntry - invalid topic type");
     }
 #endif
 }
@@ -57,7 +57,7 @@ const std::string MongoDB::ConvertTopicMessageToDBEntry_Monitor(JSONSerializer &
     JSON::JSONVALUE entry;
 
     // MJ TODO: Should convert timestamp from json to UTC; right now current UTC is used instead.
-    entry[SF::Dict::Json::time] = GetCurrentUTCTimeString();
+    entry[SC::Dict::Json::time] = GetCurrentUTCTimeString();
 
     // Monitor data sample
     JSON::JSONVALUE _data;
@@ -96,11 +96,11 @@ const std::string MongoDB::ConvertTopicMessageToDBEntry_Monitor(JSONSerializer &
             }
             break;
 
-        // [SFUPDATE]
+        // [SCUPDATE]
 
         case Monitor::TARGET_INVALID:
         default:
-            SFLOG_ERROR << "Failed to convert json serializer to JSON string: " << jsonSerializer.GetMonitorTargetType() << std::endl;
+            SCLOG_ERROR << "Failed to convert json serializer to JSON string: " << jsonSerializer.GetMonitorTargetType() << std::endl;
             return "";
     }
 
@@ -122,7 +122,7 @@ const std::string MongoDB::ConvertTopicMessageToDBEntry_Event(JSONSerializer & j
     JSON::JSONVALUE entry;
 
     // MJ TODO: Should convert timestamp from json to UTC; right now current UTC is used instead.
-    entry[SF::Dict::Json::time] = GetCurrentUTCTimeString();
+    entry[SC::Dict::Json::time] = GetCurrentUTCTimeString();
 
     // Fault information
     JSON::JSONVALUE _data;
@@ -159,10 +159,10 @@ const std::string MongoDB::ConvertTopicMessageToDBEntry_Event(JSONSerializer & j
                 _data[severity] = jsonSerializer.GetFaultFields().get(severity, 0.0).asDouble();
             }
             break;
-        // [SFUPDATE]
+        // [SCUPDATE]
 
         default:
-            SFLOG_ERROR << "Failed to convert json serializer to JSON string: " << jsonSerializer.GetMonitorTargetType() << std::endl;
+            SCLOG_ERROR << "Failed to convert json serializer to JSON string: " << jsonSerializer.GetMonitorTargetType() << std::endl;
             return "";
     }
 

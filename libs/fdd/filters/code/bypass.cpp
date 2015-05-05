@@ -22,9 +22,9 @@
 // WARNING: THIS FILTER DOES NOT WORK -- NEEDS MORE MODIFICATION
 //
 
-using namespace SF;
+using namespace SC;
 
-SF_IMPLEMENT_FACTORY(FilterBypass);
+SC_IMPLEMENT_FACTORY(FilterBypass);
 
 #if 0
 void FilterBypass::DoFiltering(bool debug)
@@ -34,7 +34,7 @@ void FilterBypass::DoFiltering(bool debug)
     // Fetch new value from history buffer and update output value
     if (InputType == SignalElement::SCALAR) {
         if (!InputSignals[0]->FetchNewValueScalar()) {
-            SFLOG_ERROR << "FilterBypass: failed to fetch new scalar value from history buffer" << std::endl;
+            SCLOG_ERROR << "FilterBypass: failed to fetch new scalar value from history buffer" << std::endl;
             // If failed, placeholders are set as zero internally.
             this->Enable(false); // for no further error messages
         }
@@ -42,7 +42,7 @@ void FilterBypass::DoFiltering(bool debug)
         OutputSignals[0]->SetPlaceholderScalar(InputSignals[0]->GetPlaceholderScalar());
     } else {
         if (!InputSignals[0]->FetchNewValueVector()) {
-            SFLOG_ERROR << "FilterBypass: failed to fetch new vector value from history buffer" << std::endl;
+            SCLOG_ERROR << "FilterBypass: failed to fetch new vector value from history buffer" << std::endl;
             // If failed, placeholders are set as zero internally.
             this->Enable(false); // for no further error messages
         }
@@ -115,10 +115,10 @@ FilterBypass::~FilterBypass()
 void FilterBypass::Initialize(void)
 {
     // filters that casros provides do not need this; this is only for user-defined filters.
-    //SF_REGISTER_FILTER_TO_FACTORY(FilterBypass);
+    //SC_REGISTER_FILTER_TO_FACTORY(FilterBypass);
 
     // Define inputs
-    SFASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
+    SCASSERT(this->AddInputSignal(NameOfInputSignal, SignalElement::SCALAR));
 
     // Define outputs
     const std::string outputSignalName(
@@ -126,7 +126,7 @@ void FilterBypass::Initialize(void)
                                        FilterBypass::Name,
                                        this->UID,
                                        0));
-    SFASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
+    SCASSERT(this->AddOutputSignal(outputSignalName, SignalElement::SCALAR));
 }
 
 bool FilterBypass::ConfigureFilter(const JSON::JSONVALUE & jsonNode)
@@ -173,7 +173,7 @@ void FilterBypass::RunFilter(void)
 
     // value changes; edge is detected
     double newOutput;
-    SFASSERT(SafetyCoordinator);
+    SCASSERT(SafetyCoordinator);
     if (newInput == 0) {
         // offset event
         const std::string evt = GenerateEventInfo(FilterBypass::OFFSET);
