@@ -1,5 +1,4 @@
 # Welcome to SAFECASS
---
 
 [![Issues](https://img.shields.io/github/issues/safecass/safecass.svg)](https://github.com/minyang/safecass/issues)
 
