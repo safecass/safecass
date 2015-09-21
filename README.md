@@ -8,4 +8,7 @@ that enables reuse of experience and knowledge on safety, thereby facilitating
 the development process of safety features for robot systems that physically
 interact with humans.
 
-Link to [old wiki](https://github.com/minyang/safecass/wiki) (needs to login)
+Link to [old wiki](https://github.com/minyang/safecass/wiki) (needs to login), [new wiki](https://github.com/safecass/safecass/wiki)
+
+NEWS:
+ * September 21, 2015: SAFECASS is currently undergoing repository transition.
