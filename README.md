@@ -1,15 +1,12 @@
-SAFECASS
-========
+# Welcome to SAFECASS
+--
 
-Safety Architecture For Engineering Computer-Assisted Surgical Systems
+[![Issues](https://img.shields.io/github/issues/safecass/safecass.svg)](https://github.com/minyang/safecass/issues)
 
-Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+**SAFECASS** (**S**afety **A**rchitecture **f**or **E**ngineering
+**C**omputer-**A**ssisted **S**urgical **S**ystems) is an open source framework
+that enables reuse of experience and knowledge on safety, thereby facilitating
+the development process of safety features for robot systems that physically
+interact with humans.
 
-Wiki Link: https://github.com/minyang/safecass/wiki
-
-References
-----------
-
-  * Github markdwon syntax [cheat sheet] (https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
-  * GitHub [Flavored Markdown] (https://help.github.com/articles/github-flavored-markdown)
-  * GitHub syntax [sample code] (http://github.github.com/github-flavored-markdown/sample_content.html) and [output] (https://github.com/mojombo/github-flavored-markdown/issues/1)
+Link to [old wiki](https://github.com/minyang/safecass/wiki) (needs to login)
