@@ -221,7 +221,7 @@ if (ENABLE_VIS_FRAMEWORK)
 endif (ENABLE_VIS_FRAMEWORK)
 
 include_directories (${SC_LIB_INCLUDE_DIR})
-add_library(SCLib ${LIB_TYPE} ${SC_LIB_SRC})
+add_library(SCLib ${SC_LIB_TYPE} ${SC_LIB_SRC})
 target_link_libraries(SCLib ${SC_LIB_DEPENDENCY_LIBS})
 
 if (SC_HAS_CISST)# AND NOT ENABLE_G2LOG)

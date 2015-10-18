@@ -26,7 +26,7 @@ add_subdirectory(viewer)
 # IceBox
 ##############################
 # copy files from [SRC]/tools/IceBox to [BUILD]/bin
-set (ICEBOX_BASE_DIR "${SC_SOURCE_DIR}/tools/IceBox")
+set (ICEBOX_BASE_DIR "${SC_SOURCE_ROOT}/tools/IceBox")
 set (ICEBOX_SRC_FILES "config.icebox"
                       "config.service" 
                       "launchIceBox.sh")
@@ -48,7 +48,7 @@ endforeach (ICEBOX_SRC_FILE)
 # Visualization back-end framework: MongoDB and Cube
 ##############################
 # copy files from [SRC]/tools/cube to [BUILD]/bin
-set (MONGODB_BASE_DIR "${SC_SOURCE_DIR}/tools/cube")
+set (MONGODB_BASE_DIR "${SC_SOURCE_ROOT}/tools/cube")
 set (MONGODB_SRC_FILES # MongoDB
                        "createMongoDB.js"
                        "runDBCube.sh"
