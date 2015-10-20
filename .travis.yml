@@ -48,6 +48,6 @@ notifications:
   email: false
 sudo: true
 before_install:
-  - yes | sudo add-apt-repository ppa:kalakris/cmake
+  - sudo add-apt-repository --yes ppa:kalakris/cmake
   - sudo apt-get update -qq
-install: sudo apt-get update -qq
+install: sudo apt-get install cmake
