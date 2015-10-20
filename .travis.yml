@@ -48,6 +48,9 @@ notifications:
   email: false
 sudo: true
 before_install:
-  - sudo add-apt-repository --yes ppa:kalakris/cmake
-  - sudo apt-get update -qq
-install: sudo apt-get install cmake
+  - wget https://cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.sh
+  - chmod +x cmake-3.3.2-Linux-x86_64.sh
+  - sudo ./cmake-3.3.2-Linux-x86_64.sh
+#  - sudo add-apt-repository ppa:kalakris/cmake
+#  - sudo apt-get update -qq
+#  - sudo apt-get install cmake
