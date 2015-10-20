@@ -46,4 +46,8 @@ env:
 #    - SAFECASS_TARGET=googlemock SHARED_LIB=ON  STATIC_LIB=ON CMAKE_PKG=ON  BUILD_TYPE=release VERBOSE_MAKE=false
 notifications:
   email: false
-sudo: false
+sudo: true
+before_install:
+  - yes | sudo add-apt-repository ppa:kalakris/cmake
+  - sudo apt-get update -qq
+install: sudo apt-get update -qq
