@@ -27,10 +27,8 @@ set (SC_VERSION "${SC_VERSION_MAJOR}.${SC_VERSION_MINOR}.${SC_VERSION_PATCH}")
 # Set cmake module path
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
-# Include utility macros (e.g., detecting OS, ...)
+# Include safecass cmake utility macros
 include (cmake/utils.cmake)
-# Include macro to download and compile external packages at configuration time,
-# rather than compile time.
 include (cmake/add_dl_project.cmake)
 
 # Enable or disable casros (used by external project where SC is deployed)
@@ -40,52 +38,55 @@ include (cmake/add_dl_project.cmake)
 #set (CURRENT_PROJECT_IS_SC ON)
 
 # Project settings for output (generated) files
-set (BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
-set (EXECUTABLE_OUTPUT_PATH "${BUILD_ROOT}/bin")
-set (LIBRARY_OUTPUT_PATH "${BUILD_ROOT}/lib")
-
-# option to organize targets in folders
-set_property (GLOBAL PROPERTY USE_FOLDERS ON)
+#set (BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+#set (EXECUTABLE_OUTPUT_PATH "${BUILD_ROOT}/bin")
+#set (LIBRARY_OUTPUT_PATH "${BUILD_ROOT}/lib")
 
 # Project settings for source files
-set (SC_BUILD_ROOT ${BUILD_ROOT})
-set (SC_SOURCE_ROOT ${CMAKE_SOURCE_DIR})
-set (SC_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH})   # where to find safecass library (libsafecass)
-set (SC_INCLUDE_DIR "${SC_SOURCE_ROOT}/libs") # where to find header files
+#set (SC_BUILD_ROOT ${BUILD_ROOT})
+#set (SC_SOURCE_ROOT ${CMAKE_SOURCE_DIR})
+#set (SC_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH})   # where to find safecass library (libsafecass)
+#set (SC_INCLUDE_DIR "${SC_SOURCE_ROOT}/libs") # where to find header files
 
 #
 # Build options
 #
 # Option to build shared library
-option (BUILD_SHARED_LIBS "Build shared libraries" OFF)
-if (BUILD_SHARED_LIBS)
+option (SAFECASS_BUILD_SHARED_LIBS "Build shared libraries" OFF)
+if (SAFECASS_BUILD_SHARED_LIBS)
   set (SC_LIB_TYPE SHARED)
 elseif ()
   set (SC_LIB_TYPE STATIC)
 endif ()
 
-# Option to enable unit tests
-option (BUILD_UNIT_TEST "Enable and generate unit test suites." OFF)
-if (BUILD_UNIT_TEST)
-  # Enable ctest support
-  #set (BUILD_TESTING ON)
-  enable_testing()
-  include (CTest)
+#
+# Essential dependencies
+#
+# Jsoncpp (imported at configuration time in the build tree)
+add_dl_project(PROJ jsoncpp
+               URL  https://github.com/open-source-parsers/jsoncpp/archive/1.6.5.tar.gz
+               EXCLUDE_FROM_ALL)
+target_include_directories(jsoncpp_lib INTERFACE "${CMAKE_BINARY_DIR}/jsoncpp/src/include")
+target_include_directories(jsoncpp_lib_static INTERFACE "${CMAKE_BINARY_DIR}/jsoncpp/src/include")
 
-  # Unit testing requires gtest; download and import gtest
-  add_dl_project(PROJ     gtest
-                 URL      https://googletest.googlecode.com/files/gtest-1.7.0.zip
-                 URL_HASH SHA1=f85f6d2481e2c6c4a18539e391aa4ea8ab0394af
-                 EXCLUDE_FROM_ALL)
-  target_include_directories(gtest INTERFACE "${CMAKE_BINARY_DIR}/gtest/src/include")
+# Boost: Check if environment variable (BOOST_ROOT) is defined
+#if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
+#  set(BOOST_ROOT $ENV{BOOST_ROOT})
+#  message("BOOST_ROOT is found from environment variable: ${BOOST_ROOT}")
+#endif()
 
-  # Add unit tests
-  #add_subdirectory(tests)
-endif()
+#
+# Build SAFECASS library
+#
+#add_subdirectory(libs)
+
+#
+# Optional dependencies
+#
 
 # Option to use external logger (g2log)
-option (USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
-if (USE_G2LOG)
+option (SAFECASS_USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
+if (SAFECASS_USE_G2LOG)
   # Download and import gtest
   add_dl_project(PROJ         g2log_by_kjellkod
                  URL          https://bitbucket.org/KjellKod/g2log/get/tip.zip
@@ -93,8 +94,37 @@ if (USE_G2LOG)
                  EXCLUDE_FROM_ALL)
   target_include_directories(lib_g2logger INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
   target_include_directories(lib_g2logger_shared INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
-  set (SC_USE_G2LOG ${USE_G2LOG})
+  set (SC_USE_G2LOG ${SAFECASS_USE_G2LOG})
 endif()
+
+# Option to enable unit tests
+option (SAFECASS_BUILD_UNIT_TEST "Enable and generate unit test suites." OFF)
+if (SAFECASS_BUILD_UNIT_TEST)
+  # Enable ctest support
+  enable_testing()
+  include (CTest)
+
+  # Add unit tests
+  add_subdirectory(tests)
+endif()
+
+#if (BUILD_TOOLS)
+#  #add_subdirectory(programs)
+#  add_subdirectory(tools)
+#endif()
+#if (BUILD_EXAMPLES)
+#  add_subdirectory(examples)
+#endif ()
+#if (BUILD_UNIT_TEST)
+#  add_subdirectory(tests)
+#endif ()
+
+
+#
+# Misc. option
+#
+# option to organize targets in folders
+set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
 return()
 
@@ -135,39 +165,6 @@ if (SC_HAS_CISST)
   endif ()
 endif (SC_HAS_CISST)
 
-
-
-
-#
-# Handle external packages
-#
-# Boost: Check if environment variable (BOOST_ROOT) is defined
-if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
-  set(BOOST_ROOT $ENV{BOOST_ROOT})
-  message("BOOST_ROOT is found from environment variable: ${BOOST_ROOT}")
-endif()
-
-
-
-
-
-
-
-
-
-
-# Include sub-directories
-add_subdirectory(libs)
-if (BUILD_TOOLS)
-  #add_subdirectory(programs)
-  add_subdirectory(tools)
-endif()
-if (BUILD_EXAMPLES)
-  add_subdirectory(examples)
-endif ()
-if (BUILD_UNIT_TEST)
-  add_subdirectory(tests)
-endif ()
 
 # Update compiler configuration accordingly
 if (USE_G2LOG)
