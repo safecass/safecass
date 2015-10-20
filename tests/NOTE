@@ -1,0 +1,28 @@
+googletest cheat sheet
+
+Documentation
+    - Basic: https://code.google.com/p/googletest/wiki/Primer
+    - Advanced:
+
+References
+    - http://www.yolinux.com/TUTORIALS/Cpp-GoogleTest.html
+
+Test      Fatal                   NonFatal
+True      ASSERT_TRUE(condition)  EXPECT_TRUE(condition)
+False     ASSERT_FALSE(condition) EXPECT_FALSE(condition)
+Equal     ASSERT_EQ(arg1,arg2)    EXPECT_EQ(arg1,arg2)
+Not Equal ASSERT_NE(arg1,arg2)    EXPECT_NE(arg1,arg2)
+
+Less Than               ASSERT_LT(arg1,arg2)    EXPECT_LT(arg1,arg2)
+Less Than or Equal      ASSERT_LE(arg1,arg2)    EXPECT_LE(arg1,arg2)
+Greater Than            ASSERT_GT(arg1,arg2)    EXPECT_GT(arg1,arg2)
+Greater Than or Equal   ASSERT_GE(arg1,arg2)    EXPECT_GE(arg1,arg2)
+
+C String Equal          ASSERT_STREQ(str1,str2)     EXPECT_STREQ(str1,str2)
+C String Not Equal      ASSERT_STRNE(str1,str2)     EXPECT_STRNE(str1,str2)
+C String Case Equal     ASSERT_STRCASEEQ(str1,str2) EXPECT_STRCASEEQ(str1,str2)
+C String Case Not Equal ASSERT_STRCASENE(str1,str2) EXPECT_STRCASENE(str1,str2)
+
+Verify that exception is thrown     ASSERT_THROW(statement,exception_type) EXPECT_THROW(statement,exception_type)
+Verify that exception is thrown     ASSERT_ANY_THROW(statement)            EXPECT_ANY_THROW(statement)
+Verify that exception is NOT thrown ASSERT_NO_THROW(statement)             EXPECT_NO_THROW(statement)

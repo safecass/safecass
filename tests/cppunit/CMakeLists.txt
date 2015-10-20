@@ -7,39 +7,13 @@
 #------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Oct 19, 2015
+# Last revision: Mar 23, 2015
 # Author       : Min Yang Jung (myj@jhu.edu)
-# Github       : https://github.com/safecass/safecass 
+# Github       : https://github.com/minyang/casros
 #
-project (sctest)
+project (tests)
 
-message (STATUS "SAFECASS: Unit-tests enabled")
-
-# load safecass macro to help ctest test entry registration
-include (${CMAKE_SOURCE_DIR}/cmake/add_ctest.cmake)
-
-# Unit testing requires gtest; download and import gtest
-add_dl_project(PROJ     gtest
-               URL      https://googletest.googlecode.com/files/gtest-1.7.0.zip
-               URL_HASH SHA1=f85f6d2481e2c6c4a18539e391aa4ea8ab0394af
-               EXCLUDE_FROM_ALL)
-target_include_directories(gtest INTERFACE "${CMAKE_BINARY_DIR}/gtest/src/include")
-
-
-#set (UNIT_TEST_SRC test_json.h test_json.cpp)
-
-#include_directories (${SC_INCLUDE_DIR}/common)
-
-add_executable (sctest_json main.cpp ${UNIT_TEST_SRC})
-
-target_link_libraries (sctest_json gtest)
-
-add_ctest(sctest_json)
-
-return()
-
-
-
+message("Unit-tests enabled")
 
 # Find CppTest
 find_package (CPPTEST REQUIRED)

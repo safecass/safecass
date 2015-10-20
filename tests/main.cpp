@@ -1,144 +1,111 @@
-//------------------------------------------------------------------------
-//
-// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
-//
-// Copyright (C) 2012-2014 Min Yang Jung
-//
-//------------------------------------------------------------------------
-//
-// Created on   : Jul 6, 2012
-// Last revision: Apr 14, 2014
-// Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
-//
-// CppTest macros: http://cpptest.sourceforge.net/cpptest-assert_8h.html
-//
-// SC configurations
-#include "config.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-// external packages
-#include "cpptest.h"
-#include <boost/program_options.hpp>
+#include "gtest/gtest.h"
 
-// disable obsolete tests for GCM
-#undef SC_HAS_CISST
-#define SC_HAS_CISST 0
+using ::testing::EmptyTestEventListener;
+using ::testing::InitGoogleTest;
+using ::testing::Test;
+using ::testing::TestCase;
+using ::testing::TestEventListeners;
+using ::testing::TestInfo;
+using ::testing::TestPartResult;
+using ::testing::UnitTest;
 
-// test suites
-#include "testJson.h"
-#include "testState.h"
-#if SC_HAS_CISST
-#include "testGCM.h"
-#endif
-#include "testUtil.h"
+namespace {
 
-#include <algorithm>
-#include <iostream>
-#include <fstream>
+// We will track memory used by this class.
+class Water {
+ public:
+  // Normal Water declarations go here.
 
-using namespace std;
-namespace po = boost::program_options;
+  // operator new and operator delete help us control water allocation.
+  void* operator new(size_t allocation_size) {
+    allocated_++;
+    return malloc(allocation_size);
+  }
 
-// TODO: additional options for compiler output: Generic, BCC, GCC, MSVS 
-typedef enum {TERSE, VERBOSE, COMPILER, HTML} OUTPUT;
+  void operator delete(void* block, size_t /* allocation_size */) {
+    allocated_--;
+    free(block);
+  }
 
-int main(int argc, char ** argv)
-{
-    // Declare the supported options.
-    po::options_description desc("unit-tests launcher");
-    desc.add_options()
-        ("help", "Print this help")
-        ("output,o", po::value<string>(), "output format. arg=[terse|verbose|compiler|html] (default: verbose)")
-        ;
+  static int allocated() { return allocated_; }
 
-    po::variables_map vm;
-    try {
-        po::store(po::parse_command_line(argc, argv, desc), vm);
-        po::notify(vm);
-    } catch(const exception & e) {
-        cout << e.what() << endl << endl;
-        cout << desc << endl;
-        return 1;
-    }
+ private:
+  static int allocated_;
+};
 
-    // help
-    if (vm.count("help")) {
-        cout << desc << endl;
-        return 1;
-    }
+int Water::allocated_ = 0;
 
-    // output
-    OUTPUT outputFormat;
-    if (vm.count("output")) {
-        std::string output = vm["output"].as<string>();
-        std::transform(output.begin(), output.end(), output.begin(), ::tolower);
-        if (output.compare("terse") == 0)
-            outputFormat = TERSE;
-        else if (output.compare("verbose") == 0)
-            outputFormat = VERBOSE;
-        else if (output.compare("compiler") == 0)
-            outputFormat = COMPILER;
-        else if (output.compare("html") == 0)
-            outputFormat = HTML;
-        else {
-            cout << "unknown output format: " << vm["output"].as<string>() << endl << endl;
-            cout << desc << endl;
-            return 1;
-        }
-    } else {
-        outputFormat = VERBOSE;
-    }
+// This event listener monitors how many Water objects are created and
+// destroyed by each test, and reports a failure if a test leaks some Water
+// objects. It does this by comparing the number of live Water objects at
+// the beginning of a test and at the end of a test.
+class LeakChecker : public EmptyTestEventListener {
+ private:
+  // Called before a test starts.
+  virtual void OnTestStart(const TestInfo& /* test_info */) {
+    initially_allocated_ = Water::allocated();
+  }
 
-    // Define test suites
-    Test::Suite suite;
-    suite.add(auto_ptr<Test::Suite>(new SCJsonTest));
-    suite.add(auto_ptr<Test::Suite>(new SCStateTest));
-    suite.add(auto_ptr<Test::Suite>(new SCUtilTest));
-#if SC_HAS_CISST
-    SCGCMTest * GCMTest = 0;
-    try {
-        GCMTest = new SCGCMTest;
-        suite.add(auto_ptr<Test::Suite>(GCMTest));
-    } catch (...) {
-        cerr << "Skipped SCGCMTest: Failed to initialize cisst" << endl;
-    }
-#endif
+  // Called after a test ends.
+  virtual void OnTestEnd(const TestInfo& /* test_info */) {
+    int difference = Water::allocated() - initially_allocated_;
 
-    // Execute unit-test with specified output format
-    switch (outputFormat) {
-    case TERSE:
-        {
-            Test::TextOutput output(Test::TextOutput::Terse);
-            return (suite.run(output) ? 0 : 1);
-        }
-    case VERBOSE:
-        {
-            Test::TextOutput output(Test::TextOutput::Verbose);
-            return (suite.run(output) ? 0 : 1);
-        }
-    case COMPILER:
-        {
-            Test::CompilerOutput output;
-            return (suite.run(output) ? 0 : 1);
-        }
-    case HTML:
-        {
-            Test::HtmlOutput output;
-            ofstream outputFile;
-            outputFile.open("./result.html");
+    // You can generate a failure in any event handler except
+    // OnTestPartResult. Just use an appropriate Google Test assertion to do
+    // it.
+    EXPECT_LE(difference, 0) << "Leaked " << difference << " unit(s) of Water!";
+  }
 
-            cout << "Generating output file (\"result.html\") ... ";
-            bool success = suite.run(output);
-            if (success) {
-                cout << "success" << endl;
-            } else {
-                cout << "failed" << endl;
-            }
+  int initially_allocated_;
+};
 
-            output.generate(outputFile, true, "SAFECASS");
-            outputFile.close();
+TEST(ListenersTest, DoesNotLeak) {
+  Water* water = new Water;
+  delete water;
+}
 
-            return 0;
-        }
-    }
+// This should fail when the --check_for_leaks command line flag is
+// specified.
+TEST(ListenersTest, LeaksWater) {
+  Water* water = new Water;
+  EXPECT_TRUE(water != NULL);
+}
+
+}  // namespace
+
+int main(int argc, char * argv[]) {
+  InitGoogleTest(&argc, argv);
+
+  bool check_for_leaks = false;
+  if (argc > 1 && strcmp(argv[1], "--check_for_leaks") == 0 )
+    check_for_leaks = true;
+  else
+    printf("%s\n", "Run this program with --check_for_leaks to enable "
+           "custom leak checking in the tests.");
+
+  // If we are given the --check_for_leaks command line flag, installs the
+  // leak checker.
+  if (check_for_leaks) {
+    TestEventListeners& listeners = UnitTest::GetInstance()->listeners();
+
+    // Adds the leak checker to the end of the test event listener list,
+    // after the default text output printer and the default XML report
+    // generator.
+    //
+    // The order is important - it ensures that failures generated in the
+    // leak checker's OnTestEnd() method are processed by the text and XML
+    // printers *before* their OnTestEnd() methods are called, such that
+    // they are attributed to the right test. Remember that a listener
+    // receives an OnXyzStart event *after* listeners preceding it in the
+    // list received that event, and receives an OnXyzEnd event *before*
+    // listeners preceding it.
+    //
+    // We don't need to worry about deleting the new listener later, as
+    // Google Test will do it.
+    listeners.Append(new LeakChecker);
+  }
+  return RUN_ALL_TESTS();
 }
