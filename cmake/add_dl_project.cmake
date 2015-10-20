@@ -11,7 +11,7 @@ macro(add_dl_project)
   # Create and build a separate CMake project to carry out the download.
   # If we've already previously done these steps, they will not cause
   # anything to be updated, so extra rebuilds of the project won't occur.
-  configure_file(cmake/add_dl_project.CMakeLists.cmake.in
+  configure_file(${CMAKE_SOURCE_DIR}/cmake/add_dl_project.CMakeLists.cmake.in
                  ${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/download/CMakeLists.txt)
   execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/download)
