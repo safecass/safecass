@@ -40,15 +40,17 @@ endif()
 # Determine compiler
 #
 set (SC_COMPILER "")
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+# Check if clang
+string (FIND ${CMAKE_CXX_COMPILER_ID} "Clang" CLANG_DETECTED)
+if (NOT ${CLANG_DETECTED} MATCHES -1)
   set (SC_COMPILER "Clang")
+# Check if gcc
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set (SC_COMPILER "GCC")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   set (SC_COMPILER "MSVC")
 else()
-  message(FATAL_ERROR "Failed to determine compiler")
+  message(FATAL_ERROR "Failed to determine compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
 message ("Compiler: ${SC_COMPILER} detected")
-

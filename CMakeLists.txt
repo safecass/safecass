@@ -29,6 +29,9 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 # Include utility macros (e.g., detecting OS, ...)
 include (cmake/utils.cmake)
+# Include macro to download and compile external packages at configuration time,
+# rather than compile time.
+include (cmake/add_dl_project.cmake)
 
 # Enable or disable casros (used by external project where SC is deployed)
 #set (SC_ACTIVATED TRUE)
@@ -51,26 +54,6 @@ set (SC_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH})   # where to find safecass library (
 set (SC_INCLUDE_DIR "${SC_SOURCE_ROOT}/libs") # where to find header files
 
 #
-# Handle external packages
-#
-# Boost: Check if environment variable (BOOST_ROOT) is defined
-if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
-  set(BOOST_ROOT $ENV{BOOST_ROOT})
-  message("BOOST_ROOT is found from environment variable: ${BOOST_ROOT}")
-endif()
-
-# Google Test:
-
-
-# Option to enable unit-testing with CppTest
-option (ENABLE_UNIT_TEST "Enable and generate unit test suites. Requires the CppTest library" OFF)
-# Option to use g2log
-option (ENABLE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
-if (ENABLE_G2LOG)
-  set (SC_USE_G2LOG ${ENABLE_G2LOG})
-endif()
-
-#
 # Build options
 #
 # Option to build shared library
@@ -81,7 +64,56 @@ elseif ()
   set (SC_LIB_TYPE STATIC)
 endif ()
 
-# Option to use robot middleware packages
+# Option to enable unit tests
+option (BUILD_UNIT_TEST "Enable and generate unit test suites." OFF)
+if (BUILD_UNIT_TEST)
+  # Enable ctest support
+  #set (BUILD_TESTING ON)
+  enable_testing()
+  include (CTest)
+
+  # Unit testing requires gtest; download and import gtest
+  add_dl_project(PROJ     gtest
+                 URL      https://googletest.googlecode.com/files/gtest-1.7.0.zip
+                 URL_HASH SHA1=f85f6d2481e2c6c4a18539e391aa4ea8ab0394af
+                 EXCLUDE_FROM_ALL)
+  target_include_directories(gtest INTERFACE "${CMAKE_BINARY_DIR}/gtest/src/include")
+
+  # Add unit tests
+  #add_subdirectory(tests)
+endif()
+
+# Option to use external logger (g2log)
+option (USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
+if (USE_G2LOG)
+  # Download and import gtest
+  add_dl_project(PROJ         g2log_by_kjellkod
+                 URL          https://bitbucket.org/KjellKod/g2log/get/tip.zip
+                 PATH_SUFFIX  g2log
+                 EXCLUDE_FROM_ALL)
+  target_include_directories(lib_g2logger INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
+  target_include_directories(lib_g2logger_shared INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
+  set (SC_USE_G2LOG ${USE_G2LOG})
+endif()
+
+return()
+
+
+
+
+# Options to enable visualizataion framework using Qt and D3/cubism
+option (ENABLE_VIS_FRAMEWORK "Enable visualization framework using Qt and visualization packages" OFF)
+if (ENABLE_VIS_FRAMEWORK)
+    message("Visualization framework enabled")
+endif ()
+
+# Option to compile examples separately
+option (BUILD_EXAMPLES "Build examples.  Requires casros-enabled component-based framework." OFF)
+
+# Option to compile programs separately
+option (BUILD_TOOLS "Build tools.  Requires casros-enabled component-based framework." OFF)
+
+# Option to use component-based software framework in robotics
 option (SC_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)
 if (SC_HAS_CISST)
   message("cisst support enabled")
@@ -103,16 +135,26 @@ if (SC_HAS_CISST)
   endif ()
 endif (SC_HAS_CISST)
 
-# Options to enable visualizataion framework using Qt and D3/cubism
-option (ENABLE_VIS_FRAMEWORK "Enable visualization framework using Qt and visualization packages" OFF)
-if (ENABLE_VIS_FRAMEWORK)
-    message("Visualization framework enabled")
-endif ()
 
-# Option to compile examples separately
-option (BUILD_EXAMPLES "Build examples.  Requires casros-enabled component-based framework." OFF)
-# Option to compile programs separately
-option (BUILD_TOOLS "Build tools.  Requires casros-enabled component-based framework." OFF)
+
+
+#
+# Handle external packages
+#
+# Boost: Check if environment variable (BOOST_ROOT) is defined
+if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
+  set(BOOST_ROOT $ENV{BOOST_ROOT})
+  message("BOOST_ROOT is found from environment variable: ${BOOST_ROOT}")
+endif()
+
+
+
+
+
+
+
+
+
 
 # Include sub-directories
 add_subdirectory(libs)
@@ -123,13 +165,13 @@ endif()
 if (BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif ()
-if (ENABLE_UNIT_TEST)
+if (BUILD_UNIT_TEST)
   add_subdirectory(tests)
 endif ()
 
 # Update compiler configuration accordingly
-if (ENABLE_G2LOG)
-    set (SC_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+if (USE_G2LOG)
+  set (SC_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 endif()
 
 # Create configuration files

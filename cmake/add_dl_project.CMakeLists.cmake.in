@@ -1,0 +1,16 @@
+# Original author: Craig Scott (http://crascit.com/2015/07/25/cmake-gtest)
+cmake_minimum_required(VERSION 3.2)
+
+project(${DL_ARGS_PROJ}-download LANGUAGES NONE)
+
+include(ExternalProject)
+ExternalProject_Add(${DL_ARGS_PROJ}-download
+                    URL               ${DL_ARGS_URL}
+                    URL_HASH          ${DL_ARGS_URL_HASH}
+                    SOURCE_DIR        "${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/src"
+                    BINARY_DIR        "${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/build"
+                    CONFIGURE_COMMAND ""
+                    BUILD_COMMAND     ""
+                    INSTALL_COMMAND   ""
+                    TEST_COMMAND      ""
+                    )
