@@ -1,8 +1,5 @@
 #!/bin/sh
-#set -ex
-
-# TEMP
-export TRAVIS_OS_NAME="osx";
+set -ex
 
 # Detect travis OS and set cmake package file name to download
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
