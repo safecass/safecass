@@ -15,6 +15,11 @@ else
     # fallback
     export CMAKE_BIN="cmake";
 fi
+
+pwd
+
+ls /Users/travis/build/safecass *
+
 ${CMAKE_BIN} \
       -DSAFECASS_BUILD_UNIT_TEST=ON \
       -DSAFECASS_USE_G2LOG=ON \
