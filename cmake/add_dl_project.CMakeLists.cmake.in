@@ -13,4 +13,5 @@ ExternalProject_Add(${DL_ARGS_PROJ}-download
                     BUILD_COMMAND     ""
                     INSTALL_COMMAND   ""
                     TEST_COMMAND      ""
+                    CMAKE_CACHE_ARGS  ${DL_ARGS_CMAKE_ARGS}
                     )

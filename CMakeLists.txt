@@ -52,21 +52,15 @@ include (cmake/add_dl_project.cmake)
 # Build options
 #
 # Option to build shared library
-option (SAFECASS_BUILD_SHARED_LIBS "Build shared libraries" OFF)
-if (SAFECASS_BUILD_SHARED_LIBS)
-  set (SC_LIB_TYPE SHARED)
-elseif ()
-  set (SC_LIB_TYPE STATIC)
-endif ()
-
-#
-# Essential dependencies
-#
-# Jsoncpp (imported at configuration time in the build tree)
 add_dl_project(PROJ jsoncpp
                URL  https://github.com/open-source-parsers/jsoncpp/archive/1.6.5.tar.gz
+               CMAKE_OPTIONS "-DJSONCPP_WITH_CMAKE_PACKAGE:BOOL=ON"#"-DBUILD_SHARED_LIBS:BOOL=OFF;-DBUILD_TESTING:BOOL=OFF"
                EXCLUDE_FROM_ALL)
-target_include_directories(jsoncpp_lib INTERFACE "${CMAKE_BINARY_DIR}/jsoncpp/src/include")
+# To enable this, SAFECASS shared lib should be selected first, and then enable
+# jsoncpp_lib.
+#if (SAFECASS_BUILD_SHARED_LIBS)
+#  target_include_directories(jsoncpp_lib INTERFACE "${CMAKE_BINARY_DIR}/jsoncpp/src/include")
+#endif()
 target_include_directories(jsoncpp_lib_static INTERFACE "${CMAKE_BINARY_DIR}/jsoncpp/src/include")
 
 # Boost: Check if environment variable (BOOST_ROOT) is defined

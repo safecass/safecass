@@ -5,7 +5,7 @@ macro(add_dl_project)
   # Set up named macro arguments
   set(options        EXCLUDE_FROM_ALL)
   set(oneValueArgs   PROJ URL URL_HASH PATH_SUFFIX)
-  set(multiValueArgs "")
+  set(multiValueArgs CMAKE_OPTIONS)
   cmake_parse_arguments(DL_ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   # Create and build a separate CMake project to carry out the download.
@@ -15,7 +15,7 @@ macro(add_dl_project)
                  ${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/download/CMakeLists.txt)
   execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/download)
-  execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  execute_process(COMMAND ${CMAKE_COMMAND} --build . #${DL_ARGS_CMAKE_OPTIONS}  
                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/download)
 
   # Now add the downloaded source directory to the build as normal.

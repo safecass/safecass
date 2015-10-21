@@ -46,16 +46,11 @@ env:
 #    - SAFECASS_TARGET=googlemock SHARED_LIB=ON  STATIC_LIB=ON CMAKE_PKG=ON  BUILD_TYPE=release VERBOSE_MAKE=false
 notifications:
   email: false
-#sudo: true
 sudo: false
 before_install:
   - wget --no-check-certificate https://cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.sh
   - chmod +x cmake-3.3.2-Linux-x86_64.sh
-  #- sudo ./cmake-3.3.2-Linux-x86_64.sh
   - mkdir cmake332
   - cd cmake332
   - ../cmake-3.3.2-Linux-x86_64.sh --skip-license
   - cd ..
-#  - sudo add-apt-repository ppa:kalakris/cmake
-#  - sudo apt-get update -qq
-#  - sudo apt-get install cmake
