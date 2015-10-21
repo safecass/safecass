@@ -7,9 +7,9 @@ cd build
 #mkdir build/$SAFECASS_TARGET || true
 #cd build/$SAFECASS_TARGET
 
-if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     export CMAKE_BIN="../cmake332/bin/cmake";
-elif [ "$TRAVIS_OS_NAME" = "linux" ]; then
+elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
     export CMAKE_BIN="../cmake332/cmake-3.3.2-Darwin-x86_64/cmake-3.3.2-Darwin-x86_64/CMake.app/Contents/bin";
 else
     # fallback

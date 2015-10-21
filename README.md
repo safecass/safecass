@@ -1,7 +1,8 @@
 # Welcome to SAFECASS
 
 [![Issues](https://img.shields.io/github/issues/safecass/safecass.svg)](https://github.com/safecass/safecass/issues)
-[![build](https://img.shields.io/travis/minyang/safecass.svg)](https://travis-ci.org/safecass/safecass)
+[![Build Linux](https://img.shields.io/travis/safecass/safecass.svg?label=linux)](https://travis-ci.org/safecass/safecass)
+[![Build OS X](https://img.shields.io/travis/safecass/safecass.svg?label=Mac%20OSX)](https://travis-ci.org/safecass/safecass)
 
 **SAFECASS** (**S**afety **A**rchitecture **f**or **E**ngineering
 **C**omputer-**A**ssisted **S**urgical **S**ystems) is an open source framework
