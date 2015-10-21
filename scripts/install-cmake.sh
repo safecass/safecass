@@ -1,6 +1,8 @@
 #!/bin/sh
 set -ex
 
+
+
 # Detect travis OS and set cmake package file name to download
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
     export CMAKE_PACKAGE_NAME="cmake-3.3.2-Darwin-x86_64.tar.gz";
@@ -25,9 +27,18 @@ elif [ "${TRAVIS_OS_NAME}" = "osx" ]; then
   mkdir cmake332
   cd cmake332
   tar -zxf ../${CMAKE_PACKAGE_NAME}
-  cd ${CMAKE_PACKAGE_NAME}
-  echo ${PATH}
+  # FILE="example.tar.gz"
+  # > echo "${FILE%%.*}"
+  # example
+  # > echo "${FILE%.*}"
+  # example.tar
+  # > echo "${FILE#*.}"
+  # tar.gz
+  # > echo "${FILE##*.}"
+  # gz
+  cd ${CMAKE_PACKAGE_NAME%%.*}
   export PATH=`pwd`/cmake-3.3.2-Darwin-x86_64/CMake.app/Contents/bin:${PATH}
+  echo ${PATH}
   cd ../../
 else
   echo This Travis OS is not supported: ${TRAVIS_OS_NAME}
