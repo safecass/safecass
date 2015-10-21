@@ -33,7 +33,7 @@ language: cpp
 compiler:
   - gcc
   - clang
-script: ./travis.sh
+script: ./scripts/travis.sh
 env:
   matrix:
     - SAFECASS_TARGET=safecass SHARED_LIB=OFF STATIC_LIB=ON CMAKE_PKG=OFF BUILD_TYPE=debug   VERBOSE_MAKE=true VERBOSE
@@ -48,9 +48,4 @@ notifications:
   email: false
 sudo: false
 before_install:
-  - wget --no-check-certificate https://cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.sh
-  - chmod +x cmake-3.3.2-Linux-x86_64.sh
-  - mkdir cmake332
-  - cd cmake332
-  - ../cmake-3.3.2-Linux-x86_64.sh --skip-license
-  - cd ..
+  - ./scripts/install-cmake.sh
