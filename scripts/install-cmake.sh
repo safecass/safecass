@@ -1,8 +1,6 @@
 #!/bin/sh
 set -ex
 
-
-
 # Detect travis OS and set cmake package file name to download
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
     export CMAKE_PACKAGE_NAME="cmake-3.3.2-Darwin-x86_64.tar.gz";
