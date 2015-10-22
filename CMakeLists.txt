@@ -38,30 +38,33 @@ include (cmake/add_dl_project.cmake)
 #set (CURRENT_PROJECT_IS_SC ON)
 
 # Project settings for output (generated) files
-#set (BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
-#set (EXECUTABLE_OUTPUT_PATH "${BUILD_ROOT}/bin")
-#set (LIBRARY_OUTPUT_PATH "${BUILD_ROOT}/lib")
+set (BUILD_ROOT             ${CMAKE_BINARY_DIR})
+set (EXECUTABLE_OUTPUT_PATH ${BUILD_ROOT}/bin)
+set (LIBRARY_OUTPUT_PATH    ${BUILD_ROOT}/libs)
 
-# Project settings for source files
-#set (SC_BUILD_ROOT ${BUILD_ROOT})
-#set (SC_SOURCE_ROOT ${CMAKE_SOURCE_DIR})
-#set (SC_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH})   # where to find safecass library (libsafecass)
-#set (SC_INCLUDE_DIR "${SC_SOURCE_ROOT}/libs") # where to find header files
+# Aliasing paths
+set (SC_BUILD_ROOT  ${BUILD_ROOT})
+set (SC_SOURCE_ROOT ${CMAKE_SOURCE_DIR})
+set (SC_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}) # where to find safecass library (libsafecass)
+set (SC_INCLUDE_DIR ${SC_SOURCE_ROOT}/libs) # where to find header files
 
-#
-# Build options
-#
 # Option to build shared library
+option (SC_BUILD_SHARED_LIBS)
+
+#
+# Setting up required dependencies
+#
+# JSONCPP
 add_dl_project(PROJ jsoncpp
                URL  https://github.com/open-source-parsers/jsoncpp/archive/1.6.5.tar.gz
-               CMAKE_OPTIONS "-DJSONCPP_WITH_CMAKE_PACKAGE:BOOL=ON"#"-DBUILD_SHARED_LIBS:BOOL=OFF;-DBUILD_TESTING:BOOL=OFF"
+               #CMAKE_OPTIONS "-DJSONCPP_WITH_CMAKE_PACKAGE:BOOL=ON"#"-DBUILD_SHARED_LIBS:BOOL=OFF;-DBUILD_TESTING:BOOL=OFF"
                EXCLUDE_FROM_ALL)
 # To enable this, SAFECASS shared lib should be selected first, and then enable
 # jsoncpp_lib.
-#if (SAFECASS_BUILD_SHARED_LIBS)
-#  target_include_directories(jsoncpp_lib INTERFACE "${CMAKE_BINARY_DIR}/jsoncpp/src/include")
+#if (SC_BUILD_SHARED_LIBS)
+#  target_include_directories(jsoncpp_lib INTERFACE "${SC_BUILD_ROOT}/jsoncpp/src/include")
 #endif()
-target_include_directories(jsoncpp_lib_static INTERFACE "${CMAKE_BINARY_DIR}/jsoncpp/src/include")
+target_include_directories(jsoncpp_lib_static INTERFACE "${SC_BUILD_ROOT}/jsoncpp/src/include")
 
 # Boost: Check if environment variable (BOOST_ROOT) is defined
 #if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
@@ -79,8 +82,8 @@ target_include_directories(jsoncpp_lib_static INTERFACE "${CMAKE_BINARY_DIR}/jso
 #
 
 # Option to use external logger (g2log)
-option (SAFECASS_USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
-if (SAFECASS_USE_G2LOG)
+option (SC_USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
+if (SC_USE_G2LOG)
   # Download and import gtest
   add_dl_project(PROJ         g2log_by_kjellkod
                  URL          https://bitbucket.org/KjellKod/g2log/get/tip.zip
@@ -88,12 +91,11 @@ if (SAFECASS_USE_G2LOG)
                  EXCLUDE_FROM_ALL)
   target_include_directories(lib_g2logger INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
   target_include_directories(lib_g2logger_shared INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
-  set (SC_USE_G2LOG ${SAFECASS_USE_G2LOG})
 endif()
 
 # Option to enable unit tests
-option (SAFECASS_BUILD_UNIT_TEST "Enable and generate unit test suites." OFF)
-if (SAFECASS_BUILD_UNIT_TEST)
+option (SC_BUILD_UNIT_TEST "Enable and generate unit test suites." OFF)
+if (SC_BUILD_UNIT_TEST)
   # Enable ctest support
   enable_testing()
   include (CTest)
@@ -121,6 +123,7 @@ endif()
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
 return()
+
 
 
 
