@@ -49,7 +49,7 @@ set (SC_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}) # where to find safecass library (li
 set (SC_INCLUDE_DIR ${SC_SOURCE_ROOT}/libs) # where to find header files
 
 # Option to build shared library
-option (SC_BUILD_SHARED_LIBS)
+option (SC_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 #
 # Setting up required dependencies
