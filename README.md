@@ -13,9 +13,10 @@ interact with humans.
 
 *SAFECASS is currently undergoing major code restructuring to improve the
 overall build process with better support for unit-testing.*  
+
 For the time being, the master branch is not fully functional and only a
 limited set of features is available, but the design documents are always
-accessible via the SAFECASS wiki.
+accessible via the [SAFECASS wiki](https://github.com/safecass/safecass/wiki).
 
 The first release (Release 0.1.0) is scheduled by the end of October, 2015, and
 is going to be a minimally functional version.
@@ -29,5 +30,5 @@ NEWS:
    design of SAFECASS.  Please click 
  * 09/21/2015: SAFECASS is currently undergoing repository transition.
 
-Link to [old wiki](https://github.com/minyang/safecass/wiki) (needs to login), [new wiki](https://github.com/safecass/safecass/wiki)
+Link to [old wiki](https://github.com/minyang/safecass/wiki) (needs to login), 
 
