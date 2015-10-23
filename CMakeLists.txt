@@ -19,10 +19,10 @@ cmake_minimum_required (VERSION 3.0.0)
 project (SAFECASS)
 
 # Set the version number
-set (SC_VERSION_MAJOR "0")
-set (SC_VERSION_MINOR "1")
-set (SC_VERSION_PATCH "0")
-set (SC_VERSION "${SC_VERSION_MAJOR}.${SC_VERSION_MINOR}.${SC_VERSION_PATCH}")
+set (SAFECASS_VERSION_MAJOR "0")
+set (SAFECASS_VERSION_MINOR "1")
+set (SAFECASS_VERSION_PATCH "0")
+set (SAFECASS_VERSION "${SAFECASS_VERSION_MAJOR}.${SAFECASS_VERSION_MINOR}.${SAFECASS_VERSION_PATCH}")
 
 # Set cmake module path
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
@@ -32,7 +32,7 @@ include (cmake/utils.cmake)
 include (cmake/add_dl_project.cmake)
 
 # Enable or disable casros (used by external project where SC is deployed)
-#set (SC_ACTIVATED TRUE)
+#set (SAFECASS_ACTIVATED TRUE)
 
 # Set the current project as casros
 #set (CURRENT_PROJECT_IS_SC ON)
@@ -43,13 +43,13 @@ set (EXECUTABLE_OUTPUT_PATH ${BUILD_ROOT}/bin)
 set (LIBRARY_OUTPUT_PATH    ${BUILD_ROOT}/libs)
 
 # Aliasing paths
-set (SC_BUILD_ROOT  ${BUILD_ROOT})
-set (SC_SOURCE_ROOT ${CMAKE_SOURCE_DIR})
-set (SC_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}) # where to find safecass library (libsafecass)
-set (SC_INCLUDE_DIR ${SC_SOURCE_ROOT}/libs) # where to find header files
+set (SAFECASS_BUILD_ROOT  ${BUILD_ROOT})
+set (SAFECASS_SOURCE_ROOT ${CMAKE_SOURCE_DIR})
+set (SAFECASS_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}) # where to find safecass library (libsafecass)
+set (SAFECASS_INCLUDE_DIR ${SAFECASS_SOURCE_ROOT}/libs) # where to find header files
 
 # Option to build shared library
-option (SC_BUILD_SHARED_LIBS "Build shared libraries" OFF)
+option (SAFECASS_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 #
 # Setting up required dependencies
@@ -61,10 +61,10 @@ add_dl_project(PROJ jsoncpp
                EXCLUDE_FROM_ALL)
 # To enable this, SAFECASS shared lib should be selected first, and then enable
 # jsoncpp_lib.
-#if (SC_BUILD_SHARED_LIBS)
-#  target_include_directories(jsoncpp_lib INTERFACE "${SC_BUILD_ROOT}/jsoncpp/src/include")
+#if (SAFECASS_BUILD_SHARED_LIBS)
+#  target_include_directories(jsoncpp_lib INTERFACE "${SAFECASS_BUILD_ROOT}/jsoncpp/src/include")
 #endif()
-target_include_directories(jsoncpp_lib_static INTERFACE "${SC_BUILD_ROOT}/jsoncpp/src/include")
+target_include_directories(jsoncpp_lib_static INTERFACE "${SAFECASS_BUILD_ROOT}/jsoncpp/src/include")
 
 # Boost: Check if environment variable (BOOST_ROOT) is defined
 #if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
@@ -82,8 +82,8 @@ target_include_directories(jsoncpp_lib_static INTERFACE "${SC_BUILD_ROOT}/jsoncp
 #
 
 # Option to use external logger (g2log)
-option (SC_USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
-if (SC_USE_G2LOG)
+option (SAFECASS_USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
+if (SAFECASS_USE_G2LOG)
   # Download and import gtest
   add_dl_project(PROJ         g2log_by_kjellkod
                  URL          https://bitbucket.org/KjellKod/g2log/get/tip.zip
@@ -94,8 +94,8 @@ if (SC_USE_G2LOG)
 endif()
 
 # Option to enable unit tests
-option (SC_BUILD_UNIT_TEST "Enable and generate unit test suites." OFF)
-if (SC_BUILD_UNIT_TEST)
+option (SAFECASS_BUILD_UNIT_TEST "Enable and generate unit test suites." OFF)
+if (SAFECASS_BUILD_UNIT_TEST)
   # Enable ctest support
   enable_testing()
   include (CTest)
@@ -141,8 +141,8 @@ option (BUILD_EXAMPLES "Build examples.  Requires casros-enabled component-based
 option (BUILD_TOOLS "Build tools.  Requires casros-enabled component-based framework." OFF)
 
 # Option to use component-based software framework in robotics
-option (SC_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)
-if (SC_HAS_CISST)
+option (SAFECASS_HAS_CISST "Enable support for cisst. Requires the cisst package" ON)
+if (SAFECASS_HAS_CISST)
   message("cisst support enabled")
   # find cisst
   set (CISST_LIBRARIES_REQUIRED cisstCommon cisstVector cisstOSAbstraction cisstMultiTask)
@@ -153,22 +153,22 @@ if (SC_HAS_CISST)
     include (${CISST_USE_FILE})
     # Print out cisst information
     message("CISST ${CISST_VERSION} found: ${CISST_BINARY_DIR}")
-    add_definitions(-DSC_HAS_CISST)
+    add_definitions(-DSAFECASS_HAS_CISST)
     #
     # TODO
     #
   else ()
     message(FATAL_ERROR "Failed to find cisst")
   endif ()
-endif (SC_HAS_CISST)
+endif (SAFECASS_HAS_CISST)
 
 
 # Update compiler configuration accordingly
-if (USE_G2LOG)
-  set (SC_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+if (SAFECASS_USE_G2LOG)
+  set (SAFECASS_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 endif()
 
 # Create configuration files
-configure_file ("${SC_CMAKE_MODULE_PATH}/SCConfig.cmake.in"
-                "${SC_BUILD_ROOT}/SCConfig.cmake"
+configure_file ("${SAFECASS_CMAKE_MODULE_PATH}/SCConfig.cmake.in"
+                "${SAFECASS_BUILD_ROOT}/SCConfig.cmake"
                 @ONLY)
