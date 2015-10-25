@@ -12,11 +12,11 @@ macro(add_dl_project)
   # If we've already previously done these steps, they will not cause
   # anything to be updated, so extra rebuilds of the project won't occur.
   configure_file(${CMAKE_SOURCE_DIR}/cmake/add_dl_project.CMakeLists.cmake.in
-                 ${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/download/CMakeLists.txt)
+                 ${CMAKE_BINARY_DIR}/external_packages/${DL_ARGS_PROJ}/download/CMakeLists.txt)
   execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-                  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/download)
-  execute_process(COMMAND ${CMAKE_COMMAND} --build . #${DL_ARGS_CMAKE_OPTIONS}  
-                  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/download)
+                  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/external_packages/${DL_ARGS_PROJ}/download)
+  execute_process(COMMAND ${CMAKE_COMMAND} --build .
+                  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/external_packages/${DL_ARGS_PROJ}/download)
 
   # Now add the downloaded source directory to the build as normal.
   # The EXCLUDE_FROM_ALL option is useful if you only want to build
@@ -27,7 +27,16 @@ macro(add_dl_project)
     unset(EXCLUDE_FROM_ALL)
   endif()
 
-  add_subdirectory(${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/src/${DL_ARGS_PATH_SUFFIX}
-                   ${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/build
+  add_subdirectory(${CMAKE_BINARY_DIR}/external_packages/${DL_ARGS_PROJ}/src/${DL_ARGS_PATH_SUFFIX}
+                   ${CMAKE_BINARY_DIR}/external_packages/${DL_ARGS_PROJ}/build
                    ${EXCLUDE_FROM_ALL})
+
+  # If package-specific cmake options are specified, re-run cmake in the package build tree
+  # to overwrite its default configuration
+  if (NOT "${DL_ARGS_CMAKE_OPTIONS}" STREQUAL "")
+    execute_process(COMMAND ${CMAKE_COMMAND}
+                    -G "${CMAKE_GENERATOR}" ${CMAKE_BINARY_DIR}/external_packages/${DL_ARGS_PROJ}/src
+                    ${DL_ARGS_CMAKE_OPTIONS}
+                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/external_packages/${DL_ARGS_PROJ}/build)
+  endif()
 endmacro()

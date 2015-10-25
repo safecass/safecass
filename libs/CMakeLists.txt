@@ -7,15 +7,113 @@
 #-----------------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
-# Last revision: May 4, 2015
+# Last revision: Oct 23, 2015
 # Author       : Min Yang Jung (myj@jhu.edu)
 # URL          : https://github.com/minyang/safecass
 #
+# Option to build shared library
+#option (SAFECASS_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
-#---------------------------------
-# Project Settings
-#---------------------------------
-project(SCLib)
+#
+# Required dependencies
+# - Try to find first
+# - If not found, download and build from source as external project if selected
+#
+#
+# 1) JSONCPP
+#
+# if (NOT DEFINED JSONCPP_FOUND)
+  # find_package (JSONCPP)
+# endif()
+
+#if (NOT JSONCPP_FOUND)
+  # Download and configure at configure-time
+  add_dl_project(PROJ jsoncpp
+                 URL  https://github.com/open-source-parsers/jsoncpp/archive/1.6.5.tar.gz
+                 #CMAKE_OPTIONS -DBUILD_SHARED_LIBS:BOOL=ON
+                 #              -DJSONCPP_WITH_TESTS:BOOL=OFF
+                 EXCLUDE_FROM_ALL)
+
+  # To enable this, SAFECASS shared lib should be selected first, and then enable
+  # jsoncpp_lib.
+  #if (SAFECASS_BUILD_SHARED_LIBS)
+  #  target_include_directories(jsoncpp_lib INTERFACE "${SAFECASS_BUILD_ROOT}/jsoncpp/src/include")
+  #endif()
+  target_include_directories(jsoncpp_lib_static INTERFACE
+                             ${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp/src/include)
+
+  # Download and configure at build-time
+  # add_external_project(NAME jsoncpp
+                        # URL  https://github.com/open-source-parsers/jsoncpp/archive/1.6.5.tar.gz
+                        # EXCLUDE_FROM_ALL
+                        # CMAKE_CACHE_ARGS -DCMAKE_INSTALL_PREFIX:FILEPATH=${SAFECASS_BUILD_ROOT}/external_packages
+                                        # #-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+                                        # #-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
+                                        # -DBUILD_SHARED_LIBS:BOOL=OFF
+                                        # -DBUILD_STATIC_LIBS:BOOL=ON
+                                        # -DJSONCPP_WITH_TESTS:BOOL=OFF
+                                        # -DJSONCPP_WITH_WARNING_AS_ERROR:BOOL=OFF
+                                        # -DJSONCPP_WITH_POST_BUILD_UNITTEST:BOOL=OFF
+                                        # -DJSONCPP_WITH_PKGCONFIG_SUPPORT:BOOL=OFF)
+
+  # Set JSON-related variables
+  set (JSONCPP_INCLUDE_DIR  ${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp/src/include)
+  set (JSONCPP_LIBRARY_DIRS ${SAFECASS_LIBRARY_DIR})
+  set (JSONCPP_LIBRARIES    jsoncpp)
+  set (JSONCPP_FOUND        ON)
+
+  # Set variables into the parent directory
+  #set (JSONCPP_INCLUDE_DIR  ${JSONCPP_INCLUDE_DIR} PARENT_SCOPE)
+  #set (JSONCPP_LIBRARY_DIRS ${JSONCPP_LIBRARY_DIRS} PARENT_SCOPE)
+  #set (JSONCPP_LIBRARIES    ${JSONCPP_LIBRARIES} PARENT_SCOPE)
+  #set (JSONCPP_FOUND        ON PARENT_SCOPE)
+
+  message(STATUS "JSONCPP_INCLUDE_DIR: ${JSONCPP_INCLUDE_DIR}")
+  message(STATUS "JSONCPP_LIBRARY_DIRS: ${JSONCPP_LIBRARY_DIRS}")
+  message(STATUS "JSONCPP_LIBRARIES: ${JSONCPP_LIBRARIES}")
+  message(STATUS "JSONCPP_FOUND: ${JSONCPP_FOUND}")
+
+#endif(NOT JSONCPP_FOUND)
+
+
+
+#
+# 2) Boost: chrono, xx,xx,xx,..
+#
+
+
+
+# Boost: Check if environment variable (BOOST_ROOT) is defined
+#if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
+#  set(BOOST_ROOT $ENV{BOOST_ROOT})
+#  message("BOOST_ROOT is found from environment variable: ${BOOST_ROOT}")
+#endif()
+
+return()
+
+#
+# Optional dependencies
+#
+
+# Option to use external logger (g2log)
+option (SAFECASS_USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
+if (SAFECASS_USE_G2LOG)
+  # Download and import gtest
+  add_dl_project(PROJ         g2log_by_kjellkod
+                 URL          https://bitbucket.org/KjellKod/g2log/get/tip.zip
+                 PATH_SUFFIX  g2log
+                 EXCLUDE_FROM_ALL)
+  target_include_directories(lib_g2logger INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
+  target_include_directories(lib_g2logger_shared INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
+endif()
+
+
+
+
+
+
+
+
 
 # Set directories
 set (LIB_DIR ${PROJECT_SOURCE_DIR})

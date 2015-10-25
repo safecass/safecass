@@ -23,7 +23,8 @@ add_dl_project(PROJ     gtest
                URL      https://googletest.googlecode.com/files/gtest-1.7.0.zip
                URL_HASH SHA1=f85f6d2481e2c6c4a18539e391aa4ea8ab0394af
                EXCLUDE_FROM_ALL)
-target_include_directories(gtest INTERFACE "${CMAKE_BINARY_DIR}/gtest/src/include")
+target_include_directories(gtest INTERFACE
+                           ${SAFECASS_BUILD_ROOT}/external_packages/gtest/src/include)
 
 
 #set (UNIT_TEST_SRC test_json.h test_json.cpp)

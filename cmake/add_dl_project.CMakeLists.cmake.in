@@ -7,11 +7,11 @@ include(ExternalProject)
 ExternalProject_Add(${DL_ARGS_PROJ}-download
                     URL               ${DL_ARGS_URL}
                     URL_HASH          ${DL_ARGS_URL_HASH}
-                    SOURCE_DIR        "${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/src"
-                    BINARY_DIR        "${CMAKE_BINARY_DIR}/${DL_ARGS_PROJ}/build"
+                    SOURCE_DIR        "${CMAKE_BINARY_DIR}/external_packages/${DL_ARGS_PROJ}/src"
+                    BINARY_DIR        "${CMAKE_BINARY_DIR}/external_packages/${DL_ARGS_PROJ}/build"
                     CONFIGURE_COMMAND ""
                     BUILD_COMMAND     ""
                     INSTALL_COMMAND   ""
                     TEST_COMMAND      ""
-                    CMAKE_CACHE_ARGS  ${DL_ARGS_CMAKE_ARGS}
+                    CMAKE_CACHE_ARGS  ${DL_ARGS_CMAKE_OPTIONS}
                     )
