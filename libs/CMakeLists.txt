@@ -17,7 +17,7 @@
 #
 # Required dependencies
 # - Try to find first
-# - If not found, download and build from source as external project if selected
+# - If not found, download and build from source as external project
 #
 # 1) JSONCPP
 #
