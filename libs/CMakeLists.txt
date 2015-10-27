@@ -75,7 +75,7 @@ endif()
 #
 set (BOOST_COMPONENTS_REQUIRED program_options thread system)
 
-find_package(Boost 1.56.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
+find_package(Boost 1.56.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
 if (Boost_FOUND)
   message("Boost found")
 else(Boost_FOUND)
