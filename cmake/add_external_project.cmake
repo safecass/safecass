@@ -21,7 +21,7 @@ macro(add_external_project)
                       DOWNLOAD_DIR      ${SAFECASS_BUILD_ROOT}/external_packages/${EXT_PROJ_ARGS_NAME}/download
                       CONFIGURE_COMMAND ${EXT_PROJ_ARGS_CONFIG_CMD}
                       BUILD_COMMAND     ${EXT_PROJ_ARGS_BUILD_CMD}
-                      INSTALL_COMMAND   ${EXT_PROJ_ARGS_INSTALL_CMD}
+                      INSTALL_COMMAND   ""
                       TEST_COMMAND      ""
                       CMAKE_CACHE_ARGS  ${EXT_PROJ_ARGS_CMAKE_OPTIONS})
 endmacro()

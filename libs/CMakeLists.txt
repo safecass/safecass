@@ -97,8 +97,8 @@ else(Boost_FOUND)
                        URL           http://cs.jhu.edu/~minyang/boost_1_59_0.tar.bz2
                        URL_HASH      6aa9a5c6a4ca1016edd0ed1178e3cb87
                        CONFIG_CMD    ${BOOST_BOOTSTRAP_CMD}
-                       INSTALL_CMD   ""
                        BUILD_CMD ${BOOST_B2_CMD} install
+                              -d0
                               --prefix=${SAFECASS_BUILD_ROOT}/external_packages/boost/build
                               --build-dir=${SAFECASS_BUILD_ROOT}/external_packages/boost/build
                               --variant=release # debug|release
@@ -108,9 +108,6 @@ else(Boost_FOUND)
                               --with-thread
                               --with-system
                               -j${N})
-
-  #configure_file(${CMAKE_SOURCE_DIR}/cmake/add_external_project_boost.CMakeLists.cmake.in
-  #               ${SAFECASS_BUILD_ROOT}/external_packages/boost/src/CMakeLists.txt)
 
   set (Boost_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/boost)
   # message("Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
