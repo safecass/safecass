@@ -15,42 +15,52 @@
 #
 # Determine OS
 #
-set (SC_ON_MAC     FALSE)
-set (SC_ON_WINDOWS FALSE)
-set (SC_ON_LINUX   FALSE)
+set (SAFECASS_ON_MAC     FALSE)
+set (SAFECASS_ON_WINDOWS FALSE)
+set (SAFECASS_ON_LINUX   FALSE)
 
-# Mac/Apple
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-  set (SC_ON_MAC TRUE)
+  set (SAFECASS_ON_MAC TRUE)
   message ("OS: Apple/Mac detected")
 elseif (UNIX)
-  set (SC_ON_LINUX TRUE)
+  set (SAFECASS_ON_LINUX TRUE)
   message ("OS: Linux detected")
 elseif (WIN32)
-  set (SC_ON_WINDOWS TRUE)
+  set (SAFECASS_ON_WINDOWS TRUE)
   message ("OS: Windows detected")
 endif()
 
-if (SC_ON_MAC)
-elseif (SC_ON_WINDOWS)
-elseif (SC_ON_LINUX)
-endif()
+# if (SAFECASS_ON_MAC)
+# elseif (SAFECASS_ON_WINDOWS)
+# elseif (SAFECASS_ON_LINUX)
+# endif()
 
 #
 # Determine compiler
 #
-set (SC_COMPILER "")
+set (SAFECASS_COMPILER "")
 # Check if clang
 string (FIND ${CMAKE_CXX_COMPILER_ID} "Clang" CLANG_DETECTED)
 if (NOT ${CLANG_DETECTED} MATCHES -1)
-  set (SC_COMPILER "Clang")
+  set (SAFECASS_COMPILER "Clang")
 # Check if gcc
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set (SC_COMPILER "GCC")
+  set (SAFECASS_COMPILER "GCC")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  set (SC_COMPILER "MSVC")
+  set (SAFECASS_COMPILER "MSVC")
 else()
   message(FATAL_ERROR "Failed to determine compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
-message ("Compiler: ${SC_COMPILER} detected")
+message ("Compiler: ${SAFECASS_COMPILER} detected")
+
+#
+# Determine number of processors available
+#
+include(ProcessorCount)
+ProcessorCount(N)
+if(NOT N EQUAL 0)
+  set(CTEST_BUILD_FLAGS -j${N})
+  set(ctest_test_args ${ctest_test_args} PARALLEL_LEVEL ${N})
+  message("Number of processors/cores detected: ${N}")
+endif()

@@ -19,14 +19,9 @@
 # - Try to find first
 # - If not found, download and build from source as external project if selected
 #
-#
 # 1) JSONCPP
 #
-# if (NOT DEFINED JSONCPP_FOUND)
-  # find_package (JSONCPP)
-# endif()
-
-#if (NOT JSONCPP_FOUND)
+if (NOT EXISTS ${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp)
   # Download and configure at configure-time
   add_dl_project(PROJ jsoncpp
                  URL  https://github.com/open-source-parsers/jsoncpp/archive/1.6.5.tar.gz
@@ -73,23 +68,80 @@
   message(STATUS "JSONCPP_LIBRARIES: ${JSONCPP_LIBRARIES}")
   message(STATUS "JSONCPP_FOUND: ${JSONCPP_FOUND}")
 
-#endif(NOT JSONCPP_FOUND)
-
-
+endif()
 
 #
-# 2) Boost: chrono, xx,xx,xx,..
+# 2) Boost
 #
+set (BOOST_COMPONENTS_REQUIRED program_options thread system)
 
+find_package(Boost 1.56.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
+if (Boost_FOUND)
+  message("Boost found")
+else(Boost_FOUND)
+#if (TRUE)
+  message("Boost not found -- Boost 1.59.0 will be downloaded and built")
 
+  # Define boost bootstrap shell command
+  if (SAFECASS_ON_LINUX OR SAFECASS_ON_MAC)
+    set(BOOST_BOOTSTRAP_CMD "./bootstrap.sh")
+    set(BOOST_B2_CMD        "./b2")
+  elseif (SAFECASS_ON_WINDOWS)
+    set(BOOST_BOOTSTRAP_CMD "bootstrap.bat")
+    set(BOOST_B2_CMD        "b2.exe")
+  endif()
 
-# Boost: Check if environment variable (BOOST_ROOT) is defined
-#if (NOT BOOST_ROOT AND NOT $ENV{BOOST_ROOT} STREQUAL "")
-#  set(BOOST_ROOT $ENV{BOOST_ROOT})
-#  message("BOOST_ROOT is found from environment variable: ${BOOST_ROOT}")
-#endif()
+  # Download and configure at build-time
+  include(add_external_project)
+  add_external_project(NAME          boost
+                       URL           http://cs.jhu.edu/~minyang/boost_1_59_0.tar.bz2
+                       URL_HASH      6aa9a5c6a4ca1016edd0ed1178e3cb87
+                       CONFIG_CMD    ${BOOST_BOOTSTRAP_CMD}
+                       BUILD_CMD ${BOOST_B2_CMD} install
+                              --prefix=${SAFECASS_BUILD_ROOT}/external_packages/boost/build
+                              --build-dir=${SAFECASS_BUILD_ROOT}/external_packages/boost/build
+                              --variant=release # debug|release
+                              --link=shared # static|shared
+                              --threading=multi #single|multi
+                              --with-program_options
+                              --with-thread
+                              --with-system
+                              -j${N})
 
-return()
+  #configure_file(${CMAKE_SOURCE_DIR}/cmake/add_external_project_boost.CMakeLists.cmake.in
+  #               ${SAFECASS_BUILD_ROOT}/external_packages/boost/src/CMakeLists.txt)
+
+  set (Boost_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/boost)
+  # message("Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
+  # message("Boost_LIBRARIES: ${Boost_LIBRARIES}")
+  # message("Boost_VERSION: ${Boost_VERSION}")
+  # message("Boost_LIB_VERSION: ${Boost_LIB_VERSION}")
+  # message("Boost_MAJOR_VERSION: ${Boost_MAJOR_VERSION}")
+  # message("Boost_MINOR_VERSION: ${Boost_MINOR_VERSION}")
+  # message("Boost_SUBMINOR_VERSION: ${Boost_SUBMINOR_VERSION}")
+  # foreach (COMPONENT ${BOOST_COMPONENTS_REQUIRED})
+    # string(TOUPPER ${COMPONENT}_FOUND COMPONENT_FOUND)
+    # string(TOUPPER ${COMPONENT}_LIBRARY COMPONENT_LIBRARY)
+    # message("Boost_${COMPONENT}_FOUND: ${Boost_${COMPONENT_FOUND}}")
+    # message("Boost_${COMPONENT}_LIBRARY: ${Boost_${COMPONENT_LIBRARY}}")
+  # endforeach()
+
+endif()
+
+message("Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+message("Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
+message("Boost_LIBRARIES: ${Boost_LIBRARIES}")
+message("Boost_VERSION: ${Boost_VERSION}")
+message("Boost_LIB_VERSION: ${Boost_LIB_VERSION}")
+message("Boost_MAJOR_VERSION: ${Boost_MAJOR_VERSION}")
+message("Boost_MINOR_VERSION: ${Boost_MINOR_VERSION}")
+message("Boost_SUBMINOR_VERSION: ${Boost_SUBMINOR_VERSION}")
+foreach (COMPONENT ${BOOST_COMPONENTS_REQUIRED})
+  string(TOUPPER ${COMPONENT}_FOUND COMPONENT_FOUND)
+  string(TOUPPER ${COMPONENT}_LIBRARY COMPONENT_LIBRARY)
+  message("Boost_${COMPONENT}_FOUND: ${Boost_${COMPONENT_FOUND}}")
+  message("Boost_${COMPONENT}_LIBRARY: ${Boost_${COMPONENT_LIBRARY}}")
+endforeach()
 
 #
 # Optional dependencies
@@ -107,13 +159,7 @@ if (SAFECASS_USE_G2LOG)
   target_include_directories(lib_g2logger_shared INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
 endif()
 
-
-
-
-
-
-
-
+return()
 
 # Set directories
 set (LIB_DIR ${PROJECT_SOURCE_DIR})
