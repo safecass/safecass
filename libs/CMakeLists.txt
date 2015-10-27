@@ -109,20 +109,27 @@ else(Boost_FOUND)
                               --with-system
                               -j${N})
 
-  set (Boost_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/boost)
-  # message("Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
-  # message("Boost_LIBRARIES: ${Boost_LIBRARIES}")
-  # message("Boost_VERSION: ${Boost_VERSION}")
-  # message("Boost_LIB_VERSION: ${Boost_LIB_VERSION}")
-  # message("Boost_MAJOR_VERSION: ${Boost_MAJOR_VERSION}")
-  # message("Boost_MINOR_VERSION: ${Boost_MINOR_VERSION}")
-  # message("Boost_SUBMINOR_VERSION: ${Boost_SUBMINOR_VERSION}")
-  # foreach (COMPONENT ${BOOST_COMPONENTS_REQUIRED})
-    # string(TOUPPER ${COMPONENT}_FOUND COMPONENT_FOUND)
-    # string(TOUPPER ${COMPONENT}_LIBRARY COMPONENT_LIBRARY)
-    # message("Boost_${COMPONENT}_FOUND: ${Boost_${COMPONENT_FOUND}}")
-    # message("Boost_${COMPONENT}_LIBRARY: ${Boost_${COMPONENT_LIBRARY}}")
-  # endforeach()
+  set (Boost_INCLUDE_DIRS  ${SAFECASS_BUILD_ROOT}/external_packages/boost)
+  set (Boost_LIBRARY_DIRS  ${SAFECASS_BUILD_ROOT}/external_packages/boost/build/lib)
+
+  include (find_boost_library)
+  find_boost_library(LIB_NAME program_options) # setting Boost_PROGRAM_OPTIONS_LIBRARY
+  find_boost_library(LIB_NAME thread) # setting Boost_THREAD_LIBRARY
+  find_boost_library(LIB_NAME system) # setting Boost_SYSTEM_LIBRARY
+  set (Boost_PROGRAM_OPTIONS_FOUND ON)
+  set (Boost_THREAD_FOUND ON)
+  set (Boost_SYSTEM_FOUND ON)
+
+  set (Boost_LIBRARIES "") # clear out existing cache just in case
+  list (APPEND Boost_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                               ${Boost_THREAD_LIBRARY}
+                               ${Boost_SYSTEM_LIBRARY})
+
+  set (Boost_VERSION       105900)
+  set (Boost_LIB_VERSION   1_59)
+  set (Boost_MAJOR_VERSION 1)
+  set (Boost_MINOR_VERSION 59)
+  set (Boost_SUBMINOR_VERSION 0)
 
 endif()
 
