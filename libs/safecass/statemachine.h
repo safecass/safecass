@@ -28,8 +28,8 @@
 #include "jsonwrapper.h"
 
 // boost msm
-#include <boost/msm/back/state_machine.hpp> // back-end
-#include <boost/msm/front/state_machine_def.hpp> // front-end
+#include "boost/msm/back/state_machine.hpp" // back-end
+#include "boost/msm/front/state_machine_def.hpp" // front-end
 
 namespace SC {
 

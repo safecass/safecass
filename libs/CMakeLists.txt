@@ -88,10 +88,11 @@ message(STATUS "JSONCPP_FOUND: ${JSONCPP_FOUND}")
 #
 set (BOOST_COMPONENTS_REQUIRED program_options thread system)
 
-find_package(Boost 1.56.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
-if (Boost_FOUND)
-  message("Boost found")
-else(Boost_FOUND)
+#find_package(Boost 1.56.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
+#if (Boost_FOUND)
+#  message("Boost found")
+#else(Boost_FOUND)
+if (TRUE)
   message("Boost not found -- Boost 1.59.0 will be downloaded and built")
 
   # Define boost bootstrap shell command
@@ -121,7 +122,7 @@ else(Boost_FOUND)
                               --with-system
                               -j${N})
 
-  set (Boost_INCLUDE_DIRS  ${SAFECASS_BUILD_ROOT}/external_packages/boost)
+  set (Boost_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/boost/build/include)
   set (Boost_LIBRARY_DIRS  ${SAFECASS_BUILD_ROOT}/external_packages/boost/build/lib)
 
   include (find_boost_library)
@@ -210,8 +211,6 @@ set (SAFECASS_LIBRARY_INCLUDE_DIR # safecass headers
                                   )
 
 # Define libraries to compile
-message("------- ${SAFECASS_LIBRARY_INCLUDE_DIR}")
-
 set (SAFECASS_LIBRARIES common safecass)
 foreach (lib ${SAFECASS_LIBRARIES})
   add_safecass_library(${lib})
