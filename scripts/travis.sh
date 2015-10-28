@@ -17,7 +17,7 @@ else
 fi
 
 ${CMAKE_BIN} \
-      -DSAFECASS_BUILD_UNIT_TEST=ON \
+      -DSAFECASS_ENABLE_UNIT_TEST=ON \
       -DSAFECASS_USE_G2LOG=ON \
       ..
       #../$SAFECASS_TARGET
