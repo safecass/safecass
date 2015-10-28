@@ -12,6 +12,7 @@
 //
 #include "utils.h"
 #include <time.h>
+#include <algorithm>
 #include <functional>
 #include <cctype>
 #include <math.h> // modf
