@@ -12,6 +12,7 @@
 //
 #include "event.h"
 #include <iomanip> // std::setprecision
+#include <string.h> // memset
 
 using namespace SC;
 
