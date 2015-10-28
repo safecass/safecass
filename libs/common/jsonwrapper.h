@@ -14,11 +14,11 @@
 #ifndef _jsonwrapper_h
 #define _jsonwrapper_h
 
-#include "common.h"
-
-#include <json.h> // jsoncpp
-#include <reader.h>
 #include <string>
+
+#include "common.h"
+#include "json/json.h"
+#include "json/reader.h"
 
 namespace SC {
 

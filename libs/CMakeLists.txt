@@ -14,14 +14,22 @@
 # Option to build shared library
 #option (SAFECASS_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
+#--------------------------------------------------------------------
 #
 # Required dependencies
 # - Try to find first
 # - If not found, download and build from source as external project
 #
+#--------------------------------------------------------------------
+include(add_external_project)
+
+#
 # 1) JSONCPP
 #
-if (NOT EXISTS ${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp)
+find_package(JSONCPP)
+if (JSONCPP_FOUND)
+  message("JSONCPP found")
+else(JSONCPP_FOUND)
   # Download and configure at configure-time
   add_dl_project(PROJ jsoncpp
                  URL  https://github.com/open-source-parsers/jsoncpp/archive/1.6.5.tar.gz
@@ -38,37 +46,42 @@ if (NOT EXISTS ${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp)
                              ${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp/src/include)
 
   # Download and configure at build-time
-  # add_external_project(NAME jsoncpp
-                        # URL  https://github.com/open-source-parsers/jsoncpp/archive/1.6.5.tar.gz
-                        # EXCLUDE_FROM_ALL
-                        # CMAKE_CACHE_ARGS -DCMAKE_INSTALL_PREFIX:FILEPATH=${SAFECASS_BUILD_ROOT}/external_packages
-                                        # #-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-                                        # #-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
-                                        # -DBUILD_SHARED_LIBS:BOOL=OFF
-                                        # -DBUILD_STATIC_LIBS:BOOL=ON
-                                        # -DJSONCPP_WITH_TESTS:BOOL=OFF
-                                        # -DJSONCPP_WITH_WARNING_AS_ERROR:BOOL=OFF
-                                        # -DJSONCPP_WITH_POST_BUILD_UNITTEST:BOOL=OFF
-                                        # -DJSONCPP_WITH_PKGCONFIG_SUPPORT:BOOL=OFF)
+  #add_external_project(NAME          jsoncpp
+  #                     URL           https://github.com/open-source-parsers/jsoncpp/archive/1.6.5.tar.gz
+  #                     BUILD_IN_SRC  FALSE
+  #                     EXCLUDE_FROM_ALL
+  #                     CMAKE_OPTIONS -DCMAKE_INSTALL_PREFIX:FILEPATH=${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp
+  #                                   # #-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+  #                                   # #-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
+  #                                   -DBUILD_SHARED_LIBS:BOOL=OFF
+  #                                   -DBUILD_STATIC_LIBS:BOOL=ON
+  #                                   -DJSONCPP_WITH_TESTS:BOOL=OFF
+  #                                   -DJSONCPP_WITH_WARNING_AS_ERROR:BOOL=OFF
+  #                                   -DJSONCPP_WITH_POST_BUILD_UNITTEST:BOOL=OFF
+  #                                   -DJSONCPP_WITH_PKGCONFIG_SUPPORT:BOOL=OFF)
 
   # Set JSON-related variables
   set (JSONCPP_INCLUDE_DIR  ${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp/src/include)
   set (JSONCPP_LIBRARY_DIRS ${SAFECASS_LIBRARY_DIR})
-  set (JSONCPP_LIBRARIES    jsoncpp)
+  #set (JSONCPP_LIBRARIES    jsoncpp)
   set (JSONCPP_FOUND        ON)
 
+  find_library(JSONCPP_LIBRARIES
+               NAME  jsoncpp #jsoncpp_lib_shared
+               PATHS ${SAFECASS_BUILD_ROOT}/libs
+               NO_DEFAULT_PATH
+               NO_CMAKE_FIND_ROOT_PATH)
   # Set variables into the parent directory
   #set (JSONCPP_INCLUDE_DIR  ${JSONCPP_INCLUDE_DIR} PARENT_SCOPE)
   #set (JSONCPP_LIBRARY_DIRS ${JSONCPP_LIBRARY_DIRS} PARENT_SCOPE)
   #set (JSONCPP_LIBRARIES    ${JSONCPP_LIBRARIES} PARENT_SCOPE)
   #set (JSONCPP_FOUND        ON PARENT_SCOPE)
-
-  message(STATUS "JSONCPP_INCLUDE_DIR: ${JSONCPP_INCLUDE_DIR}")
-  message(STATUS "JSONCPP_LIBRARY_DIRS: ${JSONCPP_LIBRARY_DIRS}")
-  message(STATUS "JSONCPP_LIBRARIES: ${JSONCPP_LIBRARIES}")
-  message(STATUS "JSONCPP_FOUND: ${JSONCPP_FOUND}")
-
 endif()
+
+message(STATUS "JSONCPP_INCLUDE_DIR: ${JSONCPP_INCLUDE_DIR}")
+message(STATUS "JSONCPP_LIBRARY_DIRS: ${JSONCPP_LIBRARY_DIRS}")
+message(STATUS "JSONCPP_LIBRARIES: ${JSONCPP_LIBRARIES}")
+message(STATUS "JSONCPP_FOUND: ${JSONCPP_FOUND}")
 
 #
 # 2) Boost
@@ -79,7 +92,6 @@ find_package(Boost 1.56.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
 if (Boost_FOUND)
   message("Boost found")
 else(Boost_FOUND)
-#if (TRUE)
   message("Boost not found -- Boost 1.59.0 will be downloaded and built")
 
   # Define boost bootstrap shell command
@@ -92,12 +104,12 @@ else(Boost_FOUND)
   endif()
 
   # Download and configure at build-time
-  include(add_external_project)
   add_external_project(NAME          boost
                        URL           http://cs.jhu.edu/~minyang/boost_1_59_0.tar.bz2
                        URL_HASH      6aa9a5c6a4ca1016edd0ed1178e3cb87
+                       BUILD_IN_SRC  TRUE
                        CONFIG_CMD    ${BOOST_BOOTSTRAP_CMD}
-                       BUILD_CMD ${BOOST_B2_CMD} install
+                       BUILD_CMD     ${BOOST_B2_CMD} install
                               -d0
                               --prefix=${SAFECASS_BUILD_ROOT}/external_packages/boost/build
                               --build-dir=${SAFECASS_BUILD_ROOT}/external_packages/boost/build
@@ -148,11 +160,16 @@ foreach (COMPONENT ${BOOST_COMPONENTS_REQUIRED})
   message("Boost_${COMPONENT}_LIBRARY: ${Boost_${COMPONENT_LIBRARY}}")
 endforeach()
 
+#--------------------------------------------------------------------
 #
 # Optional dependencies
+# - Try to find first
+# - If not found, download and build from source as external project
 #
-
-# Option to use external logger (g2log)
+#--------------------------------------------------------------------
+#
+# 1) g2log
+#
 option (SAFECASS_USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
 if (SAFECASS_USE_G2LOG)
   # Download and import gtest
@@ -164,10 +181,46 @@ if (SAFECASS_USE_G2LOG)
   target_include_directories(lib_g2logger_shared INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
 endif()
 
+#--------------------------------------------------------------------
+#
+# Common Library for SAFECASS
+#
+#--------------------------------------------------------------------
+
+#--------------------------------------------------------------------
+#
+# SAFECASS Library
+#
+#--------------------------------------------------------------------
+include (add_safecass_library)
+
+# Generate config.h
+configure_file(config.h.in ${BUILD_ROOT}/include/config.h)
+
+# Set include directories
+set (SAFECASS_LIBRARY_INCLUDE_DIR # safecass headers
+                                  ${SAFECASS_INCLUDE_DIR}
+                                  ${SAFECASS_INCLUDE_DIR}/common
+                                  ${SAFECASS_INCLUDE_DIR}/safecass
+                                  # generated safecass headers
+                                  ${BUILD_ROOT}/include
+                                  # dependencies
+                                  ${JSONCPP_INCLUDE_DIR}
+                                  ${Boost_INCLUDE_DIRS}
+                                  )
+
+# Define libraries to compile
+message("------- ${SAFECASS_LIBRARY_INCLUDE_DIR}")
+
+set (SAFECASS_LIBRARIES common safecass)
+foreach (lib ${SAFECASS_LIBRARIES})
+  add_safecass_library(${lib})
+  target_include_directories(${lib} PUBLIC ${SAFECASS_LIBRARY_INCLUDE_DIR})
+endforeach()
+
 return()
 
 # Set directories
-set (LIB_DIR ${PROJECT_SOURCE_DIR})
 
 #---------------------------------
 # Collect project files

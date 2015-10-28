@@ -28,8 +28,8 @@ set (SAFECASS_VERSION "${SAFECASS_VERSION_MAJOR}.${SAFECASS_VERSION_MINOR}.${SAF
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # Include safecass cmake utility macros
-include (cmake/utils.cmake)
-include (cmake/add_dl_project.cmake)
+include (utils)
+include (add_dl_project)
 
 # Enable or disable casros (used by external project where SC is deployed)
 #set (SAFECASS_ACTIVATED TRUE)

@@ -1,40 +1,39 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
-// Last revision: Apr 19, 2014
+// Last revision: Oct 27, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
+// Github       : https://github.com/safecass/casros
 //
 #ifndef _COMMON_CONFIG_H
 #define _COMMON_CONFIG_H
 
-#define SC_SOURCE_ROOT_DIR "@CMAKE_SOURCE_DIR@"
-#define SC_BINARY_ROOT_DIR "@CMAKE_BINARY_DIR@"
+#define SC_SOURCE_ROOT_DIR "@SAFECASS_SOURCE_ROOT@"
+//#define SC_BINARY_ROOT_DIR "@CMAKE_BINARY_DIR@"
 
-#define SC_COMMUNICATOR_CONFIG_DIR "@CMAKE_SOURCE_DIR@/libs/communicator"
+//#define SC_COMMUNICATOR_CONFIG_DIR "@CMAKE_SOURCE_DIR@/libs/communicator"
 
 // Global macro to enable or disable SC
-#cmakedefine01 SC_ACTIVATED
+//#cmakedefine01 SC_ACTIVATED
 
 // Logger
-#cmakedefine01 SC_USE_G2LOG
+#cmakedefine01 SAFECASS_USE_G2LOG
 
 // Unit-test
-#cmakedefine01 ENABLE_UNIT_TEST
+#cmakedefine01 SAFECASS_BUILD_UNIT_TEST
 
 // Operating system
-#cmakedefine01 SC_ON_MAC
-#cmakedefine01 SC_ON_WINDOWS
-#cmakedefine01 SC_ON_LINUX
-#cmakedefine01 SC_ON_QNX
+#cmakedefine01 SAFECASS_ON_MAC
+#cmakedefine01 SAFECASS_ON_WINDOWS
+#cmakedefine01 SAFECASS_ON_LINUX
 
 // Component-based middleware in use
-#cmakedefine01 SC_HAS_CISST
+//#cmakedefine01 SC_HAS_CISST
 
 #endif // _COMMON_CONFIG_H

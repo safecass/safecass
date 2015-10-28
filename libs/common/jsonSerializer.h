@@ -17,12 +17,12 @@
 #include "monitor.h"
 #include "event.h"
 #include "filterBase.h"
-#include "topic_def.h"
-#if SC_HAS_CISST
-#include "cisstEventLocation.h"
-#else
-#include "eventLocation.h"
-#endif
+//#include "topic_def.h"
+//#if SC_HAS_CISST
+//#include "cisstEventLocation.h"
+//#else
+//#include "eventLocation.h"
+//#endif
 
 namespace SC {
 
@@ -31,16 +31,17 @@ namespace SC {
     JSONSerializer implements serialization and deserialization of JSON messages
     for data exchange within SAFECASS.
 */
+class EventLocationBase;
 class SCLIB_EXPORT JSONSerializer {
 protected:
     //! JSON value buffer
     JsonWrapper::JsonValue JSONBuffer;
 
-#if SC_HAS_CISST
-    cisstEventLocation EventLocation;
-#else
-    EventLocationBase  EventLocation;
-#endif
+//#if SC_HAS_CISST
+//    cisstEventLocation EventLocation;
+//#else
+    EventLocationBase  * EventLocation;
+//#endif
 
 public:
     //! Constructor

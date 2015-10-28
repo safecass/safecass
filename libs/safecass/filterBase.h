@@ -16,6 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include <queue> // for fault injection
+#include <list>
 
 #include "signal.h"
 #include "eventLocationBase.h"
