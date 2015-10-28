@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: May 4, 2015
+// Last revision: Oct 28, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 //
 #include "statemachine.h"
@@ -285,7 +285,7 @@ void StateMachine::Reset(bool resetHistory)
     }
 }
 
-#if ENABLE_UNIT_TEST
+#if SAFECASS_ENABLE_UNIT_TEST
 int StateMachine::GetCountEntryExit(const State::StateEntryExitType stateEntryExit) const
 {
     if (State.EventHandlerInstance == 0)

@@ -56,8 +56,8 @@ set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 add_subdirectory(libs)
 
 # Option to enable unit tests
-option (SAFECASS_BUILD_UNIT_TEST "Enable unit testing facility" OFF)
-if (SAFECASS_BUILD_UNIT_TEST)
+option (SAFECASS_ENABLE_UNIT_TEST "Enable unit testing facility" OFF)
+if (SAFECASS_ENABLE_UNIT_TEST)
   # Enable ctest support
   enable_testing()
   include (CTest)

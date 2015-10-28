@@ -7,14 +7,14 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 23, 2012
-// Last revision: May 4, 2015
+// Last revision: Oct 28, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// URL          : https://github.com/minyang/safecass
+// URL          : https://github.com/safecass/safecass
 //
-// SAFECASS uses the Boost Meta State Machine (MSM) library to implement the state 
-// machine of the generic component model (GCM).  MSM enables quick and easy 
-// cimplementation of state machines of high performance.  For more details, refer 
-// to http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html 
+// SAFECASS uses the Boost Meta State Machine (MSM) library to implement the state
+// machine of the generic component model (GCM).  MSM enables quick and easy
+// implementation of state machines with high performance.  For more details, refer
+// to http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html
 //
 #ifndef _statemachine_h
 #define _statemachine_h
@@ -241,7 +241,7 @@ public:
         handle state change events.  Any existing state event handler is deleted. */
     void SetStateEventHandler(StateEventHandler * instance);
 
-#if ENABLE_UNIT_TEST
+#if SAFECASS_ENABLE_UNIT_TEST
     /*! State machine testing */
     //void Test(void);
     // TODO: If multiple event handlers are used, update this method as well.
@@ -252,7 +252,7 @@ public:
     std::string GetCounterStatus(void) const;
 #endif
 };
- 
+
 /*
 inline std::ostream & operator << (std::ostream & outputStream, const StateMachine & stateMachine) {
     stateMachine.ToStream(outputStream);

@@ -93,7 +93,7 @@ bool GCM::AddInterface(const std::string & name, GCM::InterfaceTypes type)
 {
     if (type == PROVIDED_INTERFACE) {
         if (States.ProvidedInterfaces.find(name) != States.ProvidedInterfaces.end()) {
-#if ENABLE_UNIT_TEST
+#if SAFECASS_ENABLE_UNIT_TEST
             std::cout << *this << std::endl;
 #endif
             return false;
@@ -108,7 +108,7 @@ bool GCM::AddInterface(const std::string & name, GCM::InterfaceTypes type)
                     << "\"" << ComponentName << "\" - \"" << name << "\"" << std::endl;
     } else {
         if (States.RequiredInterfaces.find(name) != States.RequiredInterfaces.end()) {
-#if ENABLE_UNIT_TEST
+#if SAFECASS_ENABLE_UNIT_TEST
             std::cout << *this << std::endl;
 #endif
             return false;

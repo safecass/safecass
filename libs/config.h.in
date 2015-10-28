@@ -26,7 +26,7 @@
 #cmakedefine01 SAFECASS_USE_G2LOG
 
 // Unit-test
-#cmakedefine01 SAFECASS_BUILD_UNIT_TEST
+#cmakedefine01 SAFECASS_ENABLE_UNIT_TEST
 
 // Operating system
 #cmakedefine01 SAFECASS_ON_MAC

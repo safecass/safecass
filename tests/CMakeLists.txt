@@ -1,24 +1,24 @@
-#------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 #
 # SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 #
 # Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
 #
-#------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Oct 19, 2015
+# Last revision: Oct 28, 2015
 # Author       : Min Yang Jung (myj@jhu.edu)
-# Github       : https://github.com/safecass/safecass 
+# Github       : https://github.com/safecass/safecass
 #
 project (sctest)
 
 message (STATUS "SAFECASS: Unit-tests enabled")
 
 # load safecass macro to help ctest test entry registration
-include (${CMAKE_SOURCE_DIR}/cmake/add_ctest.cmake)
+include (add_ctest)
 
-# Unit testing requires gtest; download and import gtest
+# Unit testing requires gtest; download, build, and import gtest in the build tree
 add_dl_project(PROJ     gtest
                URL      https://googletest.googlecode.com/files/gtest-1.7.0.zip
                URL_HASH SHA1=f85f6d2481e2c6c4a18539e391aa4ea8ab0394af
@@ -26,16 +26,12 @@ add_dl_project(PROJ     gtest
 target_include_directories(gtest INTERFACE
                            ${SAFECASS_BUILD_ROOT}/external_packages/gtest/src/include)
 
-
-#set (UNIT_TEST_SRC test_json.h test_json.cpp)
-
-#include_directories (${SC_INCLUDE_DIR}/common)
-
-add_executable (sctest_json main.cpp ${UNIT_TEST_SRC})
-
-target_link_libraries (sctest_json gtest)
-
-add_ctest(sctest_json)
+# Define test suites
+add_executable (testGCM main.cpp testState.cpp)
+target_link_libraries (testGCM gtest common safecass ${JSONCPP_LIBRARIES})
+target_include_directories(testGCM INTERFACE ${SAFECASS_INCLUDE_DIR}/safecass)
+# Register this unit test to CTest
+add_ctest(testGCM)
 
 return()
 

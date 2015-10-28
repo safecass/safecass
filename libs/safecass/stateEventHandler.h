@@ -39,12 +39,12 @@ public:
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
 
     // Define test fields for unit tests
-#if ENABLE_UNIT_TEST
+#if SAFECASS_ENABLE_UNIT_TEST
     std::vector<int> CountEntryExit;
     std::vector<int> CountTransition;
 #endif
 };
- 
+
 };
 
 #endif // _stateEventHandler_h
