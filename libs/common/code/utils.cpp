@@ -12,12 +12,12 @@
 //
 #include "utils.h"
 #include <time.h>
-#include <algorithm>
 #include <functional>
 #include <cctype>
-//#include <iomanip> // std::setprecision
 #include <math.h> // modf
-//#include <locale>
+#if SAFECASS_ON_LINUX
+#include <stdio.h> // sprintf
+#endif
 #if SC_HAS_CISST
 #include <cisstOSAbstraction/osaGetTime.h>
 #endif
