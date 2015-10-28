@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
-// Last revision: Oct 19, 2015
+// Last revision: Oct 28, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // URL          : https://github.com/safecass/safecass
 //

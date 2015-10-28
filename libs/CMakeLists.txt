@@ -68,7 +68,7 @@ else(JSONCPP_FOUND)
 
   find_library(JSONCPP_LIBRARIES
                NAME  jsoncpp #jsoncpp_lib_shared
-               PATHS ${SAFECASS_BUILD_ROOT}/libs
+               PATHS ${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp
                NO_DEFAULT_PATH
                NO_CMAKE_FIND_ROOT_PATH)
   # Set variables into the parent directory
