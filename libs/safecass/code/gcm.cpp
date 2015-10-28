@@ -14,8 +14,6 @@
 #include "gcm.h"
 #include "common.h"
 #include "config.h"
-#include <cisstMultiTask/mtsComponent.h>
-#include <cisstMultiTask/mtsManagerLocal.h>
 
 using namespace SC;
 

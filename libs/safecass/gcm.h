@@ -50,7 +50,7 @@ public:
 
     /*! Typedef for specification of service state dependency information */
     typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType;
-    
+
     // typedef for connection information (to identify required interface)
     typedef struct {
         std::string SafetyCoordinatorName;

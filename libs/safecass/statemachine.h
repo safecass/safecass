@@ -19,11 +19,13 @@
 #ifndef _statemachine_h
 #define _statemachine_h
 
+#include <iostream>
+#include <list>
+
 #include "common.h"
 #include "config.h"
 #include "stateEventHandler.h"
 #include "jsonwrapper.h"
-#include <iostream>
 
 // boost msm
 #include <boost/msm/back/state_machine.hpp> // back-end
