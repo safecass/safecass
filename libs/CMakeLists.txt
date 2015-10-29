@@ -217,6 +217,9 @@ foreach (lib ${SAFECASS_LIBRARIES})
   target_include_directories(${lib} PUBLIC ${SAFECASS_LIBRARY_INCLUDE_DIR})
 endforeach()
 
+# Define link library dependencies
+target_link_libraries(safecass common)
+
 return()
 
 # Set directories
