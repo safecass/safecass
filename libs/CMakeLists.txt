@@ -218,6 +218,7 @@ foreach (lib ${SAFECASS_LIBRARIES})
 endforeach()
 
 # Define link library dependencies
+target_link_libraries(common jsoncpp_lib_static)
 target_link_libraries(safecass common)
 
 return()
