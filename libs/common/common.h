@@ -53,8 +53,8 @@ typedef double       SamplingPeriodType; // T (=1/f)
 //  Utilities
 //--------------------------------------------------
 /*! Returns information about middlewares available */
-StrVecType GetMiddlewareInfo(void);
-void GetMiddlewareInfo(StrVecType & info);
+// StrVecType GetMiddlewareInfo(void);
+// void GetMiddlewareInfo(StrVecType & info);
 
 /*! Get information about cisst detected */
 #if SC_HAS_CISST

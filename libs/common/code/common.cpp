@@ -14,6 +14,7 @@
 
 namespace SC {
 
+#if 0
 StrVecType GetMiddlewareInfo(void)
 {
     StrVecType info;
@@ -29,6 +30,7 @@ void GetMiddlewareInfo(StrVecType & info)
     info.push_back(GetCISSTInfo());
 #endif
 }
+#endif
 
 #if SC_HAS_CISST
 #include <cisstConfig.h>
