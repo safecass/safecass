@@ -28,7 +28,7 @@ target_include_directories(gtest INTERFACE
 
 # Define test suites
 add_executable (testGCM main.cpp testState.cpp)
-target_link_libraries (testGCM gtest common safecass ${JSONCPP_LIBRARIES})
+target_link_libraries (testGCM gtest common safecass jsoncpp_lib_static)
 target_include_directories(testGCM INTERFACE ${SAFECASS_INCLUDE_DIR}/safecass)
 # Register this unit test to CTest
 add_ctest(testGCM)
