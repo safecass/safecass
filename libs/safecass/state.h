@@ -58,9 +58,6 @@ public:
         // error state
         ERROR_ON_ENTRY,
         ERROR_ON_EXIT,
-        // failure state
-        //FAILURE_ON_ENTRY,
-        //FAILURE_ON_EXIT,
         // total number of state entry/exit types
         NUMBER_OF_ENTRY_EXIT
     } StateEntryExitType;
