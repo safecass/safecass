@@ -115,154 +115,90 @@ TEST(StateMachine, state_transition)
     CHECK_TRANSITION(1, 1, 1, 1, 1, 1);
 }
 
-#if 0
-void SCStateTest::TestStateMachineBasics(void)
+TEST(StateMachine, state_operator_overloading)
 {
-#if 0
-#endif
-}
-
-void SCStateTest::TestStateProductOperator(void)
-{
-#if 0
     State s1, s2;
-    TEST_ASSERT(s1.GetState() == State::NORMAL);
-    TEST_ASSERT(s2.GetState() == State::NORMAL);
 
-    s1.SetState(State::NORMAL);
-    TEST_ASSERT(s1.GetState() == State::NORMAL);
-    s1.SetState(State::FAULT);
-    TEST_ASSERT(s1.GetState() == State::FAULT);
-    s1.SetState(State::ERROR);
-    TEST_ASSERT(s1.GetState() == State::ERROR);
-    s1.SetState(State::FAILURE);
-    TEST_ASSERT(s1.GetState() == State::FAILURE);
+    // getter and setter
+    s1.SetState(State::NORMAL);  EXPECT_TRUE(s1.GetState() == State::NORMAL);
+    s1.SetState(State::WARNING); EXPECT_TRUE(s1.GetState() == State::WARNING);
+    s1.SetState(State::ERROR);   EXPECT_TRUE(s1.GetState() == State::ERROR);
 
     // operator==
     s1.SetState(State::NORMAL);
-    s2.SetState(State::NORMAL);
-    TEST_ASSERT(s1 == s2);
-    s2.SetState(State::FAULT);
-    TEST_ASSERT(!(s1 == s2));
-    s2.SetState(State::ERROR);
-    TEST_ASSERT(!(s1 == s2));
-    s2.SetState(State::FAILURE);
-    TEST_ASSERT(!(s1 == s2));
+    s2.SetState(State::NORMAL);  EXPECT_TRUE(s1 == s2);
+    s2.SetState(State::WARNING); EXPECT_TRUE(!(s1 == s2));
+    s2.SetState(State::ERROR);   EXPECT_TRUE(!(s1 == s2));
 
     // operator!=
     s1.SetState(State::NORMAL);
-    s2.SetState(State::FAULT);
-    TEST_ASSERT(s1 != s2);
-    s2.SetState(State::ERROR);
-    TEST_ASSERT(s1 != s2);
-    s2.SetState(State::FAILURE);
-    TEST_ASSERT(s1 != s2);
+    s2.SetState(State::NORMAL);  EXPECT_TRUE(!(s1 != s2));
+    s2.SetState(State::WARNING); EXPECT_TRUE(s1 != s2);
+    s2.SetState(State::ERROR);   EXPECT_TRUE(s1 != s2);
 
     // operator>
     s1.SetState(State::NORMAL); s2.SetState(State::NORMAL);
-    TEST_ASSERT(!(s1 > s2));
-    TEST_ASSERT(!(s2 > s1));
+    EXPECT_TRUE(!(s1 > s2));
+    EXPECT_TRUE(!(s2 > s1));
 
-    s1.SetState(State::NORMAL); s2.SetState(State::FAULT);
-    TEST_ASSERT(!(s1 > s2));
-    TEST_ASSERT(s2 > s1);
+    s1.SetState(State::NORMAL); s2.SetState(State::WARNING);
+    EXPECT_TRUE(!(s1 > s2));
+    EXPECT_TRUE(s2 > s1);
 
     s1.SetState(State::NORMAL); s2.SetState(State::ERROR);
-    TEST_ASSERT(!(s1 > s2));
-    TEST_ASSERT(s2 > s1);
+    EXPECT_TRUE(!(s1 > s2));
+    EXPECT_TRUE(s2 > s1);
 
-    s1.SetState(State::NORMAL); s2.SetState(State::FAILURE);
-    TEST_ASSERT(!(s1 > s2));
-    TEST_ASSERT(s2 > s1);
+    s1.SetState(State::WARNING); s2.SetState(State::WARNING);
+    EXPECT_TRUE(!(s1 > s2));
+    EXPECT_TRUE(!(s2 > s1));
 
-    s1.SetState(State::FAULT); s2.SetState(State::FAULT);
-    TEST_ASSERT(!(s1 > s2));
-    TEST_ASSERT(!(s2 > s1));
-
-    s1.SetState(State::FAULT); s2.SetState(State::ERROR);
-    TEST_ASSERT(!(s1 > s2));
-    TEST_ASSERT(s2 > s1);
-
-    s1.SetState(State::FAULT); s2.SetState(State::FAILURE);
-    TEST_ASSERT(!(s1 > s2));
-    TEST_ASSERT(s2 > s1);
+    s1.SetState(State::WARNING); s2.SetState(State::ERROR);
+    EXPECT_TRUE(!(s1 > s2));
+    EXPECT_TRUE(s2 > s1);
 
     s1.SetState(State::ERROR); s2.SetState(State::ERROR);
-    TEST_ASSERT(!(s1 > s2));
-    TEST_ASSERT(!(s2 > s1));
-
-    s1.SetState(State::ERROR); s2.SetState(State::FAILURE);
-    TEST_ASSERT(!(s1 > s2));
-    TEST_ASSERT(s2 > s1);
-
-    s1.SetState(State::FAILURE); s2.SetState(State::FAILURE);
-    TEST_ASSERT(!(s1 > s2));
-    TEST_ASSERT(!(s2 > s1));
+    EXPECT_TRUE(!(s1 > s2));
+    EXPECT_TRUE(!(s2 > s1));
 
     // operator<
     s1.SetState(State::NORMAL); s2.SetState(State::NORMAL);
-    TEST_ASSERT(!(s1 < s2));
-    TEST_ASSERT(!(s2 < s1));
+    EXPECT_TRUE(!(s1 < s2));
+    EXPECT_TRUE(!(s2 < s1));
 
-    s1.SetState(State::NORMAL); s2.SetState(State::FAULT);
-    TEST_ASSERT(s1 < s2);
-    TEST_ASSERT(!(s2 < s1));
+    s1.SetState(State::NORMAL); s2.SetState(State::WARNING);
+    EXPECT_TRUE(s1 < s2);
+    EXPECT_TRUE(!(s2 < s1));
 
     s1.SetState(State::NORMAL); s2.SetState(State::ERROR);
-    TEST_ASSERT(s1 < s2);
-    TEST_ASSERT(!(s2 < s1));
+    EXPECT_TRUE(s1 < s2);
+    EXPECT_TRUE(!(s2 < s1));
 
-    s1.SetState(State::NORMAL); s2.SetState(State::FAILURE);
-    TEST_ASSERT(s1 < s2);
-    TEST_ASSERT(!(s2 < s1));
+    s1.SetState(State::WARNING); s2.SetState(State::WARNING);
+    EXPECT_TRUE(!(s1 < s2));
+    EXPECT_TRUE(!(s2 < s1));
 
-    s1.SetState(State::FAULT); s2.SetState(State::FAULT);
-    TEST_ASSERT(!(s1 < s2));
-    TEST_ASSERT(!(s2 < s1));
-
-    s1.SetState(State::FAULT); s2.SetState(State::ERROR);
-    TEST_ASSERT(s1 < s2);
-    TEST_ASSERT(!(s2 < s1));
-
-    s1.SetState(State::FAULT); s2.SetState(State::FAILURE);
-    TEST_ASSERT(s1 < s2);
-    TEST_ASSERT(!(s2 < s1));
+    s1.SetState(State::WARNING); s2.SetState(State::ERROR);
+    EXPECT_TRUE(s1 < s2);
+    EXPECT_TRUE(!(s2 < s1));
 
     s1.SetState(State::ERROR); s2.SetState(State::ERROR);
-    TEST_ASSERT(!(s1 < s2));
-    TEST_ASSERT(!(s2 < s1));
-
-    s1.SetState(State::ERROR); s2.SetState(State::FAILURE);
-    TEST_ASSERT(s1 < s2);
-    TEST_ASSERT(!(s2 < s1));
-
-    s1.SetState(State::FAILURE); s2.SetState(State::FAILURE);
-    TEST_ASSERT(!(s1 < s2));
-    TEST_ASSERT(!(s2 < s1));
+    EXPECT_TRUE(!(s1 < s2));
+    EXPECT_TRUE(!(s2 < s1));
 
     // operator*
-    s1.SetState(State::NORMAL); s2.SetState(State::NORMAL);   TEST_ASSERT((s1 * s2) == State(State::NORMAL));
-    s1.SetState(State::NORMAL); s2.SetState(State::FAULT);    TEST_ASSERT((s1 * s2) == State(State::FAULT));
-    s1.SetState(State::NORMAL); s2.SetState(State::ERROR);    TEST_ASSERT((s1 * s2) == State(State::ERROR));
-    s1.SetState(State::NORMAL); s2.SetState(State::FAILURE);  TEST_ASSERT((s1 * s2) == State(State::FAILURE));
-    s1.SetState(State::FAULT); s2.SetState(State::NORMAL);    TEST_ASSERT((s1 * s2) == State(State::FAULT));
-    s1.SetState(State::FAULT); s2.SetState(State::FAULT);     TEST_ASSERT((s1 * s2) == State(State::FAULT));
-    s1.SetState(State::FAULT); s2.SetState(State::ERROR);     TEST_ASSERT((s1 * s2) == State(State::ERROR));
-    s1.SetState(State::FAULT); s2.SetState(State::FAILURE);   TEST_ASSERT((s1 * s2) == State(State::FAILURE));
-    s1.SetState(State::ERROR); s2.SetState(State::NORMAL);    TEST_ASSERT((s1 * s2) == State(State::ERROR));
-    s1.SetState(State::ERROR); s2.SetState(State::FAULT);     TEST_ASSERT((s1 * s2) == State(State::ERROR));
-    s1.SetState(State::ERROR); s2.SetState(State::ERROR);     TEST_ASSERT((s1 * s2) == State(State::ERROR));
-    s1.SetState(State::ERROR); s2.SetState(State::FAILURE);   TEST_ASSERT((s1 * s2) == State(State::FAILURE));
-    s1.SetState(State::FAILURE); s2.SetState(State::NORMAL);  TEST_ASSERT((s1 * s2) == State(State::FAILURE));
-    s1.SetState(State::FAILURE); s2.SetState(State::FAULT);   TEST_ASSERT((s1 * s2) == State(State::FAILURE));
-    s1.SetState(State::FAILURE); s2.SetState(State::ERROR);   TEST_ASSERT((s1 * s2) == State(State::FAILURE));
-    s1.SetState(State::FAILURE); s2.SetState(State::FAILURE); TEST_ASSERT((s1 * s2) == State(State::FAILURE));
+    s1.SetState(State::NORMAL); s2.SetState(State::NORMAL);   EXPECT_TRUE((s1 * s2) == State(State::NORMAL));
+    s1.SetState(State::NORMAL); s2.SetState(State::WARNING);  EXPECT_TRUE((s1 * s2) == State(State::WARNING));
+    s1.SetState(State::NORMAL); s2.SetState(State::ERROR);    EXPECT_TRUE((s1 * s2) == State(State::ERROR));
+    s1.SetState(State::WARNING); s2.SetState(State::NORMAL);  EXPECT_TRUE((s1 * s2) == State(State::WARNING));
+    s1.SetState(State::WARNING); s2.SetState(State::WARNING); EXPECT_TRUE((s1 * s2) == State(State::WARNING));
+    s1.SetState(State::WARNING); s2.SetState(State::ERROR);   EXPECT_TRUE((s1 * s2) == State(State::ERROR));
+    s1.SetState(State::ERROR); s2.SetState(State::NORMAL);    EXPECT_TRUE((s1 * s2) == State(State::ERROR));
+    s1.SetState(State::ERROR); s2.SetState(State::WARNING);   EXPECT_TRUE((s1 * s2) == State(State::ERROR));
+    s1.SetState(State::ERROR); s2.SetState(State::ERROR);     EXPECT_TRUE((s1 * s2) == State(State::ERROR));
 
     // assignment operator
     s1.SetState(State::NORMAL);
-    s2.SetState(State::FAULT);
     s1 = s2;
-    TEST_ASSERT(s1 == s2);
-#endif
+    EXPECT_TRUE(s1 == s2);
 }
-#endif
