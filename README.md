@@ -18,9 +18,6 @@ For the time being, the master branch is not fully functional and only a
 limited set of features is available.  The design documents are still
 accessible via the [SAFECASS wiki](https://github.com/safecass/safecass/wiki).
 
-The first release (Release 0.1.0) is scheduled by the end of October, 2015, and
-is going to be a minimally functional version.
-
 NEWS:
  * 10/27/2015: Working on building the core safecass library..
  * 10/21/2015: Travis CI build passes.

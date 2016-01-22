@@ -2,12 +2,12 @@
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2014-2015 Min Yang Jung and Peter Kazanzides
 //
 //----------------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2012
-// Last revision: Oct 28, 2015
+// Last revision: Oct 31, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //

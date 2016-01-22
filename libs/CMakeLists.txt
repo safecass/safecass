@@ -14,6 +14,10 @@
 # Option to build shared library
 #option (SAFECASS_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
+# TODO:
+# - convert jsoncpp/g2log as external project (build time configuration)
+# - shared lib support (?)
+
 #--------------------------------------------------------------------
 #
 # Required dependencies
@@ -171,16 +175,16 @@ endforeach()
 #
 # 1) g2log
 #
-option (SAFECASS_USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
-if (SAFECASS_USE_G2LOG)
-  # Download and import gtest
-  add_dl_project(PROJ         g2log_by_kjellkod
-                 URL          https://bitbucket.org/KjellKod/g2log/get/tip.zip
-                 PATH_SUFFIX  g2log
-                 EXCLUDE_FROM_ALL)
-  target_include_directories(lib_g2logger INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
-  target_include_directories(lib_g2logger_shared INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
-endif()
+#option (SAFECASS_USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
+#if (SAFECASS_USE_G2LOG)
+#  # Download and import gtest
+#  add_dl_project(PROJ         g2log_by_kjellkod
+#                 URL          https://bitbucket.org/KjellKod/g2log/get/tip.zip
+#                 PATH_SUFFIX  g2log
+#                 EXCLUDE_FROM_ALL)
+#  target_include_directories(lib_g2logger INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
+#  target_include_directories(lib_g2logger_shared INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
+#endif()
 
 #--------------------------------------------------------------------
 #
