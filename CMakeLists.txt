@@ -2,7 +2,7 @@
 #
 # SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 #
-# Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+# Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 #
 #-----------------------------------------------------------------------------------
 #

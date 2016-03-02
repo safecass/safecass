@@ -2,21 +2,26 @@
 #
 # SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 #
-# Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+# Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 #
 #-----------------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
 # Last revision: Oct 23, 2015
 # Author       : Min Yang Jung (myj@jhu.edu)
-# URL          : https://github.com/minyang/safecass
+# URL          : https://github.com/safecass/safecass
 #
-# Option to build shared library
-#option (SAFECASS_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 # TODO:
 # - convert jsoncpp/g2log as external project (build time configuration)
-# - shared lib support (?)
+# - shared lib support
+#   => option (SAFECASS_BUILD_SHARED_LIBS "Build shared libraries" OFF)
+# - Boost: Use official release archive from https://github.com/boostorg/boost/tags
+#          For some reason, this lightweight downloaded package doesn't work
+#          with the current build setup.
+
+# NOTE:
+# - MD5 HASH generator: http://onlinemd5.com
 
 #--------------------------------------------------------------------
 #
@@ -92,6 +97,7 @@ message(STATUS "JSONCPP_FOUND: ${JSONCPP_FOUND}")
 #
 set (BOOST_COMPONENTS_REQUIRED program_options thread system)
 
+# TEMP to test boost external project
 #find_package(Boost 1.56.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
 #if (Boost_FOUND)
 #  message("Boost found")
@@ -165,6 +171,27 @@ foreach (COMPONENT ${BOOST_COMPONENTS_REQUIRED})
   message("Boost_${COMPONENT}_LIBRARY: ${Boost_${COMPONENT_LIBRARY}}")
 endforeach()
 
+#
+# 3) glog (Google Logger)
+#
+find_package(GLog)
+if (GLOG_FOUND)
+  message("GLOG found")
+else ()
+  # Download and build glog
+  add_external_project(NAME          glog
+                       URL           https://github.com/google/glog/archive/v0.3.4.tar.gz
+                       BUILD_IN_SRC  TRUE
+                       CONFIG_CMD    "./configure"
+                       BUILD_CMD     "make" -j${N})
+
+  # Import glog options from the build
+  set (GLog_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/glog/build/include)
+  set (GLog_LIBRARY_DIRS  ${SAFECASS_BUILD_ROOT}/external_packages/glog/build/lib)
+
+  #target_include_directories(glog INTERFACE ${SAFECASS_BUILD_ROOT}/external_package/glog/)
+endif()
+
 #--------------------------------------------------------------------
 #
 # Optional dependencies
@@ -175,16 +202,6 @@ endforeach()
 #
 # 1) g2log
 #
-#option (SAFECASS_USE_G2LOG "Enable and use g2log as logging framework. Requires the g2log library" OFF)
-#if (SAFECASS_USE_G2LOG)
-#  # Download and import gtest
-#  add_dl_project(PROJ         g2log_by_kjellkod
-#                 URL          https://bitbucket.org/KjellKod/g2log/get/tip.zip
-#                 PATH_SUFFIX  g2log
-#                 EXCLUDE_FROM_ALL)
-#  target_include_directories(lib_g2logger INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
-#  target_include_directories(lib_g2logger_shared INTERFACE "${CMAKE_BINARY_DIR}/g2log/src/g2log/src")
-#endif()
 
 #--------------------------------------------------------------------
 #
@@ -226,6 +243,14 @@ target_link_libraries(common jsoncpp_lib_static)
 target_link_libraries(safecass common)
 
 return()
+
+
+#
+#
+# BELOW ARE SKIPPED
+#
+#
+
 
 # Set directories
 

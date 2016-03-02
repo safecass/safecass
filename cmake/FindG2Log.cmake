@@ -2,14 +2,14 @@
 #
 # SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 #
-# Copyright (C) 2012-2015 Min Yang Jung
+# Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 #
 #------------------------------------------------------------------------
 #
 # Created on   : Jul 8, 2012
-# Last revision: Nov 1, 2015
+# Last revision: Mar 2, 2016
 # Author       : Min Yang Jung (myj@jhu.edu)
-# Github       : https://github.com/safecass/casros
+# Github       : https://github.com/safecass/safecass
 #
 
 #
@@ -31,7 +31,6 @@
 #
 include(FindPackageHandleStandardArgs)
 
-# TODO: add default location
 if (SC_ON_MAC OR SC_ON_LINUX)
   set (G2LOG_INCLUDE_DEFAULT_PATH
        /opt/local/include # mac port
