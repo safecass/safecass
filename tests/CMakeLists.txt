@@ -2,18 +2,18 @@
 #
 # SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 #
-# Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+# Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 #
 #---------------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Oct 28, 2015
+# Last revision: Mar 15, 2016
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/safecass/safecass
 #
 project (sctest)
 
-message (STATUS "SAFECASS: Unit-tests enabled")
+message (STATUS "Unit-tests enabled")
 
 # load safecass macro to help ctest test entry registration
 include (add_ctest)
@@ -27,9 +27,10 @@ target_include_directories(gtest INTERFACE
                            ${SAFECASS_BUILD_ROOT}/external_packages/gtest/src/include)
 
 # Define test suites
-add_executable (testGCM main.cpp testState.cpp)
-target_link_libraries (testGCM gtest common safecass jsoncpp_lib_static)
+add_executable (testGCM main.cpp testInput.cpp testState.cpp)
+target_link_libraries (testGCM gtest ${GLOG_LIBRARIES} common safecass jsoncpp_lib_static)
 target_include_directories(testGCM INTERFACE ${SAFECASS_INCLUDE_DIR}/safecass)
+
 # Register this unit test to CTest
 add_ctest(testGCM)
 
