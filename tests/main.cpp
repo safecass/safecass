@@ -22,8 +22,5 @@ int main(int argc, char * argv[])
     // Initialize Google test
     ::testing::InitGoogleTest(&argc, argv);
 
-    // Initialize Google's logging library.
-    google::InitGoogleLogging(argv[0]);
-
     return RUN_ALL_TESTS();
 }
