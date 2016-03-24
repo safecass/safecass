@@ -7,7 +7,7 @@
 #---------------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Mar 15, 2016
+# Last revision: Mar 23, 2016
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/safecass/safecass
 #
@@ -28,7 +28,7 @@ target_include_directories(gtest INTERFACE
 
 # Define test suites
 add_executable (testGCM main.cpp testInput.cpp testState.cpp)
-target_link_libraries (testGCM gtest ${GLOG_LIBRARIES} common safecass jsoncpp_lib_static)
+target_link_libraries (testGCM gtest common safecass jsoncpp_lib_static)
 target_include_directories(testGCM INTERFACE ${SAFECASS_LIBRARY_INCLUDE_DIR})
 
 # Register this unit test to CTest
