@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 # Created on   : Mar 2, 2016
-# Last revision: Mar 2, 2016
+# Last revision: Mar 23, 2016
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/safecass/safecass
 #
@@ -54,6 +54,7 @@ find_package_handle_standard_args(GLOG GLOG_INCLUDE_DIR GLOG_LIBRARY)
 
 if (GLOG_FOUND)
   set(GLOG_LIBRARIES ${GLOG_LIBRARY})
+  set(GLOG_INCLUDE_DIRS ${GLOG_INCLUDE_DIR})
 else()
   message("GLOG not found")
 endif(GLOG_FOUND)

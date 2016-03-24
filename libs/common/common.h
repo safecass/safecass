@@ -23,11 +23,8 @@
 // for dynamic library support
 #include "SCDLLDefines.h"
 
-#if SC_USE_G2LOG
-  #include "g2logworker.h"
-  #include "g2log.h"
-  #include <iomanip>
-#endif
+// Google logging library
+#include <glog/logging.h>
 
 #if SC_HAS_CISST
   #include <cisstCommon/cmnPortability.h>
@@ -83,26 +80,20 @@ std::string GetCISSTInfo(void);
 //  Common macro definitions
 //--------------------------------------------------
 // Logger macros
-#if SC_USE_G2LOG
-  #define SCLOG_INFO    LOG(INFO)
-  #define SCLOG_DEBUG   LOG(DEBUG)
-  #define SCLOG_WARNING LOG(WARNING)
-  #define SCLOG_ERROR   LOG(WARNING)
-  #define SCLOG_FATAL   LOG(FATAL)
-#else
-  #if SC_HAS_CISST
-    #define SCLOG_INFO    CMN_LOG_RUN_VERBOSE
-    #define SCLOG_DEBUG   CMN_LOG_RUN_DEBUG
-    #define SCLOG_WARNING CMN_LOG_RUN_WARNING << __FILE__ << ":" << __LINE__ << " "
-    #define SCLOG_ERROR   CMN_LOG_RUN_ERROR << __FILE__ << ":" << __LINE__ << " "
-    #define SCLOG_FATAL   CMN_LOG_INIT_ERROR << __FILE__ << ":" << __LINE__ << " "
-  #else
-    #define SCLOG_INFO    std::cout << "INFO   : "
-    #define SCLOG_DEBUG   std::cout << "DEBUG  : "
-    #define SCLOG_WARNING std::cout << "WARNING: "
-    #define SCLOG_ERROR   std::cout << "ERROR  : "
-    #define SCLOG_FATAL   std::cout << "FATAL  : "
-  #endif // SC_HAS_CISST
+#define SCLOG_INFO      LOG(INFO)
+#define SCLOG_DEBUG     VLOG(1)
+#define SCLOG_DEBUGV    VLOG(2)
+#define SCLOG_DEBUGVV   VLOG(3)
+#define SCLOG_WARNING   LOG(WARNING)
+#define SCLOG_ERROR     LOG(ERROR)
+#define SCLOG_FATAL     LOG(FATAL)
+
+#if SC_HAS_CISST
+  #define SCLOG_INFO    CMN_LOG_RUN_VERBOSE
+  #define SCLOG_DEBUG   CMN_LOG_RUN_DEBUG
+  #define SCLOG_WARNING CMN_LOG_RUN_WARNING << __FILE__ << ":" << __LINE__ << " "
+  #define SCLOG_ERROR   CMN_LOG_RUN_ERROR << __FILE__ << ":" << __LINE__ << " "
+  #define SCLOG_FATAL   CMN_LOG_INIT_ERROR << __FILE__ << ":" << __LINE__ << " "
 #endif
 
 // Assertion macro

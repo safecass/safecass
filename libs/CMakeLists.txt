@@ -7,7 +7,7 @@
 #-----------------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
-# Last revision: Oct 23, 2015
+# Last revision: Mar 16, 2016
 # Author       : Min Yang Jung (myj@jhu.edu)
 # URL          : https://github.com/safecass/safecass
 #
@@ -98,11 +98,11 @@ message(STATUS "JSONCPP_FOUND: ${JSONCPP_FOUND}")
 set (BOOST_COMPONENTS_REQUIRED program_options thread system)
 
 # TEMP to test boost external project
-#find_package(Boost 1.56.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
-#if (Boost_FOUND)
-#  message("Boost found")
-#else(Boost_FOUND)
-if (TRUE)
+find_package(Boost 1.59.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
+if (Boost_FOUND)
+  message("Boost found")
+else(Boost_FOUND)
+  #if (TRUE)
   message("Boost not found -- Boost 1.59.0 will be downloaded and built")
 
   # Define boost bootstrap shell command
@@ -117,6 +117,7 @@ if (TRUE)
   # Download and configure at build-time
   add_external_project(NAME          boost
                        URL           http://cs.jhu.edu/~minyang/boost_1_59_0.tar.bz2
+                       #URL           /Users/MJ/project/tools/boost_1_59_0.tar.bz2
                        URL_HASH      6aa9a5c6a4ca1016edd0ed1178e3cb87
                        BUILD_IN_SRC  TRUE
                        CONFIG_CMD    ${BOOST_BOOTSTRAP_CMD}
@@ -178,18 +179,27 @@ find_package(GLog)
 if (GLOG_FOUND)
   message("GLOG found")
 else ()
-  # Download and build glog
+  # Download and build glog at build-time
   add_external_project(NAME          glog
                        URL           https://github.com/google/glog/archive/v0.3.4.tar.gz
+                       URL_HASH      DF92E05C9D02504FB96674BC776A41CB
                        BUILD_IN_SRC  TRUE
                        CONFIG_CMD    "./configure"
                        BUILD_CMD     "make" -j${N})
 
   # Import glog options from the build
-  set (GLog_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/glog/build/include)
-  set (GLog_LIBRARY_DIRS  ${SAFECASS_BUILD_ROOT}/external_packages/glog/build/lib)
+  set (GLOG_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/glog/src/src)
+  set (GLOG_LIBRARY_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/glog/src/.libs)
+  set (GLOG_FOUND ON)
 
-  #target_include_directories(glog INTERFACE ${SAFECASS_BUILD_ROOT}/external_package/glog/)
+  find_library(GLOG_LIBRARIES
+               # On UNIX-like systems, force CMake to find static library
+               # FIXME when supporting shared library, this has to be updated.
+               #NAME glog
+               NAME libglog.a
+               PATHS ${GLOG_LIBRARY_DIRS}
+               NO_DEFAULT_PATH
+               NO_CMAKE_FIND_ROOT_PATH)
 endif()
 
 #--------------------------------------------------------------------
@@ -197,15 +207,6 @@ endif()
 # Optional dependencies
 # - Try to find first
 # - If not found, download and build from source as external project
-#
-#--------------------------------------------------------------------
-#
-# 1) g2log
-#
-
-#--------------------------------------------------------------------
-#
-# Common Library for SAFECASS
 #
 #--------------------------------------------------------------------
 
@@ -229,6 +230,7 @@ set (SAFECASS_LIBRARY_INCLUDE_DIR # safecass headers
                                   # dependencies
                                   ${JSONCPP_INCLUDE_DIR}
                                   ${Boost_INCLUDE_DIRS}
+                                  ${GLOG_INCLUDE_DIRS}
                                   )
 
 # Define libraries to compile
@@ -237,6 +239,9 @@ foreach (lib ${SAFECASS_LIBRARIES})
   add_safecass_library(${lib})
   target_include_directories(${lib} PUBLIC ${SAFECASS_LIBRARY_INCLUDE_DIR})
 endforeach()
+
+# Make include directories available to other projects within safecass
+set (SAFECASS_LIBRARY_INCLUDE_DIR ${SAFECASS_LIBRARY_INCLUDE_DIR} PARENT_SCOPE)
 
 # Define link library dependencies
 target_link_libraries(common jsoncpp_lib_static)
