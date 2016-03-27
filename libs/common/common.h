@@ -24,7 +24,7 @@
 #include "SCDLLDefines.h"
 
 // Google logging library
-#include <glog/logging.h>
+#include "glog/logging.h"
 
 #if SC_HAS_CISST
   #include <cisstCommon/cmnPortability.h>

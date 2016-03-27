@@ -200,6 +200,11 @@ else ()
                PATHS ${GLOG_LIBRARY_DIRS}
                NO_DEFAULT_PATH
                NO_CMAKE_FIND_ROOT_PATH)
+
+  set (GLOG_INCLUDE_DIRS ${GLOG_INCLUDE_DIRS} PARENT_SCOPE)
+  set (GLOG_LIBRARY_DIRS ${GLOG_LIBRARY_DIRS} PARENT_SCOPE)
+  set (GLOG_LIBRARIES    ${GLOG_LIBRARIES} PARENT_SCOPE)
+  set (GLOG_FOUND        ${GLOG_FOUND} PARENT_SCOPE)
 endif()
 
 #--------------------------------------------------------------------
@@ -230,8 +235,7 @@ set (SAFECASS_LIBRARY_INCLUDE_DIR # safecass headers
                                   # dependencies
                                   ${JSONCPP_INCLUDE_DIR}
                                   ${Boost_INCLUDE_DIRS}
-                                  ${GLOG_INCLUDE_DIRS}
-                                  )
+                                  ${GLOG_INCLUDE_DIRS})
 
 # Define libraries to compile
 set (SAFECASS_LIBRARIES common safecass)

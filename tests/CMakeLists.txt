@@ -15,6 +15,14 @@ project (sctest)
 
 message (STATUS "Unit-tests enabled")
 
+# Import GLOG
+# find_package (GLog REQUIRED)
+# if (GLOG_FOUND)
+  # message (">>>>>>>> GLog found")
+# else ()
+  # message (FATAL_ERROR ">>>>>>>> GLog not found")
+# endif ()
+
 # load safecass macro to help ctest test entry registration
 include (add_ctest)
 
@@ -28,7 +36,7 @@ target_include_directories(gtest INTERFACE
 
 # Define test suites
 add_executable (testGCM main.cpp testInput.cpp testState.cpp)
-target_link_libraries (testGCM gtest common safecass jsoncpp_lib_static)
+target_link_libraries (testGCM gtest ${GLOG_LIBRARIES} common safecass jsoncpp_lib_static)
 target_include_directories(testGCM INTERFACE ${SAFECASS_LIBRARY_INCLUDE_DIR})
 
 # Register this unit test to CTest
