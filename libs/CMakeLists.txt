@@ -72,7 +72,6 @@ else(JSONCPP_FOUND)
   # Set JSON-related variables
   set (JSONCPP_INCLUDE_DIR  ${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp/src/include)
   set (JSONCPP_LIBRARY_DIRS ${SAFECASS_LIBRARY_DIR})
-  #set (JSONCPP_LIBRARIES    jsoncpp)
   set (JSONCPP_FOUND        ON)
 
   find_library(JSONCPP_LIBRARIES
@@ -80,17 +79,12 @@ else(JSONCPP_FOUND)
                PATHS ${SAFECASS_BUILD_ROOT}/external_packages/jsoncpp
                NO_DEFAULT_PATH
                NO_CMAKE_FIND_ROOT_PATH)
-  # Set variables into the parent directory
-  #set (JSONCPP_INCLUDE_DIR  ${JSONCPP_INCLUDE_DIR} PARENT_SCOPE)
-  #set (JSONCPP_LIBRARY_DIRS ${JSONCPP_LIBRARY_DIRS} PARENT_SCOPE)
-  #set (JSONCPP_LIBRARIES    ${JSONCPP_LIBRARIES} PARENT_SCOPE)
-  #set (JSONCPP_FOUND        ON PARENT_SCOPE)
-endif()
 
-message(STATUS "JSONCPP_INCLUDE_DIR: ${JSONCPP_INCLUDE_DIR}")
-message(STATUS "JSONCPP_LIBRARY_DIRS: ${JSONCPP_LIBRARY_DIRS}")
-message(STATUS "JSONCPP_LIBRARIES: ${JSONCPP_LIBRARIES}")
-message(STATUS "JSONCPP_FOUND: ${JSONCPP_FOUND}")
+  message(STATUS "JSONCPP_INCLUDE_DIR: ${JSONCPP_INCLUDE_DIR}")
+  message(STATUS "JSONCPP_LIBRARY_DIRS: ${JSONCPP_LIBRARY_DIRS}")
+  message(STATUS "JSONCPP_LIBRARIES: ${JSONCPP_LIBRARIES}")
+  message(STATUS "JSONCPP_FOUND: ${JSONCPP_FOUND}")
+endif()
 
 #
 # 2) Boost
@@ -102,7 +96,6 @@ find_package(Boost 1.59.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
 if (Boost_FOUND)
   message("Boost found")
 else(Boost_FOUND)
-  #if (TRUE)
   message("Boost not found -- Boost 1.59.0 will be downloaded and built")
 
   # Define boost bootstrap shell command
@@ -135,6 +128,7 @@ else(Boost_FOUND)
 
   set (Boost_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/boost/build/include)
   set (Boost_LIBRARY_DIRS  ${SAFECASS_BUILD_ROOT}/external_packages/boost/build/lib)
+  set (Boost_FOUND ON CACHE BOOL "If boost package was downloaded")
 
   include (find_boost_library)
   find_boost_library(LIB_NAME program_options) # setting Boost_PROGRAM_OPTIONS_LIBRARY
@@ -155,22 +149,21 @@ else(Boost_FOUND)
   set (Boost_MINOR_VERSION 59)
   set (Boost_SUBMINOR_VERSION 0)
 
+  message("Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+  message("Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
+  message("Boost_LIBRARIES: ${Boost_LIBRARIES}")
+  message("Boost_VERSION: ${Boost_VERSION}")
+  message("Boost_LIB_VERSION: ${Boost_LIB_VERSION}")
+  message("Boost_MAJOR_VERSION: ${Boost_MAJOR_VERSION}")
+  message("Boost_MINOR_VERSION: ${Boost_MINOR_VERSION}")
+  message("Boost_SUBMINOR_VERSION: ${Boost_SUBMINOR_VERSION}")
+  foreach (COMPONENT ${BOOST_COMPONENTS_REQUIRED})
+    string(TOUPPER ${COMPONENT}_FOUND COMPONENT_FOUND)
+    string(TOUPPER ${COMPONENT}_LIBRARY COMPONENT_LIBRARY)
+    message("Boost_${COMPONENT}_FOUND: ${Boost_${COMPONENT_FOUND}}")
+    message("Boost_${COMPONENT}_LIBRARY: ${Boost_${COMPONENT_LIBRARY}}")
+  endforeach()
 endif()
-
-message("Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
-message("Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
-message("Boost_LIBRARIES: ${Boost_LIBRARIES}")
-message("Boost_VERSION: ${Boost_VERSION}")
-message("Boost_LIB_VERSION: ${Boost_LIB_VERSION}")
-message("Boost_MAJOR_VERSION: ${Boost_MAJOR_VERSION}")
-message("Boost_MINOR_VERSION: ${Boost_MINOR_VERSION}")
-message("Boost_SUBMINOR_VERSION: ${Boost_SUBMINOR_VERSION}")
-foreach (COMPONENT ${BOOST_COMPONENTS_REQUIRED})
-  string(TOUPPER ${COMPONENT}_FOUND COMPONENT_FOUND)
-  string(TOUPPER ${COMPONENT}_LIBRARY COMPONENT_LIBRARY)
-  message("Boost_${COMPONENT}_FOUND: ${Boost_${COMPONENT_FOUND}}")
-  message("Boost_${COMPONENT}_LIBRARY: ${Boost_${COMPONENT_LIBRARY}}")
-endforeach()
 
 #
 # 3) glog (Google Logger)
@@ -194,7 +187,6 @@ if (NOT GLOG_FOUND)
   set (GLOG_LIBRARY_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/glog/src/.libs)
   set (GLOG_LIBRARIES ${GLOG_LIBRARY_DIRS}/libglog.a)
   set (GLOG_FOUND ON)
-
   # find_library(GLOG_LIBRARIES
                # # On UNIX-like systems, force CMake to find static library
                # # FIXME when supporting shared library, this has to be updated.
@@ -209,6 +201,27 @@ if (NOT GLOG_FOUND)
   set (GLOG_LIBRARIES    ${GLOG_LIBRARIES} PARENT_SCOPE)
   set (GLOG_FOUND        ${GLOG_FOUND} PARENT_SCOPE)
 endif()
+
+#
+# 4) Eigen
+#
+if (NOT EIGEN3_FOUND)
+  # Download and configure Eigen3 at configure-time
+  add_dl_project(PROJ     eigen3
+                 URL      http://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2
+                 URL_HASH MD5=9E3BFAAAB3DB18253CFD87EA697B3AB1
+                 EXCLUDE_FROM_ALL)
+
+  # Set JSON-related variables
+  set (EIGEN3_INCLUDE_DIR ${SAFECASS_BUILD_ROOT}/external_packages/eigen3/src
+       CACHE PATH "Eigen3 include directory")
+  set (EIGEN3_FOUND ON
+       CACHE BOOL "If Eigen3 package was downloaded")
+endif()
+
+
+
+
 
 #--------------------------------------------------------------------
 #
@@ -238,7 +251,9 @@ set (SAFECASS_LIBRARY_INCLUDE_DIR # safecass headers
                                   # dependencies
                                   ${JSONCPP_INCLUDE_DIR}
                                   ${Boost_INCLUDE_DIRS}
-                                  ${GLOG_INCLUDE_DIRS})
+                                  ${GLOG_INCLUDE_DIRS}
+                                  ${EIGEN3_INCLUDE_DIR}
+                                  )
 
 # Define libraries to compile
 set (SAFECASS_LIBRARIES common safecass)
