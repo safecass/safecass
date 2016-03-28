@@ -15,13 +15,7 @@ project (sctest)
 
 message (STATUS "Unit-tests enabled")
 
-# Import GLOG
-# find_package (GLog REQUIRED)
-# if (GLOG_FOUND)
-  # message (">>>>>>>> GLog found")
-# else ()
-  # message (FATAL_ERROR ">>>>>>>> GLog not found")
-# endif ()
+# No need to find glog here (GLOG settings are available at the top cmake level)
 
 # load safecass macro to help ctest test entry registration
 include (add_ctest)

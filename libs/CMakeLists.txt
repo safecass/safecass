@@ -116,8 +116,8 @@ else(Boost_FOUND)
 
   # Download and configure at build-time
   add_external_project(NAME          boost
-                       URL           http://cs.jhu.edu/~minyang/boost_1_59_0.tar.bz2
-                       #URL           /Users/MJ/project/tools/boost_1_59_0.tar.bz2
+                       #URL           http://cs.jhu.edu/~minyang/boost_1_59_0.tar.bz2
+                       URL           /Users/MJ/project/tools/boost_1_59_0.tar.bz2
                        URL_HASH      6aa9a5c6a4ca1016edd0ed1178e3cb87
                        BUILD_IN_SRC  TRUE
                        CONFIG_CMD    ${BOOST_BOOTSTRAP_CMD}
@@ -175,10 +175,7 @@ endforeach()
 #
 # 3) glog (Google Logger)
 #
-find_package(GLog)
-if (GLOG_FOUND)
-  message("GLOG found")
-else ()
+if (NOT GLOG_FOUND)
   # Download and build glog at build-time
   add_external_project(NAME          glog
                        URL           https://github.com/google/glog/archive/v0.3.4.tar.gz
@@ -190,16 +187,17 @@ else ()
   # Import glog options from the build
   set (GLOG_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/glog/src/src)
   set (GLOG_LIBRARY_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/glog/src/.libs)
+  set (GLOG_LIBRARIES ${GLOG_LIBRARY_DIRS}/libglog.a)
   set (GLOG_FOUND ON)
 
-  find_library(GLOG_LIBRARIES
-               # On UNIX-like systems, force CMake to find static library
-               # FIXME when supporting shared library, this has to be updated.
-               #NAME glog
-               NAME libglog.a
-               PATHS ${GLOG_LIBRARY_DIRS}
-               NO_DEFAULT_PATH
-               NO_CMAKE_FIND_ROOT_PATH)
+  # find_library(GLOG_LIBRARIES
+               # # On UNIX-like systems, force CMake to find static library
+               # # FIXME when supporting shared library, this has to be updated.
+               # NAME glog
+               # #NAME libglog.a
+               # PATHS ${GLOG_LIBRARY_DIRS}
+               # NO_DEFAULT_PATH
+               # NO_CMAKE_FIND_ROOT_PATH)
 
   set (GLOG_INCLUDE_DIRS ${GLOG_INCLUDE_DIRS} PARENT_SCOPE)
   set (GLOG_LIBRARY_DIRS ${GLOG_LIBRARY_DIRS} PARENT_SCOPE)
@@ -243,6 +241,9 @@ foreach (lib ${SAFECASS_LIBRARIES})
   add_safecass_library(${lib})
   target_include_directories(${lib} PUBLIC ${SAFECASS_LIBRARY_INCLUDE_DIR})
 endforeach()
+
+# Set dependencies
+add_dependencies(common external-glog) # common requires glog
 
 # Make include directories available to other projects within safecass
 set (SAFECASS_LIBRARY_INCLUDE_DIR ${SAFECASS_LIBRARY_INCLUDE_DIR} PARENT_SCOPE)
