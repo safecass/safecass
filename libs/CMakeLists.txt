@@ -116,8 +116,8 @@ else(Boost_FOUND)
 
   # Download and configure at build-time
   add_external_project(NAME          boost
-                       #URL           http://cs.jhu.edu/~minyang/boost_1_59_0.tar.bz2
-                       URL           /Users/MJ/project/tools/boost_1_59_0.tar.bz2
+                       URL           http://cs.jhu.edu/~minyang/boost_1_59_0.tar.bz2
+                       #URL           /Users/MJ/project/tools/boost_1_59_0.tar.bz2
                        URL_HASH      6aa9a5c6a4ca1016edd0ed1178e3cb87
                        BUILD_IN_SRC  TRUE
                        CONFIG_CMD    ${BOOST_BOOTSTRAP_CMD}

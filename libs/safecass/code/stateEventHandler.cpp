@@ -2,14 +2,14 @@
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Apr 22, 2014
+// Last revision: Mar 15, 2016
 // Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
+// Github       : https://github.com/safecass/safecass
 //
 #include "stateEventHandler.h"
 

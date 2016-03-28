@@ -24,9 +24,10 @@ public:
     HistoryBufferBase(void) {}
     virtual ~HistoryBufferBase() {}
 
-    //! For active filtering
-    /*! Get latest value from history buffer (direct access)
-     */
+    //
+    // For active filtering
+    //
+    //! Get latest value from history buffer (direct access)
     virtual void GetNewValueScalar(SignalElement::HistoryBufferIndexType index,
                                    SignalElement::ScalarType & value,
                                    TimestampType & timestamp) = 0;
@@ -34,16 +35,14 @@ public:
                                    SignalElement::VectorType & value,
                                    TimestampType & timestamp) = 0;
 
-    //! For passive filtering
-    /*! Fetch latest value from history buffer via middleware-specific data 
-     *  exchange mechanism (indirect access)
-     */
-    virtual void GetNewValueScalar(SignalElement::ScalarType & value,
-                                   TimestampType & timestamp) = 0;
-    virtual void GetNewValueVector(SignalElement::VectorType & value,
-                                   TimestampType & timestamp) = 0;
+    //
+    // For passive filtering
+    //
+    //! Fetch latest value via middleware-specific data exchange mechanism (indirect access)
+    virtual void GetNewValueScalar(SignalElement::ScalarType & value, TimestampType & timestamp) = 0;
+    virtual void GetNewValueVector(SignalElement::VectorType & value, TimestampType & timestamp) = 0;
 
-    // Support for "deep" fault inject: modify actual values in the buffer
+    // Support for "deep" fault injection: modify actual values in the buffer
     virtual void PushNewValueScalar(SignalElement::HistoryBufferIndexType index,
                                     SignalElement::ScalarType & value) = 0;
     virtual void PushNewValueVector(SignalElement::HistoryBufferIndexType index,
