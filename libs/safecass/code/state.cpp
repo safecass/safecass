@@ -11,7 +11,7 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
-#include "state.h"
+#include "safecass/state.h"
 
 namespace SC {
 

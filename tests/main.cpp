@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "common.h"
+#include "common/common.h"
 #include "gtest/gtest.h"
 
 int main(int argc, char * argv[])

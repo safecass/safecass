@@ -177,6 +177,11 @@ endforeach()
 #
 if (NOT GLOG_FOUND)
   # Download and build glog at build-time
+  #add_dl_project(PROJ glog
+                 #URL           https://github.com/google/glog/archive/v0.3.4.tar.gz
+                 #URL_HASH      MD5=DF92E05C9D02504FB96674BC776A41CB
+                 #CMAKE_OPTIONS "-DWITH_GFLAGS=OFF")
+
   add_external_project(NAME          glog
                        URL           https://github.com/google/glog/archive/v0.3.4.tar.gz
                        URL_HASH      DF92E05C9D02504FB96674BC776A41CB
@@ -226,8 +231,8 @@ configure_file(config.h.in ${BUILD_ROOT}/include/config.h)
 # Set include directories
 set (SAFECASS_LIBRARY_INCLUDE_DIR # safecass headers
                                   ${SAFECASS_INCLUDE_DIR}
-                                  ${SAFECASS_INCLUDE_DIR}/common
-                                  ${SAFECASS_INCLUDE_DIR}/safecass
+                                  #${SAFECASS_INCLUDE_DIR}/common
+                                  #${SAFECASS_INCLUDE_DIR}/safecass
                                   # generated safecass headers
                                   ${BUILD_ROOT}/include
                                   # dependencies
@@ -242,8 +247,14 @@ foreach (lib ${SAFECASS_LIBRARIES})
   target_include_directories(${lib} PUBLIC ${SAFECASS_LIBRARY_INCLUDE_DIR})
 endforeach()
 
+# Set dependencies of common library
+list (APPEND COMMON_DEPENDENCIES ${GLOG_LIBRARIES} ${Boost_LIBRARIES})#jsoncpp_lib_static
+target_link_libraries(common ${COMMON_DEPENDENCIES})
+
+
 # Set dependencies
 add_dependencies(common external-glog) # common requires glog
+add_dependencies(safecass common) # common requires glog
 
 # Make include directories available to other projects within safecass
 set (SAFECASS_LIBRARY_INCLUDE_DIR ${SAFECASS_LIBRARY_INCLUDE_DIR} PARENT_SCOPE)

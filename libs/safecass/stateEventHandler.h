@@ -14,9 +14,9 @@
 #ifndef _stateEventHandler_h
 #define _stateEventHandler_h
 
-#include "common.h"
 #include "config.h" // to check if unit-test is enabled
-#include "state.h"
+#include "common/common.h"
+#include "safecass/state.h"
 
 namespace SC {
 

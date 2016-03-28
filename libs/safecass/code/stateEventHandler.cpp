@@ -11,7 +11,7 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/safecass/safecass
 //
-#include "stateEventHandler.h"
+#include "safecass/stateEventHandler.h"
 
 namespace SC {
 

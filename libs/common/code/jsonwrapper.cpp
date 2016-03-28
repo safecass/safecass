@@ -11,7 +11,7 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // URL          : https://github.com/minyang/safecass
 //
-#include "jsonwrapper.h"
+#include "common/jsonwrapper.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

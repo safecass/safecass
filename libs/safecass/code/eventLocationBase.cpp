@@ -10,8 +10,9 @@
 // Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 //
-#include "eventLocationBase.h"
-#include "dict.h"
+
+#include "common/dict.h"
+#include "safecass/eventLocationBase.h"
 
 namespace SC {
 
