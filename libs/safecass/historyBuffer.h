@@ -14,7 +14,7 @@
 #ifndef _HistoryBuffer_h
 #define _HistoryBuffer_h
 
-#include "HistoryBufferBase.h"
+#include "historyBufferBase.h"
 #include <boost/lockfree/spsc_queue.hpp>
 
 namespace SC {
