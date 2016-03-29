@@ -46,7 +46,7 @@ set (LIBRARY_OUTPUT_PATH    ${BUILD_ROOT}/libs)
 set (SAFECASS_BUILD_ROOT  ${BUILD_ROOT})
 set (SAFECASS_SOURCE_ROOT ${CMAKE_SOURCE_DIR})
 set (SAFECASS_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}) # where to find safecass library (libsafecass)
-set (SAFECASS_INCLUDE_DIR ${SAFECASS_SOURCE_ROOT}/libs) # where to find header files
+set (SAFECASS_INCLUDE_DIR ${SAFECASS_SOURCE_ROOT}/libs) # path to root folder to find header files
 
 # Misc settings
 # Option to organize targets in folders (mostly for MSVS)

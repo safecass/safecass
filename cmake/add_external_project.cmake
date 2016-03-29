@@ -30,7 +30,7 @@ macro(add_external_project)
                         URL               ${EXT_PROJ_ARGS_URL}
                         URL_MD5           ${EXT_PROJ_ARGS_URL_HASH}
                         SOURCE_DIR        ${SAFECASS_BUILD_ROOT}/external_packages/${EXT_PROJ_ARGS_NAME}/src
-                        BUILD_DIR         ${SAFECASS_BUILD_ROOT}/external_packages/${EXT_PROJ_ARGS_NAME}/build
+                        BINARY_DIR        ${SAFECASS_BUILD_ROOT}/external_packages/${EXT_PROJ_ARGS_NAME}/build
                         DOWNLOAD_DIR      ${SAFECASS_BUILD_ROOT}/external_packages/${EXT_PROJ_ARGS_NAME}/download
                         CONFIGURE_COMMAND ""
                         BUILD_COMMAND     ""
