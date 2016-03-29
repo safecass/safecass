@@ -16,7 +16,7 @@
 
 #include <vector>
 
-#include "common.h"
+#include "common/common.h"
 #include "common/utils.h" // to prevent naming conflict with other packages
 
 namespace SC {

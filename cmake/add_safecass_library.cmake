@@ -3,5 +3,6 @@ macro (add_safecass_library libname)
   # TODO: update this after handling shared library properly
   #add_library(${libname} SHARED ${sublib_sources})
   add_library(${libname} ${sources})
-  target_include_directories(${libname} PUBLIC ${SAFECASS_SOURCE_ROOT}/libs/${libname})
+  #target_include_directories(${libname} PUBLIC ${SAFECASS_SOURCE_ROOT}/libs/${libname})
+  target_include_directories(${libname} PUBLIC ${SAFECASS_SOURCE_ROOT}/libs)
 endmacro()

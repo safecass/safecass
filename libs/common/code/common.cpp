@@ -10,7 +10,7 @@
 // Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 //
-#include "common.h"
+#include "common/common.h"
 
 namespace SC {
 

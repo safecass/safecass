@@ -33,7 +33,7 @@ macro(add_external_project)
                         BINARY_DIR        ${SAFECASS_BUILD_ROOT}/external_packages/${EXT_PROJ_ARGS_NAME}/build
                         DOWNLOAD_DIR      ${SAFECASS_BUILD_ROOT}/external_packages/${EXT_PROJ_ARGS_NAME}/download
                         CONFIGURE_COMMAND ""
-                        BUILD_COMMAND     ""
+                        BUILD_COMMAND     ${EXT_PROJ_ARGS_BUILD_CMD}
                         INSTALL_COMMAND   ""
                         TEST_COMMAND      ""
                         CMAKE_CACHE_ARGS  ${EXT_PROJ_ARGS_CMAKE_OPTIONS})

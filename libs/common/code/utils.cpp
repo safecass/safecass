@@ -10,7 +10,7 @@
 // Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 //
-#include "utils.h"
+//
 #include <time.h>
 #include <algorithm>
 #include <functional>
@@ -22,6 +22,7 @@
 #if SC_HAS_CISST
 #include <cisstOSAbstraction/osaGetTime.h>
 #endif
+#include "common/utils.h"
 
 /*! Returns current UTC time as formatted string: e.g. "2011-09-12T21:33:12Z"
 

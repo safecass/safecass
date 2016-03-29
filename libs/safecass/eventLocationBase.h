@@ -15,7 +15,7 @@
 #ifndef _EventLocationBase_h
 #define _EventLocationBase_h
 
-#include "common.h"
+#include "common/common.h"
 #include "json/json.h"
 
 namespace SC {

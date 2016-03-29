@@ -10,9 +10,10 @@
 // Last revision: May 4, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 //
-#include "event.h"
 #include <iomanip> // std::setprecision
 #include <string.h> // memset
+
+#include "safecass/event.h"
 
 using namespace SC;
 

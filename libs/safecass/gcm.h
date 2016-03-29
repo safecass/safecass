@@ -15,11 +15,11 @@
 #ifndef _gcm_h
 #define _gcm_h
 
-#include "common.h"
-#include "statemachine.h"
-#include "state.h"
-#include "event.h"
-#include "jsonwrapper.h"
+#include "common/common.h"
+#include "common/jsonwrapper.h"
+#include "safecass/statemachine.h"
+#include "safecass/state.h"
+#include "safecass/event.h"
 
 #include <map>
 

@@ -23,7 +23,7 @@
 #ifndef _state_h
 #define _state_h
 
-#include "common.h"
+#include "common/common.h"
 
 #define TOTAL_NUMBER_OF_STATES 3
 

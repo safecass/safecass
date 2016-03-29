@@ -12,9 +12,8 @@
 // Github       : https://github.com/safecass/safecass
 //
 #include "gtest/gtest.h"
-
-#include "historyBuffer.h"
-#include "paramEigen.h"
+#include "safecass/historyBuffer.h"
+#include "safecass/paramEigen.h"
 
 using namespace SC;
 

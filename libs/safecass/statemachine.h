@@ -22,10 +22,10 @@
 #include <iostream>
 #include <list>
 
-#include "common.h"
 #include "config.h"
-#include "stateEventHandler.h"
-#include "jsonwrapper.h"
+#include "common/common.h"
+#include "common/jsonwrapper.h"
+#include "safecass/stateEventHandler.h"
 
 // boost msm
 #include "boost/msm/back/state_machine.hpp" // back-end

@@ -10,8 +10,8 @@
 // Last revision: Oct 28, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 //
-#include "statemachine.h"
-#include "event.h"
+#include "safecass/statemachine.h"
+#include "safecass/event.h"
 
 using namespace SC;
 

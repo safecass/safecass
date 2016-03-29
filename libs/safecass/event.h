@@ -13,9 +13,9 @@
 #ifndef _event_h
 #define _event_h
 
-#include "utils.h" // for TimestampType
-#include "state.h"
-#include "jsonwrapper.h"
+#include "common/utils.h" // for TimestampType
+#include "common/jsonwrapper.h"
+#include "safecass/state.h"
 
 namespace SC {
 

@@ -12,8 +12,8 @@
 // Github       : https://github.com/safecass/safecass
 //
 #include "gtest/gtest.h"
-#include "statemachine.h"
-#include "event.h"
+#include "safecass/statemachine.h"
+#include "safecass/event.h"
 
 using namespace SC;
 

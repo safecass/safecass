@@ -11,9 +11,9 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
-#include "gcm.h"
-#include "common.h"
 #include "config.h"
+#include "common/common.h"
+#include "safecass/gcm.h"
 
 using namespace SC;
 

@@ -11,8 +11,8 @@
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
-#include "signal.h"
-#include "historyBufferBase.h"
+#include "safecass/signal.h"
+#include "safecass/historyBufferBase.h"
 
 using namespace SC;
 
