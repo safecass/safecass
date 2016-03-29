@@ -263,12 +263,11 @@ foreach (lib ${SAFECASS_LIBRARIES})
 endforeach()
 
 # Set dependencies of common library
-list (APPEND COMMON_DEPENDENCIES ${GLOG_LIBRARIES} ${Boost_LIBRARIES})#jsoncpp_lib_static
-target_link_libraries(common ${COMMON_DEPENDENCIES})
-
+#list (APPEND COMMON_DEPENDENCIES ${GLOG_LIBRARIES} ${Boost_LIBRARIES})#jsoncpp_lib_static
+#target_link_libraries(common ${COMMON_DEPENDENCIES})
 
 # Set dependencies
-add_dependencies(common external-glog) # common requires glog
+add_dependencies(common external-glog external-boost) # common requires glog and boost
 add_dependencies(safecass common) # common requires glog
 
 # Make include directories available to other projects within safecass
