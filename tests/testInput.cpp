@@ -116,33 +116,72 @@ TEST(HistoryBuffer, spsc_array_accessors)
 {
 }
 
-// Tests Eigen parameter handling
+// Tests for ParamEigen
+//#include <cstddef>
+#include <typeinfo>
 TEST(HistoryBuffer, eigen_params)
 {
-#if 1
-    Minimal<int>A;
-    Minimal<short>B;
-    Minimal<float>E(1.4f);
-    Minimal<std::vector<int> >X;
-    // calling setZero for a vector...?
-    X.setZero();
+    // Tests for primitive types
+#define TEST_PRIMITIVE_TYPES(_type) {\
+    ParamEigen<_type> param;\
+    EXPECT_TRUE(typeid(_type) == typeid(param.val)); }
 
-    Minimal<Eigen::Vector2f>C;
-    Minimal<Eigen::Vector2f>D(Eigen::Vector2f::Random());
-    Minimal<Eigen::Array2i>F(Eigen::Array2i(2,8));
-    C = D;
+    TEST_PRIMITIVE_TYPES(bool);
+    TEST_PRIMITIVE_TYPES(char);
+    TEST_PRIMITIVE_TYPES(short);
+    TEST_PRIMITIVE_TYPES(int);
+    TEST_PRIMITIVE_TYPES(long);
+    TEST_PRIMITIVE_TYPES(float);
+    TEST_PRIMITIVE_TYPES(double);
+    TEST_PRIMITIVE_TYPES(unsigned char);
+    TEST_PRIMITIVE_TYPES(unsigned short);
+    TEST_PRIMITIVE_TYPES(unsigned int);
+    TEST_PRIMITIVE_TYPES(unsigned long);
+#undef TEST_PRIMITIVE_TYPES
 
-    std::cerr << " E " << E << " C " << C << " A " << A.val << " B " << B.val << "\n";
+    // Tests for std::vector. std::vectors use contiguous memory layout just like
+    // plain arrays and thus setZero() methods should work.
+    ParamEigen<std::vector<int> > vec;
+    EXPECT_TRUE(vec.val.empty());
 
-    A.increase();
-    E.decreace();
-    A.increase();
-    C.setZero();
-    C.increase();
-    B.increase();
-    B.increase();
-    B.increase();
+    vec.val.push_back(1);
+    EXPECT_FALSE(vec.val.empty());
+    EXPECT_EQ(1, vec.val.size());
 
-    std::cerr << " E " << E << " C " << C << " A " << A.val << " B " << B.val << "\n";
-#endif
+    vec.setZero();
+    EXPECT_TRUE(vec.val.empty());
+
+    // Tests for Eigen types
+    // TODO: Could incorporate examples from the official tutorial documentation:
+    // https://eigen.tuxfamily.org/dox/group__TutorialMatrixArithmetic.html
+    ParamEigen<Eigen::Vector3f> v3f(Eigen::Vector3f::Random());
+    EXPECT_EQ(3, v3f.val.rows());
+    EXPECT_EQ(1, v3f.val.cols());
+    EXPECT_EQ(3, v3f.val.asDiagonal().rows());
+    EXPECT_EQ(3, v3f.val.asDiagonal().cols());
+
+    v3f.setZero();
+    EXPECT_EQ(0, v3f.val.sum());
+
+    // TODO: Could incorporate examples from the official tutorial documentation:
+    // https://eigen.tuxfamily.org/dox/group__TutorialArrayClass.html
+    // Eigen uses typedefs of the form ArrayNNt.
+#define TEST_EIGEN_ARRAY_TYPES(_type, _row, _col) {\
+    ParamEigen<_type> param(_type::Random());\
+    EXPECT_EQ(_row, param.val.rows());\
+    EXPECT_EQ(_col, param.val.cols());\
+    param.print(ParamEigenBase<_type>::EIGEN_IOFORMAT_COMMA, std::cout);\
+    std::cout << std::endl;\
+    param.print(ParamEigenBase<_type>::EIGEN_IOFORMAT_CLEAN, std::cout);\
+    std::cout << std::endl;\
+    param.print(ParamEigenBase<_type>::EIGEN_IOFORMAT_OCTAVE, std::cout);\
+    std::cout << std::endl;\
+    param.print(ParamEigenBase<_type>::EIGEN_IOFORMAT_HEAVY, std::cout);\
+    std::cout << std::endl;\
+}
+
+    TEST_EIGEN_ARRAY_TYPES(Eigen::Array2i, 2, 1);
+    TEST_EIGEN_ARRAY_TYPES(Eigen::Array3f, 3, 1);
+    TEST_EIGEN_ARRAY_TYPES(Eigen::Array33d, 3, 3);
+#undef TEST_EIGEN_ARRAY_TYPES
 }
