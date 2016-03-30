@@ -64,46 +64,6 @@ struct enable_if<true, T> {
 template<typename T>
 class ParamEigenBase
 {
-public:
-    /*!
-        For 3x3 matrix,
-
-            1.11    2 3.33
-            4    5    6
-            7 8.89    9
-
-        Reference:
-            Eigen IOFormat class reference:
-            (available at https://eigen.tuxfamily.org/dox/structEigen_1_1IOFormat.html)
-    */
-    typedef enum {
-        /*!
-            << 1.11, 2, 3.33,  4, 5, 6,  7, 8.89, 9;
-        */
-        EIGEN_IOFORMAT_COMMA,
-
-        /*!
-            [1.111,     2, 3.333]
-            [    4,     5,     6]
-            [    7, 8.889,     9]
-        */
-        EIGEN_IOFORMAT_CLEAN,
-
-        /*
-            [1.11,    2, 3.33;
-                4,    5,    6;
-                7, 8.89,    9]
-        */
-        EIGEN_IOFORMAT_OCTAVE,
-
-        /*
-            [[1.111111,        2,  3.33333];
-            [       4,        5,        6];
-            [       7, 8.888888,        9]]
-        */
-        EIGEN_IOFORMAT_HEAVY
-    } EigenOutputFormatType;
-
 protected:
     ParamEigenBase(const T& val): val(val) {}
 
@@ -120,23 +80,6 @@ public:
     // pretty printing
     template<typename P>
     friend std::ostream& operator<<(std::ostream& os, const ParamEigenBase<P>& other);
-
-    // formatted print
-    void print(EigenOutputFormatType format, std::ostream & os)
-    {
-        Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", " << ", ";");
-        Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
-        Eigen::IOFormat OctaveFmt(Eigen::StreamPrecision, 0, ", ", ";\n", "", "", "[", "]");
-        Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
-
-        switch (format) {
-        default:
-        case EIGEN_IOFORMAT_COMMA:  os << val.format(CommaInitFmt); break;
-        case EIGEN_IOFORMAT_CLEAN:  os << val.format(CleanFmt);     break;
-        case EIGEN_IOFORMAT_OCTAVE: os << val.format(OctaveFmt);    break;
-        case EIGEN_IOFORMAT_HEAVY:  os << val.format(HeavyFmt);     break;
-        }
-    }
 };
 
 // tooling
@@ -187,8 +130,52 @@ public:
     void setZero() { ParamEigenBase<T>::val.setZero(); }
 };
 
+//  For 3x3 matrix,
+//    1.11    2 3.33
+//       4    5    6
+//       7 8.89    9
+//
+//  Reference:
+//    Eigen IOFormat class reference:
+//    (https://eigen.tuxfamily.org/dox/structEigen_1_1IOFormat.html)
+typedef enum {
+    // << 1.11, 2, 3.33,  4, 5, 6,  7, 8.89, 9;
+    EIGEN_IOFORMAT_COMMA,
 
-// TODO: print
+    //   [1.111,     2, 3.333]
+    //   [    4,     5,     6]
+    //   [    7, 8.889,     9]
+    EIGEN_IOFORMAT_CLEAN,
+
+    //   [1.11,    2, 3.33;
+    //       4,    5,    6;
+    //       7, 8.89,    9]
+    EIGEN_IOFORMAT_OCTAVE,
+
+    // [[1.111111,        2,  3.33333];
+    // [       4,        5,        6];
+    // [       7, 8.888888,        9]]
+    EIGEN_IOFORMAT_HEAVY
+} EigenOutputFormatType;
+
+template<typename T>
+void Print(const ParamEigenBase<T> & param,
+            EigenOutputFormatType format = EIGEN_IOFORMAT_CLEAN,
+            std::ostream & os = std::cout)
+{
+    static const Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", " << ", ";");
+    static const Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
+    static const Eigen::IOFormat OctaveFmt(Eigen::StreamPrecision, 0, ", ", ";\n", "", "", "[", "]");
+    static const Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+
+    switch (format) {
+    default:
+    case EIGEN_IOFORMAT_COMMA:  os << param.val.format(CommaInitFmt); break;
+    case EIGEN_IOFORMAT_CLEAN:  os << param.val.format(CleanFmt);     break;
+    case EIGEN_IOFORMAT_OCTAVE: os << param.val.format(OctaveFmt);    break;
+    case EIGEN_IOFORMAT_HEAVY:  os << param.val.format(HeavyFmt);     break;
+    }
+}
 
 }; // SC
 

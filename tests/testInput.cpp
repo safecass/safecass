@@ -167,18 +167,10 @@ TEST(HistoryBuffer, eigen_params)
     // https://eigen.tuxfamily.org/dox/group__TutorialArrayClass.html
     // Eigen uses typedefs of the form ArrayNNt.
 #define TEST_EIGEN_ARRAY_TYPES(_type, _row, _col) {\
-    ParamEigen<_type> param(_type::Random());\
-    EXPECT_EQ(_row, param.val.rows());\
-    EXPECT_EQ(_col, param.val.cols());\
-    param.print(ParamEigenBase<_type>::EIGEN_IOFORMAT_COMMA, std::cout);\
-    std::cout << std::endl;\
-    param.print(ParamEigenBase<_type>::EIGEN_IOFORMAT_CLEAN, std::cout);\
-    std::cout << std::endl;\
-    param.print(ParamEigenBase<_type>::EIGEN_IOFORMAT_OCTAVE, std::cout);\
-    std::cout << std::endl;\
-    param.print(ParamEigenBase<_type>::EIGEN_IOFORMAT_HEAVY, std::cout);\
-    std::cout << std::endl;\
-}
+        ParamEigen<_type> param(_type::Random());\
+        EXPECT_EQ(_row, param.val.rows());\
+        EXPECT_EQ(_col, param.val.cols());\
+    }
 
     TEST_EIGEN_ARRAY_TYPES(Eigen::Array2i, 2, 1);
     TEST_EIGEN_ARRAY_TYPES(Eigen::Array3f, 3, 1);
