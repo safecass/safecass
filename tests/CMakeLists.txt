@@ -29,20 +29,28 @@ target_include_directories(gtest INTERFACE
                            ${SAFECASS_BUILD_ROOT}/external_packages/gtest/src/include)
 
 # Define test suites
-add_executable (testGCM main.cpp testInput.cpp testState.cpp)
-target_link_libraries (testGCM # safecass libs
-                               common safecass
-                               # 3rd party libs
-                               ${GLOG_LIBRARIES}
-                               ${Boost_LIBRARIES}
-                               # TODO Replace raw library name with cmake string var
-                               gtest
-                               jsoncpp_lib_static)
+add_executable (testInput main.cpp testInput.cpp)
+add_executable (testState main.cpp testState.cpp)
 
-target_include_directories(testGCM INTERFACE ${SAFECASS_LIBRARY_INCLUDE_DIR})
+# Register each test to test suites
+set (TEST_SUITES testInput testState)
 
-# Register this unit test to CTest
-add_ctest(testGCM)
+# Set up for each test suite
+foreach (TEST ${TEST_SUITES})
+  target_link_libraries (${TEST} # safecass libs
+                                 common safecass
+                                 # 3rd party libs
+                                 ${GLOG_LIBRARIES}
+                                 ${Boost_LIBRARIES}
+                                 # TODO Replace raw library name with cmake string var
+                                 gtest
+                                 jsoncpp_lib_static)
+
+  target_include_directories(${TEST} INTERFACE ${SAFECASS_LIBRARY_INCLUDE_DIR})
+  # Register to CTest
+  add_ctest(${TEST})
+endforeach()
+
 
 return()
 
