@@ -11,6 +11,8 @@ that enables reuse of experience and knowledge on safety, thereby facilitating
 the development process of safety features for robot systems that physically
 interact with humans.
 
+SAFECASS is designed and developed as part of <a href='https://drive.google.com/open?id=0BwGcEiVvK4n9RUJmSXhUYW90SG8' target='_blank'>my PhD thesis</a>, which focuses on the safety of component-based medical and surgical robot systems.  Relevant publications are available [here](https://github.com/safecass/safecass/wiki/Publications).
+
 *SAFECASS is currently undergoing major code restructuring to improve the
 overall build process with better support for unit-testing.*  
 
@@ -18,7 +20,9 @@ For the time being, the master branch is not fully functional and only a
 limited set of features is available.  The design documents are still
 accessible via the [SAFECASS wiki](https://github.com/safecass/safecass/wiki).
 
+
 NEWS:
+
  * 10/27/2015: Working on building the core safecass library..
  * 10/21/2015: Travis CI build passes.
  * 10/19/2015: The build chain of SAFECASS is completely being re-written from
