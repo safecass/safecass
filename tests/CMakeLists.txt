@@ -29,11 +29,13 @@ target_include_directories(gtest INTERFACE
                            ${SAFECASS_BUILD_ROOT}/external_packages/gtest/src/include)
 
 # Define test suites
+add_executable (testParams main.cpp testParams.cpp)
+add_executable (testSignalElement main.cpp testSignalElement.cpp)
 add_executable (testInput main.cpp testInput.cpp)
 add_executable (testState main.cpp testState.cpp)
 
 # Register each test to test suites
-set (TEST_SUITES testInput testState)
+set (TEST_SUITES testParams testSignalElement testInput testState)
 
 # Set up for each test suite
 foreach (TEST ${TEST_SUITES})

@@ -8,7 +8,7 @@
 //
 // Created on   : Oct 28, 2015
 // Last revision: Mar 15, 2016
-// Author       : Min Yang Jung (myj@jhu.edu)
+// Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/casros
 //
 #include <stdio.h>
