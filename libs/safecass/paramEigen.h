@@ -1,14 +1,14 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2016 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Mar 27, 2016
-// Last revision: Mar 29, 2016
-// Author       : Min Yang Jung (myj@jhu.edu)
+// Last revision: Apr 3, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
 /*!
@@ -32,6 +32,9 @@
 
 #include <Eigen/Core>
 #include <iostream>
+
+#include "common/common.h"
+#include "safecass/paramBase.h"
 
 namespace SC {
 
@@ -62,32 +65,38 @@ struct enable_if<true, T> {
 
 // the interface and common functionality
 template<typename T>
-class ParamEigenBase
+class ParamEigenBase: public ParamBase
 {
 protected:
-    ParamEigenBase(const T& val): val(val) {}
+    ParamEigenBase(const T& val): ParamBase(), Val(val) {}
 
 public:
-    T val;
+    T Val;
 
     // don't test self-assignment, causes hopefully no problem here
     // what about complex eigen-types like Eigen::Block<>?
-    const T& operator=(const T& other) { this->val = other.val; };
+    const T& operator=(const T& other) {
+        this->Val = other.Val;
+    }
 
     // Reset value of this container
-    inline void setZero() { val = static_cast<T>(0); }
+    inline void setZero() { Val = static_cast<T>(0); }
 
     // pretty printing
-    template<typename P>
-    friend std::ostream& operator<<(std::ostream& os, const ParamEigenBase<P>& other);
+    // template<typename P>
+    // friend std::ostream & operator<<(std::ostream& os, const ParamEigenBase<P>& other);
+
+    virtual ParamBase * Clone(void) const {
+        SCASSERT(false); // This method must not be called
+        return 0;
+    }
 };
 
 // tooling
 template<typename P>
-std::ostream& operator<<(std::ostream& os, const ParamEigenBase<P>& base)
+inline std::ostream & operator<< (std::ostream & os, const ParamEigenBase<P> & paramEigenBase)
 {
-    os << base.val;
-
+    os << paramEigenBase.Val;
     return os;
 }
 
@@ -98,19 +107,22 @@ class ParamEigen: public ParamEigenBase<T>
 public:
     ParamEigen(const T& val): ParamEigenBase<T>(val) {}
     ParamEigen(void): ParamEigenBase<T>(static_cast<T>(0)) {}
+
+    virtual ParamBase * Clone(void) const {
+        return new ParamEigen<T>(this->Val);
+    }
 };
 
 #if 0
 // specific types are changed. like short
-template<>
-class ParamEigen<short> : public ParamEigenBase<short>
+class ParamEigenShort : public ParamEigenBase<short>
 {
     public:
-        ParamEigen(const short& val)
+        ParamEigenShort(const short& val)
             :ParamEigenBase<short>(val) {}
-        ParamEigen()
+        ParamEigenShort()
             :ParamEigenBase<short>(0){}
-        void increase() { val = val*11; }
+        //void increase() { Val = Val*11; }
 };
 #endif
 
@@ -127,7 +139,11 @@ public:
     ParamEigen(const T& val): ParamEigenBase<T>(val) {}
     ParamEigen(void): ParamEigenBase<T>(T::Zero()) {}
 
-    void setZero() { ParamEigenBase<T>::val.setZero(); }
+    void setZero() { ParamEigenBase<T>::Val.setZero(); }
+
+    virtual ParamBase * Clone(void) const {
+        return new ParamEigen<T>(this->Val);
+    }
 };
 
 //  For 3x3 matrix,
@@ -160,8 +176,8 @@ typedef enum {
 
 template<typename T>
 void Print(const ParamEigenBase<T> & param,
-            EigenOutputFormatType format = EIGEN_IOFORMAT_CLEAN,
-            std::ostream & os = std::cout)
+           EigenOutputFormatType format = EIGEN_IOFORMAT_CLEAN,
+           std::ostream & os = std::cout)
 {
     static const Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", " << ", ";");
     static const Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
