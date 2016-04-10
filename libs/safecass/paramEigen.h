@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Mar 27, 2016
-// Last revision: Apr 3, 2016
+// Last revision: Apr 10, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -92,7 +92,6 @@ public:
     }
 };
 
-// tooling
 template<typename P>
 inline std::ostream & operator<< (std::ostream & os, const ParamEigenBase<P> & paramEigenBase)
 {
@@ -105,8 +104,15 @@ template <typename T, typename Enable = void>
 class ParamEigen: public ParamEigenBase<T>
 {
 public:
+    typedef ParamEigenBase<T> BaseType;
+
     ParamEigen(const T& val): ParamEigenBase<T>(val) {}
     ParamEigen(void): ParamEigenBase<T>(static_cast<T>(0)) {}
+
+    // Not used for now
+    // virtual void ToStream(std::ostream & os) const {
+        // BaseType::ToStream(os);
+    // }
 
     virtual ParamBase * Clone(void) const {
         return new ParamEigen<T>(this->Val);
@@ -125,26 +131,6 @@ class ParamEigenShort : public ParamEigenBase<short>
         //void increase() { Val = Val*11; }
 };
 #endif
-
-/*!
-    Specialization that exists only for cases where T is, or is derived from,
-    an Eigen::DenseBase specialization.
-*/
-template <typename T>
-class ParamEigen<T, typename enable_if<is_eigen_matrix<T>::value>::type>
-    : public ParamEigenBase<T>
-{
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    ParamEigen(const T& val): ParamEigenBase<T>(val) {}
-    ParamEigen(void): ParamEigenBase<T>(T::Zero()) {}
-
-    void setZero() { ParamEigenBase<T>::Val.setZero(); }
-
-    virtual ParamBase * Clone(void) const {
-        return new ParamEigen<T>(this->Val);
-    }
-};
 
 //  For 3x3 matrix,
 //    1.11    2 3.33
@@ -174,10 +160,45 @@ typedef enum {
     EIGEN_IOFORMAT_HEAVY
 } EigenOutputFormatType;
 
+/*!
+    Specialization that exists only for cases where T is, or is derived from,
+    an Eigen::DenseBase specialization.
+*/
+template <typename T>
+class ParamEigen<T, typename enable_if<is_eigen_matrix<T>::value>::type>
+    : public ParamEigenBase<T>
+{
+public:
+    typedef ParamEigenBase<T> BaseType;
+
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    ParamEigen(const T& val): ParamEigenBase<T>(val) {}
+    ParamEigen(void): ParamEigenBase<T>(T::Zero()) {}
+
+    void setZero() { ParamEigenBase<T>::Val.setZero(); }
+
+    virtual void ToStream(std::ostream & os, EigenOutputFormatType format = EIGEN_IOFORMAT_CLEAN) const {
+        BaseType::ToStream(os);
+        os << ", ";
+        PrintEigen(*this, format, os);
+    }
+
+    virtual ParamBase * Clone(void) const {
+        return new ParamEigen<T>(this->Val);
+    }
+};
+
 template<typename T>
-void Print(const ParamEigenBase<T> & param,
-           EigenOutputFormatType format = EIGEN_IOFORMAT_CLEAN,
-           std::ostream & os = std::cout)
+inline std::ostream & operator<< (std::ostream & os, const ParamEigen<T> & param)
+{
+    param.ToStream(os);
+    return os;
+}
+
+template<typename T>
+void PrintEigen(const ParamEigenBase<T> & param,
+                EigenOutputFormatType format = EIGEN_IOFORMAT_CLEAN,
+                std::ostream & os = std::cout)
 {
     static const Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", " << ", ";");
     static const Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
@@ -186,10 +207,10 @@ void Print(const ParamEigenBase<T> & param,
 
     switch (format) {
     default:
-    case EIGEN_IOFORMAT_COMMA:  os << param.val.format(CommaInitFmt); break;
-    case EIGEN_IOFORMAT_CLEAN:  os << param.val.format(CleanFmt);     break;
-    case EIGEN_IOFORMAT_OCTAVE: os << param.val.format(OctaveFmt);    break;
-    case EIGEN_IOFORMAT_HEAVY:  os << param.val.format(HeavyFmt);     break;
+    case EIGEN_IOFORMAT_COMMA:  os << param.Val.format(CommaInitFmt); break;
+    case EIGEN_IOFORMAT_CLEAN:  os << param.Val.format(CleanFmt);     break;
+    case EIGEN_IOFORMAT_OCTAVE: os << param.Val.format(OctaveFmt);    break;
+    case EIGEN_IOFORMAT_HEAVY:  os << param.Val.format(HeavyFmt);     break;
     }
 }
 
