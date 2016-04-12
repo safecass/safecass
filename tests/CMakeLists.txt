@@ -7,7 +7,7 @@
 #---------------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Mar 28, 2016
+# Last revision: Apr 12, 2016
 # Author       : Min Yang Jung (myj@jhu.edu)
 # Github       : https://github.com/safecass/safecass
 #
@@ -28,76 +28,25 @@ add_dl_project(PROJ     gtest
 target_include_directories(gtest INTERFACE
                            ${SAFECASS_BUILD_ROOT}/external_packages/gtest/src/include)
 
-# Define test suites
-add_executable (testParams main.cpp testParams.cpp)
-add_executable (testSignalElement main.cpp testSignalElement.cpp)
-add_executable (testInput main.cpp testInput.cpp)
-add_executable (testState main.cpp testState.cpp)
-
-# Register each test to test suites
-set (TEST_SUITES testParams testSignalElement testInput testState)
-
-# Set up for each test suite
+# Define test cases and register each test to test suites
+file(GLOB TEST_SUITES ${SAFECASS_SOURCE_ROOT}/tests/test*.cpp)
 foreach (TEST ${TEST_SUITES})
-  target_link_libraries (${TEST} # safecass libs
-                                 common safecass
-                                 # 3rd party libs
-                                 ${GLOG_LIBRARIES}
-                                 ${Boost_LIBRARIES}
-                                 # TODO Replace raw library name with cmake string var
-                                 gtest
-                                 jsoncpp_lib_static)
+  # Extract file name
+  get_filename_component (TEST_FILE_NAME ${TEST} NAME)
+  get_filename_component (TEST_UNIT ${TEST} NAME_WE)
+  # Define test unit
+  add_executable (${TEST_UNIT} main.cpp ${TEST_FILE_NAME})
+  target_link_libraries (${TEST_UNIT}
+                         # safecass libs
+                         common safecass
+                         # 3rd party libs
+                         ${GLOG_LIBRARIES}
+                         ${Boost_LIBRARIES}
+                         gtest
+                         # TODO This may need to be update when adding support for shared library
+                         jsoncpp_lib_static)
 
-  target_include_directories(${TEST} INTERFACE ${SAFECASS_LIBRARY_INCLUDE_DIR})
+  target_include_directories(${TEST_UNIT} INTERFACE ${SAFECASS_LIBRARY_INCLUDE_DIR})
   # Register to CTest
-  add_ctest(${TEST})
+  add_ctest(${TEST_UNIT})
 endforeach()
-
-
-return()
-
-
-
-
-# Find CppTest
-find_package (CPPTEST REQUIRED)
-if (CPPTEST_FOUND)
-  message ("CppTest found")
-elseif ()
-  message (FATAL_ERROR "JSONCPP not found")
-endif ()
-
-set (UNIT_TEST_INCLUDE_DIR ${SC_LIB_INCLUDE_DIR} ${CPPTEST_INCLUDE_DIR})
-set (UNIT_TEST_SRC testJson.h testJson.cpp)
-
-# Enable cisst-specific unit-tests if cisst is ON
-if (SC_HAS_CISST)
-  set (REQUIRED_CISST_LIBS cisstCommon cisstVector cisstOSAbstraction cisstMultiTask)
-
-  # find cisst and make sure the required libraries have been compiled
-  find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES} QUIET)
-  if (NOT cisst_FOUND_AS_REQUIRED)
-    cisst_information_message_missing_libraries (${REQUIRED_CISST_LIBRARIES})
-    return()
-  endif()
-
-  set (UNIT_TEST_INCLUDE_DIR ${INCLUDE_DIR} ${INCLUDE_DIR} ${cisst_INCLUDE_DIR})
-  set (UNIT_TEST_SRC ${UNIT_TEST_SRC} 
-                     #testGCM.h testGCM.cpp
-                     #GCMHelper.h GCMHelper.cpp
-                     #testJson.h testJson.cpp
-                     testState.h testState.cpp
-                     testUtil.h testUtil.cpp)
-endif (SC_HAS_CISST)
-
-# Define project settings
-include_directories (${UNIT_TEST_INCLUDE_DIR})
-
-add_executable (tests main.cpp ${UNIT_TEST_SRC})
-
-target_link_libraries (tests SCLib ${SC_LIB_DEPENDENCY_LIBS} 
-                                   ${CPPTEST_LIBRARY}
-                                   ${BOOST_LIB_PROGRAM_OPTION})
-if (SC_HAS_CISST)
-  cisst_target_link_libraries(tests ${REQUIRED_CISST_LIBS})
-endif()
