@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------
 //
 // Created on   : Oct 28, 2015
-// Last revision: Mar 15, 2016
+// Last revision: Apr 12, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/casros
 //
@@ -21,6 +21,13 @@ int main(int argc, char * argv[])
 {
     // Initialize Google test
     ::testing::InitGoogleTest(&argc, argv);
+
+    // Initialize Google logger (glog)
+    FLAGS_logtostderr = 1;
+    FLAGS_log_dir = SC_BIN_DIR;
+    google::SetLogDestination(google::GLOG_INFO, SC_BIN_DIR);
+
+    google::InitGoogleLogging(argv[0]);
 
     return RUN_ALL_TESTS();
 }
