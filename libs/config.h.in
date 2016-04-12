@@ -2,20 +2,21 @@
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
-// Last revision: Oct 27, 2015
-// Author       : Min Yang Jung (myj@jhu.edu)
+// Last revision: Apr 12, 2015
+// Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/casros
 //
 #ifndef _COMMON_CONFIG_H
 #define _COMMON_CONFIG_H
 
 #define SC_SOURCE_ROOT_DIR "@SAFECASS_SOURCE_ROOT@"
-//#define SC_BINARY_ROOT_DIR "@CMAKE_BINARY_DIR@"
+#define SC_BUILD_ROOT_DIR  "@CMAKE_BINARY_DIR@"
+#define SC_BIN_DIR         "@EXECUTABLE_OUTPUT_PATH@"
 
 //#define SC_COMMUNICATOR_CONFIG_DIR "@CMAKE_SOURCE_DIR@/libs/communicator"
 
