@@ -7,12 +7,12 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
-// Last revision: Mar 23, 2014
+// Last revision: Oct 19, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
 //
-#include "testJson.h"
+#include "test_json.h"
 #include "jsonwrapper.h"
-#include "config.h"
+//#include "config.h"
 
 using namespace SC;
 

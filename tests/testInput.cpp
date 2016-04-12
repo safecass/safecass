@@ -18,6 +18,7 @@
 using namespace SC;
 
 // Tests basic features provided by boost::lockfree::spsc_queue
+#if 0
 TEST(HistoryBuffer, spsc_basic)
 {
     // queue size
@@ -103,6 +104,7 @@ TEST(HistoryBuffer, spsc_basic)
 #undef PUSH_CHECK
 #undef POP_CHECK
 }
+#endif
 
 // Tests HistoryBuffer, which is essentially a set of timestamped spsc_queue
 // instances

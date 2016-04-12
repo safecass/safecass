@@ -17,7 +17,7 @@
 using namespace SC;
 
 HistoryBuffer::HistoryBuffer(size_t bufferSize)
-    : Queue(new QueueType(bufferSize))
+    : BufferSize(bufferSize)
 {
     // SCLOG_INFO << "info" << std::endl;
     // SCLOG_DEBUG << "debug" << std::endl;
@@ -27,25 +27,32 @@ HistoryBuffer::HistoryBuffer(size_t bufferSize)
 
 HistoryBuffer::~HistoryBuffer()
 {
-    delete Queue;
 }
 
 bool HistoryBuffer::GetNewValue(const BaseType::IDType & id, ParamBase & arg)
 {
+    // FIXME
     return false;
 }
 
 bool HistoryBuffer::GetNewValue(const BaseType::IndexType & index, ParamBase & arg)
 {
+    // FIXME
     return false;
 }
 
 bool HistoryBuffer::PushNewValue(const IndexType & index, const ParamBase & arg)
 {
+    // FIXME
     return false;
 }
 
-void HistoryBuffer::ExportQueue(std::ostream & os) const
+void HistoryBuffer::ToStream(std::ostream & os) const
 {
-    // TODO: export queue
+    Serialize(os);
+}
+
+void HistoryBuffer::Serialize(std::ostream & os) const
+{
+    os << "size (" << BufferSize << ")";
 }

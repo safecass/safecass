@@ -7,22 +7,22 @@
 //----------------------------------------------------------------------------------
 //
 // Created on   : Apr 3, 2016
-// Last revision: Apr 3, 2016
+// Last revision: Apr 12, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
 
-#include <typeinfo>
-
 #include "gtest/gtest.h"
 #include "safecass/historyBuffer.h"
-#include "safecass/paramEigen.h"
 
 using namespace SC;
 
-TEST(HistoryBuffer, SignalManagement)
+TEST(HistoryBuffer, Initialization)
 {
-    // TODO: basic features
+    const size_t N = 256;
 
-    // TODO: Advance() or Update()?
+    HistoryBuffer hb(N);
+    EXPECT_EQ(N, hb.GetBufferSize());
+
+    std::cout << "History Buffer: " << hb << std::endl;
 }

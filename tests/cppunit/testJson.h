@@ -7,19 +7,19 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
-// Last revision: May 4, 2015
+// Last revision: Oct 28, 2015
 // Author       : Min Yang Jung (myj@jhu.edu)
-// URL          : https://github.com/minyang/safecass
+// URL          : https://github.com/safecass/safecass
 //
 #ifndef _SCJSONTest_h
 #define _SCJSONTest_h
 
-#include "cpptest.h"
+#include "gtest/gtest.h"
 
 #include <iostream>
 #include <sstream>
 
-class SCJsonTest: public Test::Suite
+class SCJsonTest: public ::testing::Test
 {
     std::stringstream SampleJSON;
 

@@ -131,7 +131,15 @@ public:
     virtual void PushNewValueVector(SignalElement::HistoryBufferIndexType index,
                                     const SignalElement::VectorType & value) = 0;
 #endif
+
+    virtual void ToStream(std::ostream & os) const = 0;
 };
+
+inline std::ostream & operator<< (std::ostream & os, const HistoryBufferBase & instance)
+{
+    instance.ToStream(os);
+    return os;
+}
 
 };
 

@@ -6,7 +6,7 @@
 //
 //----------------------------------------------------------------------------------
 //
-// Created on   : Apr 10, 2016
+// Created on   : Apr 3, 2016
 // Last revision: Apr 12, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
@@ -61,7 +61,6 @@ TEST(SignalAccessor, BoostCircularBufferExample1)
     EXPECT_EQ(4, cb[0].Val);
 }
 
-// Test adapted from another tutorial example of boost.circular_buffer
 TEST(SignalAccessor, BoostCircularBufferExample2)
 {
     // Create a circular buffer of capacity 3.
@@ -75,7 +74,7 @@ TEST(SignalAccessor, BoostCircularBufferExample2)
     cb.push_back(1);
     cb.push_back(2);
 
-    // Check push_backs have expected effect.
+    // EXPECT_TRUEions to check push_backs have expected effect.
     EXPECT_TRUE(cb[0] == 1);
     EXPECT_TRUE(cb[1] == 2);
     EXPECT_TRUE(!cb.full());
@@ -102,7 +101,7 @@ TEST(SignalAccessor, BoostCircularBufferExample2)
     EXPECT_TRUE(cb.capacity() == 3);
 }
 
-TEST(HistoryBuffer, SignalAccessorTest)
+TEST(SignalAccessor, SignalAccessorTest)
 {
     SignalAccessor<ParamEigen<double> > acc1(5);
     SignalAccessor<ParamEigen<std::vector<double> > > acc2(5);
@@ -134,14 +133,4 @@ TEST(HistoryBuffer, SignalAccessorTest)
         (*it)->ToStream(std::cout);
         std::cout << std::endl;
     }
-
-    // Check table size
-    // const size_t N = 10;
-    // HistoryBuffer hb(N);
-
-    // HistoryBuffer::TableType * table = hb.GetQueue();
-    // EXPECT_TRUE(table != 0);
-
-    //std::vector<boost::circular_buffer<ParamBase> > buffs;
-
 }
