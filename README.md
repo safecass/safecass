@@ -23,8 +23,8 @@ accessible via the [SAFECASS wiki](https://github.com/safecass/safecass/wiki).
 
 NEWS:
 
- * 10/27/2015: Working on building the core safecass library..
- * 10/21/2015: Travis CI build passes.
+ * 03/15/2016: Design refactoring and new implementation of history buffer, common parameter types, and reference implementation of history buffer, adding a bunch of unit tests for the core SAFECASS library
+ * 10/27/2015: Working on building the core safecass library
  * 10/19/2015: The build chain of SAFECASS is completely being re-written from
    scratch to make the overall build process mcuh simpler, easier, and cleaner.
  * 10/11/2015: The [wiki pages](https://github.com/safecass/safecass/wiki) have
