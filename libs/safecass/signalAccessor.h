@@ -29,6 +29,8 @@ public:
     SignalAccessorBase() {}
     virtual ~SignalAccessorBase() {}
 
+    virtual void GetValue(ParamBase & arg) const = 0;
+
     virtual void ToStream(std::ostream & os) const = 0;
 };
 
@@ -64,6 +66,14 @@ public:
 
     inline void Push(ParameterType item) {
         Container->push_back(item);
+    }
+
+    virtual void GetValue(ParamBase & arg) const {
+        if (!Container) {
+            arg.SetValid(false);
+            return;
+        }
+        arg = Container->back();
     }
 
     virtual void ToStream(std::ostream & os) const {

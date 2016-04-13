@@ -20,7 +20,7 @@ SignalElement::SignalElement(void)
     : Name("UNNAMED"),
       ParamPrototype(_ParamPrototypeDummy),
       HistoryBufferInstance(0),
-      SignalIndex(HistoryBufferBase::INVALID_HISTORY_BUFFER_INDEX),
+      SignalIndex(HistoryBufferBase::INVALID_SIGNAL_INDEX),
       TimeLastSampleFetched(0.0)
 {
 }
@@ -31,7 +31,7 @@ SignalElement::SignalElement(const std::string & signalName,
     : Name(signalName),
       ParamPrototype(paramType),
       HistoryBufferInstance(historyBuffer),
-      SignalIndex(HistoryBufferBase::INVALID_HISTORY_BUFFER_INDEX),
+      SignalIndex(HistoryBufferBase::INVALID_SIGNAL_INDEX),
       TimeLastSampleFetched(0.0)
 {
 }

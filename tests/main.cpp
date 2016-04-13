@@ -25,7 +25,7 @@ int main(int argc, char * argv[])
     // Initialize Google logger (glog)
     FLAGS_logtostderr = 1;
     FLAGS_log_dir = SC_BIN_DIR;
-    google::SetLogDestination(google::GLOG_INFO, SC_BIN_DIR);
+    //google::SetLogDestination(google::GLOG_INFO, SC_BIN_DIR);
 
     google::InitGoogleLogging(argv[0]);
 

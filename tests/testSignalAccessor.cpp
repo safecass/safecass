@@ -74,7 +74,7 @@ TEST(SignalAccessor, BoostCircularBufferExample2)
     cb.push_back(1);
     cb.push_back(2);
 
-    // EXPECT_TRUEions to check push_backs have expected effect.
+    // Check push_backs have expected effect.
     EXPECT_TRUE(cb[0] == 1);
     EXPECT_TRUE(cb[1] == 2);
     EXPECT_TRUE(!cb.full());
