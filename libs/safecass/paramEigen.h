@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Mar 27, 2016
-// Last revision: Apr 10, 2016
+// Last revision: Apr 19, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -99,6 +99,46 @@ inline std::ostream & operator<< (std::ostream & os, const ParamEigenBase<P> & p
     return os;
 }
 
+// Template structs to determine numeric types
+template <typename T> struct IsNum {
+    enum { Yes = 0, No = 1 };
+};
+
+#define REGISTER_PRIMITIVE_TYPE( _type )\
+template <> struct IsNum<_type> {\
+    enum { Yes = 1, No = 0 };\
+};
+
+REGISTER_PRIMITIVE_TYPE(bool);
+REGISTER_PRIMITIVE_TYPE(char);
+REGISTER_PRIMITIVE_TYPE(unsigned char);
+REGISTER_PRIMITIVE_TYPE(signed char);
+REGISTER_PRIMITIVE_TYPE(short);
+REGISTER_PRIMITIVE_TYPE(unsigned short);
+REGISTER_PRIMITIVE_TYPE(int);
+REGISTER_PRIMITIVE_TYPE(unsigned int);
+REGISTER_PRIMITIVE_TYPE(long);
+REGISTER_PRIMITIVE_TYPE(unsigned long);
+REGISTER_PRIMITIVE_TYPE(long long);
+REGISTER_PRIMITIVE_TYPE(unsigned long long);
+REGISTER_PRIMITIVE_TYPE(float);
+REGISTER_PRIMITIVE_TYPE(double);
+
+// Template specialization for collections and numeric types
+template <typename T, bool num = false> struct Printer {
+    void Print(const T & t, std::ostream & os = std::cout) {
+        typename T::const_iterator it = t.begin();
+        for (; it != t.end(); ++it)
+            os << " " << *it;
+    }
+};
+
+template <typename T> struct Printer<T, true> {
+    void Print(const T & t, std::ostream & os = std::cout) {
+        os << " " << t;
+    }
+};
+
 // the common child-template class, using the "Enable" trick
 template <typename T, typename Enable = void>
 class ParamEigen: public ParamEigenBase<T>
@@ -106,13 +146,16 @@ class ParamEigen: public ParamEigenBase<T>
 public:
     typedef ParamEigenBase<T> BaseType;
 
-    ParamEigen(const T& val): ParamEigenBase<T>(val) {}
+    ParamEigen(const T & val): ParamEigenBase<T>(val) {}
     ParamEigen(void): ParamEigenBase<T>(static_cast<T>(0)) {}
 
-    // Not used for now
-    // virtual void ToStream(std::ostream & os) const {
-        // BaseType::ToStream(os);
-    // }
+    virtual void ToStream(std::ostream & os) const {
+        // TODO: maybe type information can be printed out as well
+        BaseType::ToStream(os);
+        // printer is instantiated depending on type
+        Printer<T, IsNum<T>::Yes> printer;
+        printer.Print(this->Val);
+    }
 
     virtual ParamBase * Clone(void) const {
         return new ParamEigen<T>(this->Val);
@@ -205,6 +248,7 @@ void PrintEigen(const ParamEigenBase<T> & param,
     static const Eigen::IOFormat OctaveFmt(Eigen::StreamPrecision, 0, ", ", ";\n", "", "", "[", "]");
     static const Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
 
+    os << std::endl;
     switch (format) {
     default:
     case EIGEN_IOFORMAT_COMMA:  os << param.Val.format(CommaInitFmt); break;
@@ -212,6 +256,7 @@ void PrintEigen(const ParamEigenBase<T> & param,
     case EIGEN_IOFORMAT_OCTAVE: os << param.Val.format(OctaveFmt);    break;
     case EIGEN_IOFORMAT_HEAVY:  os << param.Val.format(HeavyFmt);     break;
     }
+    os << std::endl;
 }
 
 }; // SC

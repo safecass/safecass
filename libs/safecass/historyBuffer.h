@@ -17,6 +17,7 @@
 #include <vector>
 #include <map>
 
+#include "common/common.h"
 #include "safecass/historyBufferBase.h"
 #include "safecass/signalAccessor.h"
 
@@ -96,11 +97,8 @@ protected:
     //! Size of each signal accessor (i.e., length of underlying circular buffer)
     const size_t BufferSize;
 
-    //! Ownership of signal accessors
-    const bool OwnsStateAccessors;
-
-    //! Index of snapshot in the table. Equals to (# of snapshots) mod BufferSize
-    BaseType::IndexType Index;
+    //! Index of snapshot in the table
+    BaseType::IndexType SnapshotIndex;
 
     //! Vector of signal accessors
     SignalAccessorsType SignalAccessors;
@@ -114,12 +112,9 @@ public:
         \param bufferSize Max length of snapshots that this history buffer
                           maintains.  This argument is passed to signal accessors
                           to define the length of its underlying circular buffer.
-        \param ownership HistoryBuffer takes the ownership of signal accessors.
-                         If true, signal accessor objects will be deleted by
-                         the destructor.  True by default.
         \sa signalAccessor()
     */
-    HistoryBuffer(size_t bufferSize = 128, bool ownership = false);
+    HistoryBuffer(size_t bufferSize = 128);
 
     //! Destructor
     virtual ~HistoryBuffer();
@@ -153,21 +148,41 @@ public:
         \return random accessible index of the signal accessor if successful.
                 HistoryBufferBase::INVALID_SIGNAL_INDEX otherwise.
     */
-    BaseType::IndexType AddSignal(const BaseType::IDType & name, SignalAccessorBase * accessor);
+    template<typename _type>
+    BaseType::IndexType AddSignal(const ParamEigen<_type> & arg, const BaseType::IDType & name)
+    {
+        // Check duplicate name
+        if (FindSignal(name)) {
+            SCLOG_ERROR << "AddSignal() failed: duplicate name \"" << name << "\"" << std::endl;
+            return BaseType::INVALID_SIGNAL_INDEX;
+        }
+
+        typedef ParamEigen<_type> ParamType;
+        SignalAccessor<ParamType> * accessor = new SignalAccessor<ParamType>(arg, name, BufferSize);
+
+        BaseType::IndexType accessorId = (BaseType::IndexType) SignalAccessors.size();
+
+        SignalAccessors.push_back(accessor);
+        SignalAccessorsMap.insert(std::make_pair(name, accessorId));
+
+        SCLOG_INFO << "Created accessor (id=" << accessorId << "): " << *accessor << std::endl;
+
+        return accessorId;
+    }
 
     //! Find signal using signal name
     bool FindSignal(const BaseType::IDType & id) const;
 
-    //
-    // Take "snapshots" of all signals
-    //
+    //! Take new snapshot of all signals
     void Snapshot(void);
 
     //
     // Getters
     //
-    inline size_t GetBufferSize(void) const      { return BufferSize; }
-    inline size_t GetNumberOfSignals(void) const { return SignalAccessors.size(); }
+    inline size_t GetBufferSize(void) const                 { return BufferSize; }
+    inline size_t GetNumberOfSignals(void) const            { return SignalAccessors.size(); }
+    inline BaseType::IndexType GetSnapshotIndex(void) const { return SnapshotIndex; }
+
     BaseType::IndexType GetSignalIndex(const BaseType::IDType & id) const;
 
     //

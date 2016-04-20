@@ -7,29 +7,29 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Mar 15, 2016
-// Last revision: Apr 3, 2016
+// Last revision: Apr 20, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
+
+#include <iomanip>
 
 #include "safecass/historyBuffer.h"
 
 using namespace SC;
 
-HistoryBuffer::HistoryBuffer(size_t bufferSize, bool ownership)
-    : BufferSize(bufferSize), OwnsStateAccessors(ownership),
-      Index(HistoryBuffer::BaseType::INVALID_SIGNAL_INDEX)
+HistoryBuffer::HistoryBuffer(size_t bufferSize)
+    : BufferSize(bufferSize),
+      SnapshotIndex(HistoryBuffer::BaseType::INVALID_SIGNAL_INDEX)
 {
 }
 
 HistoryBuffer::~HistoryBuffer()
 {
-    if (OwnsStateAccessors) {
-        SignalAccessorsType::iterator it = SignalAccessors.begin();
-        SignalAccessorsType::iterator itEnd = SignalAccessors.end();
-        for (; it != itEnd; ++it)
-            delete *it;
-    }
+    SignalAccessorsType::iterator it = SignalAccessors.begin();
+    SignalAccessorsType::iterator itEnd = SignalAccessors.end();
+    for (; it != itEnd; ++it)
+        delete *it;
 }
 
 bool HistoryBuffer::GetNewValue(const BaseType::IDType & id, ParamBase & arg)
@@ -67,26 +67,26 @@ void HistoryBuffer::ToStream(std::ostream & os) const
 
 void HistoryBuffer::Serialize(std::ostream & os) const
 {
-    os << "size (" << BufferSize << ")"
-       << ", index (" << Index << ")";
-}
+    os << "Snapshot idx (" << SnapshotIndex << "), "
+       << "Number of signals (" << SignalAccessors.size() << "): ";
 
-HistoryBuffer::BaseType::IndexType
-HistoryBuffer::AddSignal(const HistoryBuffer::BaseType::IDType & name, SignalAccessorBase * accessor)
-{
-    if (!accessor) {
-        SCLOG_INFO << "Null accessor argument specified for signal \"" << name << "\"" << std::endl;
-        return HistoryBuffer::BaseType::INVALID_SIGNAL_INDEX;
+    if (SignalAccessors.empty()) {
+        os << "No signal accessor" << std::endl;
+        return;
+    } else {
+        os << std::endl;
     }
 
-    const HistoryBuffer::BaseType::IndexType n = (HistoryBuffer::BaseType::IndexType) SignalAccessors.size();
+    const size_t digit = log10(BufferSize) + 1;
+    const std::ios::fmtflags f(os.flags());
+    for (size_t i = 0; i < SignalAccessors.size(); ++i) {
+        const char prevFiller = os.fill('0');
+        os << std::setw(digit) << i << ": ";
+        os.flags(f);
+        os.fill(prevFiller);
+        os << (*SignalAccessors[i]) << std::endl;
+    }
 
-    SignalAccessors.push_back(accessor);
-    SignalAccessorsMap.insert(std::make_pair(name, n));
-
-    SCLOG_INFO << "Signal \"" << name << "\" was added to History Buffer" << std::endl;
-
-    return n;
 }
 
 bool HistoryBuffer::FindSignal(const HistoryBuffer::BaseType::IDType & id) const
@@ -106,9 +106,18 @@ HistoryBuffer::BaseType::IndexType HistoryBuffer::GetSignalIndex(const BaseType:
 
 void HistoryBuffer::Snapshot(void)
 {
-    // FIXME Iterating signal accessors, copy current parameter and push to circular buffer
+    // Iterating signal accessors, copy current parameter and push to circular buffer
+    SignalAccessorsType::iterator it = SignalAccessors.begin();
+    const SignalAccessorsType::iterator itEnd = SignalAccessors.end();
+    for (; it != itEnd; ++it)
+        (*it)->Push();
 
-    // FIXME Increase index
+    // Update snapshot index
+    // In case of the very first snapshot, manually set it to 1
+    if (SnapshotIndex == HistoryBuffer::BaseType::INVALID_SIGNAL_INDEX)
+        SnapshotIndex = 1;
+    else
+        ++SnapshotIndex;
 
     // FIXME timestamp handling
 }

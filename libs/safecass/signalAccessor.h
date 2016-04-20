@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Apr 10, 2016
-// Last revision: Apr 10, 2016
+// Last revision: Apr 20, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -17,29 +17,51 @@
 #include <vector>
 #include <boost/circular_buffer.hpp>
 
+#include "common/common.h"
+
 namespace SC {
 
 //! Base class of signal accessor classes
 class SignalAccessorBase
 {
-public:
-    typedef std::vector<SignalAccessorBase *> SignalsType;
+protected:
+    //! Reference to original object associated with this signal accessor
+    const ParamBase & SignalObject;
+    //! Name of signal that this signal accessor is associated with
+    const std::string & SignalName;
 
 public:
-    SignalAccessorBase() {}
+    SignalAccessorBase(const ParamBase & object, const std::string & name)
+        : SignalObject(object), SignalName(name)
+    {}
     virtual ~SignalAccessorBase() {}
 
-    virtual void GetValue(ParamBase & arg) const = 0;
+    //! Returns name of signal associated with this signal accessor
+    inline const std::string & GetSignalName(void) const { return SignalName; }
 
+    //
+    // Pure virtual methods
+    //
+    virtual void Push(void) = 0;
+    virtual void GetValue(ParamBase & arg) const = 0;
     virtual void ToStream(std::ostream & os) const = 0;
 };
+
+inline std::ostream & operator<< (std::ostream & os, const SignalAccessorBase & accessor)
+{
+    accessor.ToStream(os);
+    return os;
+}
 
 //! Signal accessor class
 template<class T>
 class SignalAccessor: public SignalAccessorBase
 {
 public:
-    //! Typedefs
+    //! Typedef for base class
+    typedef SignalAccessorBase BaseType;
+
+    //! Typedefs for container access
     typedef boost::circular_buffer<T>          ContainerType;
     typedef typename ContainerType::size_type  SizeType;
     typedef typename ContainerType::value_type ValueType;
@@ -55,7 +77,9 @@ public:
     ContainerType * Container;
 
     //! Constructor
-    SignalAccessor(size_t size) {
+    SignalAccessor(const ParamBase & object, const std::string & name, size_t size)
+        : SignalAccessorBase(object, name)
+    {
         Container = new ContainerType(size);
     }
 
@@ -64,8 +88,22 @@ public:
         delete Container;
     }
 
-    inline void Push(ParameterType item) {
+    virtual void Push(void) {
+        const ValueType * param = dynamic_cast<const ValueType *>(&SignalObject);
+        SCASSERT(param);
+        Container->push_back(*param);
+    }
+
+    void Push(ParameterType item, bool debug = false) {
+        if (debug) {
+            const ValueType * _obj = dynamic_cast<const ValueType*>(&item);
+            SCLOG_DEBUG << "Signal accessor \"" << this->GetSignalName() << "\": push " << *_obj << std::endl;
+        }
         Container->push_back(item);
+        if (debug) {
+            SCLOG_DEBUG << "Signal accessor \"" << this->GetSignalName() << "\": size after push = "
+                        << Container->size() << std::endl;
+        }
     }
 
     virtual void GetValue(ParamBase & arg) const {
@@ -76,23 +114,26 @@ public:
         arg = Container->back();
     }
 
+    //
+    // Getters
+    //
+    inline size_t GetContainerSize(void) { return Container->size(); }
+
     virtual void ToStream(std::ostream & os) const {
-        // BaseType::ToStream(os);
-        // os << ", ";
-        std::cout << "signal derived" << std::endl;
+        os << "Signal accessor \"" << this->GetSignalName() << "\": ";
+        os << SignalObject << ", container: ";
+        if (Container->empty()) {
+            os << "empty";
+            return;
+        }
         IteratorType it = Container->begin();
-        const IteratorType itEnd = Container->end();
-        for (; it != itEnd; ++it)
-            os << *it << std::endl;
+        for (; it != Container->end(); ++it) {
+            os << *it;
+            if (it + 1 != Container->end())
+                os << ", ";
+        }
     }
 };
-
-template<typename T>
-inline std::ostream & operator<< (std::ostream & os, const SignalAccessor<T> & accessor)
-{
-    accessor.ToStream(os);
-    return os;
-}
 
 };
 

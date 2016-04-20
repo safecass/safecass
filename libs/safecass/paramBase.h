@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Apr 2, 2016
-// Last revision: Apr 3, 2016
+// Last revision: Apr 19, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -39,7 +39,7 @@ public:
     }
 
     virtual void ToStream(std::ostream & os) const {
-        os << (Valid ? "valid" : "invalid");
+        os << (Valid ? "[o]" : "[x]");
     }
 
     virtual ParamBase * Clone(void) const = 0;

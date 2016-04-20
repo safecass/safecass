@@ -1,15 +1,15 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 2, 2012
-// Last revision: May 19, 2014
-// Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
+// Last revision: Apr 20, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// Github       : https://github.com/safecass/safecass
 //
 #ifndef _common_h
 #define _common_h
@@ -79,7 +79,7 @@ std::string GetCISSTInfo(void);
 //--------------------------------------------------
 //  Common macro definitions
 //--------------------------------------------------
-// Logger macros
+// Logger macro aliases
 #define SCLOG_INFO      LOG(INFO)
 #define SCLOG_DEBUG     VLOG(1)
 #define SCLOG_DEBUGV    VLOG(2)
@@ -96,25 +96,14 @@ std::string GetCISSTInfo(void);
   #define SCLOG_FATAL   CMN_LOG_INIT_ERROR << __FILE__ << ":" << __LINE__ << " "
 #endif
 
-// Assertion macro
-#if SC_USE_G2LOG
-  /* G2LOG CHECK macro usage examples:
-     (from http://www.codeproject.com/Articles/288827/g2log-An-efficient-asynchronous-logger-using-Cplus#TOC_design_by_contract)
-
-     CHECK(1 != 2);
-     CHECK(1 > 2) << "CHECK(false) will trigger a FATAL message, put it on log, then exit";
-
-     const std::string arg = "CHECKF";
-     CHECKF(1 > 2, "This is a test to see if %s works", arg.c_str());
-  */
-  #define SCASSERT CHECK
+// Assertion macro aliasing
+#if SC_HAS_CISST
+  #define SCASSERT CMN_ASSERT
 #else
-  #if SC_HAS_CISST
-    #define SCASSERT CMN_ASSERT
-  #else
-    #include <assert.h>
-    #define SCASSERT assert
-  #endif
+  // Google logger also provides other variations of CHECK macros:
+  // CHECK_EQ, CHECK_NE, CHECK_LE, CHECK_LT, CHECK_GE, CHECK_GT
+  // For more details, see https://google-glog.googlecode.com/svn/trunk/doc/glog.html
+  #define SCASSERT CHECK
 #endif
 };
 

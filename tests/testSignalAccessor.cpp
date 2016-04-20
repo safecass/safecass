@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------
 //
 // Created on   : Apr 3, 2016
-// Last revision: Apr 12, 2016
+// Last revision: Apr 19, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -15,6 +15,7 @@
 #include <typeinfo>
 #include <numeric> // std::accumulate
 #include <stdlib.h>
+#include <list>
 
 #include "gtest/gtest.h"
 #include "safecass/paramEigen.h"
@@ -66,7 +67,7 @@ TEST(SignalAccessor, BoostCircularBufferExample2)
     // Create a circular buffer of capacity 3.
     boost::circular_buffer<int> cb(3);
     EXPECT_TRUE(cb.capacity() == 3);
-    // Check is empty.
+    // Check if empty.
     EXPECT_TRUE(cb.size() == 0);
     EXPECT_TRUE(cb.empty());
 
@@ -103,34 +104,63 @@ TEST(SignalAccessor, BoostCircularBufferExample2)
 
 TEST(SignalAccessor, SignalAccessorTest)
 {
-    SignalAccessor<ParamEigen<double> > acc1(5);
-    SignalAccessor<ParamEigen<std::vector<double> > > acc2(5);
-    SignalAccessor<ParamEigen<Eigen::Array33d> > acc3(5);
+    ParamEigen<double>               paramDouble;
+    ParamEigen<std::vector<double> > paramDoubleVec;
+    ParamEigen<std::list<int> >      paramIntList;
+    ParamEigen<Eigen::Array33d>      paramEigenArray33d;
 
-    SignalAccessorBase::SignalsType accessorVec;
-    accessorVec.push_back(&acc1);
-    accessorVec.push_back(&acc2);
-    accessorVec.push_back(&acc3);
+    SignalAccessor<ParamEigen<double> >               accessor1(paramDouble, "double", 5);
+    SignalAccessor<ParamEigen<std::vector<double> > > accessor2(paramDoubleVec, "doubleVec", 5);
+    SignalAccessor<ParamEigen<std::list<int> > >      accessor3(paramIntList, "intList", 5);
+    SignalAccessor<ParamEigen<Eigen::Array33d> >      accessor4(paramEigenArray33d, "EigenArray33d", 5);
 
-    acc1.Push(1.0);
+    std::vector<SignalAccessorBase*> vec;
+    vec.push_back(&accessor1);
+    vec.push_back(&accessor2);
+    vec.push_back(&accessor3);
+    vec.push_back(&accessor4);
+
+    std::vector<SignalAccessorBase*>::const_iterator it = vec.begin();
+    while (it != vec.end()) {
+        std::cout << *(*it) << std::endl;
+        ++it;
+    }
+
+    accessor1.Push(1.1);
+    accessor1.Push(2.2);
 
     std::vector<double> doubleVec;
-    doubleVec.push_back(-1.0);
-    doubleVec.push_back(-2.0);
-    doubleVec.push_back(-3.0);
-    acc2.Push(doubleVec);
+    doubleVec.push_back(-11.1);
+    doubleVec.push_back(-22.2);
+    doubleVec.push_back(-33.3);
+    accessor2.Push(doubleVec);
+
+    doubleVec.clear();
+    doubleVec.push_back(44.4);
+    doubleVec.push_back(55.5);
+    doubleVec.push_back(66.6);
+    accessor2.Push(doubleVec);
+
+    std::list<int> intList;
+    intList.push_back(-7);
+    intList.push_back(-8);
+    accessor3.Push(intList);
+
+    intList.clear();
+    intList.push_back(9);
+    intList.push_back(10);
+    accessor3.Push(intList);
 
     srand(time(0));
 
     Eigen::Array33d a = Eigen::Array33d::Random();
-    acc3.Push(a);
+    accessor4.Push(a);
+    a = Eigen::Array33d::Random();
+    accessor4.Push(a);
 
-    SignalAccessorBase::SignalsType::const_iterator it = accessorVec.begin();
-    const SignalAccessorBase::SignalsType::const_iterator itEnd = accessorVec.end();
-
-    for (; it != itEnd; ++it) {
-        std::cout << "signal " << ": ";
-        (*it)->ToStream(std::cout);
-        std::cout << std::endl;
+    it = vec.begin();
+    while (it != vec.end()) {
+        std::cout << *(*it) << std::endl;
+        ++it;
     }
 }
