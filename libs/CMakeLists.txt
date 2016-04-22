@@ -279,7 +279,7 @@ if (SAFECASS_ON_LINUX)
   # chrono.cpp requires rt on Linux (probably static)
   list (APPEND SAFECASS_LIBRARY_COMMON_DEPENDENCY rt)
 endif()
-target_link_libraries(common ${Boost_LIBRARIES})
+target_link_libraries(common ${SAFECASS_LIBRARY_COMMON_DEPENDENCY})
 
 # Set dependencies
 add_dependencies(common external-glog external-boost) # common requires glog and boost
