@@ -283,7 +283,8 @@ target_link_libraries(common ${SAFECASS_LIBRARY_COMMON_DEPENDENCY})
 
 # for gcc compilation
 if (SAFECASS_COMPILER_GCC)
-  list (APPEND SC_CXX_FLAGS "-stdlib=libstdc++")
+  list (APPEND SC_CXX_FLAGS "-lstdc++")
+  list (APPEND CMAKE_CXX_FLAGS ${SC_CXX_FLAGS})
 endif()
 
 # Set dependencies

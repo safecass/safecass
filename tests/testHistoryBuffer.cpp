@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------
 //
 // Created on   : Apr 3, 2016
-// Last revision: Apr 20, 2016
+// Last revision: Apr 21, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -129,9 +129,6 @@ TEST(HistoryBuffer, Snapshot)
     std::cout << "Snapshot (after second snapshot): " << hb << std::endl;
 }
 
-//
-// CONTINUE HERE.. finally, i can implement GetNewValue(), ...
-//
 TEST(HistoryBuffer, GetNewValue)
 {
     HistoryBuffer hb;
@@ -139,16 +136,4 @@ TEST(HistoryBuffer, GetNewValue)
     ParamEigen<int> paramInt;
     EXPECT_EQ(false, hb.GetNewValue("non-existent-signal-name", paramInt));
 
-    boost::chrono::system_clock::time_point time_limit
-        = boost::chrono::system_clock::now() +
-          boost::chrono::seconds(4) +
-          boost::chrono::milliseconds(500);
-
-    PrintTime(GetCurrentTimestamp());
-    std::cout << std::endl;
-
-    PrintTime(time_limit);
-    std::cout << std::endl;
-
-    std::cout << GetCurrentTimestampString() << std::endl;
 }
