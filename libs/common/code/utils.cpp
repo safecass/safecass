@@ -18,6 +18,8 @@
 #include <math.h> // modf
 #include <iomanip> // setw
 
+#include "config.h"
+
 #if SAFECASS_ON_LINUX
 #include <stdio.h> // sprintf
 #endif
