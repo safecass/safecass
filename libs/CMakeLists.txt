@@ -255,8 +255,6 @@ configure_file(config.h.in ${BUILD_ROOT}/include/config.h)
 # Set include directories
 set (SAFECASS_LIBRARY_INCLUDE_DIR # safecass headers
                                   ${SAFECASS_INCLUDE_DIR}
-                                  #${SAFECASS_INCLUDE_DIR}/common
-                                  #${SAFECASS_INCLUDE_DIR}/safecass
                                   # generated safecass headers
                                   ${BUILD_ROOT}/include
                                   # dependencies
@@ -275,7 +273,8 @@ endforeach()
 
 # Set dependencies of common library
 set (SAFECASS_LIBRARY_COMMON_DEPENDENCY ${Boost_LIBRARIES})
-if (SAFECASS_ON_LINUX)
+#if (SAFECASS_ON_LINUX)
+if (SAFECASS_COMPILER_GCC)
   # chrono.cpp requires rt on Linux (probably static)
   list (APPEND SAFECASS_LIBRARY_COMMON_DEPENDENCY rt)
 endif()
