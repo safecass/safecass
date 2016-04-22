@@ -58,7 +58,7 @@ public:
     typedef int IndexType;
 
     //! Invalid signal accessor index in history buffer
-    enum { INVALID_SIGNAL_INDEX = -1 };
+    enum InvalidSignalIndex { INVALID_SIGNAL_INDEX = -1 };
 
     //! Typedef for timestamp type defined by underlying time-indexed buffer
     /*!
