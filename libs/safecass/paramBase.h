@@ -19,15 +19,26 @@
 #ifndef _ParamBase_h
 #define _ParamBase_h
 
+#include "common/utils.h"
+
 namespace SC {
 
 class ParamBase
 {
 protected:
+    //! If this object is valid
     bool Valid;
+    //! Timestamp representing when this object is created or becomes valid
+    /*!
+        If Valid is false, this points to the time when this object was created.
+        If Valid is true, this points to the time when this object became valid.
+    */
+    TimestampType Timestamp;
 
 public:
-    ParamBase(void): Valid(false) {}
+    ParamBase(void): Valid(false) {
+        Timestamp = GetCurrentTimestamp();
+    }
     virtual ~ParamBase() {}
 
     //! Accessors for Valid property
@@ -39,7 +50,8 @@ public:
     }
 
     virtual void ToStream(std::ostream & os) const {
-        os << (Valid ? "[o]" : "[x]");
+        PrintTime(Timestamp, os);
+        os << ", " << (Valid ? "[o]" : "[x]");
     }
 
     virtual ParamBase * Clone(void) const = 0;

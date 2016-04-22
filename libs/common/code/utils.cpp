@@ -1,21 +1,23 @@
-//-----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2016 Min Yang Jung and Peter Kazanzides
 //
-//-----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 //
 // Created on   : May 27, 2012
-// Last revision: May 4, 2015
-// Author       : Min Yang Jung (myj@jhu.edu)
-//
+// Last revision: Apr 21, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// Github       : https://github.com/safecass/safecass
 //
 #include <time.h>
 #include <algorithm>
 #include <functional>
 #include <cctype>
 #include <math.h> // modf
+#include <iomanip> // setw
+
 #if SAFECASS_ON_LINUX
 #include <stdio.h> // sprintf
 #endif
@@ -26,7 +28,7 @@
 
 /*! Returns current UTC time as formatted string: e.g. "2011-09-12T21:33:12Z"
 
-    Time zone codes in the U.S. 
+    Time zone codes in the U.S.
 
     AST	    ATLANTIC STANDARD TIME	UTC - 4
     EST	    EASTERN STANDARD TIME	UTC - 5
@@ -67,7 +69,7 @@ std::string SC::GetCurrentUTCTimeString(void)
 
     struct tm * ptm = gmtime(&rawtime);
     char buf[32];
-    sprintf(buf, "%04d-%02d-%02dT%02d:%02d:%02dZ", 
+    sprintf(buf, "%04d-%02d-%02dT%02d:%02d:%02dZ",
                  ptm->tm_year + 1900,
                  ptm->tm_mon + 1,
                  ptm->tm_mday,
@@ -80,6 +82,8 @@ std::string SC::GetCurrentUTCTimeString(void)
 
 std::string SC::GetUTCTimeString(TimestampType timestamp)
 {
+    // Temporarily disabled -- FIXME later 
+#if 0
     // static const int MST = -7;
     static const int UTC = 0;
     // static const int CCT = +8;
@@ -91,7 +95,7 @@ std::string SC::GetUTCTimeString(TimestampType timestamp)
     struct tm * ptm = gmtime(&tick);
 
     char buf[32];
-    sprintf(buf, "%04d-%02d-%02dT%02d:%02d:%02d.%03.0fZ", 
+    sprintf(buf, "%04d-%02d-%02dT%02d:%02d:%02d.%03.0fZ",
                  ptm->tm_year + 1900,
                  ptm->tm_mon + 1,
                  ptm->tm_mday,
@@ -101,17 +105,14 @@ std::string SC::GetUTCTimeString(TimestampType timestamp)
                  fractpart * 1000.0);
 
     return std::string(buf);
+#endif
+    return "";
 }
-
-/* TODO
-std::string GetCurrentLocalTimeString(void)
-{}
-*/
 
 std::string & SC::ltrim(std::string &s)
 {
-    s.erase(s.begin(), std::find_if(s.begin(), 
-                                    s.end(), 
+    s.erase(s.begin(), std::find_if(s.begin(),
+                                    s.end(),
                                     std::not1(std::ptr_fun<int, int>(std::isspace))));
     return s;
 }
@@ -119,8 +120,8 @@ std::string & SC::ltrim(std::string &s)
 // trim from end
 std::string & SC::rtrim(std::string &s)
 {
-    s.erase(std::find_if(s.rbegin(), 
-                         s.rend(), 
+    s.erase(std::find_if(s.rbegin(),
+                         s.rend(),
                          std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
     return s;
 }
@@ -137,17 +138,39 @@ void SC::to_lowercase(std::string & s)
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
-// to uppercase 
+// to uppercase
 void SC::to_uppercase(std::string & s)
 {
     std::transform(s.begin(), s.end(), s.begin(), ::toupper);
 }
 
-SC::TimestampType SC::GetCurrentTimeTick(void)
+void SC::PrintTime(TimestampType t, std::ostream & os)
 {
-#if SC_HAS_CISST
-    return osaGetTime();
-#else
-    return 0.0;
-#endif
+    using namespace boost::chrono;
+
+    time_t c_time = system_clock::to_time_t(t);
+    std::tm * tmptr = std::localtime(&c_time);
+    system_clock::duration d = t.time_since_epoch();
+
+    //const std::ios::fmtflags f(os.flags());
+
+    os << tmptr->tm_hour << ':'
+       << tmptr->tm_min << ':'
+       << tmptr->tm_sec << '.'
+       << (d - duration_cast<seconds>(d)).count();
+
+    //os.flags(f);
+}
+
+TimestampType SC::GetCurrentTimestamp(void)
+{
+    return boost::chrono::system_clock::now();
+}
+
+std::string SC::GetCurrentTimestampString(void)
+{
+    std::stringstream ss;
+    PrintTime(boost::chrono::system_clock::now(), ss);
+
+    return ss.str();
 }

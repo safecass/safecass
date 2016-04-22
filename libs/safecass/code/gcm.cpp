@@ -324,7 +324,7 @@ void GCM::PopulateStateUpdateJSON(const std::string & providedInterfaceName, Jso
     if (e) {
         Event evt(*e);
         // update timestamp
-        evt.SetTimestamp(GetCurrentTimeTick());
+        evt.SetTimestamp(GetCurrentTimestamp());
         json["event"] = evt.SerializeJSON();
     } else {
         json["event"] = JsonWrapper::JsonValue::null;

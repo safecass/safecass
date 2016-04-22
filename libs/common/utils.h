@@ -1,13 +1,13 @@
-//------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2016 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 //
 // Created on   : May 16, 2012
-// Last revision: Aug 5, 2014
+// Last revision: Aug 20, 2016
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/minyang/casros
 //
@@ -18,9 +18,9 @@
 
 namespace SC {
 
-//-------------------------------------------------- 
-// String
-//-------------------------------------------------- 
+//
+// String Manipulation Utils
+//
 /*! trim from start */
 std::string &ltrim(std::string &s);
 
@@ -36,22 +36,23 @@ void to_lowercase(std::string & s);
 /*! to uppercase */
 void to_uppercase(std::string & s);
 
-//-------------------------------------------------- 
-// Time
 //
-/*! Typedef for representation of timestamp */
-// TODO: refactor time-related semantics within the framework for consistent use of time
-// at higher precision (possibly between different processes).
-typedef double TimestampType;
+// Time-related Utils
+//
+//! Returns current timestamp
+TimestampType GetCurrentTimestamp(void);
 
-// TODO: integrate boost time/date library
-TimestampType GetCurrentTimeTick(void);
+//! Returns current timestamp string
+std::string GetCurrentTimestampString(void);
 
-/*! Get current UTC time */
+//! Get current UTC time
 std::string GetCurrentUTCTimeString(void);
 
-/*! Get given timestamp in UTC format */
+//! Get given timestamp in UTC format
 std::string GetUTCTimeString(TimestampType timestamp);
+
+//! Print timestamp
+void PrintTime(TimestampType t, std::ostream & os = std::cout);
 
 };
 

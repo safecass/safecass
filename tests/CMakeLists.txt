@@ -7,8 +7,8 @@
 #---------------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Apr 12, 2016
-# Author       : Min Yang Jung (myj@jhu.edu)
+# Last revision: Apr 20, 2016
+# Author       : Min Yang Jung <myj@jhu.edu>
 # Github       : https://github.com/safecass/safecass
 #
 project (sctest)

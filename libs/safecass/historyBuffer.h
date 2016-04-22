@@ -122,12 +122,17 @@ public:
     //
     // Methods required by the base class
     //
-    //! Get latest value from history buffer via direct access to history buffer
+    //! Get latest value from history buffer using signal id
     /*!
         \sa HistoryBufferBase()
     */
-    virtual bool GetNewValue(const BaseType::IDType & id, ParamBase & arg);
-    virtual bool GetNewValue(const BaseType::IndexType & index, ParamBase & arg);
+    virtual bool GetNewValue(const BaseType::IDType & id, ParamBase & arg) const;
+
+    //! Get latest value from history buffer using signal index
+    /*!
+        \sa HistoryBufferBase()
+    */
+    virtual bool GetNewValue(const BaseType::IndexType & index, ParamBase & arg) const;
 
     //! Push value to history buffer
     virtual bool PushNewValue(const IndexType & index, const ParamBase & arg);

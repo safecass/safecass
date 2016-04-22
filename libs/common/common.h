@@ -26,6 +26,9 @@
 // Google logging library
 #include "glog/logging.h"
 
+// Boost.Chrono
+#include <boost/chrono/chrono.hpp>
+
 #if SC_HAS_CISST
   #include <cisstCommon/cmnPortability.h>
   #include <cisstCommon/cmnLogger.h>
@@ -138,3 +141,9 @@ std::string GetCISSTInfo(void);
     #define SC_PACKAGE SC_PACKAGE_OROCOS
 #endif
 #endif
+
+//--------------------------------------------------
+//  Misc. definitions
+//--------------------------------------------------
+//! Typedef for representation of timestamp
+typedef boost::chrono::system_clock::time_point TimestampType;

@@ -89,13 +89,13 @@ endif()
 #
 # 2) Boost
 #
-set (BOOST_COMPONENTS_REQUIRED program_options thread system)
+set (BOOST_COMPONENTS_REQUIRED program_options thread system chrono)
 
 # TEMP to test boost external project
-find_package(Boost 1.59.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
-if (Boost_FOUND)
+#find_package(Boost 1.59.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
+if (FALSE) #Boost_FOUND)
   message("Boost found")
-else(Boost_FOUND)
+else()
   message("Boost not found -- Boost 1.59.0 will be downloaded and built")
 
   # Define boost bootstrap shell command
@@ -119,11 +119,12 @@ else(Boost_FOUND)
                               --prefix=${SAFECASS_BUILD_ROOT}/external_packages/boost/build
                               --build-dir=${SAFECASS_BUILD_ROOT}/external_packages/boost/build
                               --variant=release # debug|release
-                              --link=shared # static|shared
+                              --link=static # static|shared
                               --threading=multi #single|multi
                               --with-program_options
                               --with-thread
                               --with-system
+                              --with-chrono
                               -j${N})
 
   set (Boost_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/boost/build/include)
@@ -134,14 +135,17 @@ else(Boost_FOUND)
   find_boost_library(LIB_NAME program_options) # setting Boost_PROGRAM_OPTIONS_LIBRARY
   find_boost_library(LIB_NAME thread) # setting Boost_THREAD_LIBRARY
   find_boost_library(LIB_NAME system) # setting Boost_SYSTEM_LIBRARY
+  find_boost_library(LIB_NAME chrono) # setting Boost_CHRONO_LIBRARY
   set (Boost_PROGRAM_OPTIONS_FOUND ON)
   set (Boost_THREAD_FOUND ON)
   set (Boost_SYSTEM_FOUND ON)
+  set (Boost_CHRONO_FOUND ON)
 
   set (Boost_LIBRARIES "") # clear out existing cache just in case
   list (APPEND Boost_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
                                ${Boost_THREAD_LIBRARY}
-                               ${Boost_SYSTEM_LIBRARY})
+                               ${Boost_SYSTEM_LIBRARY}
+                               ${Boost_CHRONO_LIBRARY})
 
   set (Boost_VERSION       105900)
   set (Boost_LIB_VERSION   1_59)
@@ -158,11 +162,18 @@ else(Boost_FOUND)
   message("Boost_MINOR_VERSION: ${Boost_MINOR_VERSION}")
   message("Boost_SUBMINOR_VERSION: ${Boost_SUBMINOR_VERSION}")
   foreach (COMPONENT ${BOOST_COMPONENTS_REQUIRED})
-    string(TOUPPER ${COMPONENT}_FOUND COMPONENT_FOUND)
-    string(TOUPPER ${COMPONENT}_LIBRARY COMPONENT_LIBRARY)
-    message("Boost_${COMPONENT}_FOUND: ${Boost_${COMPONENT_FOUND}}")
-    message("Boost_${COMPONENT}_LIBRARY: ${Boost_${COMPONENT_LIBRARY}}")
+    string(TOUPPER ${COMPONENT} COMPONENT_NAME)
+    #string(TOUPPER ${COMPONENT}_FOUND COMPONENT_FOUND)
+    #string(TOUPPER ${COMPONENT}_LIBRARY COMPONENT_LIBRARY)
+    message("Boost_${COMPONENT_NAME}_FOUND: ${Boost_${COMPONENT_NAME}_FOUND}")
+    message("Boost_${COMPONENT_NAME}_LIBRARY: ${Boost_${COMPONENT_NAME}_LIBRARY}")
+    set (Boost_${COMPONENT_NAME}_FOUND ${Boost_${COMPONENT_NAME}_FOUND} PARENT_SCOPE)
+    set (Boost_${COMPONENT_NAME}_LIBRARY ${Boost_${COMPONENT_NAME}_LIBRARY} PARENT_SCOPE)
   endforeach()
+
+  set (Boost_FOUND        ${Boost_FOUND}        PARENT_SCOPE)
+  set (Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
+  set (Boost_LIBRARIES    ${Boost_LIBRARIES}    PARENT_SCOPE)
 endif()
 
 #

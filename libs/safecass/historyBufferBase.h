@@ -82,7 +82,7 @@ public:
         \return true if success; false otherwise
         \sa FilterBase.h
     */
-    virtual bool GetNewValue(const IDType & id, ParamBase & arg) = 0;
+    virtual bool GetNewValue(const IDType & id, ParamBase & arg) const = 0;
 
     //! Get latest value from history buffer via direct access to history buffer
     /*!
@@ -91,7 +91,7 @@ public:
         \return true if success; false otherwise
         \sa FilterBase.h
     */
-    virtual bool GetNewValue(const IndexType & index, ParamBase & arg) = 0;
+    virtual bool GetNewValue(const IndexType & index, ParamBase & arg) const = 0;
 
     //! Push value to history buffer
     /*!

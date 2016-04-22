@@ -369,7 +369,8 @@ void StateMachine::GetStateTransitionHistory(JsonWrapper::JsonValue & json, unsi
             entry["desc"] = currEvt->GetWhat();
             entry["class"] = "ignored";
             entry["start"] = GetUTCTimeString(currEvt->GetTimestamp());
-            entry["end"] = GetUTCTimeString(currEvt->GetTimestamp() + DEFAULT_WIDTH);
+            // FIXME
+            entry["end"] = "FIXME"; //GetUTCTimeString(currEvt->GetTimestamp() + DEFAULT_WIDTH);
             json["events"].append(entry);
 #if STATE_HISTORY_DEBUG
             std::cout << __LINE__ << ": ignored\n";
@@ -384,12 +385,13 @@ void StateMachine::GetStateTransitionHistory(JsonWrapper::JsonValue & json, unsi
                 if (nextState == State::NORMAL) {
                     // This should not happen
                     // MJTEMP: add debug event
+                    // FIXME entry["end"] = GetUTCTimeString(currEvt->GetTimestamp() + DEFAULT_WIDTH);
 #define ADD_DEBUG_EVENT \
                     entry["name"] = currEvt->GetName();\
                     entry["desc"] = currEvt->GetWhat();\
                     entry["class"] = "debug";\
                     entry["start"] = GetUTCTimeString(currEvt->GetTimestamp());\
-                    entry["end"] = GetUTCTimeString(currEvt->GetTimestamp() + DEFAULT_WIDTH);\
+                    entry["end"] = "FIXME";\
                     json["events"].append(entry);
 
                     ADD_DEBUG_EVENT;
@@ -452,7 +454,9 @@ void StateMachine::GetStateTransitionHistory(JsonWrapper::JsonValue & json, unsi
                             entry["desc"] = currEvt->GetWhat();
                             entry["class"] = "ignored";
                             entry["start"] = GetUTCTimeString(currEvt->GetTimestamp());
-                            entry["end"] = GetUTCTimeString(currEvt->GetTimestamp() + DEFAULT_WIDTH);
+                            // FIXME
+                            //entry["end"] = GetUTCTimeString(currEvt->GetTimestamp() + DEFAULT_WIDTH);
+                            entry["end"] = "FIXME";
                         }
                         json["events"].append(entry);
                     }

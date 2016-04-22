@@ -129,35 +129,26 @@ TEST(HistoryBuffer, Snapshot)
     std::cout << "Snapshot (after second snapshot): " << hb << std::endl;
 }
 
-#if 0
-TEST(HistoryBuffer, Snapshot)
-{
-    HistoryBuffer hb;
-
-    // Define three variables of different types
-    ParamEigen<double> paramDouble;
-    ParamEigen<std::vector<double> > paramDoubleVec;
-    ParamEigen<Eigen::Array33d> paramEigenArray33d;
-
-    // Define signal accessor
-    SignalAccessor<ParamEigen<double> > acc1(paramDouble, 5);
-    SignalAccessor<ParamEigen<std::vector<double> > > acc2(paramDoubleVec, 5);
-    SignalAccessor<ParamEigen<Eigen::Array33d> > acc3(paramEigenArray33d, 5);
-
-    // Add signal accessors
-
-    // TODO: implement Snapshot()
-
-    // TODO: Check if GetNewValue returns the same value after Snapshot()
-
-    SignalAccessorBase::SignalsType accessorVec;
-}
-#endif
-
+//
+// CONTINUE HERE.. finally, i can implement GetNewValue(), ...
+//
 TEST(HistoryBuffer, GetNewValue)
 {
     HistoryBuffer hb;
 
     ParamEigen<int> paramInt;
     EXPECT_EQ(false, hb.GetNewValue("non-existent-signal-name", paramInt));
+
+    boost::chrono::system_clock::time_point time_limit
+        = boost::chrono::system_clock::now() +
+          boost::chrono::seconds(4) +
+          boost::chrono::milliseconds(500);
+
+    PrintTime(GetCurrentTimestamp());
+    std::cout << std::endl;
+
+    PrintTime(time_limit);
+    std::cout << std::endl;
+
+    std::cout << GetCurrentTimestampString() << std::endl;
 }

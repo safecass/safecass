@@ -22,7 +22,7 @@ Event::Event(void)
     : Name("INVALID"),
       Severity(0),
       Transitions(TransitionsType()),
-      Timestamp(0),
+      Timestamp(GetCurrentTimestamp()),
       What(""),
       Valid(false),
       Ignored(false)
@@ -36,7 +36,7 @@ Event::Event(const std::string     & name,
     : Name(name),
       Severity(severity),
       Transitions(transitions),
-      Timestamp(0),
+      Timestamp(GetCurrentTimestamp()),
       What(what),
       Valid(false),
       Ignored(false)
@@ -169,7 +169,8 @@ void Event::ToStream(std::ostream & os) const
         default:                       os << "INVALID";
         }
     }
-    os << " ], " << std::setprecision(13) << Timestamp;
+    os << " ], ";
+    PrintTime(Timestamp, os);
 
     if (What.size())
         os << ", \"" << What << "\"";
@@ -181,7 +182,8 @@ const JsonWrapper::JsonValue Event::SerializeJSON(bool includeStateTransition) c
     JsonWrapper::JsonValue & json = _json.GetRoot();
     json["name"] = Name;
     json["severity"] = Severity;
-    json["timestamp"] = Timestamp;
+    // FIXME Better way to serialize boost::chrono::time_point?
+    json["timestamp"] = GetCurrentTimestampString();
     if (What.size())
         json["what"] = What;
 

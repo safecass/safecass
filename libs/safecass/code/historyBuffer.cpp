@@ -32,11 +32,11 @@ HistoryBuffer::~HistoryBuffer()
         delete *it;
 }
 
-bool HistoryBuffer::GetNewValue(const BaseType::IDType & id, ParamBase & arg)
+bool HistoryBuffer::GetNewValue(const BaseType::IDType & id, ParamBase & arg) const
 {
     HistoryBuffer::BaseType::IndexType index = GetSignalIndex(id);
     if (index == HistoryBuffer::BaseType::INVALID_SIGNAL_INDEX) {
-        SCLOG_INFO << "signal \"" << id << "\" not found" << std::endl;
+        SCLOG_WARNING << "Signal \"" << id << "\" not found" << std::endl;
         return false;
     }
 
@@ -48,7 +48,7 @@ bool HistoryBuffer::GetNewValue(const BaseType::IDType & id, ParamBase & arg)
     return true;
 }
 
-bool HistoryBuffer::GetNewValue(const BaseType::IndexType & index, ParamBase & arg)
+bool HistoryBuffer::GetNewValue(const BaseType::IndexType & index, ParamBase & arg) const
 {
     // FIXME
     return false;
