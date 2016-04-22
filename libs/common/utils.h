@@ -7,9 +7,9 @@
 //----------------------------------------------------------------------------------
 //
 // Created on   : May 16, 2012
-// Last revision: Aug 20, 2016
-// Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
+// Last revision: Aug 21, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// Github       : https://github.com/safecass/casros
 //
 #ifndef _utils_h
 #define _utils_h

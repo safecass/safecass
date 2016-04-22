@@ -41,10 +41,24 @@ public:
     }
     virtual ~ParamBase() {}
 
-    //! Accessors for Valid property
+    //! Returns if this object is valid
+    /*!
+        \sa SetValid()
+    */
     inline bool IsValid(void) const {
         return Valid;
     }
+
+    //! Mark this object (in)valid
+    /*!
+        Validity is defined by the user of this object.  Typically, the object
+        becomes valid when when it is updated to contain meaningful data.
+
+        It is important to note that Timestamp is set to the current time when
+        this method is called with true.
+
+        \sa IsValid()
+    */
     void SetValid(bool isValid = true) {
         Valid = isValid;
     }

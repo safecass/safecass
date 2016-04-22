@@ -281,11 +281,13 @@ if (SAFECASS_ON_LINUX)
 endif()
 target_link_libraries(common ${SAFECASS_LIBRARY_COMMON_DEPENDENCY})
 
-# for gcc compilation
-if (SAFECASS_COMPILER_GCC)
-  list (APPEND SC_CXX_FLAGS "-lstdc++")
-  list (APPEND CMAKE_CXX_FLAGS ${SC_CXX_FLAGS})
-endif()
+# For gcc compilation
+# On Mac, g++ is by default aliased to clang that uses libc++ (-stdlib=libstdc++).
+# On Linux, (the actual) g++ uses libstdc++ (-lstdc++).
+# if (SAFECASS_COMPILER_GCC)
+  # list (APPEND SC_CXX_FLAGS "-lstdc++")
+  # list (APPEND CMAKE_CXX_FLAGS ${SC_CXX_FLAGS})
+# endif()
 
 # Set dependencies
 add_dependencies(common external-glog external-boost) # common requires glog and boost

@@ -162,6 +162,21 @@ void SC::PrintTime(TimestampType t, std::ostream & os)
     //os.flags(f);
 }
 
+#if 0
+    boost::chrono::system_clock::time_point time_limit
+        = boost::chrono::system_clock::now() +
+          boost::chrono::seconds(4) +
+          boost::chrono::milliseconds(500);
+
+    PrintTime(GetCurrentTimestamp());
+    std::cout << std::endl;
+
+    PrintTime(time_limit);
+    std::cout << std::endl;
+
+    std::cout << GetCurrentTimestampString() << std::endl;
+#endif
+
 TimestampType SC::GetCurrentTimestamp(void)
 {
     return boost::chrono::system_clock::now();
