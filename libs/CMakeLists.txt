@@ -274,8 +274,7 @@ foreach (lib ${SAFECASS_LIBRARIES})
 endforeach()
 
 # Set dependencies of common library
-#list (APPEND COMMON_DEPENDENCIES ${GLOG_LIBRARIES} ${Boost_LIBRARIES})#jsoncpp_lib_static
-#target_link_libraries(common ${COMMON_DEPENDENCIES})
+target_link_libraries(common ${Boost_LIBRARIES})
 
 # Set dependencies
 add_dependencies(common external-glog external-boost) # common requires glog and boost
