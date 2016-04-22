@@ -281,6 +281,11 @@ if (SAFECASS_ON_LINUX)
 endif()
 target_link_libraries(common ${SAFECASS_LIBRARY_COMMON_DEPENDENCY})
 
+# for gcc compilation
+if (SAFECASS_COMPILER_GCC)
+  list (APPEND SC_CXX_FLAGS "-stdlib=libstdc++")
+endif()
+
 # Set dependencies
 add_dependencies(common external-glog external-boost) # common requires glog and boost
 add_dependencies(safecass common) # common requires glog

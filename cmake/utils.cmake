@@ -38,16 +38,23 @@ endif()
 #
 # Determine compiler
 #
-set (SAFECASS_COMPILER "")
+set (SAFECASS_COMPILER_NAME  "")
+set (SAFECASS_COMPILER_CLANG FALSE)
+set (SAFECASS_COMPILER_GCC   FALSE)
+set (SAFECASS_COMPILER_MSVC  FALSE)
+
 # Check if clang
 string (FIND ${CMAKE_CXX_COMPILER_ID} "Clang" CLANG_DETECTED)
 if (NOT ${CLANG_DETECTED} MATCHES -1)
-  set (SAFECASS_COMPILER "Clang")
+  set (SAFECASS_COMPILER_NAME "Clang")
+  set (SAFECASS_COMPILER_CLANG TRUE)
 # Check if gcc
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set (SAFECASS_COMPILER "GCC")
+  set (SAFECASS_COMPILER_NAME "GCC")
+  set (SAFECASS_COMPILER_GCC TRUE)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  set (SAFECASS_COMPILER "MSVC")
+  set (SAFECASS_COMPILER_NAME "MSVC")
+  set (SAFECASS_COMPILER_MSVC TRUE)
 else()
   message(FATAL_ERROR "Failed to determine compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
@@ -63,7 +70,7 @@ endif()
 #  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 #endif()
 
-message ("Compiler: ${SAFECASS_COMPILER} detected")
+message ("Compiler: ${SAFECASS_COMPILER_NAME} detected")
 
 #
 # Determine number of processors available
