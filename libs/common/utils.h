@@ -14,7 +14,7 @@
 #ifndef _utils_h
 #define _utils_h
 
-#include "common.h"
+#include "common/common.h"
 
 namespace SC {
 
