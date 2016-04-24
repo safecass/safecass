@@ -1,18 +1,18 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Aug 27, 2014
-// Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
+// Last revision: Apr 24, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// Github       : https://github.com/safecass/safecass
 //
 #include "config.h"
-#include "common/common.h"
+#include "common/utils.h"
 #include "safecass/gcm.h"
 
 using namespace SC;

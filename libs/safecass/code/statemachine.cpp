@@ -2,15 +2,18 @@
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
 // Last revision: Oct 28, 2015
-// Author       : Min Yang Jung (myj@jhu.edu)
+// Author       : Min Yang Jung <myj@jhu.edu>
+// Github       : https://github.com/safecass/safecass
 //
 #include "safecass/statemachine.h"
+
+#include "common/utils.h"
 #include "safecass/event.h"
 
 using namespace SC;

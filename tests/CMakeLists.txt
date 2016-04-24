@@ -30,15 +30,18 @@ target_include_directories(gtest INTERFACE
 
 # Define dependencies
 set (TEST_DEPENDENCY # safecass libs
-                         common
-                         safecass
-                         # 3rd party libs
-                         ${GLOG_LIBRARIES}
-                         ${Boost_LIBRARIES}
-                         gtest
-                         # TODO This may need to be update when adding support for shared library
-                         jsoncpp_lib_static)
-# On Linux, Boost.Chrono uses clock_gettime, which requires rt
+                     common
+                     safecass
+                     # 3rd party libs
+                     ${GLOG_LIBRARIES}
+                     ${Boost_LIBRARIES}
+                     gtest
+                     # TODO This may need to be update when adding support for shared library
+                     jsoncpp_lib_static)
+# Boost.Chrono uses clock_gettime, which requires rt on Linux
+# Note: Since glibc 2.17, -rt is no longer required because clock_* functions
+# are now part of the main C library.  Older glibc < 2.17, -lrt is still required
+# (how to check: ldd --version)
 if (SAFECASS_ON_LINUX)
   list (APPEND TEST_DEPENDENCY rt)
 endif()
