@@ -29,6 +29,7 @@ target_include_directories(gtest INTERFACE
                            ${SAFECASS_BUILD_ROOT}/external_packages/gtest/src/include)
 
 # Define dependencies
+message(">>>>>> ${Boost_LIBRARIES}")
 set (TEST_DEPENDENCY # safecass libs
                      common
                      safecass
@@ -42,6 +43,9 @@ set (TEST_DEPENDENCY # safecass libs
 # Note: Since glibc 2.17, -rt is no longer required because clock_* functions
 # are now part of the main C library.  Older glibc < 2.17, -lrt is still required
 # (how to check: ldd --version)
+# TODO: If cmake can detect glibc version, this can be improved such that rt
+# dependency is defined only for older glibc (< 2.17)
+# In the meantime, add rt dependency anyway to avoid linker failure with older glibc.
 if (SAFECASS_ON_LINUX)
   list (APPEND TEST_DEPENDENCY rt)
 endif()
@@ -52,11 +56,20 @@ foreach (TEST ${TEST_SUITES})
   # Extract file name
   get_filename_component (TEST_FILE_NAME ${TEST} NAME)
   get_filename_component (TEST_UNIT ${TEST} NAME_WE)
+
   # Define test unit
   add_executable (${TEST_UNIT} main.cpp ${TEST_FILE_NAME})
+
+  # Set compiler flags on Linux to resolve linker errors
+  # http://stackoverflow.com/questions/17150075/undefined-reference-to-clock-gettime-although-lrt-is-given
+  if (SAFECASS_ON_LINUX)
+    set_target_properties(${TEST_UNIT} "-Wl,--no-as-needed")
+  endif()
+
   # Define dependencies
-  target_link_libraries (${TEST_UNIT} ${TEST_DEPENDENCY})
   target_include_directories(${TEST_UNIT} INTERFACE ${SAFECASS_LIBRARY_INCLUDE_DIR})
+  target_link_libraries (${TEST_UNIT} ${TEST_DEPENDENCY})
+
   # Register to CTest
   add_ctest(${TEST_UNIT})
 endforeach()
