@@ -274,7 +274,10 @@ endforeach()
 # Set dependencies of common library
 set (SAFECASS_LIBRARY_COMMON_DEPENDENCY ${Boost_LIBRARIES})
 if (SAFECASS_COMPILER_GCC)
-  list (APPEND SAFECASS_LIBRARY_COMMON_DEPENDENCY c++)
+  if (SAFECASS_ON_MAC)
+    # libc++ is only required for gcc on Mac
+    list (APPEND SAFECASS_LIBRARY_COMMON_DEPENDENCY c++)
+  endif()
 endif()
 target_link_libraries(common ${SAFECASS_LIBRARY_COMMON_DEPENDENCY})
 
