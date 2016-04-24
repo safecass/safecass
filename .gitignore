@@ -17,4 +17,8 @@
 .vimfiles.casros
 quick_gen_project*
 docs
-build
+build*
+TODO
+clang.sh
+gcc49.sh
+gcc50.sh
