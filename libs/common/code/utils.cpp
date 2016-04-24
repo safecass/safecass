@@ -28,8 +28,6 @@
 #endif
 #include "common/utils.h"
 
-TimestampType _dummy = SC::GetCurrentTimestamp();
-
 /*! Returns current UTC time as formatted string: e.g. "2011-09-12T21:33:12Z"
 
     Time zone codes in the U.S.
