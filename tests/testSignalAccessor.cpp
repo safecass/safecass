@@ -120,11 +120,8 @@ TEST(SignalAccessor, SignalAccessorTest)
     vec.push_back(&accessor3);
     vec.push_back(&accessor4);
 
-    std::vector<SignalAccessorBase*>::const_iterator it = vec.begin();
-    while (it != vec.end()) {
-        std::cout << *(*it) << std::endl;
-        ++it;
-    }
+    for (size_t i = 0; i < vec.size(); ++i)
+        std::cout << *(vec[i]) << std::endl;
 
     accessor1.Push(1.1);
     accessor1.Push(2.2);
@@ -158,9 +155,6 @@ TEST(SignalAccessor, SignalAccessorTest)
     a = Eigen::Array33d::Random();
     accessor4.Push(a);
 
-    it = vec.begin();
-    while (it != vec.end()) {
-        std::cout << *(*it) << std::endl;
-        ++it;
-    }
+    for (size_t i = 0; i < vec.size(); ++i)
+        std::cout << *(vec[i]) << std::endl;
 }
