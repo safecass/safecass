@@ -63,7 +63,7 @@ foreach (TEST ${TEST_SUITES})
   # Set compiler flags on Linux to resolve linker errors
   # http://stackoverflow.com/questions/17150075/undefined-reference-to-clock-gettime-although-lrt-is-given
   if (SAFECASS_ON_LINUX)
-    set_target_properties(${TEST_UNIT} "-Wl,--no-as-needed")
+    set_target_properties(${TEST_UNIT} PROPERTIES LINK_FLAGS "-Wl,--no-as-needed")
   endif()
 
   # Define dependencies
