@@ -28,7 +28,7 @@ protected:
     //! Reference to original object associated with this signal accessor
     const ParamBase & SignalObject;
     //! Name of signal that this signal accessor is associated with
-    const std::string & SignalName;
+    const std::string SignalName;
 
 public:
     SignalAccessorBase(const ParamBase & object, const std::string & name)
@@ -37,7 +37,7 @@ public:
     virtual ~SignalAccessorBase() {}
 
     //! Returns name of signal associated with this signal accessor
-    inline const std::string & GetSignalName(void) const { return SignalName; }
+    inline std::string GetSignalName(void) const { return SignalName; }
 
     //
     // Pure virtual methods
@@ -120,8 +120,8 @@ public:
     inline size_t GetContainerSize(void) { return Container->size(); }
 
     virtual void ToStream(std::ostream & os) const {
-        os << "Signal accessor \"" << this->GetSignalName() << "\": ";
-        os << SignalObject << ", container: ";
+        os << "Signal accessor \"" << this->GetSignalName() << "\": " << SignalObject
+           << ", container: ";
         if (Container->empty()) {
             os << "empty";
             return;
