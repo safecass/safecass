@@ -38,6 +38,8 @@ endif()
 #
 # Determine compiler
 #
+# This might be useful:
+# http://stackoverflow.com/questions/19774778/when-is-it-necessary-to-use-use-the-flag-stdlib-libstdc
 set (SAFECASS_COMPILER_NAME  "")
 set (SAFECASS_COMPILER_CLANG FALSE)
 set (SAFECASS_COMPILER_GCC   FALSE)

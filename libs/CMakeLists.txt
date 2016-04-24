@@ -273,10 +273,8 @@ endforeach()
 
 # Set dependencies of common library
 set (SAFECASS_LIBRARY_COMMON_DEPENDENCY ${Boost_LIBRARIES})
-if (SAFECASS_ON_LINUX)
-#if (SAFECASS_COMPILER_GCC)
-  # chrono.cpp requires rt on Linux (probably only in case of static)
-  list (APPEND SAFECASS_LIBRARY_COMMON_DEPENDENCY rt)
+if (SAFECASS_COMPILER_GCC)
+  list (APPEND SAFECASS_LIBRARY_COMMON_DEPENDENCY c++)
 endif()
 target_link_libraries(common ${SAFECASS_LIBRARY_COMMON_DEPENDENCY})
 
@@ -285,7 +283,7 @@ target_link_libraries(common ${SAFECASS_LIBRARY_COMMON_DEPENDENCY})
 # On Linux, (the actual) g++ uses libstdc++ (-lstdc++).
 # if (SAFECASS_COMPILER_GCC)
   # list (APPEND SC_CXX_FLAGS "-lstdc++")
-  # list (APPEND CMAKE_CXX_FLAGS ${SC_CXX_FLAGS})
+  #list (APPEND CMAKE_CXX_FLAGS "-stdlib=libc++")
 # endif()
 
 # Set dependencies
