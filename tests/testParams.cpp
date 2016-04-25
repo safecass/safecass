@@ -126,7 +126,7 @@ TEST(ParameterTypes, ParamEigen)
 #define TEST_PARAM_CLONE_WITH_ARG(_type, _arg)\
     {\
         ParamEigen<_type> param;\
-        param.Val = _arg;\
+        param = _arg;\
         \
         ParamBase * pBase = param.Clone();\
         EXPECT_TRUE(pBase != 0);\

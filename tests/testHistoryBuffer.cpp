@@ -99,14 +99,14 @@ TEST(HistoryBuffer, Snapshot)
 
     // Change object values
     paramDouble.SetValid();
-    paramDouble.Val = 1.1;
+    paramDouble = 1.1;
 
     paramDoubleVec.SetValid();
     std::vector<double> doubleVec;
     doubleVec.push_back(-11.1);
     doubleVec.push_back(-22.2);
     doubleVec.push_back(-33.3);
-    paramDoubleVec.Val = doubleVec;
+    paramDoubleVec = doubleVec;
 
     paramIntList.SetValid();
     std::list<int> intList;
@@ -114,7 +114,7 @@ TEST(HistoryBuffer, Snapshot)
     intList.push_back(-8);
     intList.push_back(9);
     intList.push_back(10);
-    paramIntList.Val = intList;
+    paramIntList = intList;
 
     srand(time(0));
 
@@ -133,7 +133,14 @@ TEST(HistoryBuffer, GetNewValue)
 {
     HistoryBuffer hb;
 
+    //
+    // Tests for GetNewValue with signal id (signal name)
+    //
     ParamEigen<int> paramInt;
     EXPECT_EQ(false, hb.GetNewValue("non-existent-signal-name", paramInt));
+
+    //
+    // Tests for GetNewValue with signal index
+    //
 
 }

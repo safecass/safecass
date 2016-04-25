@@ -149,6 +149,11 @@ public:
     ParamEigen(const T & val): ParamEigenBase<T>(val) {}
     ParamEigen(void): ParamEigenBase<T>(static_cast<T>(0)) {}
 
+    const ParamEigen & operator=(const T & val) {
+        this->Val = val;
+        return *this;
+    }
+
     virtual void ToStream(std::ostream & os) const {
         // TODO: maybe type information can be printed out as well
         BaseType::ToStream(os);

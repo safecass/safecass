@@ -7,7 +7,7 @@
 #---------------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Apr 20, 2016
+# Last revision: Apr 24, 2016
 # Author       : Min Yang Jung <myj@jhu.edu>
 # Github       : https://github.com/safecass/safecass
 #
@@ -29,7 +29,6 @@ target_include_directories(gtest INTERFACE
                            ${SAFECASS_BUILD_ROOT}/external_packages/gtest/src/include)
 
 # Define dependencies
-message(">>>>>> ${Boost_LIBRARIES}")
 set (TEST_DEPENDENCY # safecass libs
                      common
                      safecass
