@@ -63,6 +63,8 @@ public:
         Valid = isValid;
     }
 
+    inline TimestampType GetTimestamp(void) const { return Timestamp; }
+
     virtual void ToStream(std::ostream & os) const {
         PrintTime(Timestamp, os);
         os << ", " << (Valid ? "[o]" : "[x]");

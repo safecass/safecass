@@ -75,9 +75,9 @@ public:
 
     // don't test self-assignment, causes hopefully no problem here
     // what about complex eigen-types like Eigen::Block<>?
-    const T& operator=(const T& other) {
-        this->Val = other.Val;
-    }
+    // const T& operator=(const T& other) {
+        // this->Val = other.Val;
+    // }
 
     // Reset value of this container
     inline void setZero() { Val = static_cast<T>(0); }
@@ -149,9 +149,19 @@ public:
     ParamEigen(const T & val): ParamEigenBase<T>(val) {}
     ParamEigen(void): ParamEigenBase<T>(static_cast<T>(0)) {}
 
+    //
+    // Operator overloading for convenience
+    //
     const ParamEigen & operator=(const T & val) {
         this->Val = val;
         return *this;
+    }
+
+    inline bool operator==(const ParamEigen & rhs) {
+        return (this->Val == rhs.Val);
+    }
+    inline bool operator!=(const ParamEigen & rhs) {
+        return !(*this == rhs);
     }
 
     virtual void ToStream(std::ostream & os) const {
