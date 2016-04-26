@@ -40,18 +40,23 @@ bool HistoryBuffer::GetNewValue(const BaseType::IDType & id, ParamBase & arg) co
         return false;
     }
 
+    SCASSERT(index < SignalAccessors.size());
+
     SignalAccessors[index]->GetValue(arg);
-    //
-    // TODO: timestamp
-    //
 
     return true;
 }
 
 bool HistoryBuffer::GetNewValue(const BaseType::IndexType & index, ParamBase & arg) const
 {
-    // FIXME
-    return false;
+    if (index == HistoryBuffer::BaseType::INVALID_SIGNAL_INDEX || index >= SignalAccessors.size()) {
+        SCLOG_WARNING << "Invalid signal index: " << index << std::endl;
+        return false;
+    }
+
+    SignalAccessors[index]->GetValue(arg);
+
+    return true;
 }
 
 bool HistoryBuffer::PushNewValue(const IndexType & index, const ParamBase & arg)
@@ -67,7 +72,7 @@ void HistoryBuffer::ToStream(std::ostream & os) const
 
 void HistoryBuffer::Serialize(std::ostream & os) const
 {
-    os << "Snapshot idx (" << SnapshotIndex << "), "
+    os << "HistoryBuffer: Snapshot index (" << SnapshotIndex << "), "
        << "Number of signals (" << SignalAccessors.size() << "): ";
 
     if (SignalAccessors.empty()) {
@@ -118,6 +123,4 @@ void HistoryBuffer::Snapshot(void)
         SnapshotIndex = 1;
     else
         ++SnapshotIndex;
-
-    // FIXME timestamp handling
 }

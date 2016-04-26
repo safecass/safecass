@@ -129,18 +129,78 @@ TEST(HistoryBuffer, Snapshot)
     std::cout << "Snapshot (after second snapshot): " << hb << std::endl;
 }
 
-TEST(HistoryBuffer, GetNewValue)
+// Tests for GetNewValue with signal id (signal name)
+TEST(HistoryBuffer, GetNewValueById)
 {
     HistoryBuffer hb;
 
-    //
-    // Tests for GetNewValue with signal id (signal name)
-    //
-    ParamEigen<int> paramInt;
-    EXPECT_EQ(false, hb.GetNewValue("non-existent-signal-name", paramInt));
+    ParamEigen<int> aInt;
+    EXPECT_TRUE(false == hb.GetNewValue("non-existent-signal-name", aInt));
 
-    //
-    // Tests for GetNewValue with signal index
-    //
+    const std::string name = "aInt";
+    HistoryBufferBase::IndexType index = hb.AddSignal(aInt, name);
+    EXPECT_EQ(index, 0);
 
+    hb.Snapshot();
+
+    usleep(1000);
+
+    ParamEigen<int> aIntFetched;
+    EXPECT_TRUE(aIntFetched == 0);
+    EXPECT_TRUE(aIntFetched.GetTimestamp() != aInt.GetTimestamp());
+
+    EXPECT_TRUE(hb.GetNewValue(name, aIntFetched));
+    EXPECT_TRUE(aIntFetched == aInt);
+    EXPECT_TRUE(aIntFetched.Val == aInt.Val);
+    EXPECT_TRUE(aIntFetched.GetTimestamp() == aInt.GetTimestamp());
+
+    aInt = 1210;
+    hb.Snapshot();
+
+    usleep(1000);
+
+    EXPECT_TRUE(hb.GetNewValue(name, aIntFetched));
+    EXPECT_TRUE(aIntFetched == aInt);
+    EXPECT_TRUE(aIntFetched.Val == aInt.Val);
+    EXPECT_TRUE(aIntFetched.GetTimestamp() == aInt.GetTimestamp());
+}
+
+// Tests for GetNewValue with signal index
+TEST(HistoryBuffer, GetNewValueByIndex)
+{
+    HistoryBuffer hb;
+
+    ParamEigen<Eigen::Matrix2d> aEigen;
+    EXPECT_TRUE(false == hb.GetNewValue(1234, aEigen));
+
+    const std::string name = "aEigen";
+    HistoryBufferBase::IndexType index = hb.AddSignal(aEigen, name);
+    EXPECT_EQ(index, 0);
+
+    hb.Snapshot();
+
+    usleep(1000);
+
+    ParamEigen<Eigen::Matrix2d> aEigenFetched;
+    EXPECT_TRUE(aEigenFetched.Val.sum() == 0);
+    EXPECT_TRUE(aEigenFetched.GetTimestamp() != aEigen.GetTimestamp());
+
+    EXPECT_TRUE(hb.GetNewValue(index, aEigenFetched));
+    EXPECT_TRUE(aEigenFetched.Val == aEigen.Val);
+    EXPECT_TRUE(aEigenFetched.GetTimestamp() == aEigen.GetTimestamp());
+
+    ParamEigen<Eigen::Matrix2d> aEigenRandom;
+    aEigenRandom.Val = Eigen::Matrix2d::Random(2,2);
+    aEigen = aEigenRandom;
+    hb.Snapshot();
+
+    usleep(1000);
+
+    EXPECT_TRUE(hb.GetNewValue(index, aEigenFetched));
+    EXPECT_TRUE(aEigenFetched.Val == aEigen.Val);
+    EXPECT_TRUE(aEigenFetched.GetTimestamp() == aEigen.GetTimestamp());
+
+    EXPECT_EQ(aEigenRandom.Val.sum(),  aEigenFetched.Val.sum());
+    EXPECT_EQ(aEigenRandom.Val.prod(), aEigenFetched.Val.prod());
+    EXPECT_EQ(aEigenRandom.Val.mean(), aEigenFetched.Val.mean());
 }
