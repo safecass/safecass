@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: May 4, 2015
+// Last revision: Apr 26, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -19,6 +19,9 @@
 #include <queue> // for fault injection
 #include <list>
 
+#include "safecass/state.h"
+#include "safecass/signalElement.h"
+
 #include "signal.h"
 #include "eventLocationBase.h"
 #include "jsonwrapper.h"
@@ -26,64 +29,65 @@
 
 namespace SC {
 
-class HistoryBufferBase;
 class EventPublisherBase;
-
-// Helper macros to ease implementation of Create() function
-#define SC_DEFINE_FACTORY_CREATE(_className)\
-    static const std::string Name;\
-    static FilterBase * Create(const JsonWrapper::JsonValue & jsonNode) {\
-        return new _className(jsonNode);\
-    }\
-    static _className __instance;
-
-#define SC_IMPLEMENT_FACTORY(_className)\
-    const std::string _className::Name = #_className;\
-    SCLIB_EXPORT _className _className::__instance;
-
-#define SC_REGISTER_FILTER_TO_FACTORY(_className)\
-    FilterFactory::GetInstance()->RegisterFilter(#_className, &_className::Create);
 
 class Coordinator;
 
 class SCLIB_EXPORT FilterBase
 {
 public:
-    //! Typedef of numerical representation of unique filter id
-    typedef unsigned int FilterIDType;
+    //! Typedef of unique filter id
+    typedef size_t FilterIDType;
 
-    // Target information that this filter is associated with.  This information is used
-    // to find a state machine instance when an event is generated.
-    typedef struct {
-        State::StateMachineType StateMachineType;
-        std::string             ComponentName;
-        std::string             InterfaceName;
-    } FilterTargetType;
+    //! Typedef of identifier of the state machine associated with this filter.
+    /*!
+        When this filter detects and generates a GCM event, this identifier is
+        used for identifying an instance of the GCM state machine that is
+        notified of the event.
+    */
+    class FilterTargetType {
+    public:
+        State::StateMachineType StateMachineType; /*!< state machine type (State::StateMachineType) */
+        std::string ComponentName; /*!< Name of component */
+        std::string InterfaceName; /*!< Name of interface */
 
-    //! Typedef for filtering type
-    /*! ACTIVE:  filter is processed by the target component and thus the execution time of 
-                 the target component is consumed.
-                 - Pros: Fastest and guaranteed detection of events
-                 - Cons: Run-time overhead to run FDD pipelines and to propagate events
-        PASSIVE: filter is processed by the monitoring component which does not consume the 
-                 execution time of the target component.
-                 - Pros: No run-time performance impact on the target component
-                 - Cons: Delay in detecting an event (currently, monitoring component is 
-                 implemented as a periodic task) 
+        FilterTargetType(void) : StateMachineType(STATEMACHINE_INVALID) {}
+    };
+
+    //! Typedef of filtering type
+    /*!
+        Two types of filtering
+
+        1) Internal filtering: The filter is processed by the target component using its
+        own execution time.
+
+            a) Pros: Event detection with a minial delay is guranteed during the
+            lifecycle of the target component
+
+            b) Cons: Run-time overhead for filter processing
+
+        2) External filtering: The filter is processed by the monitoring component, which
+        is an external component
+
+            a) Pros: No run-time overhead on the target component
+
+            b) Cons: Delay in the detection and generation of events.  Such a delay is
+            defined and bounded by the thread execution model of the monitoring component.
+            For example, a max possible delay in the external filtering can be one second
+            if the monitoring component is running at 1 Hz.
     */
     typedef enum {
-        ACTIVE,  /*!< active filtering */
-        PASSIVE  /*!< passive filtering */
+        FILTERING_INTERNAL, /*!< Internal filtering */
+        FILTERING_EXTERNAL  /*!< External filtering */
     } FilteringType;
 
-    //! Typedef for inputs
-    /*! A filtering algorithm may require more than one input signal.
-     *  Each input signal is represented as SignalElement and this container maintains
-     *  all inputs of this filter instance. 
-     */
+    //! Typedef of (a list of) signals
+    /*!
+        A filter is comprised of a set of input signals and output signals where each
+        signal is represented as an SignalElement object.  This container maintains
+        a set of SignalElement objects that this filter defines.
+    */
     typedef std::vector<SignalElement*> SignalElementsType;
-    // not used now: TODO: remove this if not used anymore
-    //typedef std::vector<std::string> SignalNamesType;
 
     //! Typedef for filter factory class registration
     typedef FilterBase * (*CreateFilterFuncType)(const JsonWrapper::JsonValue & jsonNode);
@@ -381,5 +385,20 @@ inline std::ostream & operator << (std::ostream & out, const FilterBase & filter
 }
 
 };
+
+// Helper macros for filter factory implementation
+#define SC_DEFINE_FACTORY_CREATE(_className)\
+    static const std::string Name;\
+    static FilterBase * Create(const JsonWrapper::JsonValue & jsonNode) {\
+        return new _className(jsonNode);\
+    }\
+    static _className __instance;
+
+#define SC_IMPLEMENT_FACTORY(_className)\
+    const std::string _className::Name = #_className;\
+    SCLIB_EXPORT _className _className::__instance;
+
+#define SC_REGISTER_FILTER_TO_FACTORY(_className)\
+    FilterFactory::GetInstance()->RegisterFilter(#_className, &_className::Create);
 
 #endif // _FilterBase_h

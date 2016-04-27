@@ -217,7 +217,7 @@ public:
     void Reset(bool resetHistory = false);
 
     // Get history of state transitions (used for event viewer)
-    void GetStateTransitionHistory(JsonWrapper::JsonValue & json, unsigned int stateMachineId);
+    void GetStateTransitionHistory(Json::Value & json, unsigned int stateMachineId);
 
     //
     // Getters

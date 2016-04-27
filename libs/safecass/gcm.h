@@ -84,12 +84,12 @@ protected:
     ServiceStateDependencyInfoType ServiceStateDependencyInfo2;
 
     // Get json representation of service state change
-    void GetJSONForServiceStateChange(const std::string & providedInterfaceName, JsonWrapper::JsonValue & json);
+    void GetJSONForServiceStateChange(const std::string & providedInterfaceName, Json::Value & json);
     // Get statemachine instance
     const StateMachine * GetStateMachineComponent(ComponentStateViews view) const;
     const StateMachine * GetStateMachineInterface(const std::string & name, InterfaceTypes type) const;
 
-    void PopulateStateUpdateJSON(const std::string & providedInterfaceName, JsonWrapper::JsonValue & json) const;
+    void PopulateStateUpdateJSON(const std::string & providedInterfaceName, Json::Value & json) const;
 
 private:
     /*! Component associated with GCM has to be declared */
@@ -110,7 +110,7 @@ public:
     /*! Remove interface */
     bool RemoveInterface(const std::string & name, InterfaceTypes type);
     // Add service state dependency information
-    void AddServiceStateDependency(const JsonWrapper::JsonValue & services);
+    void AddServiceStateDependency(const Json::Value & services);
     bool AddServiceStateDependencyEntry(const std::string & providedInterfaceName,
                                         const std::string & name);
 
@@ -119,7 +119,7 @@ public:
     State::TransitionType ProcessStateTransition(State::StateMachineType  type,
                                                  const Event *            event,
                                                  const std::string &      interfaceName,
-                                                 JsonWrapper::JsonValue & json);
+                                                 Json::Value & json);
 
     // Add connection information (about required interface) to provided interface
     // This information is used to build up json for error propagation.
@@ -136,7 +136,7 @@ public:
     // Extract state transition history from state machines and populate JSON object.
     // baseId is used as the id of the first entry (state machine).
     // Returns a number of state machines extracted.
-    unsigned int GetStateHistory(JsonWrapper::JsonValue & json, unsigned int baseId = 0);
+    unsigned int GetStateHistory(Json::Value & json, unsigned int baseId = 0);
 
     //
     // Getters

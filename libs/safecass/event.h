@@ -127,7 +127,7 @@ public:
     // Returns human readable outputs
     virtual void ToStream(std::ostream & outputStream) const;
     // Serialize this object in json
-    const JsonWrapper::JsonValue SerializeJSON(bool includeStateTransition = true) const;
+    const Json::Value SerializeJSON(bool includeStateTransition = true) const;
     // Serialize this object in string
     const std::string SerializeString(bool includeStateTransition = true) const;
 };

@@ -137,8 +137,6 @@ public:
     //! Push value to history buffer
     virtual bool PushNewValue(const IndexType & index, const ParamBase & arg);
 
-    virtual void ToStream(std::ostream & os) const;
-
     //
     // Interfaces to manage signals
     //
@@ -190,20 +188,13 @@ public:
 
     BaseType::IndexType GetSignalIndex(const BaseType::IDType & id) const;
 
-    //
-    // Methods to provide fully-functional history buffer
-    //
-    //! Add signal to this history buffer
-    /*!
-        When adding a signal, DESCRIBE WHAT HAPPENS
-    */
-    //bool AddSignal(const BaseType::IDType & id, ParamBase & arg)
-
     //! Export content of table
     //
     // TODO: serialization and deserialization of *this with support for
     // for different export format (raw, human readable, csv, ..)
     void Serialize(std::ostream & os) const;
+
+    virtual void ToStream(std::ostream & os) const;
 };
 
 };

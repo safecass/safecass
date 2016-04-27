@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Mar 15, 2016
-// Last revision: Apr 20, 2016
+// Last revision: Apr 26, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -62,6 +62,9 @@ bool HistoryBuffer::GetNewValue(const BaseType::IndexType & index, ParamBase & a
 bool HistoryBuffer::PushNewValue(const IndexType & index, const ParamBase & arg)
 {
     // FIXME
+    // PushNewValue() requries more thoughts on deep fault injection
+    // - Should HistoryBuffer enable push of a series of value only?
+    // - Or, pushing a set of values at specified timestamp?
     return false;
 }
 

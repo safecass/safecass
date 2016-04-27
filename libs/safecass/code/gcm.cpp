@@ -179,7 +179,7 @@ void GCM::GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const
 State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
                                                   const Event *           event,
                                                   const std::string &     interfaceName,
-                                                  JsonWrapper::JsonValue &       json)
+                                                  Json::Value &       json)
 {
     StateMachine * sm = 0;
     bool interfaceStateChange = false;
@@ -245,7 +245,7 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
     // A service state changes whenever a provided interface's "projected" state goes 
     // to Normal or Error.  That is,
     JsonWrapper _jsonState;
-    JsonWrapper::JsonValue & jsonState = _jsonState.GetRoot();
+    Json::Value & jsonState = _jsonState.GetJsonRoot();
     // Number of provided interface of which state is affcted by the transition
     Json::ArrayIndex n = 0;
     // NORMAL_TO_WARNING and WARNING_TO_NORMAL don't have impact on the projected state
@@ -258,7 +258,7 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
 
         if (type == State::STATEMACHINE_PROVIDED) {
             JsonWrapper _jsonUpdate;
-            JsonWrapper::JsonValue & jsonUpdate = _jsonUpdate.GetRoot();
+            Json::Value & jsonUpdate = _jsonUpdate.GetJsonRoot();
 
             PopulateStateUpdateJSON(interfaceName, jsonUpdate);
 
@@ -288,7 +288,7 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
             for (Json::ArrayIndex i = 0; i < vec->size(); ++i) {
                 const std::string prvName = vec->at(i);
                 JsonWrapper _jsonUpdate;
-                JsonWrapper::JsonValue & jsonUpdate = _jsonUpdate.GetRoot();
+                Json::Value & jsonUpdate = _jsonUpdate.GetJsonRoot();
 
                 PopulateStateUpdateJSON(prvName, jsonUpdate);
 
@@ -302,14 +302,14 @@ State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
     // the provided interface does not get affected by the state change of the required
     // interface(s), and thus no error propagation is required.
     if (n == 0)
-        json = JsonWrapper::JsonValue::null;
+        json = Json::Value::null;
     else
         json = jsonState;
 
     return transition;
 }
 
-void GCM::PopulateStateUpdateJSON(const std::string & providedInterfaceName, JsonWrapper::JsonValue & json) const
+void GCM::PopulateStateUpdateJSON(const std::string & providedInterfaceName, Json::Value & json) const
 {
     // information about provided interface of which state just changed
     json["source"]["safety_coordinator"] = CoordinatorName;
@@ -327,19 +327,19 @@ void GCM::PopulateStateUpdateJSON(const std::string & providedInterfaceName, Jso
         evt.SetTimestamp(GetCurrentTimestamp());
         json["event"] = evt.SerializeJSON();
     } else {
-        json["event"] = JsonWrapper::JsonValue::null;
+        json["event"] = Json::Value::null;
     }
 
     // target
     {
         JsonWrapper _target;
-        JsonWrapper::JsonValue & target = _target.GetRoot();
+        Json::Value & target = _target.GetJsonRoot();
         int cntTarget = 0;
 
         ConnectionsType::const_iterator it = Connections.find(providedInterfaceName);
         if (it == Connections.end()) {
             // no connection
-            json["target"][cntTarget] = JsonWrapper::JsonValue::null;
+            json["target"][cntTarget] = Json::Value::null;
         } else {
             const ConnectionListType & vec = *(it->second);
             for (size_t i = 0; i < vec.size(); ++i) {
@@ -351,7 +351,7 @@ void GCM::PopulateStateUpdateJSON(const std::string & providedInterfaceName, Jso
         }
     }
 
-    SCLOG_DEBUG << "PopulateStateUpdateJSON: " << providedInterfaceName << ", JSON:\n" << JsonWrapper::GetJSONString(json) << std::endl;
+    SCLOG_DEBUG << "PopulateStateUpdateJSON: " << providedInterfaceName << ", JSON:\n" << JsonWrapper::GetJsonString(json) << std::endl;
 }
 
 State::StateType GCM::GetComponentState(ComponentStateViews view) const
@@ -586,21 +586,21 @@ State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type) const
     return GetInterfaceState(type, e);
 }
 
-void GCM::AddServiceStateDependency(const JsonWrapper::JsonValue & services)
+void GCM::AddServiceStateDependency(const Json::Value & services)
 {
     std::string prvName;
     for (Json::ArrayIndex i = 0; i < services.size(); ++i) {
-        prvName = JsonWrapper::GetSafeValueString(services[i], "name");
+        prvName = services[i]["name"].asString();
         if (!FindInterface(prvName, PROVIDED_INTERFACE)) {
             SCLOG_ERROR << "GCM::AddServiceStateDependency: no provided interface found: "
                         << "\"" << prvName << "\"" << std::endl;
             continue;
         }
 
-        bool dependent = JsonWrapper::GetSafeValueBool(services[i]["dependency"], "s_F");
+        bool dependent = services[i]["dependency"]["s_F"].asBool();
         if (dependent)
             AddServiceStateDependencyEntry(prvName, "s_F");
-        dependent = JsonWrapper::GetSafeValueBool(services[i]["dependency"], "s_A");
+        dependent = services[i]["dependency"]["s_A"].asBool();
         if (dependent)
             AddServiceStateDependencyEntry(prvName, "s_A");
 
@@ -1090,7 +1090,7 @@ void GCM::ResetStatesAndEvents(State::StateMachineType type)
     }
 }
 
-unsigned int GCM::GetStateHistory(JsonWrapper::JsonValue & json, unsigned int baseId)
+unsigned int GCM::GetStateHistory(Json::Value & json, unsigned int baseId)
 {
     unsigned int count = 0;
 
@@ -1098,7 +1098,7 @@ unsigned int GCM::GetStateHistory(JsonWrapper::JsonValue & json, unsigned int ba
     States.ComponentFramework->GetStateTransitionHistory(json, baseId);
     {
         JsonWrapper _state;
-        JsonWrapper::JsonValue & state = _state.GetRoot();
+        Json::Value & state = _state.GetJsonRoot();
         state["id"] = baseId;
 
         std::string label(this->GetComponentName());
@@ -1113,7 +1113,7 @@ unsigned int GCM::GetStateHistory(JsonWrapper::JsonValue & json, unsigned int ba
     States.ComponentApplication->GetStateTransitionHistory(json, baseId + count);
     {
         JsonWrapper _state;
-        JsonWrapper::JsonValue & state = _state.GetRoot();
+        Json::Value & state = _state.GetJsonRoot();
         state["id"] = baseId + count;
 
         std::string label(this->GetComponentName());
@@ -1130,7 +1130,7 @@ unsigned int GCM::GetStateHistory(JsonWrapper::JsonValue & json, unsigned int ba
         it->second->GetStateTransitionHistory(json, baseId + count);
         {
             JsonWrapper _state;
-            JsonWrapper::JsonValue & state = _state.GetRoot();
+            Json::Value & state = _state.GetJsonRoot();
             state["id"] = baseId + count;
 
             std::string label(this->GetComponentName());
@@ -1158,7 +1158,7 @@ unsigned int GCM::GetStateHistory(JsonWrapper::JsonValue & json, unsigned int ba
         it->second->GetStateTransitionHistory(json, baseId + count);
         {
             JsonWrapper _state;
-            JsonWrapper::JsonValue & state = _state.GetRoot();
+            Json::Value & state = _state.GetJsonRoot();
             state["id"] = baseId + count;
 
             std::string label(this->GetComponentName());

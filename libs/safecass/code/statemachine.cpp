@@ -332,7 +332,7 @@ std::string StateMachine::GetCounterStatus(void) const
 // time (in second) to represent standalone events
 #define DEFAULT_WIDTH 0.1
 //#define STATE_HISTORY_DEBUG // MJTEMP
-void StateMachine::GetStateTransitionHistory(JsonWrapper::JsonValue & json, unsigned int stateMachineId)
+void StateMachine::GetStateTransitionHistory(Json::Value & json, unsigned int stateMachineId)
 {
     StateHistoryType::const_iterator it = StateHistory.begin();
     const StateHistoryType::const_iterator itEnd = StateHistory.end();
@@ -361,7 +361,7 @@ void StateMachine::GetStateTransitionHistory(JsonWrapper::JsonValue & json, unsi
 #endif
 
         JsonWrapper _entry;
-        JsonWrapper::JsonValue & entry = _entry.GetRoot();
+        Json::Value & entry = _entry.GetJsonRoot();
 
         // numeric id of state machine
         entry["state"] = stateMachineId;

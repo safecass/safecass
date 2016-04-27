@@ -177,18 +177,19 @@ void Event::ToStream(std::ostream & os) const
         os << ", \"" << What << "\"";
 }
 
-const JsonWrapper::JsonValue Event::SerializeJSON(bool includeStateTransition) const
+const Json::Value Event::SerializeJSON(bool includeStateTransition) const
 {
-    JsonWrapper _json;
-    JsonWrapper::JsonValue & json = _json.GetRoot();
+    JsonWrapper jsonWrapper;
+    Json::Value & json = jsonWrapper.GetJsonRoot();
+
     json["name"] = Name;
     json["severity"] = Severity;
     // FIXME Better way to serialize boost::chrono::time_point?
     json["timestamp"] = GetCurrentTimestampString();
-    if (What.size())
+    if (!What.empty())
         json["what"] = What;
 
-    if (includeStateTransition)
+    if (includeStateTransition) {
         for (Json::ArrayIndex i = 0; i < Transitions.size(); ++i) {
             switch (Transitions[i]) {
             case State::NORMAL_TO_ERROR  : json["state_transition"][i] = "N2E"; break;
@@ -200,13 +201,14 @@ const JsonWrapper::JsonValue Event::SerializeJSON(bool includeStateTransition) c
             default:                       json["state_transition"][i] = "INVALID";
             }
         }
+    }
 
     return json;
 }
 
 const std::string Event::SerializeString(bool includeStateTransition) const
 {
-    return JsonWrapper::GetJSONString(SerializeString(includeStateTransition));
+    return JsonWrapper::GetJsonString(SerializeString(includeStateTransition));
 }
 
 void Event::CopyFrom(const Event * event)
