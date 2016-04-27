@@ -2,147 +2,85 @@
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
-// Last revision: May 4, 2015
-// Author       : Min Yang Jung (myj@jhu.edu)
-// URL          : https://github.com/minyang/safecass
+// Last revision: Apr 26, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// URL          : https://github.com/safecass/safecass
 //
 #include "common/jsonwrapper.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
 using namespace SC;
 
-JsonWrapper::JsonWrapper(void): _JsonValue(0), _JsonReader(0)
+bool JsonWrapper::Read(const std::string & json)
 {
-    Initialize();
-}
+    // Collect and preserve comments in the JSON document
+    // (can be disabled with third parameter of parse())
+    if (JsonReader.parse(json, JsonValue))
+        return true;
 
-JsonWrapper::~JsonWrapper()
-{
-}
+    SCLOG_ERROR << "Failed to read and parse json document: " << json << std::endl;
+    SCLOG_ERROR << "Error message: " << JsonReader.getFormattedErrorMessages() << std::endl;
 
-void JsonWrapper::Initialize(void)
-{
-    _JsonValue = new Json::Value;
-    _JsonReader = new Json::Reader;
-}
-
-void JsonWrapper::Cleanup(void)
-{
-    if (_JsonValue) delete _JsonValue;
-    if (_JsonReader) delete _JsonReader;
-    _JsonValue = 0;
-    _JsonReader = 0;
-}
-
-bool JsonWrapper::Read(const char * json, bool printStdErr)
-{
-    if (!json) return false;
-
-    // MJTODO: if json file is corrupted or contains invalid syntax,
-    // following call to parse() will crash (points being freed is not allocated).
-    // Json syntax validation would be a good plus.
-    if (!_JsonReader->parse(json, *_JsonValue)) {
-        if (printStdErr)
-            std::cout << "JsonWrapper::Read - Failed to parse json:\n" 
-                    //<< _JsonReader->getFormatedErrorMessages() << std::endl;
-                    << json << std::endl;
-        Cleanup();
-        return false;
-    }
-
-    return true;
+    return false;
 }
 
 bool JsonWrapper::ReadFromFile(const std::string & fileName)
 {
-    std::string jsonString;
-
-    std::ifstream input(fileName.c_str());
-    if (input.is_open()) {
-        std::string line;
-        while (input.good()) {
-            getline(input, line);
-            jsonString += line;
-            jsonString += "\n";
-        }
-        input.close();
-    } else {
+    std::ifstream file(fileName.c_str());
+    if (!file.is_open()) {
+        SCLOG_ERROR << "Failed to open json file to read: " << fileName << std::endl;
         return false;
     }
 
-    return Read(jsonString.c_str());
-}
+    // placeholder to contain json document
+    std::string json;
 
-std::string JsonWrapper::GetJSON(void) const
-{
-    std::stringstream ss;
-    Json::StyledWriter writer;
-    ss << writer.write(*_JsonValue);
+    std::string line;
+    while (file.good()) {
+        getline(file, line);
+        json += line;
+        json += "\n";
+    }
+    file.close();
 
-    return ss.str();
-}
-
-std::string JsonWrapper::GetJSONString(const Json::Value & jsonValue)
-{
-    std::stringstream ss;
-    Json::StyledWriter writer;
-    ss << writer.write(jsonValue);
-
-    return ss.str();
+    return Read(json);
 }
 
 bool JsonWrapper::WriteToFile(const std::string & fileName) const
 {
-    std::ofstream output(fileName.c_str());
-    if (!output.is_open()) {
+    std::ofstream file(fileName.c_str());
+    if (!file.is_open()) {
+        SCLOG_ERROR << "Failed to open json file to write: " << fileName << std::endl;
         return false;
     }
 
-    output << GetJSON();
-    output.close();
+    file << GetJsonString() << std::endl;
+    file.close();
 
     return true;
 }
 
-bool JsonWrapper::GetSafeValueBool(const JsonValue & json, const std::string & key)
+std::string JsonWrapper::GetJsonString(void) const
 {
-    JsonValue val = json.get(key, Json::nullValue);
-    return (val.isNull() ? false : val.asBool());
+    return JsonWrapper::GetJsonString(JsonValue);
 }
 
-int JsonWrapper::GetSafeValueInt(const JsonValue & json, const std::string & key)
-{
-    JsonValue val = json.get(key, Json::nullValue);
-    return (val.isNull() ? 0 : val.asInt());
-}
-
-unsigned int JsonWrapper::GetSafeValueUInt(const JsonValue & json, const std::string & key)
-{
-    JsonValue val = json.get(key, Json::nullValue);
-    return (val.isNull() ? 0 : val.asUInt());
-}
-
-double JsonWrapper::GetSafeValueDouble(const JsonValue & json, const std::string & key)
-{
-    JsonValue val = json.get(key, Json::nullValue);
-    return (val.isNull() ? 0.0 : val.asDouble());
-}
-
-std::string JsonWrapper::GetSafeValueString(const JsonValue & json, const std::string & key)
-{
-    JsonValue val = json.get(key, Json::nullValue);
-    return (val.isNull() ? "" : val.asString());
-}
-
-void JsonWrapper::ToStream(std::ostream & outputStream) const
+std::string JsonWrapper::GetJsonString(const Json::Value & json)
 {
     Json::StyledWriter writer;
-    outputStream << writer.write(*_JsonValue);
+
+    return writer.write(json);
+}
+
+void JsonWrapper::ToStream(std::ostream & os) const
+{
+    os << GetJsonString() << std::endl;
 }
