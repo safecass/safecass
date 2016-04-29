@@ -135,6 +135,12 @@ public:
     virtual bool GetNewValue(const BaseType::IndexType & index, ParamBase & arg) const;
 
     //! Push value to history buffer
+    // FIXME
+    // PushNewValue() requries more thoughts on deep fault injection
+    // - Should HistoryBuffer enable push of a series of value only?
+    // - Or, pushing a set of values at specified timestamp?
+    //
+    // For now, take simple solution: value only without consideration of timestamp
     virtual bool PushNewValue(const IndexType & index, const ParamBase & arg);
 
     //

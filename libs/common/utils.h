@@ -32,9 +32,11 @@ std::string &trim(std::string &s);
 
 /*! to lowercase */
 void to_lowercase(std::string & s);
+std::string to_lowercase(const std::string & s);
 
 /*! to uppercase */
 void to_uppercase(std::string & s);
+std::string to_uppercase(const std::string & s);
 
 //
 // Time-related Utils
@@ -43,7 +45,13 @@ void to_uppercase(std::string & s);
 TimestampType GetCurrentTimestamp(void);
 
 //! Returns current timestamp string
-std::string GetCurrentTimestampString(void);
+/*!
+    \param clockFormat Specifies time representation format.  If true, current
+    timestamp is printed out in human-readable format (e.g., 23:33:12.043243).
+    If false, current timestamp is printed out as a counter since epoch (Jan 1,
+    1970).  True by default.
+*/
+std::string GetCurrentTimestampString(bool humanReadable = true);
 
 //! Get current UTC time
 std::string GetCurrentUTCTimeString(void);

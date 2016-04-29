@@ -11,22 +11,23 @@
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
-#include <time.h>
+// Boost.Chrono examples and tutorials:
+//   http://www.boost.org/doc/libs/1_60_0/doc/html/chrono/users_guide.html
+//
+#include "common/utils.h"
+
+#include <ctime>
 #include <algorithm>
 #include <functional>
 #include <cctype>
 #include <math.h> // modf
 #include <iomanip> // setw
 
-#include "config.h"
+//#include "config.h"
 
 #if SAFECASS_ON_LINUX
 #include <stdio.h> // sprintf
 #endif
-#if SC_HAS_CISST
-#include <cisstOSAbstraction/osaGetTime.h>
-#endif
-#include "common/utils.h"
 
 /*! Returns current UTC time as formatted string: e.g. "2011-09-12T21:33:12Z"
 
@@ -140,54 +141,85 @@ void SC::to_lowercase(std::string & s)
     std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
+std::string SC::to_lowercase(const std::string & s)
+{
+    std::string _s(s);
+    to_lowercase(_s);
+    return _s;
+}
+
 // to uppercase
 void SC::to_uppercase(std::string & s)
 {
     std::transform(s.begin(), s.end(), s.begin(), ::toupper);
 }
 
+std::string SC::to_uppercase(const std::string & s)
+{
+    std::string _s(s);
+    to_uppercase(_s);
+    return _s;
+}
+
 void SC::PrintTime(TimestampType t, std::ostream & os)
 {
     using namespace boost::chrono;
 
-    time_t c_time = system_clock::to_time_t(t);
+    //os << time_fmt(local) << system_clock::from_time_t(t);
+
+    // std::time_t tick = system_clock::to_time_t(system_clock::from_time_t(t));
+    // std::tm * tmptr = std::localtime(&c_time);
+    // system_clock::duration d = duration_cast<nanoseconds>(t);
+
+    // os << tmptr->tm_hour << ':'
+       // << tmptr->tm_min << ':'
+       // << tmptr->tm_sec << '.';
+       // (d - duration_cast<seconds>(d)).count();
+
+#if 0
+    time_t c_time = t;//system_clock::to_time_t(system_clock::from_time_t(t));
     std::tm * tmptr = std::localtime(&c_time);
-    system_clock::duration d = t.time_since_epoch();
+    system_clock::duration d = duration_cast<nanoseconds>(t);
 
     //const std::ios::fmtflags f(os.flags());
 
     os << tmptr->tm_hour << ':'
        << tmptr->tm_min << ':'
-       << tmptr->tm_sec << '.'
-       << (d - duration_cast<seconds>(d)).count();
+       << tmptr->tm_sec << '.';
+       //<< (d - duration_cast<seconds>(d)).count();
 
     //os.flags(f);
-}
-
-#if 0
-    boost::chrono::system_clock::time_point time_limit
-        = boost::chrono::system_clock::now() +
-          boost::chrono::seconds(4) +
-          boost::chrono::milliseconds(500);
-
-    PrintTime(GetCurrentTimestamp());
-    std::cout << std::endl;
-
-    PrintTime(time_limit);
-    std::cout << std::endl;
-
-    std::cout << GetCurrentTimestampString() << std::endl;
 #endif
 
-TimestampType SC::GetCurrentTimestamp(void)
-{
-    return boost::chrono::system_clock::now();
+    // FIXME: Given elapsed time since the epoch, rebuild humand-readable
+    // timestamp string
+    os << t;
 }
 
-std::string SC::GetCurrentTimestampString(void)
+/*
+#ifdef __APPLE__
+  // Note that on OS X platform boost::steady_clock is not truly monotonic, so we use
+  // system_clock instead.  Refer to https://svn.boost.org/trac/boost/ticket/7719)
+  typedef boost::chrono::system_clock base_steady_clock;
+#else
+  typedef boost::chrono::steady_clock base_steady_clock;
+#endif
+*/
+TimestampType SC::GetCurrentTimestamp(void)
+{
+    return boost::chrono::duration_cast<boost::chrono::nanoseconds>
+        (boost::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+std::string SC::GetCurrentTimestampString(bool humanReadable)
 {
     std::stringstream ss;
-    PrintTime(boost::chrono::system_clock::now(), ss);
+
+    // if (humanReadable) {
+        // PrintTime(GetCurrentTimestamp(), ss);
+    // } else {
+        ss << GetCurrentTimestamp();
+    //}
 
     return ss.str();
 }

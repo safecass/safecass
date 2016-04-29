@@ -166,6 +166,7 @@ TEST(HistoryBuffer, GetNewValueById)
 }
 
 // Tests for GetNewValue with signal index
+
 TEST(HistoryBuffer, GetNewValueByIndex)
 {
     HistoryBuffer hb;

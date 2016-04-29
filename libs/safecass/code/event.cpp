@@ -184,8 +184,7 @@ const Json::Value Event::SerializeJSON(bool includeStateTransition) const
 
     json["name"] = Name;
     json["severity"] = Severity;
-    // FIXME Better way to serialize boost::chrono::time_point?
-    json["timestamp"] = GetCurrentTimestampString();
+    json["timestamp"] = GetCurrentTimestamp();
     if (!What.empty())
         json["what"] = What;
 

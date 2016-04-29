@@ -62,9 +62,7 @@ bool HistoryBuffer::GetNewValue(const BaseType::IndexType & index, ParamBase & a
 bool HistoryBuffer::PushNewValue(const IndexType & index, const ParamBase & arg)
 {
     // FIXME
-    // PushNewValue() requries more thoughts on deep fault injection
-    // - Should HistoryBuffer enable push of a series of value only?
-    // - Or, pushing a set of values at specified timestamp?
+
     return false;
 }
 

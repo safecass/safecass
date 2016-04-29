@@ -26,8 +26,9 @@
 // Google logging library
 #include "glog/logging.h"
 
-// Boost.Chrono
-#include <boost/chrono/chrono.hpp>
+// Boost.chrono-based standardized time representation
+//#include "common/xtime.h"
+#include <boost/chrono.hpp>
 
 #if SC_HAS_CISST
   #include <cisstCommon/cmnPortability.h>
@@ -146,4 +147,7 @@ std::string GetCISSTInfo(void);
 //  Misc. definitions
 //--------------------------------------------------
 //! Typedef for representation of timestamp
-typedef boost::chrono::system_clock::time_point TimestampType;
+/*!
+    nanoseconds since Jan 1, 1970 (uses boost::chrono::system_clock)
+*/
+typedef long long TimestampType;

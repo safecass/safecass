@@ -44,4 +44,6 @@ std::string GetCISSTInfo(void)
 }
 #endif
 
+//xtime_clock::time_point start = xtime_clock::now();
+
 };

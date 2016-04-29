@@ -2,26 +2,48 @@
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
 //---------------------------------------------------------------------------------------
 //
-// Created on   : July 14, 2012
-// Last revision: May 4, 2015
-// Author       : Min Yang Jung (myj@jhu.edu)
-// URL          : https://github.com/minyang/safecass
+// Created on   : Jul 14, 2012
+// Last revision: Apr 28, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// URL          : https://github.com/safecass/safecass
 //
 #ifndef _dict_h
 #define _dict_h
 
-#include "common.h"
-
-#define DEFINE_KEYWORD(_key) const std::string _key = #_key;
+#include <string>
 
 namespace SC {
 
 namespace Dict {
 
+#define DECLARE_KEYWORD( _keyword )\
+extern const std::string _keyword;
+
+// Filters
+DECLARE_KEYWORD(FILTERING_INTERNAL);
+DECLARE_KEYWORD(FILTERING_EXTERNAL);
+DECLARE_KEYWORD(STATE_INIT);
+DECLARE_KEYWORD(STATE_DISABLED);
+DECLARE_KEYWORD(STATE_ENABLED);
+DECLARE_KEYWORD(STATE_DETECTED);
+
+// Events
+DECLARE_KEYWORD(PROCESS);
+DECLARE_KEYWORD(COMPONENT);
+DECLARE_KEYWORD(INTERFACE_REQUIRED);
+DECLARE_KEYWORD(INTERFACE_PROVIDED);
+DECLARE_KEYWORD(INTERFACE_PROVIDED);
+DECLARE_KEYWORD(EVENT_DETECTION_LEVEL);
+DECLARE_KEYWORD(EVENT_DETECTION_EDGE);
+
+// Miscellaneous
+DECLARE_KEYWORD(INVALID);
+
+#if 0
 DEFINE_KEYWORD(DETECTED);
 DEFINE_KEYWORD(DISABLED);
 DEFINE_KEYWORD(ENABLED);
@@ -138,11 +160,10 @@ namespace FilterThreshold {
     DEFINE_KEYWORD(output0);
     DEFINE_KEYWORD(output1);
 }
+#endif
 
 }; // SC::Dict
 
 }; // SC
-
-#undef DEFINE_KEYWORD
 
 #endif // _dict_h

@@ -1,17 +1,16 @@
-/*
-
-  Safety Framework for Component-based Robotics
-
-  Created on: September 14, 2012
-
-  Copyright (C) 2012-2013 Min Yang Jung, Peter Kazanzides
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-*/
-
+//---------------------------------------------------------------------------------------
+//
+// SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
+//
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
+//
+//---------------------------------------------------------------------------------------
+//
+// Created on   : Sep 14, 2012
+// Last revision: Apr 28, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// URL          : https://github.com/safecass/safecass
+//
 #ifndef _EventLocationBase_h
 #define _EventLocationBase_h
 
@@ -23,7 +22,7 @@ namespace SC {
 class SCLIB_EXPORT EventLocationBase
 {
 protected:
-    //! Middleware independent fields
+    //! Framework independent elements
     std::string ProcessName;
     std::string ComponentName;
     std::string InterfaceProvidedName;
@@ -32,7 +31,8 @@ protected:
 public:
     //! Default constructor
     EventLocationBase(void);
-    //! Constructor with explicit arguments
+
+    //! Constructor with arguments
     EventLocationBase(const std::string & processName,
                       const std::string & componentName,
                       const std::string & interfaceProvidedName,
@@ -54,10 +54,11 @@ public:
     //! Get string representation of this class
     virtual const std::string GetIDString(void) const;
 
-    //! Export internal data into JSON container
-    virtual void ExportToJSON(::Json::Value & root) const;
-    //! Import JSON to update internal data
-    virtual void ImportFromJSON(const ::Json::Value & value);
+    //! Serialize content to JSON
+    virtual void ExportToJSON(Json::Value & root) const;
+
+    //! Deserialize JSON and update internal data
+    virtual void ImportFromJSON(const Json::Value & value);
 
     //! Human-readable output of this class
     virtual void ToStream(std::ostream & outputStream) const;

@@ -2,19 +2,21 @@
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: May 4, 2015
-// Author       : Min Yang Jung (myj@jhu.edu)
+// Last revision: Apr 28, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// Github       : https://github.com/safecass/safecass
 //
-#include "filterBase.h"
+#include "safecass/filterBase.h"
 
-#include "dict.h"
-#include "utils.h"
-#include "eventPublisherBase.h"
+#include "common/dict.h"
+#include "common/utils.h"
+#include "common/jsonwrapper.h"
+#include "safecass/eventPublisherBase.h"
 
 #include <iomanip>
 
@@ -30,10 +32,10 @@ const std::string InvalidSignalName = "INVALID_SIGNAL";
 //  Constructors and Destructor
 //-------------------------------------------------- 
 FilterBase::FilterBase(void)
-    : UID(INVALID_FILTER_UID),
-      Name("NONAME"),
-      FilterTarget(CreateFilterTarget(NONAME, NONAME, NONAME)),
-      FilterType(ACTIVE),
+    : FilterID(INVALID_FILTER_UID),
+      Name(NONAME),
+      StateMachineRegistered(RegisterStateMachine(NONAME, NONAME, NONAME)),
+      FilterType(FILTERING_INTERNAL),
       //LastFilterOfPipeline(false),
       EventDetectionMode(EVENT_DETECTION_EDGE)
 {
@@ -46,36 +48,33 @@ FilterBase::FilterBase(const std::string     & filterName,
                        const std::string     & targetComponentName,
                        const std::string     & targetInterfaceName,
                        EventDetectionModeType  eventDetectionMode)
-    : UID(++FilterUID),
+    : FilterID(++FilterUID),
       Name(filterName),
-      FilterTarget(CreateFilterTarget(targetStateMachineType, targetComponentName, targetInterfaceName)),
+      StateMachineRegistered(RegisterStateMachine(targetStateMachineType, targetComponentName, targetInterfaceName)),
       FilterType(filteringType),
-      Initialized(false),
       //LastFilterOfPipeline(false),
       EventDetectionMode(eventDetectionMode)
 {
     Initialize();
 }
 
-FilterBase::FilterBase(const std::string & filterName, const JsonWrapper::JsonValue & jsonNode)
-    : UID(++FilterUID),
+FilterBase::FilterBase(const std::string & filterName, const Json::Value & json)
+    : FilterID(++FilterUID),
       Name(filterName),
-      FilterTarget(CreateFilterTarget(JsonWrapper::GetSafeValueString(jsonNode["target"], "type"),
-                                      JsonWrapper::GetSafeValueString(jsonNode["target"], "component"),
-                                      JsonWrapper::GetSafeValueString(jsonNode["target"], "interface"))),
-      FilterType(GetFilteringTypeFromString(JsonWrapper::GetSafeValueString(jsonNode, "type"))),
-      Initialized(false),
-      //LastFilterOfPipeline(JsonWrapper::GetSafeValueBool(jsonNode, Dict::Filter::last_filter)),
-      EventDetectionMode(GetEventDetectionTypeFromString(JsonWrapper::GetSafeValueString(jsonNode, "event_type")))
+      StateMachineRegistered(RegisterStateMachine(json["target"]["type"].asString(),
+                                                  json["target"]["component"].asString(),
+                                                  json["target"]["interface"].asString())),
+      FilterType(GetFilteringTypeFromString(json["type"].asString())),
+      EventDetectionMode(GetEventDetectionTypeFromString(json["event_type"].asString()))
 {
     Initialize();
 }
 
-FilterBase::FilterTargetType FilterBase::CreateFilterTarget(State::StateMachineType targetStateMachineType,
-                                                            const std::string     & targetComponentName,
-                                                            const std::string     & targetInterfaceName)
+FilterBase::StateMachineInfo FilterBase::RegisterStateMachine(State::StateMachineType targetStateMachineType,
+                                                              const std::string & targetComponentName,
+                                                              const std::string & targetInterfaceName)
 {
-    FilterTargetType t;
+    StateMachineInfo t;
 
     t.StateMachineType = targetStateMachineType;
     t.ComponentName    = targetComponentName;
@@ -87,11 +86,11 @@ FilterBase::FilterTargetType FilterBase::CreateFilterTarget(State::StateMachineT
     return t;
 }
 
-FilterBase::FilterTargetType FilterBase::CreateFilterTarget(const std::string & targetStateMachineTypeName,
-                                                            const std::string & targetComponentName,
-                                                            const std::string & targetInterfaceName)
+FilterBase::StateMachineInfo FilterBase::RegisterStateMachine(const std::string & targetStateMachineTypeName,
+                                                              const std::string & targetComponentName,
+                                                              const std::string & targetInterfaceName)
 {
-    FilterTargetType t;
+    StateMachineInfo t;
 
     State::StateMachineType targetStateMachineType;
     if (targetStateMachineTypeName.compare("s_F") == 0)
@@ -114,12 +113,11 @@ FilterBase::FilterTargetType FilterBase::CreateFilterTarget(const std::string & 
 
 void FilterBase::Initialize(void)
 {
-    PrintDebugLog = false;
     EventPublisher = 0;
     EventLocation  = 0;
 
     // Disable filter at start up in order not to read and use non-initialized values
-    FilterState = FilterBase::DISABLED;
+    FilterState = FilterBase::STATE_INIT;
 
     // Initialize safety coordinator instance (used for event generation by derived filter classes)
     SafetyCoordinator = 0;
@@ -136,9 +134,9 @@ FilterBase::~FilterBase()
     if (EventLocation) delete EventLocation;
 }
 
-bool FilterBase::AddInputSignal(const std::string &       signalName, 
-                                SignalElement::SignalType signalType)
+bool FilterBase::AddInputSignal(const std::string & signalName)
 {
+#if 0
     for (size_t i = 0; i < InputSignals.size(); ++i) {
         if (InputSignals[i]->GetName().compare(signalName) == 0) {
             SCLOG_ERROR << "AddInputSignal: failed to add input signal (duplicate name): \"" << signalName << "\"" << std::endl;
@@ -150,13 +148,14 @@ bool FilterBase::AddInputSignal(const std::string &       signalName,
     InputSignals.push_back(newSignal);
 
     SCLOG_DEBUG << "AddInputSignal: Successfully added input signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
+#endif
 
     return true;
 }
 
-bool FilterBase::AddOutputSignal(const std::string &      signalName, 
-                                SignalElement::SignalType signalType)
+bool FilterBase::AddOutputSignal(const std::string & signalName)
 {
+#if 0
     for (size_t i = 0; i < OutputSignals.size(); ++i) {
         if (OutputSignals[i]->GetName().compare(signalName) == 0) {
             SCLOG_ERROR << "AddOutputSignal: failed to add output signal (duplicate name): \"" << signalName << "\"" << std::endl;
@@ -168,13 +167,14 @@ bool FilterBase::AddOutputSignal(const std::string &      signalName,
     OutputSignals.push_back(newSignal);
 
     SCLOG_DEBUG << "AddOutputSignal: Successfully added output signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
+#endif
 
     return true;
 }
 
 bool FilterBase::RefreshSamples(void)
 {
-    if (!Initialized) {
+    if (FilterState == STATE_INIT) {
         SCLOG_WARNING << "FilterBase: Filter is not properly initialized: " << *this << std::endl;
         return false;
     }
@@ -186,15 +186,16 @@ bool FilterBase::RefreshSamples(void)
     // TODO: currently, this deals with only ONE input signal.  This should be extended to
     // multiple input signals to support multiple inputs.
 
+    /*
     // Scalar type signal
     if (InputSignals[0]->GetSignalType() == SignalElement::SCALAR) {
-        if (InputQueueScalar.size() > 0) {
-            SignalElement::ScalarType injectedInputScalar = InputQueueScalar.front();
-            InputQueueScalar.pop();
+        if (InjectionQueue.size() > 0) {
+            SignalElement::ScalarType injectedInputScalar = InjectionQueue.front();
+            InjectionQueue.pop();
             InputSignals[0]->SetPlaceholderScalar(injectedInputScalar);
         } else {
             // Fetch new value from history buffer
-            if (!InputSignals[0]->FetchNewValueScalar((FilterType == FilterBase::ACTIVE))) {
+            if (!InputSignals[0]->FetchNewValueScalar((FilterType == FilterBase::FILTERING_INTERNAL))) {
                 SCLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
                 this->Enable(false); // suppress further error messages due to the same issue
                 // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
@@ -205,13 +206,15 @@ bool FilterBase::RefreshSamples(void)
     }
     // Vector type signal
     else {
+        // FIXME
+#if 0
         if (InputQueueVector.size() > 0) {
             SignalElement::VectorType vec = InputQueueVector.front();
             InputQueueVector.pop();
             InputSignals[0]->SetPlaceholderVector(vec);
         } else {
             // Fetch new value from history buffer
-            if (!InputSignals[0]->FetchNewValueVector((FilterType == FilterBase::ACTIVE))) {
+            if (!InputSignals[0]->FetchNewValueVector((FilterType == FilterBase::FILTERING_INTERNAL))) {
                 SCLOG_ERROR << "failed to read input from history buffer: filter => " << *this << std::endl;
                 this->Enable(false); // suppress further error messages due to the same issue
                 // TODO: RESOLVE THIS ISSUE: once Enable(false) is called, a filter is no longer
@@ -219,7 +222,9 @@ bool FilterBase::RefreshSamples(void)
                 return false;
             }
         }
+#endif
     }
+*/
 
     return true;
 }
@@ -235,31 +240,15 @@ std::string FilterBase::GenerateOutputSignalName(const std::string & prefix,
     return ss.str();
 }
 
-bool FilterBase::IsDisabled(void) const {
-    return !IsEnabled();
-}
-
-bool FilterBase::IsEnabled(void) const {
-    return (FilterState != FilterBase::DISABLED);
-}
-
-#if 0 // obsolete
-bool FilterBase::HasPendingEvent(void) const {
-    // integrity check
-    if (FilterState == FilterBase::DETECTED) {
-        SCASSERT(EventDetected);
-    }
-    return (FilterState == FilterBase::DETECTED);
-}
-#endif
-
 void FilterBase::Enable(bool enable)
 {
+    // FIXME add state transition handler
+
     if (enable) {
         // When enabling a filter, it can be either in the ENABLED or DETECTED state.
         if (IsEnabled())
             return;
-        FilterState = FilterBase::ENABLED;
+        FilterState = FilterBase::STATE_ENABLED;
     } else {
 #if 0
         // If a filter detected an event which has not been resolved yet, SC should inform
@@ -269,7 +258,7 @@ void FilterBase::Enable(bool enable)
             SCLOG_WARNING << "Warning: filter [ " << *this << " ] has pending event" << std::endl;
         }
 #endif
-        FilterState = FilterBase::DISABLED;
+        FilterState = FilterBase::STATE_DISABLED;
     }
 }
 
@@ -358,8 +347,8 @@ const std::string FilterBase::ToString(bool verbose) const
 //-----------------------------------------------
 const std::string FilterBase::GetFilteringTypeString(const FilteringType type)
 {
-    if (type == ACTIVE)  return Dict::ACTIVE;
-    if (type == PASSIVE) return Dict::PASSIVE;
+    if (type == FILTERING_INTERNAL) return Dict::FILTERING_INTERNAL;
+    if (type == FILTERING_EXTERNAL) return Dict::FILTERING_EXTERNAL;
 
     return Dict::INVALID;
 }
@@ -369,18 +358,19 @@ FilterBase::FilteringType FilterBase::GetFilteringTypeFromString(const std::stri
     std::string _str(str);
     to_uppercase(_str);
 
-    if (_str.compare(Dict::ACTIVE) == 0)  return ACTIVE;
-    if (_str.compare(Dict::PASSIVE) == 0) return PASSIVE;
+    if (_str.compare(Dict::FILTERING_INTERNAL) == 0) return FILTERING_INTERNAL;
+    if (_str.compare(Dict::FILTERING_EXTERNAL) == 0) return FILTERING_EXTERNAL;
 
-    return ACTIVE;
+    return FILTERING_INTERNAL;
 }
 
 const std::string FilterBase::GetFilterStateString(const FilterStateType state)
 {
     switch (state) {
-    case DISABLED: return Dict::DISABLED;
-    case ENABLED:  return Dict::ENABLED;
-    case DETECTED: return Dict::DETECTED;
+    case STATE_INIT:     return Dict::STATE_INIT;
+    case STATE_DISABLED: return Dict::STATE_DISABLED;
+    case STATE_ENABLED:  return Dict::STATE_ENABLED;
+    case STATE_DETECTED: return Dict::STATE_DETECTED;
     }
 
     return Dict::INVALID;
@@ -388,53 +378,31 @@ const std::string FilterBase::GetFilterStateString(const FilterStateType state)
 
 FilterBase::FilterStateType FilterBase::GetFilterStateFromString(const std::string & str)
 {
-    std::string _str(str);
-    to_uppercase(_str);
+    std::string s = to_uppercase(str);
 
-    if (_str.compare(Dict::DISABLED) == 0)  return DISABLED;
-    if (_str.compare(Dict::ENABLED) == 0)   return ENABLED;
-    if (_str.compare(Dict::DETECTED) == 0)  return DETECTED;
+    if (s.compare(Dict::STATE_INIT) == 0)     return STATE_INIT;
+    if (s.compare(Dict::STATE_DISABLED) == 0) return STATE_DISABLED;
+    if (s.compare(Dict::STATE_ENABLED) == 0)  return STATE_ENABLED;
+    if (s.compare(Dict::STATE_DETECTED) == 0) return STATE_DETECTED;
 
-    return DISABLED;
+    return STATE_INIT;
 }
 
 FilterBase::EventDetectionModeType FilterBase::GetEventDetectionTypeFromString(const std::string & str)
 {
-    std::string _str(str);
-    to_uppercase(_str);
+    std::string s = to_uppercase(str);
 
-    if (_str.compare(Dict::LEVEL) == 0) return EVENT_DETECTION_LEVEL;
+    if (s.compare(Dict::EVENT_DETECTION_LEVEL) == 0) return EVENT_DETECTION_LEVEL;
 
     return EVENT_DETECTION_EDGE;
 }
 
-#if 0 // obsolete
-bool FilterBase::SetEventDetected(Event * event)
+void FilterBase::InjectInput(const std::string & inputSignalName, const ParamBase & arg, bool deepInjection)
 {
-    if (!event)
-        return false;
-
-    EventDetected = event;
-
-    return true;
+    // FIXME
 }
 
-bool FilterBase::SetEventDetected(const std::string & json)
-{
-    if (!HasPendingEvent()) {
-        SCLOG_ERROR << "SetEventDetected: this filter already found event: \n" << json << std::endl;
-        return false;
-    }
-
-    // TODO
-    // 1. parse JSON
-    // 2. create event instance
-    // 3. call the other SetEventDetected method
-
-    return false; // FIXME
-}
-#endif
-
+/*
 void FilterBase::InjectInputScalar(SignalElement::ScalarType input, bool deepInjection)
 {
     // TODO: this works only for single input: should be extended to multiple inputs later
@@ -443,7 +411,7 @@ void FilterBase::InjectInputScalar(SignalElement::ScalarType input, bool deepInj
     if (deepInjection)
         InputSignals[0]->PushNewValueScalar(input);
     else
-        InputQueueScalar.push(input);
+        InjectionQueue.push(input);
 }
 
 void FilterBase::InjectInputScalar(const std::vector<SignalElement::ScalarType> & inputs, bool deepInjection)
@@ -453,51 +421,20 @@ void FilterBase::InjectInputScalar(const std::vector<SignalElement::ScalarType> 
             InputSignals[0]->PushNewValueScalar(inputs[i]);
     else
         for (size_t i = 0; i < inputs.size(); ++i)
-            InputQueueScalar.push(inputs[i]);
+            InjectionQueue.push(inputs[i]);
 }
+*/
 
-void FilterBase::InjectInputScalar(const std::list<SignalElement::ScalarType> & inputs, bool deepInjection)
-{
-    std::list<SignalElement::ScalarType>::const_iterator it = inputs.begin();
-
-    if (deepInjection)
-        for (; it != inputs.end(); ++it)
-            InputSignals[0]->PushNewValueScalar(*it);
-    else
-        for (; it != inputs.end(); ++it)
-            InputQueueScalar.push(*it);
-}
-
-void FilterBase::InjectInputVector(const SignalElement::VectorType & input, bool deepInjection)
-{
-    if (deepInjection)
-        InputSignals[0]->PushNewValueVector(input);
-    else
-        InputQueueVector.push(input);
-}
-
-void FilterBase::InjectInputVector(const std::vector<SignalElement::VectorType> & inputs, bool deepInjection)
-{
-    std::vector<SignalElement::VectorType>::const_iterator it = inputs.begin();
-
-    if (deepInjection)
-        for (; it != inputs.end(); ++it)
-            InputSignals[0]->PushNewValueVector(*it);
-    else
-        for (; it != inputs.end(); ++it)
-            InputQueueVector.push(*it);
-}
-
-const std::string FilterBase::ShowInputQueueScalar(void) const
+const std::string FilterBase::PrintInjectionQueue(void) const
 {
     // TODO => add deepInjection option
 
-    if (InputQueueScalar.size() == 0)
+    if (InjectionQueue.size() == 0)
         return "null";
 
     std::stringstream ss;
     ss << std::setprecision(5);
-    InputQueueScalarType copy(InputQueueScalar);
+    InjectionQueueType copy(InjectionQueue);
     while (!copy.empty()) {
         ss << copy.front() << " ";
         copy.pop();
@@ -506,32 +443,16 @@ const std::string FilterBase::ShowInputQueueScalar(void) const
     return ss.str();
 }
 
-const std::string FilterBase::ShowInputQueueVector(void) const
+void FilterBase::GenerateEventInfo(Json::Value & json) const
 {
-    if (InputQueueVector.size() == 0)
-        return "null";
-
-    std::stringstream ss;
-    ss << std::setprecision(5);
-    InputQueueVectorType copy(InputQueueVector);
-    while (!copy.empty()) {
-        for (size_t i = 0; i < copy.front().size(); ++i)
-            ss << copy.front()[i] << " ";
-        copy.pop();
-    }
-
-    return ss.str();
-}
-
-void FilterBase::GenerateEventInfo(JsonWrapper::JsonValue & json) const
-{
-    json["event"]["fuid"] = UID;
+    json["event"]["fuid"] = (unsigned int)FilterID;
     // TODO: Currently, event generation timestamp is set to the timing when
     // event json is generated.  Alternatively, we could use the timestamp of
     // the sample retrieved from the history buffer.  
     // In case of cisst, note that the state table maintains elapsed time, rather 
     // than absolute time.
-    json["event"]["timestamp"] = GetCurrentTimeTick();
+    // FIXME
+    json["event"]["timestamp"] = GetCurrentTimestampString();//GetCurrentTimestamp();
 }
 
 // TODO: improve second parameter to handle other options (e.g., json, raw, 
@@ -539,20 +460,20 @@ void FilterBase::GenerateEventInfo(JsonWrapper::JsonValue & json) const
 void FilterBase::ToStream(std::ostream & out, bool verbose) const
 {
     if (verbose) {
-        out << "[" << UID << "] "
+        out << "[" << FilterID << "] "
             << "Name: \"" << Name << "\", ";
         out << "Target: \"";
-        switch (FilterTarget.StateMachineType) {
+        switch (StateMachineRegistered.StateMachineType) {
         case State::STATEMACHINE_FRAMEWORK: out << "s_F"; break;
         case State::STATEMACHINE_APP:       out << "s_A"; break;
         case State::STATEMACHINE_PROVIDED:  out << "s_P"; break;
         case State::STATEMACHINE_REQUIRED:  out << "s_R"; break;
         case State::STATEMACHINE_INVALID:   out << "INVALID"; break;
         }
-        out << "\", component: \"" << FilterTarget.ComponentName
-            << "\", interface: \"" << FilterTarget.InterfaceName
+        out << "\", component: \"" << StateMachineRegistered.ComponentName
+            << "\", interface: \"" << StateMachineRegistered.InterfaceName
             << "\", ";
-        out << "Filter type: " << (FilterType == ACTIVE ? "ACTIVE" : "PASSIVE") << ", "
+        out << "Filter type: " << (FilterType == FILTERING_INTERNAL ? "FILTERING_INTERNAL" : "FILTERING_EXTERNAL") << ", "
             << "State: " << GetFilterStateString(FilterState);
         out << ", Event location: " << (EventLocation ? "Available" : "n/a");
         // if (LastFilterOfPipeline)
@@ -571,30 +492,32 @@ void FilterBase::ToStream(std::ostream & out, bool verbose) const
         }
         // Input queue
         out << "----- Input queue: ";
-        if (InputQueueScalar.size())
-            out << ShowInputQueueScalar() << std::endl;
-        if (InputQueueVector.size())
-            out << ShowInputQueueVector() << std::endl;
+        if (InjectionQueue.size())
+            out << PrintInjectionQueue() << std::endl;
+        // FIXME
+        // if (InputQueueVector.size())
+            // out << ShowInputQueueVector() << std::endl;
     } else {
-        out << "[ " << UID << " ] ";
-        switch (FilterTarget.StateMachineType) {
+        out << "[ " << FilterID << " ] ";
+        switch (StateMachineRegistered.StateMachineType) {
         case State::STATEMACHINE_FRAMEWORK: out << "s_F "; break;
         case State::STATEMACHINE_APP:       out << "s_A "; break;
         case State::STATEMACHINE_PROVIDED:  out << "s_P "; break;
         case State::STATEMACHINE_REQUIRED:  out << "s_R "; break;
         case State::STATEMACHINE_INVALID:   out << "N/A "; break;
         }
-        out << "\"" << FilterTarget.ComponentName << "\"";
-        if (FilterTarget.InterfaceName.size())
-            out << ":\"" << FilterTarget.InterfaceName << "\"";
+        out << "\"" << StateMachineRegistered.ComponentName << "\"";
+        if (StateMachineRegistered.InterfaceName.size())
+            out << ":\"" << StateMachineRegistered.InterfaceName << "\"";
         out << "  " << Name << "  ";
         // Input signals
         for (size_t i = 0; i < InputSignals.size(); ++i)
             out << "\"" << InputSignals[i]->GetName() << "\"  ";
         // Input queue
-        if (InputQueueScalar.size())
-            out << "scalar [ " << ShowInputQueueScalar() << " ]";
-        if (InputQueueVector.size())
-            out << "vector [ " << ShowInputQueueVector() << " ]";
+        if (InjectionQueue.size())
+            out << "scalar [ " << PrintInjectionQueue() << " ]";
+        // FIXME
+        // if (InputQueueVector.size())
+            // out << "vector [ " << ShowInputQueueVector() << " ]";
     }
 }

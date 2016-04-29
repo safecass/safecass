@@ -2,21 +2,20 @@
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Sep 14, 2012
-// Last revision: May 4, 2015
-// Author       : Min Yang Jung (myj@jhu.edu)
+// Last revision: Apr 28, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// URL          : https://github.com/safecass/safecass
 //
-
 #include "common/dict.h"
+#include "common/jsonwrapper.h"
 #include "safecass/eventLocationBase.h"
 
-namespace SC {
-
-using namespace Dict::Json;
+using namespace SC;
 
 EventLocationBase::EventLocationBase(void)
     : ProcessName(""), ComponentName(""), InterfaceProvidedName(""), InterfaceRequiredName("")
@@ -63,31 +62,27 @@ const std::string EventLocationBase::GetIDString(void) const
     return s;
 }
 
-void EventLocationBase::ExportToJSON(::Json::Value & root) const
+void EventLocationBase::ExportToJSON(::Json::Value & json) const
 {
     if (!ProcessName.empty())
-        root[process] = ProcessName;
+        json[Dict::PROCESS] = ProcessName;
     if (!ComponentName.empty())
-        root[component] = ComponentName;
+        json[Dict::COMPONENT] = ComponentName;
     if (!InterfaceProvidedName.empty())
-        root[interface_provided] = InterfaceProvidedName;
+        json[Dict::INTERFACE_PROVIDED] = InterfaceProvidedName;
     if (!InterfaceRequiredName.empty())
-        root[interface_required] = InterfaceRequiredName;
+        json[Dict::INTERFACE_REQUIRED] = InterfaceRequiredName;
 }
 
-void EventLocationBase::ImportFromJSON(const ::Json::Value & UNUSED(value))
+void EventLocationBase::ImportFromJSON(const Json::Value & json)
 {
-#if 0
-    ProcessName           = JsonWrapper::GetSafeValueString(value, process);
-    ComponentName         = JsonWrapper::GetSafeValueString(value, component);
-    InterfaceProvidedName = JsonWrapper::GetSafeValueString(value, interface_provided);
-    InterfaceRequiredName = JsonWrapper::GetSafeValueString(value, interface_required);
-#endif
+    ProcessName           = json[Dict::PROCESS].asString();
+    ComponentName         = json[Dict::COMPONENT].asString();
+    InterfaceProvidedName = json[Dict::INTERFACE_PROVIDED].asString();
+    InterfaceRequiredName = json[Dict::INTERFACE_REQUIRED].asString();
 }
 
-void EventLocationBase::ToStream(std::ostream & outputStream) const
+void EventLocationBase::ToStream(std::ostream & os) const
 {
-    outputStream << GetIDString();
+    os << GetIDString();
 }
-
-};
