@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------
 //
 // Created on   : Apr 28, 2016
-// Last revision: Apr 28, 2016
+// Last revision: Apr 30, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -19,9 +19,22 @@
 
 using namespace boost::chrono;
 
+/*
+   system_clock::now() throws std::bad_cast exception when compiled with gcc 4.9.3
+   (g++-mp-4.9) on Mac.
+   Same issue with Boost 1.59.0 and 1.60.0
+   Until this issue is resolved, the following test/demo is disabled.
+*/
+#if 0
 TEST(BoostChrono, Demo)
 {
+    try {
     std::cout << "system_clock::now(): " << system_clock::now() << std::endl;
+    } catch (const std::exception & e) {
+        std::cout << e.what() << std::endl;
+    } catch (...) {
+        std::cout << "ERROR" << std::endl;
+    }
 
     std::cout << "steady_clock::now(): ";
 #ifdef BOOST_CHRONO_HAS_CLOCK_STEADY
@@ -54,7 +67,8 @@ TEST(BoostChrono, Demo)
     std::cout << "sizeof system_clock::duration = " << sizeof(system_clock::duration) << '\n';
     std::cout << "sizeof system_clock::rep = " << sizeof(system_clock::rep) << '\n';
 
-#if 0 // example code for testing
+    // Example code for testing
+#if 0
     system_clock::duration delay(boost::chrono::milliseconds(5));
     system_clock::time_point start = system_clock::now();
     while (system_clock::now() - start <= delay) {}
@@ -72,3 +86,4 @@ TEST(BoostChrono, Demo)
     std::cout << "count = " << count << std::endl;
 #endif
 }
+#endif

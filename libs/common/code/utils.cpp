@@ -165,35 +165,26 @@ void SC::PrintTime(TimestampType t, std::ostream & os)
 {
     using namespace boost::chrono;
 
-    //os << time_fmt(local) << system_clock::from_time_t(t);
+    nanoseconds ns(t);
+    microseconds us = duration_cast<microseconds>(ns);
+    seconds s = duration_cast<seconds>(ns);
 
-    // std::time_t tick = system_clock::to_time_t(system_clock::from_time_t(t));
-    // std::tm * tmptr = std::localtime(&c_time);
-    // system_clock::duration d = duration_cast<nanoseconds>(t);
+    time_t epoch = s.count();
 
-    // os << tmptr->tm_hour << ':'
-       // << tmptr->tm_min << ':'
-       // << tmptr->tm_sec << '.';
-       // (d - duration_cast<seconds>(d)).count();
+    std::tm * tmptr = localtime(&epoch);
 
-#if 0
-    time_t c_time = t;//system_clock::to_time_t(system_clock::from_time_t(t));
-    std::tm * tmptr = std::localtime(&c_time);
-    system_clock::duration d = duration_cast<nanoseconds>(t);
+    // Save current settings
+    const std::ios::fmtflags f(os.flags());
+    const char prevFiller = os.fill('0');
 
-    //const std::ios::fmtflags f(os.flags());
+    os << std::setw(2) << tmptr->tm_hour << ':'
+       << std::setw(2) << tmptr->tm_min << ':'
+       << std::setw(2) << tmptr->tm_sec << '.'
+       << (us - s).count();
 
-    os << tmptr->tm_hour << ':'
-       << tmptr->tm_min << ':'
-       << tmptr->tm_sec << '.';
-       //<< (d - duration_cast<seconds>(d)).count();
-
-    //os.flags(f);
-#endif
-
-    // FIXME: Given elapsed time since the epoch, rebuild humand-readable
-    // timestamp string
-    os << t;
+    // Restore saved settings
+    os.flags(f);
+    os.fill(prevFiller);
 }
 
 /*
@@ -215,11 +206,10 @@ std::string SC::GetCurrentTimestampString(bool humanReadable)
 {
     std::stringstream ss;
 
-    // if (humanReadable) {
-        // PrintTime(GetCurrentTimestamp(), ss);
-    // } else {
+    if (humanReadable)
+        PrintTime(GetCurrentTimestamp(), ss);
+    else
         ss << GetCurrentTimestamp();
-    //}
 
     return ss.str();
 }
