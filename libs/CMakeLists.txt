@@ -92,11 +92,11 @@ endif()
 set (BOOST_COMPONENTS_REQUIRED program_options thread system chrono)
 
 # TEMP to test boost external project
-#find_package(Boost 1.59.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
+#find_package(Boost 1.60.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
 if (FALSE) #Boost_FOUND)
   message("Boost found")
 else()
-  message("Boost not found -- Boost 1.59.0 will be downloaded and built")
+  message("Boost not found -- Boost 1.60.0 will be downloaded and built")
 
   # Define boost bootstrap shell command
   if (SAFECASS_ON_LINUX OR SAFECASS_ON_MAC)
@@ -122,7 +122,7 @@ else()
                               --link=static # static|shared
                               --threading=multi #single|multi
                               --with-program_options
-                              --with-thread
+                              #--with-thread
                               --with-system
                               --with-chrono
                               -j${N})
@@ -147,10 +147,10 @@ else()
                                ${Boost_SYSTEM_LIBRARY}
                                ${Boost_CHRONO_LIBRARY})
 
-  set (Boost_VERSION       105900)
-  set (Boost_LIB_VERSION   1_59)
+  set (Boost_VERSION       106000)
+  set (Boost_LIB_VERSION   1_60)
   set (Boost_MAJOR_VERSION 1)
-  set (Boost_MINOR_VERSION 59)
+  set (Boost_MINOR_VERSION 60)
   set (Boost_SUBMINOR_VERSION 0)
 
   message("Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
