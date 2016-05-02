@@ -7,7 +7,7 @@
 #-----------------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
-# Last revision: Mar 16, 2016
+# Last revision: May 2, 2016
 # Author       : Min Yang Jung (myj@jhu.edu)
 # URL          : https://github.com/safecass/safecass
 #
@@ -89,7 +89,7 @@ endif()
 #
 # 2) Boost
 #
-set (BOOST_COMPONENTS_REQUIRED program_options thread system chrono)
+set (BOOST_COMPONENTS_REQUIRED program_options system chrono)
 
 # TEMP to test boost external project
 #find_package(Boost 1.60.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})
@@ -133,17 +133,17 @@ else()
 
   include (find_boost_library)
   find_boost_library(LIB_NAME program_options) # setting Boost_PROGRAM_OPTIONS_LIBRARY
-  find_boost_library(LIB_NAME thread) # setting Boost_THREAD_LIBRARY
+  #find_boost_library(LIB_NAME thread) # setting Boost_THREAD_LIBRARY
   find_boost_library(LIB_NAME system) # setting Boost_SYSTEM_LIBRARY
   find_boost_library(LIB_NAME chrono) # setting Boost_CHRONO_LIBRARY
   set (Boost_PROGRAM_OPTIONS_FOUND ON)
-  set (Boost_THREAD_FOUND ON)
+  #set (Boost_THREAD_FOUND ON)
   set (Boost_SYSTEM_FOUND ON)
   set (Boost_CHRONO_FOUND ON)
 
   set (Boost_LIBRARIES "") # clear out existing cache just in case
   list (APPEND Boost_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                               ${Boost_THREAD_LIBRARY}
+                               #${Boost_THREAD_LIBRARY}
                                ${Boost_SYSTEM_LIBRARY}
                                ${Boost_CHRONO_LIBRARY})
 
