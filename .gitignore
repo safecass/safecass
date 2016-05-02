@@ -20,5 +20,6 @@ docs
 build*
 TODO
 clang.sh
+gcc48.sh
 gcc49.sh
 gcc50.sh

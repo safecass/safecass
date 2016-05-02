@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jan 7, 2012
-// Last revision: Apr 28, 2016
+// Last revision: May 1, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -28,13 +28,71 @@ const FilterBase::FilterIDType FilterBase::INVALID_FILTER_UID = 0;
 
 const std::string InvalidSignalName = "INVALID_SIGNAL";
 
-//-------------------------------------------------- 
+//--------------------------------------------------
+//  FilterBase::StateMachineInfo
+//--------------------------------------------------
+FilterBase::StateMachineInfo::StateMachineInfo(void)
+    : StateMachineType(State::STATEMACHINE_INVALID),
+      ComponentName(""), InterfaceName("")
+{}
+
+FilterBase::StateMachineInfo::StateMachineInfo(State::StateMachineType type,
+                                               const std::string & componentName,
+                                               const std::string & interfaceName)
+    : StateMachineType(type), ComponentName(componentName)
+{
+    // Only interface-type statemachines (STATEMACHINE_PROVIDED and STATEMACHINE_REQUIRED)
+    // is allowed to have non-empty interface name.
+    if (StateMachineType == State::STATEMACHINE_PROVIDED || StateMachineType == State::STATEMACHINE_REQUIRED)
+        InterfaceName = interfaceName;
+    else
+        InterfaceName = "";
+}
+
+FilterBase::StateMachineInfo::StateMachineInfo(const std::string & stateMachineTypeName,
+                                               const std::string & componentName,
+                                               const std::string & interfaceName)
+{
+    if (stateMachineTypeName.compare("s_F") == 0)
+        StateMachineType = State::STATEMACHINE_FRAMEWORK;
+    else if (stateMachineTypeName.compare("s_A") == 0)
+        StateMachineType = State::STATEMACHINE_APP;
+    else if (stateMachineTypeName.compare("s_P") == 0)
+        StateMachineType = State::STATEMACHINE_PROVIDED;
+    else if (stateMachineTypeName.compare("s_R") == 0)
+        StateMachineType = State::STATEMACHINE_REQUIRED;
+    else
+        StateMachineType = State::STATEMACHINE_INVALID;
+
+    ComponentName = componentName;
+
+    // Only interface-type statemachines (STATEMACHINE_PROVIDED and STATEMACHINE_REQUIRED)
+    // is allowed to have non-empty interface name.
+    if (StateMachineType == State::STATEMACHINE_PROVIDED || StateMachineType == State::STATEMACHINE_REQUIRED)
+        InterfaceName = interfaceName;
+    else
+        InterfaceName = "";
+}
+
+bool FilterBase::StateMachineInfo::operator==(const StateMachineInfo & rhs) const
+{
+    return ((this->StateMachineType == rhs.StateMachineType) &&
+            (this->ComponentName.compare(rhs.ComponentName) == 0) &&
+            (this->InterfaceName.compare(rhs.InterfaceName) == 0));
+}
+
+bool FilterBase::StateMachineInfo::operator!=(const StateMachineInfo & rhs) const
+{
+    return !(*this == rhs);
+}
+
+//--------------------------------------------------
 //  Constructors and Destructor
-//-------------------------------------------------- 
+//--------------------------------------------------
 FilterBase::FilterBase(void)
     : FilterID(INVALID_FILTER_UID),
       Name(NONAME),
-      StateMachineRegistered(RegisterStateMachine(NONAME, NONAME, NONAME)),
+      StateMachineRegistered(StateMachineInfo()),
       FilterType(FILTERING_INTERNAL),
       //LastFilterOfPipeline(false),
       EventDetectionMode(EVENT_DETECTION_EDGE)
@@ -50,7 +108,21 @@ FilterBase::FilterBase(const std::string     & filterName,
                        EventDetectionModeType  eventDetectionMode)
     : FilterID(++FilterUID),
       Name(filterName),
-      StateMachineRegistered(RegisterStateMachine(targetStateMachineType, targetComponentName, targetInterfaceName)),
+      StateMachineRegistered(StateMachineInfo(targetStateMachineType, targetComponentName, targetInterfaceName)),
+      FilterType(filteringType),
+      //LastFilterOfPipeline(false),
+      EventDetectionMode(eventDetectionMode)
+{
+    Initialize();
+}
+
+FilterBase::FilterBase(const std::string     & filterName,
+                       FilteringType           filteringType,
+                       const StateMachineInfo & stateMachineInfo,
+                       EventDetectionModeType  eventDetectionMode)
+    : FilterID(++FilterUID),
+      Name(filterName),
+      StateMachineRegistered(stateMachineInfo),
       FilterType(filteringType),
       //LastFilterOfPipeline(false),
       EventDetectionMode(eventDetectionMode)
@@ -61,54 +133,13 @@ FilterBase::FilterBase(const std::string     & filterName,
 FilterBase::FilterBase(const std::string & filterName, const Json::Value & json)
     : FilterID(++FilterUID),
       Name(filterName),
-      StateMachineRegistered(RegisterStateMachine(json["target"]["type"].asString(),
-                                                  json["target"]["component"].asString(),
-                                                  json["target"]["interface"].asString())),
+      StateMachineRegistered(StateMachineInfo(json["target"]["type"].asString(),
+                                              json["target"]["component"].asString(),
+                                              json["target"]["interface"].asString())),
       FilterType(GetFilteringTypeFromString(json["type"].asString())),
       EventDetectionMode(GetEventDetectionTypeFromString(json["event_type"].asString()))
 {
     Initialize();
-}
-
-FilterBase::StateMachineInfo FilterBase::RegisterStateMachine(State::StateMachineType targetStateMachineType,
-                                                              const std::string & targetComponentName,
-                                                              const std::string & targetInterfaceName)
-{
-    StateMachineInfo t;
-
-    t.StateMachineType = targetStateMachineType;
-    t.ComponentName    = targetComponentName;
-    if (t.StateMachineType == State::STATEMACHINE_PROVIDED || t.StateMachineType == State::STATEMACHINE_REQUIRED)
-        t.InterfaceName = targetInterfaceName;
-    else
-        t.InterfaceName = State::STATEMACHINE_INVALID;
-
-    return t;
-}
-
-FilterBase::StateMachineInfo FilterBase::RegisterStateMachine(const std::string & targetStateMachineTypeName,
-                                                              const std::string & targetComponentName,
-                                                              const std::string & targetInterfaceName)
-{
-    StateMachineInfo t;
-
-    State::StateMachineType targetStateMachineType;
-    if (targetStateMachineTypeName.compare("s_F") == 0)
-        targetStateMachineType = State::STATEMACHINE_FRAMEWORK;
-    else if (targetStateMachineTypeName.compare("s_A") == 0)
-        targetStateMachineType = State::STATEMACHINE_APP;
-    else if (targetStateMachineTypeName.compare("s_P") == 0)
-        targetStateMachineType = State::STATEMACHINE_PROVIDED;
-    else if (targetStateMachineTypeName.compare("s_R") == 0)
-        targetStateMachineType = State::STATEMACHINE_REQUIRED;
-    else
-        targetStateMachineType = State::STATEMACHINE_INVALID;
-
-    t.StateMachineType = targetStateMachineType;
-    t.ComponentName    = targetComponentName;
-    t.InterfaceName    = targetInterfaceName;
-
-    return t;
 }
 
 void FilterBase::Initialize(void)
@@ -134,40 +165,40 @@ FilterBase::~FilterBase()
     if (EventLocation) delete EventLocation;
 }
 
-bool FilterBase::AddInputSignal(const std::string & signalName)
+bool FilterBase::AddInputSignal(ParamBase & signalObject, const std::string & signalName)
 {
-#if 0
     for (size_t i = 0; i < InputSignals.size(); ++i) {
+        SCASSERT(InputSignals[i]);
         if (InputSignals[i]->GetName().compare(signalName) == 0) {
-            SCLOG_ERROR << "AddInputSignal: failed to add input signal (duplicate name): \"" << signalName << "\"" << std::endl;
+            SCLOG_ERROR << "Failed to add input signal (duplicate name): \"" << signalName << "\"" << std::endl;
             return false;
         }
     }
 
-    SignalElement * newSignal = new SignalElement(signalName, signalType);
-    InputSignals.push_back(newSignal);
+    // FIXME where to set history buffer instance???
+    InputSignals.push_back(new SignalElement(signalName, signalObject));
 
-    SCLOG_DEBUG << "AddInputSignal: Successfully added input signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
-#endif
+    SCLOG_DEBUG << "Added input signal: \"" << signalName << "\" to filter ID " << this->FilterUID
+                << " (\"" << this->Name << "\")" << std::endl;
 
     return true;
 }
 
-bool FilterBase::AddOutputSignal(const std::string & signalName)
+bool FilterBase::AddOutputSignal(ParamBase & signalObject, const std::string & signalName)
 {
-#if 0
     for (size_t i = 0; i < OutputSignals.size(); ++i) {
+        SCASSERT(OutputSignals[i]);
         if (OutputSignals[i]->GetName().compare(signalName) == 0) {
-            SCLOG_ERROR << "AddOutputSignal: failed to add output signal (duplicate name): \"" << signalName << "\"" << std::endl;
+            SCLOG_ERROR << "Failed to add output signal (duplicate name): \"" << signalName << "\"" << std::endl;
             return false;
         }
     }
 
-    SignalElement * newSignal = new SignalElement(signalName, signalType);
-    OutputSignals.push_back(newSignal);
+    // FIXME where to set history buffer instance???
+    OutputSignals.push_back(new SignalElement(signalName, signalObject));
 
-    SCLOG_DEBUG << "AddOutputSignal: Successfully added output signal \"" << signalName << "\" to filter \"" << this->Name << "\"" << std::endl;
-#endif
+    SCLOG_DEBUG << "Added input signal: \"" << signalName << "\" to filter ID " << this->FilterUID
+                << " (\"" << this->Name << "\")" << std::endl;
 
     return true;
 }
@@ -304,14 +335,16 @@ FilterBase::SignalNamesType FilterBase::GetOutputSignalNames(void) const
 
 SignalElement * FilterBase::GetOutputSignalElement(size_t index) const
 {
-    if (index >= OutputSignals.size()) return 0;
+    if (OutputSignals.empty() || index >= OutputSignals.size())
+        return 0;
 
     return OutputSignals[index];
 }
 
 SignalElement * FilterBase::GetInputSignalElement(size_t index) const
 {
-    if (index >= InputSignals.size()) return 0;
+    if (InputSignals.empty() || index >= InputSignals.size())
+        return 0;
 
     return InputSignals[index];
 }
@@ -378,7 +411,7 @@ const std::string FilterBase::GetFilterStateString(const FilterStateType state)
 
 FilterBase::FilterStateType FilterBase::GetFilterStateFromString(const std::string & str)
 {
-    std::string s = to_uppercase(str);
+    std::string s = to_lowercase(str);
 
     if (s.compare(Dict::STATE_INIT) == 0)     return STATE_INIT;
     if (s.compare(Dict::STATE_DISABLED) == 0) return STATE_DISABLED;
@@ -390,9 +423,10 @@ FilterBase::FilterStateType FilterBase::GetFilterStateFromString(const std::stri
 
 FilterBase::EventDetectionModeType FilterBase::GetEventDetectionTypeFromString(const std::string & str)
 {
-    std::string s = to_uppercase(str);
+    std::string s = to_lowercase(str);
 
-    if (s.compare(Dict::EVENT_DETECTION_LEVEL) == 0) return EVENT_DETECTION_LEVEL;
+    if (s.compare(Dict::EVENT_DETECTION_LEVEL) == 0)
+        return EVENT_DETECTION_LEVEL;
 
     return EVENT_DETECTION_EDGE;
 }
@@ -463,15 +497,15 @@ void FilterBase::ToStream(std::ostream & out, bool verbose) const
         out << "[" << FilterID << "] "
             << "Name: \"" << Name << "\", ";
         out << "Target: \"";
-        switch (StateMachineRegistered.StateMachineType) {
+        switch (StateMachineRegistered.GetStateMachineType()) {
         case State::STATEMACHINE_FRAMEWORK: out << "s_F"; break;
         case State::STATEMACHINE_APP:       out << "s_A"; break;
         case State::STATEMACHINE_PROVIDED:  out << "s_P"; break;
         case State::STATEMACHINE_REQUIRED:  out << "s_R"; break;
         case State::STATEMACHINE_INVALID:   out << "INVALID"; break;
         }
-        out << "\", component: \"" << StateMachineRegistered.ComponentName
-            << "\", interface: \"" << StateMachineRegistered.InterfaceName
+        out << "\", component: \"" << StateMachineRegistered.GetComponentName()
+            << "\", interface: \"" << StateMachineRegistered.GetInterfaceName()
             << "\", ";
         out << "Filter type: " << (FilterType == FILTERING_INTERNAL ? "FILTERING_INTERNAL" : "FILTERING_EXTERNAL") << ", "
             << "State: " << GetFilterStateString(FilterState);
@@ -499,16 +533,16 @@ void FilterBase::ToStream(std::ostream & out, bool verbose) const
             // out << ShowInputQueueVector() << std::endl;
     } else {
         out << "[ " << FilterID << " ] ";
-        switch (StateMachineRegistered.StateMachineType) {
+        switch (StateMachineRegistered.GetStateMachineType()) {
         case State::STATEMACHINE_FRAMEWORK: out << "s_F "; break;
         case State::STATEMACHINE_APP:       out << "s_A "; break;
         case State::STATEMACHINE_PROVIDED:  out << "s_P "; break;
         case State::STATEMACHINE_REQUIRED:  out << "s_R "; break;
         case State::STATEMACHINE_INVALID:   out << "N/A "; break;
         }
-        out << "\"" << StateMachineRegistered.ComponentName << "\"";
-        if (StateMachineRegistered.InterfaceName.size())
-            out << ":\"" << StateMachineRegistered.InterfaceName << "\"";
+        out << "\"" << StateMachineRegistered.GetComponentName() << "\"";
+        if (!StateMachineRegistered.GetInterfaceName().empty())
+            out << ":\"" << StateMachineRegistered.GetInterfaceName() << "\"";
         out << "  " << Name << "  ";
         // Input signals
         for (size_t i = 0; i < InputSignals.size(); ++i)

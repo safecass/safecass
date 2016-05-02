@@ -72,3 +72,7 @@ foreach (TEST ${TEST_SUITES})
   # Register to CTest
   add_ctest(${TEST_UNIT})
 endforeach()
+
+add_executable (boost boost.cpp)
+target_include_directories(boost INTERFACE ${SAFECASS_LIBRARY_INCLUDE_DIR})
+target_link_libraries (boost ${TEST_DEPENDENCY})

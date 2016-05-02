@@ -47,15 +47,39 @@ public:
         notified of the event.
     */
     class StateMachineInfo {
-    public:
+    protected:
         //! State machine type (refer to State::StateMachineType)
         State::StateMachineType StateMachineType;
         //! Name of component
         std::string ComponentName;
         //! Name of interface
+        /*!
+            Only interface-type statemachines (STATEMACHINE_PROVIDED and STATEMACHINE_REQUIRED)
+            is allowed to have non-empty interface name.  If InterfaceName is
+            specified for non-interface-type statemachines, it is not ignored
+            and InterfaceName is set to empty string.
+        */
         std::string InterfaceName;
 
-        StateMachineInfo(void) : StateMachineType(State::STATEMACHINE_INVALID) {}
+    public:
+        //! Constructor
+        StateMachineInfo(void);
+        //! Constructor with explicit arguments
+        StateMachineInfo(State::StateMachineType type,
+                         const std::string & componentName = "",
+                         const std::string & interfaceName = "");
+        StateMachineInfo(const std::string & typeName,
+                         const std::string & componentName = "",
+                         const std::string & interfaceName = "");
+
+        //! Operator overloading
+        bool operator==(const StateMachineInfo & rhs) const;
+        bool operator!=(const StateMachineInfo & rhs) const;
+
+        //! Getters
+        inline State::StateMachineType GetStateMachineType(void) const { return StateMachineType; }
+        inline std::string GetComponentName(void) const { return ComponentName; }
+        inline std::string GetInterfaceName(void) const { return InterfaceName; }
     };
 
     //! Typedef of filtering type
@@ -104,7 +128,7 @@ public:
         STATE_DETECTED  /*!< Enabled, outstanding event exists, no new event can be detected */
     } FilterStateType;
 
-    //! Typedef of queue for fault injection
+    //! Typedef of queue for shallow fault injection
     /*!
         See comments in HistoryBuffer::PushNewValue()
         \sa HistoryBuffer::PushNewValue()
@@ -144,16 +168,6 @@ private:
     //! Static counter for unique filter id
     static FilterIDType FilterUID;
 
-    //! Specify state machine associated with this filter
-    StateMachineInfo RegisterStateMachine(State::StateMachineType targetStateMachineType,
-                                          const std::string &     targetComponentName,
-                                          const std::string &     targetInterfaceName);
-
-    //! Specify state machine associated with this filter
-    StateMachineInfo RegisterStateMachine(const std::string & targetStateMachineTypeName,
-                                          const std::string & targetComponentName,
-                                          const std::string & targetInterfaceName);
-
 protected:
     //! Typedef for derived classes
     typedef FilterBase BaseType;
@@ -177,10 +191,10 @@ protected:
     //! Is this filter the last filter (of FDD pipeline)?
     // bool LastFilterOfPipeline;
 
-    //! Event detection type
+    //! Event detection mode
     EventDetectionModeType EventDetectionMode;
 
-    //! Queue for fault injection
+    //! Queue for shallow fault injection
     InjectionQueueType InjectionQueue;
 
     //! Pointer to Safety Coordinator instance
@@ -213,11 +227,12 @@ protected:
     //! Output signals
     SignalElementsType OutputSignals;
 
+public:
     //! Add input signal to this filter (used by derived filters)
-    bool AddInputSignal(const std::string & signalName);
+    bool AddInputSignal(ParamBase & signalObject, const std::string & signalName);
 
     //! Add output signal to this filter (used by derived filters)
-    bool AddOutputSignal(const std::string & signalName);
+    bool AddOutputSignal(ParamBase & signalObject, const std::string & signalName);
 
     //! Generate output signal name
     /*!
@@ -231,17 +246,18 @@ protected:
                                          const FilterIDType  root2,
                                          size_t              suffix) const;
 
+    SignalElement * GetInputSignalElement(size_t index) const;
+    SignalElement * GetOutputSignalElement(size_t index) const;
+
     inline size_t GetNumberOfInputSignal(void) const  { return InputSignals.size(); }
     inline size_t GetNumberOfOutputSignal(void) const { return OutputSignals.size(); }
 
     std::string GetInputSignalName(size_t index) const;
     std::string GetOutputSignalName(size_t index) const;
-
-    SignalElement * GetInputSignalElement(size_t index) const;
-    SignalElement * GetOutputSignalElement(size_t index) const;
     /* @} */
 
 
+protected:
     //--------------------------------------------------
     //  Middleware-specific: cisst
     //--------------------------------------------------
@@ -275,10 +291,14 @@ public:
     //! Constructor with explicit arguments
     FilterBase(const std::string     & filterName,
                FilteringType           filteringType,
-               // FIXME use StateMachineInfo instead?
                State::StateMachineType targetStateMachineType,
                const std::string     & targetComponentName,
                const std::string     & targetInterfaceName,
+               EventDetectionModeType  eventDetectionMode = EVENT_DETECTION_EDGE);
+    //! Constructor with explicit arguments
+    FilterBase(const std::string     & filterName,
+               FilteringType           filteringType,
+               const StateMachineInfo & stateMachineInfo,
                EventDetectionModeType  eventDetectionMode = EVENT_DETECTION_EDGE);
     //! Constructor using JSON
     FilterBase(const std::string & filterName, const Json::Value & jsonNode);
@@ -334,12 +354,15 @@ public:
     /*! \addtogroup Miscellaneous getters and setters
         @{
     */
-    inline FilterIDType  GetFilterID(void) const   { return FilterID; }
-    inline std::string   GetFilterName(void) const { return Name; }
-    // FIXME deprecate this one?
-    inline std::string   GetNameOfTargetComponent(void) const { return StateMachineRegistered.ComponentName; }
-    inline FilteringType GetFilteringType(void) const { return FilterType; }
-    inline const StateMachineInfo & GetStateMachineInfo(void) const { return StateMachineRegistered; }
+    inline FilterIDType    GetFilterID(void) const      { return FilterID; }
+    inline std::string     GetFilterName(void) const    { return Name; }
+    inline FilteringType   GetFilteringType(void) const { return FilterType; }
+    inline FilterStateType GetFilterState(void) const   { return FilterState; }
+    inline const StateMachineInfo & GetStateMachineInfo(void) const   { return StateMachineRegistered; }
+    inline EventDetectionModeType   GetEventDetectionMode(void) const { return EventDetectionMode; }
+    // FIXME deprecate this getter
+    //inline std::string   GetNameOfTargetComponent(void) const { return StateMachineRegistered.ComponentName; }
+    inline size_t GetShallowFaultInjectionQueueSize(void) const { return InjectionQueue.size(); }
 
     //! Returns if this filter is disabled
     inline bool IsDisabled(void) const { return (FilterState == STATE_DISABLED); }
@@ -350,9 +373,6 @@ public:
     //! Enable or disable this filter
     void Enable(bool enable = true);
 
-    // Filter state should be maintained by itself
-    // inline FilterStateType GetFilterState(void) const { return FilterState; }
-    // inline void SetFilterState(FilterStateType newFilterState) { FilterState = newFilterState; }
 
     //! Sets event publisher instance
     /*!
@@ -366,6 +386,7 @@ public:
     */
     void SetEventLocationInstance(EventLocationBase * location);
 
+    inline Coordinator * GetSafetyCoordinator(void) const { return SafetyCoordinator; }
     // FIXME shouldn't this be specified as constructor's argument?
     //! Sets Safety Coordinator instance
     inline void SetSafetyCoordinator(Coordinator * instance) { SafetyCoordinator = instance; }
