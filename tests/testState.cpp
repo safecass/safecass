@@ -17,6 +17,7 @@
 
 using namespace SC;
 
+#if 0
 TEST(StateMachine, state_transition)
 {
     StateMachine sm;
@@ -202,3 +203,4 @@ TEST(StateMachine, state_operator_overloading)
     s1 = s2;
     EXPECT_TRUE(s1 == s2);
 }
+#endif

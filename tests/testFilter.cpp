@@ -254,3 +254,5 @@ TEST(FilterBase, GetInputSignalElement)
     // the history buffer should be invalid.
     EXPECT_EQ(HistoryBufferBase::INVALID_SIGNAL_INDEX, s1->GetSignalIndex());
 }
+
+// TODO: Add filter factory test
