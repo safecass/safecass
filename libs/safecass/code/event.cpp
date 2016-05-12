@@ -7,222 +7,150 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Apr 24, 2016
+// Last revision: May 8, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
 #include <iomanip> // std::setprecision
-#include <string.h> // memset
 
 #include "common/utils.h"
+#include "common/dict.h"
 #include "safecass/event.h"
 
 using namespace SC;
 
 Event::Event(void)
-    : Name("INVALID"),
+    : Name(NONAME),
       Severity(0),
-      Transitions(TransitionsType()),
-      Timestamp(GetCurrentTimestamp()),
-      What(""),
-      Valid(false),
-      Ignored(false)
-{
-}
+      Transition(TRANSITION_INVALID),
+      Timestamp(0),
+      What("INVALID"),
+      Active(false), Ignored(false)
+{}
 
-Event::Event(const std::string     & name,
-             unsigned int            severity,
-             const TransitionsType & transitions,
-             const std::string     & what)
+
+Event::Event(const std::string & name,
+             unsigned int        severity,
+             TransitionType      transition)
     : Name(name),
       Severity(severity),
-      Transitions(transitions),
-      Timestamp(GetCurrentTimestamp()),
-      What(what),
-      Valid(false),
-      Ignored(false)
-{
-    memset(TransitionMask, 0, TOTAL_NUMBER_OF_STATES * TOTAL_NUMBER_OF_STATES);
-
-    SetTransitionMask(Transitions);
-}
+      Transition(transition),
+      Timestamp(0),
+      What(""),
+      Active(false), Ignored(false)
+{}
 
 Event::Event(const Event & event)
     : Name(event.GetName()),
       Severity(event.GetSeverity()),
-      Transitions(event.GetTransitions()),
+      Transition(event.GetTransition()),
       Timestamp(event.GetTimestamp()),
       What(event.GetWhat()),
-      Valid(event.GetValid()),
-      Ignored(event.GetIgnored())
+      Active(event.IsActive()),
+      Ignored(event.IsIgnored())
+{}
+
+bool Event::operator==(const Event & e) const
 {
+    return (Name.compare(e.GetName()) == 0 &&
+            Severity == e.GetSeverity() &&
+            Transition == e.GetTransition());
 }
 
-// Operator overloading
-Event & Event::operator= (const Event & event)
+State::TransitionType Event::GetStateTransition(State::StateType currentState) const
 {
-    // check self-assignment
-    if (this == &event)
-        return *this;
+    if (Transition == TRANSITION_INVALID)
+        return State::INVALID_TRANSITION;
 
-    CopyFrom(&event);
-
-    return *this;
-}
-
-void Event::SetTransitionMask(const TransitionsType & transitions)
-{
-#define N 0
-#define W 1
-#define E 2
-    // Counters to check if this event has multiple next states for one current state
-    int fromN = 0, fromW = 0, fromE = 0;
-    for (size_t i = 0; i < transitions.size(); ++i) {
-        switch (transitions[i]) {
-        case State::NORMAL_TO_WARNING: TransitionMask[N][W] = true; ++fromN; break;
-        case State::NORMAL_TO_ERROR  : TransitionMask[N][E] = true; ++fromN; break;
-        case State::WARNING_TO_NORMAL: TransitionMask[W][N] = true; ++fromW; break;
-        case State::WARNING_TO_ERROR : TransitionMask[W][E] = true; ++fromW; break;
-        case State::ERROR_TO_WARNING : TransitionMask[E][W] = true; ++fromE; break;
-        case State::ERROR_TO_NORMAL  : TransitionMask[E][N] = true; ++fromE; break;
-        default: continue;
-        }
-    }
-#if 0 // check this out later when working on sanity check on event spec file
-    if (fromN >= 2 || fromW >= 2 || fromE >= 2) {
-        SCLOG_ERROR << "Event transition error: event \"" << Name << "\" has multiple next states" << std::endl;
-        SCLOG_ERROR << (int) TransitionMask[N][N] << " " << (int) TransitionMask[N][W] << " " << (int) TransitionMask[N][E] << std::endl;
-        SCLOG_ERROR << (int) TransitionMask[W][N] << " " << (int) TransitionMask[W][W] << " " << (int) TransitionMask[W][E] << std::endl;
-        SCLOG_ERROR << (int) TransitionMask[E][N] << " " << (int) TransitionMask[E][W] << " " << (int) TransitionMask[E][E] << std::endl;
-        throw("Event error");
-    }
-#endif
-
-#undef N
-#undef W
-#undef E
-}
-
-State::TransitionType Event::GetPossibleTransitions(State::StateType currentState) const
-{
     switch (currentState) {
     case State::NORMAL:
-        // Preference on more severe state
-        if (TransitionMask[State::NORMAL][State::ERROR])
-            return State::NORMAL_TO_ERROR;
-        else if (TransitionMask[State::NORMAL][State::WARNING])
+        switch (Transition) {
+        case TRANSITION_N2W:
             return State::NORMAL_TO_WARNING;
+        case TRANSITION_NW2E:
+            return State::NORMAL_TO_ERROR;
+        case TRANSITION_W2N:
+        case TRANSITION_EW2N:
+        case TRANSITION_INVALID:
+            return State::INVALID_TRANSITION;
+        }
         break;
     case State::WARNING:
-        // TODO: W2N and W2E can't be in the same event transition spec
-        if (TransitionMask[State::WARNING][State::NORMAL])
-            return State::WARNING_TO_NORMAL;
-        else if (TransitionMask[State::WARNING][State::ERROR])
+        switch (Transition) {
+        case TRANSITION_N2W:
+            return State::INVALID_TRANSITION;
+        case TRANSITION_NW2E:
             return State::WARNING_TO_ERROR;
+        case TRANSITION_W2N:
+        case TRANSITION_EW2N:
+            return State::WARNING_TO_NORMAL;
+        case TRANSITION_INVALID:
+            return State::INVALID_TRANSITION;
+        }
         break;
     case State::ERROR:
-        if (TransitionMask[State::ERROR][State::NORMAL])
+    case State::FAILURE:
+        switch (Transition) {
+        case TRANSITION_N2W:
+        case TRANSITION_NW2E:
+        case TRANSITION_W2N:
+            return State::INVALID_TRANSITION;
+        case TRANSITION_EW2N:
             return State::ERROR_TO_NORMAL;
-        else if (TransitionMask[State::ERROR][State::WARNING])
-            return State::ERROR_TO_WARNING;
+        case TRANSITION_INVALID:
+            return State::INVALID_TRANSITION;
+        }
         break;
-    default:
+    case State::INVALID:
         return State::INVALID_TRANSITION;
     }
-
-    // Check no-transition case
-    switch (currentState) {
-    case State::NORMAL:
-        if (TransitionMask[State::WARNING][State::NORMAL] ||
-            TransitionMask[State::ERROR][State::NORMAL])
-            return State::NO_TRANSITION;
-        break;
-    case State::WARNING:
-        if (TransitionMask[State::NORMAL][State::WARNING] ||
-            TransitionMask[State::ERROR][State::WARNING])
-            return State::NO_TRANSITION;
-        break;
-    case State::ERROR:
-        if (TransitionMask[State::NORMAL][State::ERROR] ||
-            TransitionMask[State::WARNING][State::ERROR])
-            return State::NO_TRANSITION;
-    default:
-        return State::INVALID_TRANSITION;
-    }
-
-    return State::INVALID_TRANSITION;
 }
 
 void Event::ToStream(std::ostream & os) const
 {
-    os << Name << ": " << Severity << ", [ ";
+    os << Name << ", severity: " << Severity << ", ";
 
-    for (size_t i = 0; i < Transitions.size(); ++i) {
-        if (i > 0)
-            os << " ";
-        switch (Transitions[i]) {
-        case State::NORMAL_TO_ERROR  : os << "N2E"; break;
-        case State::ERROR_TO_NORMAL  : os << "E2N"; break;
-        case State::NORMAL_TO_WARNING: os << "N2W"; break;
-        case State::WARNING_TO_NORMAL: os << "W2N"; break;
-        case State::WARNING_TO_ERROR : os << "W2E"; break;
-        case State::ERROR_TO_WARNING : os << "E2W"; break;
-        default:                       os << "INVALID";
-        }
-    }
-    os << " ], ";
+    os << "transition: " << GetTransitionTypeString(Transition) << ", ";
+
+    os << "time: ";
     PrintTime(Timestamp, os);
+    os << ", ";
 
-    if (What.size())
-        os << ", \"" << What << "\"";
+    os << "active: " << (Active ? "true" : "false") << ", ";
+    os << "ignored: " << (Ignored ? "true" : "false");
+
+    if (!What.empty())
+        os << ", what: " << What;
 }
 
-const Json::Value Event::SerializeJSON(bool includeStateTransition) const
+const Json::Value Event::SerializeJSON(void) const
 {
     JsonWrapper jsonWrapper;
     Json::Value & json = jsonWrapper.GetJsonRoot();
 
-    json["name"] = Name;
-    json["severity"] = Severity;
-    json["timestamp"] = GetCurrentTimestamp();
-    if (!What.empty())
-        json["what"] = What;
-
-    if (includeStateTransition) {
-        for (Json::ArrayIndex i = 0; i < Transitions.size(); ++i) {
-            switch (Transitions[i]) {
-            case State::NORMAL_TO_ERROR  : json["state_transition"][i] = "N2E"; break;
-            case State::ERROR_TO_NORMAL  : json["state_transition"][i] = "E2N"; break;
-            case State::NORMAL_TO_WARNING: json["state_transition"][i] = "N2W"; break;
-            case State::WARNING_TO_NORMAL: json["state_transition"][i] = "W2N"; break;
-            case State::WARNING_TO_ERROR : json["state_transition"][i] = "W2E"; break;
-            case State::ERROR_TO_WARNING : json["state_transition"][i] = "E2W"; break;
-            default:                       json["state_transition"][i] = "INVALID";
-            }
-        }
-    }
+    json[Dict::EVENT_ATTR_NAME]       = Name;
+    json[Dict::EVENT_ATTR_SEVERITY]   = Severity;
+    json[Dict::EVENT_ATTR_TRANSITION] = GetTransitionTypeString(Transition);
+    json[Dict::EVENT_ATTR_TIMESTAMP]  = Timestamp;
+    json[Dict::EVENT_ATTR_WHAT]       = What;
+    json[Dict::EVENT_ATTR_ACTIVE]     = Active;
+    json[Dict::EVENT_ATTR_IGNORED]    = Ignored;
 
     return json;
 }
 
-const std::string Event::SerializeString(bool includeStateTransition) const
+const std::string Event::SerializeJSONString(void) const
 {
-    return JsonWrapper::GetJsonString(SerializeString(includeStateTransition));
+    return JsonWrapper::GetJsonString(SerializeJSON());
 }
 
-void Event::CopyFrom(const Event * event)
+const std::string Event::GetTransitionTypeString(TransitionType transition) const
 {
-    if (!event)
-        return;
-
-    this->Name = event->GetName();
-    this->Severity = event->GetSeverity();
-    this->Transitions = event->GetTransitions();
-    this->Timestamp = event->GetTimestamp();
-    this->What = event->GetWhat();
-
-    this->Valid = event->GetValid();
-    this->Ignored = event->GetIgnored();
-
-    SetTransitionMask(this->Transitions);
+    switch (transition) {
+    case TRANSITION_N2W:     return Dict::EVENT_TRANSITION_N2W;
+    case TRANSITION_NW2E:    return Dict::EVENT_TRANSITION_NW2E;
+    case TRANSITION_W2N:     return Dict::EVENT_TRANSITION_W2N;
+    case TRANSITION_EW2N:    return Dict::EVENT_TRANSITION_EW2N;
+    case TRANSITION_INVALID: return Dict::INVALID;
+    }
 }

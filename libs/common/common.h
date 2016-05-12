@@ -50,6 +50,13 @@ typedef std::vector<std::string>  StrVecType;
 typedef unsigned int SamplingRateType;   // f (Hz)
 typedef double       SamplingPeriodType; // T (=1/f)
 
+//! Typedef for representation of timestamp
+/*!
+    nanoseconds since Jan 1, 1970 (uses boost::chrono::system_clock)
+*/
+// FIXME in case of cisst, this should be typedefed to double
+typedef long long TimestampType;
+
 //--------------------------------------------------
 //  Utilities
 //--------------------------------------------------
@@ -142,12 +149,3 @@ std::string GetCISSTInfo(void);
     #define SC_PACKAGE SC_PACKAGE_OROCOS
 #endif
 #endif
-
-//--------------------------------------------------
-//  Misc. definitions
-//--------------------------------------------------
-//! Typedef for representation of timestamp
-/*!
-    nanoseconds since Jan 1, 1970 (uses boost::chrono::system_clock)
-*/
-typedef long long TimestampType;

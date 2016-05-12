@@ -1,19 +1,19 @@
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2014 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Jul 16, 2014
-// Author       : Min Yang Jung (myj@jhu.edu)
-// Github       : https://github.com/minyang/casros
+// Last revision: May 12, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// Github       : https://github.com/safecass/safecass
 //
 #include "safecass/state.h"
 
-namespace SC {
+using namespace SC;
 
 State::State(void) : CurrentState(State::NORMAL)
 {}
@@ -60,6 +60,7 @@ const std::string State::GetStringTransition(const TransitionType transition)
 }
 #undef STRINGFY
 
+#if 0
 State::StateType State::GetNextState(TransitionType transition)
 {
     switch (transition) {
@@ -76,12 +77,13 @@ State::StateType State::GetNextState(TransitionType transition)
         return State::INVALID;
     }
 }
+#endif
 
 bool State::operator> (const State & rhs) const
 {
     if (this->CurrentState == rhs.CurrentState) return false;
-    if ((this->CurrentState == State::WARNING && rhs.CurrentState == NORMAL) || 
-        (this->CurrentState == State::ERROR   && rhs.CurrentState == NORMAL) || 
+    if ((this->CurrentState == State::WARNING && rhs.CurrentState == NORMAL) ||
+        (this->CurrentState == State::ERROR   && rhs.CurrentState == NORMAL) ||
         (this->CurrentState == State::ERROR   && rhs.CurrentState == WARNING))
         return true;
     return false;
@@ -107,5 +109,7 @@ State & State::operator= (const State & rhs)
     return *this;
 }
 
-}; // SC
-
+void State::ToStream(std::ostream & os) const
+{
+    os << GetStringState(CurrentState);
+}

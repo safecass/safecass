@@ -196,7 +196,7 @@ void SC::PrintTime(TimestampType t, std::ostream & os)
   typedef boost::chrono::steady_clock base_steady_clock;
 #endif
 */
-TimestampType SC::GetCurrentTimestamp(void)
+SC::TimestampType SC::GetCurrentTimestamp(void)
 {
     return boost::chrono::duration_cast<boost::chrono::nanoseconds>
         (boost::chrono::system_clock::now().time_since_epoch()).count();

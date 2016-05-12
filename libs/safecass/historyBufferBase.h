@@ -60,6 +60,7 @@ public:
     //! Invalid signal accessor index in history buffer
     enum InvalidSignalIndex { INVALID_SIGNAL_INDEX = -1 };
 
+    // FIXME This should be removed (use Common::TimestampType)
     //! Typedef for timestamp type defined by underlying time-indexed buffer
     /*!
         cisst, for example, uses double as timestamp

@@ -897,7 +897,7 @@ bool Coordinator::OnEvent(const std::string & event)
         JsonWrapper _jsonServiceStateChange;
         JsonWrapper::JsonValue & jsonServiceStateChange = _jsonServiceStateChange.GetRoot();
         const State::TransitionType transition = 
-            gcm->ProcessStateTransition(targetStateMachineType, &evt, targetInterfaceName, jsonServiceStateChange);
+            gcm->ProcessStateTransition(targetStateMachineType, evt, targetInterfaceName, jsonServiceStateChange);
         if (transition == State::INVALID_TRANSITION) {
             SCLOG_WARNING << "OnEvent: invalid transition for event " << evt << std::endl;
             continue;

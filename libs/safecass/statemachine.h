@@ -2,84 +2,120 @@
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
-// Copyright (C) 2012-2015 Min Yang Jung and Peter Kazanzides
+// Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 23, 2012
-// Last revision: Oct 28, 2015
-// Author       : Min Yang Jung (myj@jhu.edu)
+// Last revision: May 8, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
 // URL          : https://github.com/safecass/safecass
 //
 // SAFECASS uses the Boost Meta State Machine (MSM) library to implement the state
-// machine of the generic component model (GCM).  MSM enables quick and easy
-// implementation of state machines with high performance.  For more details, refer
-// to http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html
+// machine of the generic component model (GCM).  MSM provides a structured and thorough
+// implementation of state machine.
 //
+// For more details, refer to the Boost MSM documentation:
+//   http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/index.html
+//
+// TODO:
+// 1. Add description of ProcessEvent() => important!
+//    - Event severity policy
+//    - Event handling policy (when to ignore), including how to handle event of the same
+//      severity.  Currently, the latest event of which severity is equal to or greater
+//      than that of the current outstanding event is processed.  The implication here is
+//      that newer events of equal severity is being handled.
 #ifndef _statemachine_h
 #define _statemachine_h
 
-#include <iostream>
-#include <list>
-
 #include "config.h"
-#include "common/common.h"
 #include "common/jsonwrapper.h"
+#include "safecass/state.h"
+#include "safecass/event.h"
 #include "safecass/stateEventHandler.h"
 
-// boost msm
+// Boost msm
 #include "boost/msm/back/state_machine.hpp" // back-end
 #include "boost/msm/front/state_machine_def.hpp" // front-end
+
+#include <list>
 
 namespace SC {
 
 namespace msm = ::boost::msm;
 namespace mpl = ::boost::mpl;
 
+// Forward class declaration
 class Event;
 
-class SCLIB_EXPORT StateMachine 
+class SCLIB_EXPORT StateMachine
 {
 protected:
-    // Macros to define msm event
-#define MSM_EVENT(_eventName) struct _eventName {};
-    MSM_EVENT(evt_N2W);
-    MSM_EVENT(evt_N2E);
-    MSM_EVENT(evt_W2N);
-    MSM_EVENT(evt_W2E);
-    MSM_EVENT(evt_E2N);
-    MSM_EVENT(evt_E2W);
-#if 0
-    // A "complicated" event type that carries some data.
-	enum DiskTypeEnum
-    {
-        DISK_CD=0,
-        DISK_DVD=1
-    };
-    struct cd_detected
-    {
-        cd_detected(std::string name, DiskTypeEnum diskType)
-            : name(name),
-            disc_type(diskType)
-        {}
+    //! Name of owner of this state machine
+    const std::string OwnerName;
 
-        std::string name;
-        DiskTypeEnum disc_type;
-    };
-#endif
+    //! Outstanding event that caused last state transition
+    /*!
+        Event::Active property is false by default and in case of NORMAL state
+        Event::Active property is true in case of WARNING or ERROR states
+    */
+    Event OutstandingEvent;
 
-    // Define msm front-end (the FSM structure)
-    struct GCMStateMachine_: public msm::front::state_machine_def<GCMStateMachine_> {
-        /*! State machine event handler */
+    // FIXME is this still the case?
+    //! Cache of last outstanding event
+    /*!
+        For error propagation, it is necessary to maintain the cache of the last
+        outstanding event because ProcessEvent() resets when transitioning to NORMAL.
+    */
+    Event LastOutstandingEvent;
+
+    //! List of events occurred that this state machine has processed
+    /*!
+        This history of events is used for event history visualization
+
+        \sa SAFECASS timeline tool
+    */
+    typedef struct {
+        Event e;                /*!< Event object that initiated state transition */
+        State::StateType state; /*!< New state due to event; INVALID if ignored */
+    } StateTransitionEntry;
+
+    typedef std::list<StateTransitionEntry> TransitionHistoryType;
+    TransitionHistoryType TransitionHistory;
+
+    //-----------------------------------------------------
+    // GCM State Machine implementation using Boost MSM
+    //-----------------------------------------------------
+    // TODO: Event type that carries data can be also defined (maybe event object that
+    // initiated state transition as argument..?)
+    //! MSM events representing state transitions of the GCM state machine
+    struct evt_N2W {};
+    struct evt_N2E {};
+    struct evt_W2N {};
+    struct evt_W2E {};
+    struct evt_E2N {};
+    struct evt_E2W {};
+
+    // MSM front-end
+    struct GCMStateMachine_: public msm::front::state_machine_def<GCMStateMachine_>
+    {
+        //! State machine event handler
+        /*!
+            This event handler instance is called upon every state Transition if the
+            instance is not null (null by default).
+        */
         StateEventHandler * EventHandlerInstance;
 
-        template <class Event,class FSM>
-        void on_entry(Event const& ,FSM&) {
+        //! Constructor
+        GCMStateMachine_(void): EventHandlerInstance(0) {}
+
+        template <class Event, class FSM>
+        void on_entry(Event const &, FSM &) {
             if (EventHandlerInstance)
                 EventHandlerInstance->OnEntry(State::STATEMACHINE_ON_ENTRY);
         }
-        template <class Event,class FSM>
-        void on_exit(Event const&,FSM& ) {
+        template <class Event, class FSM>
+        void on_exit(Event const &, FSM &) {
             if (EventHandlerInstance)
                 EventHandlerInstance->OnExit(State::STATEMACHINE_ON_EXIT);
         }
@@ -90,21 +126,24 @@ protected:
 #define ON_EXIT(_transition)\
         if (fsm.EventHandlerInstance)\
             fsm.EventHandlerInstance->OnExit(_transition);
-        // List of FSM states
-        struct Normal: public msm::front::state<> 
+
+        //! FSM states
+        struct Normal: public msm::front::state<>
         {
-            template <class Event,class FSM>
-            void on_entry(Event const&,FSM& fsm) { ON_ENTRY(State::NORMAL_ON_ENTRY); }
-            template <class Event,class FSM>
+            template <class Event, class FSM>
+            void on_entry(Event const &, FSM & fsm) { ON_ENTRY(State::NORMAL_ON_ENTRY); }
+            template <class Event, class FSM>
             void on_exit(Event const&,FSM& fsm) { ON_EXIT(State::NORMAL_ON_EXIT); }
         };
-        struct Warning: public msm::front::state<> 
+
+        struct Warning: public msm::front::state<>
         {
             template <class Event,class FSM>
             void on_entry(Event const&,FSM& fsm) { ON_ENTRY(State::WARNING_ON_ENTRY); }
             template <class Event,class FSM>
             void on_exit(Event const&,FSM& fsm) { ON_EXIT(State::WARNING_ON_EXIT); }
         };
+
         struct Error: public msm::front::state<>
         {
             template <class Event,class FSM>
@@ -115,10 +154,10 @@ protected:
 #undef ON_ENTRY
 #undef ON_EXIT
 
-        // Initial state (must be defined)
+        //! Initial state (must be defined)
         typedef Normal initial_state;
 
-        // Transition actions
+        //! Transition actions
 #define ON_TRANSITION_ACTION(_transition)\
         if (EventHandlerInstance)\
             EventHandlerInstance->OnTransition(_transition);
@@ -130,9 +169,10 @@ protected:
         void on_E2W(evt_E2W const&) { ON_TRANSITION_ACTION(State::ERROR_TO_WARNING); }
 #undef ON_TRANSITION_ACTION
 
-        // Transition table for GCMStateMachine
-        typedef GCMStateMachine_ fs; // to make transition table cleaner
+        //! Aliasing for cleaner transition table
+        typedef GCMStateMachine_ fs;
 
+        //! State transition table for GCM state machine
         struct transition_table : mpl::vector<
             //    Start     Event     Next      Action		   Guard
             //  +---------+---------+---------+--------------+--------+
@@ -147,99 +187,76 @@ protected:
             //  +---------+---------+---------+--------------+--------+
         > {};
 
-        // Replaces the default no-transition response.
-        template <class FSM,class Event>
-        void no_transition(Event const& e, FSM&,int state)
+        //! Overrides default no-transition action
+        template <class FSM, class Event>
+        void no_transition(Event const & e, FSM &, int state)
         {
-            SCLOG_ERROR << "GCMStateMachine: no transition from state " << state
-                        << " on event " << typeid(e).name() << std::endl;
+            SCLOG_WARNING << "GCM state machine: no transition from state " << state
+                          << " on event " << typeid(e).name() << std::endl;
         }
     };
 
-    // Pick a back-end
+    //! FSM back-end
     typedef msm::back::state_machine<GCMStateMachine_> GCMStateMachine;
 
-    /*! State machine instance */
-    GCMStateMachine State;
+    //! GCM state machine as final state machine
+    GCMStateMachine FSM;
 
-    // Pending event that caused transition last time.  NULL in NORMAL state, non-NULL otherwise
-    //const Event * OutstandingEvent;
-    Event * OutstandingEvent;
-    // Cache of the very last pending event.  To keep this cache is necessary for error propagation
-    // because ProcessEvent() resets OutstandingEvent when getting back to NORMAL state.
-    //const Event * LastOutstandingEvent;
-    Event * LastOutstandingEvent;
-
-    /*! Name of owner of this state machine */
-    std::string OwnerName;
-
-    // MJTEMP: This will be replaced with DB in the future.
-    // List of events occurred associated with this state machine.  This
-    // information is used for the timeline tool.
-    typedef struct {
-        // event occurred
-        // 3. UTC <> osaGetTime correctness test
-        // 4. define and handle various cases of onset/offset event visualization 
-        // on the timeline chart (e.g., N -> W -> E -> W -> N)
-        SC::Event * Evt;
-        // new state due to event (INVALID if e was ignored)
-        SC::State::StateType NewState;
-    } StateTransitionEntry;
-
-    typedef std::list<StateTransitionEntry> StateHistoryType;
-    StateHistoryType StateHistory;
-
-private:
-    /*! Common initializer */
-    void Initialize(const std::string & ownerName, StateEventHandler * eventHandler);
-
-    // Called only by constructors and Reset()
-    void Initialize(void);
+    //! Push event to event history list
+    void PushTransitionHistory(const Event & event, State::StateType newState);
 
 public:
-    /*! Default constructor.  An instance of StateEventHandler is internally created and 
-        is used as default event handler. */
-    StateMachine(void);
-    //! Constructors
-    // It is recommended to combine component name and interface name as owner name.
-    StateMachine(const std::string & ownerName);
-    StateMachine(StateEventHandler * eventHandler);
-    StateMachine(const std::string & ownerName, StateEventHandler * eventHandler);
+    //! Constructor
+    /*!
+        Note that the ownership of the instance of StateEventHandler (second parameter) is
+        taken by this state machine object.  That is, the instance is deleted by either the
+        destructor of this state machine or a call to SetStateEventHandler().
+    */
+    StateMachine(const std::string & ownerName, StateEventHandler * eventHandler = 0);
 
-    /*! Destructor */
+    //! Destructor
     virtual ~StateMachine(void);
 
-    /*! Process state change events.  Internally, copy of event object is created and 
-        pushed to the list of event history. */
-    virtual bool ProcessEvent(const State::TransitionType transition, const Event * event);
+    //! Process state transition event
+    /*!
+        \return true if event is successfully handled. false otherwise (e.g., event was
+                ignored due to lower severity, invalid transition returned)
+    */
+    virtual bool ProcessEvent(const Event & event);
 
-    // Reset state machine.  StateHistory is reset if resetHistory is true.
+    //! Reset state machine
+    /*!
+        \param resetHistory Event history is reset if true
+    */
     void Reset(bool resetHistory = false);
 
-    // Get history of state transitions (used for event viewer)
+    //! Get history of state transitions (required for the timeline tool)
     void GetStateTransitionHistory(Json::Value & json, unsigned int stateMachineId);
 
-    //
-    // Getters
-    //
+    //! State machine accessors
+    /*!
+        \addtogroup State machine accessors
+        @{
+    */
     //! Return current state
     State::StateType GetCurrentState(void) const;
     //! Return onwer name
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
-    //! Return pending event
-    inline const Event * GetOutstandingEvent(void) const { return OutstandingEvent; }
+    //! Return outstanding event
+    inline const Event & GetOutstandingEvent(void) const { return OutstandingEvent; }
     //! Return cached last pending event
-    inline const Event * GetLastOutstandingEvent(void) const { return LastOutstandingEvent; }
+    inline const Event & GetLastOutstandingEvent(void) const { return LastOutstandingEvent; }
     //! Check if last state transition was back to NORMAL state
-    inline bool IsLastTransitionToNormalState(void) const { return (LastOutstandingEvent != 0); }
+    inline bool IsLastTransitionToNormalState(void) const { return LastOutstandingEvent.IsActive(); }
 
-    //
-    // Setters
-    //
     /*! Replace default state event handler with user-defined event handler.  This
-        provides event hooks for applications, which allow the application layer to 
+        provides event hooks for applications, which allow the application layer to
         handle state change events.  Any existing state event handler is deleted. */
     void SetStateEventHandler(StateEventHandler * instance);
+    /*! @} */
+
+    //! Print state machine object
+    virtual void ToStream(std::ostream & os) const;
 
 #if SAFECASS_ENABLE_UNIT_TEST
     /*! State machine testing */
@@ -253,12 +270,10 @@ public:
 #endif
 };
 
-/*
-inline std::ostream & operator << (std::ostream & outputStream, const StateMachine & stateMachine) {
-    stateMachine.ToStream(outputStream);
-    return outputStream;
+inline std::ostream & operator << (std::ostream & os, const StateMachine & sm) {
+    sm.ToStream(os);
+    return os;
 }
-*/
 
 };
 

@@ -7,10 +7,14 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: Apr 24, 2016
+// Last revision: May 8, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
+// TODO:
+// 1. Add verifier/checker when adding (registering) events including event creation via
+// JSON specification.
+// 2. Add unit tests
 #ifndef _event_h
 #define _event_h
 
@@ -20,14 +24,82 @@
 
 namespace SC {
 
+//! Event class
+/*!
+
+    The GCM event has five attributes: name, severity, transition, timestamp,
+    and description.  The name is a unique identifier of an event and no
+    duplicate name within a system is allowed.  The severity is the degree of
+    criticality used for determining the relative priority of events.  The
+    transition defines a set of possible state transitions that may occur due to
+    an event, and each transition is represented as a pair of the current state
+    and the next state.  The GCM state machine (refer to statemachine.h) defines
+    six possible transitions: NORMAL to WARNING, NORMAL to ERROR, WARNING to
+    ERROR and ERROR to WARNING, ERROR to NORMAL, WARNING to NORMAL.  The
+    timestamp is the time when an event is generated, and the description can
+    include additional information about an event (e.g., error description in
+    human readable form).  The first three attributes -- name, severity, and
+    transitions -- are specified by the system designer as part of the system
+    development process, whereas the other two -- timestamp and description --
+    are determined at run-time.
+
+    The following table summarizes the five attributes of GCM events:
+
+    Attribute   Definition                                          Determined at
+    ---------------------------------------------------------------------------
+    Name        Unique identifier                                   Design-time
+    Severity    Relative degree of criticality                      Design-time
+    Transitions State transitions that may occur due to this event  Design-time
+    ---------------------------------------------------------------------------
+    Timestamp   Time when an event was detected or generated        Run-time
+    Description Extra information                                   Run-time
+    ---------------------------------------------------------------------------
+
+    The GCM event semantics defines two different types of events: onset and completion
+    events.  The onset event refers to the occurrence of an event, and the completion
+    event represents the resolution or completion of the event handling process for an
+    associated onset event. The idea is to represent an event and related activities in
+    terms of the two individual GCM events and handle them separately. This distinction
+    enables the structured and systematic management of events.
+
+    Valid input for transitions are defined as follows:
+    - For onset events: "N2W" | "NW2E"
+    - For completion events: "W2N" | "EW2N"
+
+    \sa statemachine.h
+*/
 class SCLIB_EXPORT Event
 {
+    // For outstanding event object of StateMachine
     friend class StateMachine;
 
 public:
-    typedef std::vector<State::TransitionType> TransitionsType;
+    //! Typedef of transition types
+    /*!
+        Note that the state transition from ERROR to WARNING is not considered in the
+        current design.
 
-    // severity definition
+        \sa state.h
+    */
+    typedef enum {
+        // Onset events
+        TRANSITION_N2W,  /*!< NORMAL to WARNING */
+        TRANSITION_NW2E, /*!< NORMAL/WARNING to ERROR */
+        // Completion events
+        TRANSITION_W2N,  /*!< WARNING to NORMAL */
+        TRANSITION_EW2N, /*!< WARNING/ERROR to NORMAL */
+        // Invalid transition
+        TRANSITION_INVALID
+    } TransitionType;
+
+    //! Typedef of event severity
+    /*!
+        1: lowest priority, 255: highest priority
+        1-200: For application events
+        201-250: For framework events
+        251-255: For broadcast events
+    */
+    // TODO Support for user-specified (custom) range
     enum {
         SEVERITY_APP_MIN       = 1,
         SEVERITY_APP_MAX       = 200,
@@ -41,101 +113,102 @@ protected:
     //
     // Event Attributes
     //
-    // Name of this event
-    //const std::string Name;
+    //! Name
     std::string Name;
-    // Severity:1-255
-    // 1: lowest priority, ..., 255: highest priority
-    // 1-200: For application events
-    // 201-255: Reserved for framework events
-    //const unsigned int Severity;
+
+    //! Severity
     unsigned int Severity;
-    // Possible transitions associated with this event
-    //const TransitionsType Transitions;
-    TransitionsType Transitions;
-    // timestamp of the time when this event occurred.  zero otherwise.
+
+    //! State transitions
+    TransitionType Transition;
+
+    //! Time when an event was detected or generated (zero by default)
     TimestampType Timestamp;
-    // Description of event
+
+    //! Description containing detailed information (human-readable)
     std::string What;
 
-    // If this event is valid (used by StateMachine class to determine if outsanding 
-    // event object is valid)
-    bool Valid;
+    //! If this event is active, i.e., if this event is outstanding event
+    /*!
+        True if this event is active, false otherwise (false by default)
+    */
+    bool Active;
 
-    // If event was ignored, i.e., if event did not result in state transition
-    // (used for event visualization)
+    //! If this event was ignored when detected
+    /*!
+        Timeline utility uses this property.  False by default.
+    */
     bool Ignored;
 
-    // 2D array containing boolean mask that defines possible transitions
-    //
-    //               Next state
-    //              \  N  W  E
-    // Current state \---------
-    //             N | 0  0  0
-    //             W | 0  0  0
-    //             E | 0  0  0
-    bool TransitionMask[TOTAL_NUMBER_OF_STATES][TOTAL_NUMBER_OF_STATES];
-
-    // Set TransitionMask array based on transition information
-    void SetTransitionMask(const TransitionsType & transitions);
-
-    // Prevent use of default constructor by users
+    //! Private constructor: Prevent use of default constructor
     Event(void);
+
+    //! Get string representation of transition type
+    const std::string GetTransitionTypeString(TransitionType transition) const;
+
 public:
-    // Default constructor
-    Event(const std::string     & name,
-          unsigned int            severity,
-          const TransitionsType & transitions,
-          const std::string     & what = "");
-    // Copy constructor
+    //! Default constructor with design-time attributes
+    Event(const std::string & name, unsigned int severity, TransitionType transition);
+
+    //! Copy constructor
     Event(const Event & event);
-    // Destructor
-    virtual ~Event() {}
 
-    // Operator overloading
-    Event & operator= (const Event & event);
+    //! Destructor
+    ~Event() {}
 
-    // Getters
-    inline const std::string &   GetName(void) const        { return Name; }
-    inline unsigned int          GetSeverity(void) const    { return Severity; }
-    inline const TransitionsType GetTransitions(void) const { return Transitions; }
-    inline TimestampType         GetTimestamp(void) const   { return Timestamp; }
-    inline const std::string &   GetWhat(void) const        { return What; }
+    //! Equality operator overloading
+    /*!
+        Two event objects are equal if design-time attributes are the same
+    */
+    bool operator==(const Event & rhs) const;
 
-    // Returns possible transition from the given state
-    State::TransitionType GetPossibleTransitions(State::StateType currentState) const;
+    inline bool operator!=(const Event & rhs) const {
+        return !(*this == rhs);
+    }
 
-    //
-    // Setters for run-time attributes
-    //
-    // MJTEMP: Currently, Get/SetTimestamp is used only for the timeline viewer.
-    // In other cases, event objects are handled as const pointer once the
-    // object is created.
+    //! Getters
+    /*!
+        Design-time attributes (name, severity, transition) are read-only, whereas
+        run-time attributes (timestamp, what) are set at run-time.
+
+        \addtogroup Event accessors (getters)
+        @{
+    */
+    inline const std::string &  GetName(void) const       { return Name; }
+    inline unsigned int         GetSeverity(void) const   { return Severity; }
+    inline const TransitionType GetTransition(void) const { return Transition; }
+    inline TimestampType        GetTimestamp(void) const  { return Timestamp; }
+    inline const std::string &  GetWhat(void) const       { return What; }
+
     void SetTimestamp(TimestampType timestamp) { Timestamp = timestamp; }
     void SetWhat(const std::string & what)     { What = what; }
+    /*! @} */
 
-    // Accessor for ignored property (used for timeline viewer)
-    inline bool GetIgnored(void) const          { return Ignored; }
+    //! Returns transition from given state
+    State::TransitionType GetStateTransition(State::StateType currentState) const;
+
+    //! Accessors
+    inline bool IsActive(void) const  { return Active; }
+    inline bool IsIgnored(void) const { return Ignored; }
+    inline void SetActive(bool active = true)   { Active = active; }
     inline void SetIgnored(bool ignored = true) { Ignored = ignored; }
-    // Accessor for valid property (used by StateMachine class)
-    inline bool GetValid(void) const        { return Valid; }
-    inline void SetValid(bool valid = true) { Valid = valid; }
 
-    // Copy attributes of other event
-    void CopyFrom(const Event * event);
+    //! Returns human readable outputs
+    virtual void ToStream(std::ostream & os) const;
 
-    // Returns human readable outputs
-    virtual void ToStream(std::ostream & outputStream) const;
-    // Serialize this object in json
-    const Json::Value SerializeJSON(bool includeStateTransition = true) const;
-    // Serialize this object in string
-    const std::string SerializeString(bool includeStateTransition = true) const;
+    //! Serialize this object into Json object
+    const Json::Value SerializeJSON(void) const;
+
+    //! Serialize this object into string
+    const std::string SerializeJSONString(void) const;
+
+    // FIXME Add DeserializeJSON() and DeserializeJSONString()
 };
 
-inline std::ostream & operator << (std::ostream & outputStream, const Event & event)
+inline std::ostream & operator << (std::ostream & os, const Event & event)
 {
-    event.ToStream(outputStream);
-    return outputStream;
+    event.ToStream(os);
+    return os;
 }
 
 };
