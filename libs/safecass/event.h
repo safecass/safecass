@@ -7,14 +7,16 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: May 8, 2016
+// Last revision: May 13, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
 // TODO:
 // 1. Add verifier/checker when adding (registering) events including event creation via
 // JSON specification.
-// 2. Add unit tests
+// 2. Add new type of event: no state transition, no completion event (=> general type of
+// events; lowest severity because of no state transition)
+//
 #ifndef _event_h
 #define _event_h
 
@@ -84,9 +86,15 @@ public:
     typedef enum {
         // Onset events
         TRANSITION_N2W,  /*!< NORMAL to WARNING */
+        TRANSITION_W2E,  /*!< WARNING to ERROR */
         TRANSITION_NW2E, /*!< NORMAL/WARNING to ERROR */
         // Completion events
+        // Note: The current design defines no state transition from ERROR to WARNING
+        // because error recovery into WARNING state doesn't make much sense in practice.
+        // That is, why does someone want to recover from error to be in WARNING state,
+        // rather than NORMAL state?
         TRANSITION_W2N,  /*!< WARNING to NORMAL */
+        TRANSITION_E2N,  /*!< ERROR to NORMAL */
         TRANSITION_EW2N, /*!< WARNING/ERROR to NORMAL */
         // Invalid transition
         TRANSITION_INVALID

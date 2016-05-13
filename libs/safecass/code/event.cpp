@@ -69,35 +69,29 @@ State::TransitionType Event::GetStateTransition(State::StateType currentState) c
             return State::NORMAL_TO_WARNING;
         case TRANSITION_NW2E:
             return State::NORMAL_TO_ERROR;
-        case TRANSITION_W2N:
-        case TRANSITION_EW2N:
-        case TRANSITION_INVALID:
+        default:
             return State::INVALID_TRANSITION;
         }
         break;
     case State::WARNING:
         switch (Transition) {
-        case TRANSITION_N2W:
-            return State::INVALID_TRANSITION;
+        case TRANSITION_W2E:
         case TRANSITION_NW2E:
             return State::WARNING_TO_ERROR;
         case TRANSITION_W2N:
         case TRANSITION_EW2N:
             return State::WARNING_TO_NORMAL;
-        case TRANSITION_INVALID:
+        default:
             return State::INVALID_TRANSITION;
         }
         break;
     case State::ERROR:
     case State::FAILURE:
         switch (Transition) {
-        case TRANSITION_N2W:
-        case TRANSITION_NW2E:
-        case TRANSITION_W2N:
-            return State::INVALID_TRANSITION;
+        case TRANSITION_E2N:
         case TRANSITION_EW2N:
             return State::ERROR_TO_NORMAL;
-        case TRANSITION_INVALID:
+        default:
             return State::INVALID_TRANSITION;
         }
         break;
@@ -148,8 +142,10 @@ const std::string Event::GetTransitionTypeString(TransitionType transition) cons
 {
     switch (transition) {
     case TRANSITION_N2W:     return Dict::EVENT_TRANSITION_N2W;
+    case TRANSITION_W2E:     return Dict::EVENT_TRANSITION_W2E;
     case TRANSITION_NW2E:    return Dict::EVENT_TRANSITION_NW2E;
     case TRANSITION_W2N:     return Dict::EVENT_TRANSITION_W2N;
+    case TRANSITION_E2N:     return Dict::EVENT_TRANSITION_E2N;
     case TRANSITION_EW2N:    return Dict::EVENT_TRANSITION_EW2N;
     case TRANSITION_INVALID: return Dict::INVALID;
     }

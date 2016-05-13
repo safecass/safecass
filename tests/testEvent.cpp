@@ -7,12 +7,13 @@
 //----------------------------------------------------------------------------------
 //
 // Created on   : May 8, 2016
-// Last revision: May 8, 2016
+// Last revision: May 13, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
 #include "gtest/gtest.h"
 #include "common/dict.h"
+#include "common/utils.h"
 #include "safecass/event.h"
 
 using namespace SC;
@@ -114,6 +115,14 @@ TEST(Event, GetStateTransition)
         EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::INVALID));
     }
     {
+        Event e("name", 10, Event::TRANSITION_W2E);
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::NORMAL));
+        EXPECT_EQ(State::WARNING_TO_ERROR, e.GetStateTransition(State::WARNING));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::ERROR));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::FAILURE));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::INVALID));
+    }
+    {
         Event e("name", 10, Event::TRANSITION_NW2E);
         EXPECT_EQ(State::NORMAL_TO_ERROR, e.GetStateTransition(State::NORMAL));
         EXPECT_EQ(State::WARNING_TO_ERROR, e.GetStateTransition(State::WARNING));
@@ -127,6 +136,14 @@ TEST(Event, GetStateTransition)
         EXPECT_EQ(State::WARNING_TO_NORMAL, e.GetStateTransition(State::WARNING));
         EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::ERROR));
         EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::FAILURE));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::INVALID));
+    }
+    {
+        Event e("name", 10, Event::TRANSITION_E2N);
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::NORMAL));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::WARNING));
+        EXPECT_EQ(State::ERROR_TO_NORMAL, e.GetStateTransition(State::ERROR));
+        EXPECT_EQ(State::ERROR_TO_NORMAL, e.GetStateTransition(State::FAILURE));
         EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::INVALID));
     }
     {
@@ -161,7 +178,7 @@ TEST(Event, SerializeJSON)
 TEST(Event, ToStream)
 {
     Event e("event_name", 10, Event::TRANSITION_N2W);
-    e.SetTimestamp(123456);
+    e.SetTimestamp(GetCurrentTimestamp());
     e.SetWhat("what_content");
     e.SetIgnored();
     e.SetActive();
