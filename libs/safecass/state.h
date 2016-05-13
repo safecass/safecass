@@ -30,17 +30,16 @@ namespace SC {
 class SCLIB_EXPORT State
 {
 public:
-    //! Definition of possible states
+    //! Typedef of states
     typedef enum {
         NORMAL = 0, /*!< Actual state: Normal */
         WARNING,    /*!< Actual state: Warning */
         ERROR,      /*!< Actual state: Error */
-        // FIXME: still used??
         FAILURE,    /*!< Propagated state */
         INVALID     /*!< Invalid state */
     } StateType;
 
-    //! State entry and exit events
+    //! Typdef of state entry and exit events
     typedef enum {
         STATEMACHINE_ON_ENTRY,
         STATEMACHINE_ON_EXIT,
@@ -98,8 +97,9 @@ protected:
     StateType CurrentState;
 
 public:
-    //! Constructors
+    //! Constructor (default state: NORMAL)
     State(void);
+    //! Constructor with explicit state
     State(State::StateType);
 
     //! Accessors
