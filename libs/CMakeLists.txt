@@ -7,13 +7,12 @@
 #-----------------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
-# Last revision: May 2, 2016
-# Author       : Min Yang Jung (myj@jhu.edu)
+# Last revision: May 14, 2016
+# Author       : Min Yang Jung <myj@jhu.edu>
 # URL          : https://github.com/safecass/safecass
 #
 
 # TODO:
-# - convert jsoncpp/g2log as external project (build time configuration)
 # - shared lib support
 #   => option (SAFECASS_BUILD_SHARED_LIBS "Build shared libraries" OFF)
 # - Boost: Use official release archive from https://github.com/boostorg/boost/tags
@@ -125,6 +124,7 @@ else()
                               #--with-thread
                               --with-system
                               --with-chrono
+                              --with-graph
                               -j${N})
 
   set (Boost_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/boost/build/include)
@@ -136,6 +136,7 @@ else()
   #find_boost_library(LIB_NAME thread) # setting Boost_THREAD_LIBRARY
   find_boost_library(LIB_NAME system) # setting Boost_SYSTEM_LIBRARY
   find_boost_library(LIB_NAME chrono) # setting Boost_CHRONO_LIBRARY
+  find_boost_library(LIB_NAME graph) # setting Boost_GRAPH_LIBRARY
   set (Boost_PROGRAM_OPTIONS_FOUND ON)
   #set (Boost_THREAD_FOUND ON)
   set (Boost_SYSTEM_FOUND ON)
@@ -145,7 +146,8 @@ else()
   list (APPEND Boost_LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
                                #${Boost_THREAD_LIBRARY}
                                ${Boost_SYSTEM_LIBRARY}
-                               ${Boost_CHRONO_LIBRARY})
+                               ${Boost_CHRONO_LIBRARY}
+                               ${Boost_GRAPH_LIBRARY})
 
   set (Boost_VERSION       106000)
   set (Boost_LIB_VERSION   1_60)
