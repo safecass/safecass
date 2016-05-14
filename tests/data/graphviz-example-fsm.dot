@@ -1,0 +1,23 @@
+digraph finite_state_machine {
+    rankdir=LR;
+    edge [fontsize=26];
+    node [shape = doublecircle, width=2.0, fontsize=24, fixedsize=true,style=filled, colorscheme=spectral5]; New  [fillcolor=3] Terminated [fillcolor=5];
+    node [shape = circle, width=2.0, fontsize=24, fixedsize=true, colorscheme=spectral5]; Runnable [fillcolor=4] Waiting [fillcolor=2] "Timed\nWaiting" [fillcolor=2] Blocked [fillcolor=1];
+    New -> Runnable [ label = "Thread.start" ];
+    Runnable -> Waiting [ label = "Object.wait" ];
+    Runnable -> Waiting [ label = "Thread.sleep" ];
+    Runnable -> Waiting [ label = "LockSupport.park" ];
+    Waiting -> Blocked [ label = "Reacquire monitor lock after\nleaving Object.wait" ]
+    Waiting -> Blocked [label = "Spurious wake-up"]
+    "Timed\nWaiting" -> Blocked [ label = "Reaquire monitor lock after\n leaving Object.wait" ]
+    "Timed\nWaiting" -> Terminated [ label = "Exception" ]
+    "Timed\nWaiting" -> Blocked [ label = "Spurious wake-up" ]
+    Runnable -> "Timed\nWaiting" [ label = "Object.wait" ];
+    Runnable -> Blocked [ label = "Contended Monitor\nEnter" ];
+    Blocked -> Runnable [ label = "Contended Monitor\nEntered" ];
+    Runnable -> Terminated [ label = "Thread finishes\nexecution" ]
+    Runnable -> Terminated [ label = "Exception" ]
+    Waiting -> Runnable [ label = "Object.notify\nObject.notifyAll" ]
+        Waiting -> Terminated [ label = "Exception" ]
+    "Timed\nWaiting" -> Runnable [ label = "Object.notify\nObject.notifyAll" ]
+}

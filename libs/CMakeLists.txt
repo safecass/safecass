@@ -137,6 +137,7 @@ else()
   find_boost_library(LIB_NAME system) # setting Boost_SYSTEM_LIBRARY
   find_boost_library(LIB_NAME chrono) # setting Boost_CHRONO_LIBRARY
   find_boost_library(LIB_NAME graph) # setting Boost_GRAPH_LIBRARY
+  find_boost_library(LIB_NAME regex) # setting Boost_REGEX_LIBRARY
   set (Boost_PROGRAM_OPTIONS_FOUND ON)
   #set (Boost_THREAD_FOUND ON)
   set (Boost_SYSTEM_FOUND ON)
@@ -147,7 +148,8 @@ else()
                                #${Boost_THREAD_LIBRARY}
                                ${Boost_SYSTEM_LIBRARY}
                                ${Boost_CHRONO_LIBRARY}
-                               ${Boost_GRAPH_LIBRARY})
+                               ${Boost_GRAPH_LIBRARY}
+                               ${Boost_REGEX_LIBRARY})
 
   set (Boost_VERSION       106000)
   set (Boost_LIB_VERSION   1_60)

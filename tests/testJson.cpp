@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------
 //
 // Created on   : Jul 6, 2012
-// Last revision: Apr 26, 2016
+// Last revision: May 14, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -77,7 +77,7 @@ TEST_F(JsonWrapperTest, Read)
 
 TEST_F(JsonWrapperTest, ReadFromFile)
 {
-    EXPECT_TRUE(ReadFromFile(SC_SOURCE_ROOT_DIR"/tests/sample.json"));
+    EXPECT_TRUE(ReadFromFile(SC_SOURCE_ROOT_DIR"/tests/data/sample.json"));
 
     std::string encoding = GetJsonRoot().get("encoding", "ERROR" ).asString();
     EXPECT_TRUE(encoding.compare("UTF-8") == 0);
