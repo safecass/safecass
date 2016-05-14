@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: May 8, 2016
+// Last revision: May 12, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -18,10 +18,22 @@
 
 using namespace SC;
 
+StateMachine::StateMachine(void): OwnerName(NONAME)
+{
+    SetStateEventHandler(0);
+
+    // Explicitly start FSM
+    // (ref: http://www.boost.org/doc/libs/1_60_0/libs/msm/doc/HTML/ch03s05.html#backend-start)
+    FSM.start();
+}
+
 StateMachine::StateMachine(const std::string & ownerName, StateEventHandler * eventHandler)
     : OwnerName(ownerName)
 {
-    FSM.EventHandlerInstance = eventHandler;
+    SetStateEventHandler(eventHandler);
+
+    // Explicitly start FSM
+    FSM.start();
 }
 
 StateMachine::~StateMachine(void)
@@ -54,7 +66,7 @@ void StateMachine::SetStateEventHandler(StateEventHandler * instance)
             return;
         } else {
             FSM.EventHandlerInstance = instance;
-            SCLOG_DEBUG << "Replacing event handler: owner from \"" << currentHandler->GetOwnerName() << "\" to \""
+            SCLOG_DEBUG << "Replaced event handler: owner from \"" << currentHandler->GetOwnerName() << "\" to \""
                         << instance->GetOwnerName() << "\"" << std::endl;
             delete currentHandler;
             return;
@@ -62,7 +74,7 @@ void StateMachine::SetStateEventHandler(StateEventHandler * instance)
     }
 }
 
-bool StateMachine::ProcessEvent(const Event & event)
+bool StateMachine::ProcessEvent(Event & event)
 {
     SCLOG_DEBUG << "ProcessEvent: " << event << std::endl;
 
@@ -104,6 +116,9 @@ bool StateMachine::ProcessEvent(const Event & event)
         SCLOG_ERROR << "ProcessEvent: Invalid transition, current state: " << currentState << std::endl;
         return false;
     }
+
+    // Update timestamp of the event
+    event.SetTimestamp(GetCurrentTimestamp());
 
     // Actual state transition
     switch (transition) {
@@ -153,47 +168,6 @@ void StateMachine::Reset(bool resetHistory)
     if (resetHistory)
         TransitionHistory.clear();
 }
-
-#if SAFECASS_ENABLE_UNIT_TEST
-int StateMachine::GetCountEntryExit(const State::StateEntryExitType stateEntryExit) const
-{
-    if (FSM.EventHandlerInstance == 0)
-        return -1;
-
-    size_t index = static_cast<size_t>(stateEntryExit);
-
-    return FSM.EventHandlerInstance->CountEntryExit[index];
-}
-
-int StateMachine::GetCountTransition(const State::TransitionType transition) const
-{
-    if (FSM.EventHandlerInstance == 0)
-        return -1;
-
-    size_t index = static_cast<size_t>(transition);
-
-    return FSM.EventHandlerInstance->CountTransition[index];
-}
-
-void StateMachine::PrintCounters(void) const
-{
-    std::cout << GetCounterStatus() << std::endl;
-}
-
-std::string StateMachine::GetCounterStatus(void) const
-{
-    std::stringstream ss;
-    ss << "Transition: ";
-    for (size_t i = 0; i < FSM.EventHandlerInstance->CountTransition.size(); ++i)
-        ss << FSM.EventHandlerInstance->CountTransition[i] << " | ";
-    ss << std::endl;
-    ss << "Entry/Exit: ";
-    for (size_t i = 0; i < FSM.EventHandlerInstance->CountEntryExit.size(); ++i)
-        ss << FSM.EventHandlerInstance->CountEntryExit[i] << " | ";
-
-    return ss.str();
-}
-#endif
 
 // time (in second) to represent standalone events
 #define DEFAULT_WIDTH 0.1
@@ -374,8 +348,24 @@ void StateMachine::GetStateTransitionHistory(Json::Value & json, unsigned int st
 
 void StateMachine::ToStream(std::ostream & os) const
 {
-    // FIXME
-    os << "FIXME StateMachine::ToStream()" << std::endl;
+    os << "Owner: " << OwnerName << std::endl
+       << "Current state: " << State::GetStringState(GetCurrentState()) << std::endl
+       << "Event handler: " << GetStateEventHandler() << std::endl
+       << "Oustanding event: " << OutstandingEvent << std::endl
+       << "Last outstanding event: " << LastOutstandingEvent << std::endl;
+
+    os << "Transition history: ";
+    if (TransitionHistory.empty()) {
+        os << "(empty)" << std::endl;
+        return;
+    } else {
+        os << " total " << TransitionHistory.size() << " transition(s)" << std::endl;
+
+        TransitionHistoryType::const_iterator it = TransitionHistory.begin();
+        TransitionHistoryType::const_iterator itEnd = TransitionHistory.end();
+        for (; it != itEnd; ++it)
+            os << State::GetStringState(it->state) << " : " << it->e << std::endl;
+    }
 }
 
 void StateMachine::PushTransitionHistory(const Event & event, State::StateType newState)

@@ -1,67 +1,40 @@
-//------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Mar 15, 2016
-// Author       : Min Yang Jung (myj@jhu.edu)
+// Last revision: Mar 13, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
 #include "safecass/stateEventHandler.h"
 
-namespace SC {
+using namespace SC;
 
 StateEventHandler::StateEventHandler(void) : OwnerName("NONAME")
-{
-    Initialize();
-}
+{}
 
 StateEventHandler::StateEventHandler(const std::string & owner) : OwnerName(owner)
-{
-    Initialize();
-}
-
-StateEventHandler::~StateEventHandler(void)
-{
-}
-
-void StateEventHandler::Initialize(void)
-{
-#if SAFECASS_ENABLE_UNIT_TEST
-    CountEntryExit.resize(State::NUMBER_OF_ENTRY_EXIT);
-    CountTransition.resize(State::NUMBER_OF_TRANSITIONS);
-#endif
-}
+{}
 
 void StateEventHandler::OnEntry(const State::StateEntryExitType entryType)
 {
-    SCLOG_DEBUG << OwnerName << " - Base state machine: OnEntry: " << State::GetStringEntryExit(entryType) << std::flush << std::endl;
-
-#if SAFECASS_ENABLE_UNIT_TEST
-    ++CountEntryExit[static_cast<size_t>(entryType)];
-#endif
+    SCLOG_DEBUG << "StateEventHandler (owner: \"" << OwnerName << "\") OnEntry: "
+                << State::GetStringEntryExit(entryType) << std::endl;
 }
 
 void StateEventHandler::OnExit(const State::StateEntryExitType exitType)
 {
-    SCLOG_DEBUG << OwnerName << " - Base state machine: OnExit: " << State::GetStringEntryExit(exitType) << std::flush << std::endl;
-
-#if SAFECASS_ENABLE_UNIT_TEST
-    ++CountEntryExit[static_cast<size_t>(exitType)];
-#endif
+    SCLOG_DEBUG << "StateEventHandler (owner: \"" << OwnerName << "\") OnExit: "
+                << State::GetStringEntryExit(exitType) << std::endl;
 }
 
 void StateEventHandler::OnTransition(const State::TransitionType transition)
 {
-    SCLOG_DEBUG << OwnerName << " - Base state machine: OnTransition: " << State::GetStringTransition(transition) << std::flush << std::endl;
-
-#if SAFECASS_ENABLE_UNIT_TEST
-    ++CountTransition[static_cast<size_t>(transition)];
-#endif
+    SCLOG_DEBUG << "StateEventHandler (owner: \"" << OwnerName << "\") OnTransition: "
+                << State::GetStringTransition(transition) << std::endl;
 }
-
-};

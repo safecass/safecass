@@ -177,7 +177,7 @@ void GCM::GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const
 }
 
 State::TransitionType GCM::ProcessStateTransition(State::StateMachineType type,
-                                                  const Event & event,
+                                                  Event & event,
                                                   const std::string & interfaceName,
                                                   Json::Value & json)
 {

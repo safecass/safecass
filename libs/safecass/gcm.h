@@ -117,7 +117,7 @@ public:
     // Process state transition event and returns transition and json object that contains 
     // service state changes.
     State::TransitionType ProcessStateTransition(State::StateMachineType type,
-                                                 const Event & event,
+                                                 Event & event,
                                                  const std::string & interfaceName,
                                                  Json::Value & json);
 

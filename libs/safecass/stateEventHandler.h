@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Mar 15, 2016
+// Last revision: May 13, 2016
 // Author       : Min Yang Jung (myj@jhu.edu)
 // Github       : https://github.com/safecass/safecass
 //
@@ -26,15 +26,13 @@ protected:
     //! Name of owner of this state machine
     const std::string OwnerName;
 
-    void Initialize(void);
-
 public:
     //! Constructor.  Owner name is set to NONAME by default.
     StateEventHandler(void);
     //! Constructor with owner name specified
     StateEventHandler(const std::string & owner);
     //! Destructor
-    virtual ~StateEventHandler(void);
+    virtual ~StateEventHandler(void) {}
 
     //! Event handlers
     virtual void OnEntry(const State::StateEntryExitType entryType);
@@ -43,12 +41,6 @@ public:
 
     //! Getter
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
-
-    // Define test fields for unit tests
-#if SAFECASS_ENABLE_UNIT_TEST
-    std::vector<int> CountEntryExit;
-    std::vector<int> CountTransition;
-#endif
 };
 
 };

@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: May 8, 2016
+// Last revision: May 13, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -67,6 +67,7 @@ State::TransitionType Event::GetStateTransition(State::StateType currentState) c
         switch (Transition) {
         case TRANSITION_N2W:
             return State::NORMAL_TO_WARNING;
+        case TRANSITION_N2E:
         case TRANSITION_NW2E:
             return State::NORMAL_TO_ERROR;
         default:
@@ -88,6 +89,8 @@ State::TransitionType Event::GetStateTransition(State::StateType currentState) c
     case State::ERROR:
     case State::FAILURE:
         switch (Transition) {
+        case TRANSITION_E2W:
+            return State::ERROR_TO_WARNING;
         case TRANSITION_E2N:
         case TRANSITION_EW2N:
             return State::ERROR_TO_NORMAL;
@@ -107,7 +110,10 @@ void Event::ToStream(std::ostream & os) const
     os << "transition: " << GetTransitionTypeString(Transition) << ", ";
 
     os << "time: ";
-    PrintTime(Timestamp, os);
+    if (Timestamp == 0)
+        os << "invalid";
+    else
+        PrintTime(Timestamp, os);
     os << ", ";
 
     os << "active: " << (Active ? "true" : "false") << ", ";
@@ -141,10 +147,14 @@ const std::string Event::SerializeJSONString(void) const
 const std::string Event::GetTransitionTypeString(TransitionType transition) const
 {
     switch (transition) {
+    // onset
     case TRANSITION_N2W:     return Dict::EVENT_TRANSITION_N2W;
     case TRANSITION_W2E:     return Dict::EVENT_TRANSITION_W2E;
+    case TRANSITION_N2E:     return Dict::EVENT_TRANSITION_N2E;
     case TRANSITION_NW2E:    return Dict::EVENT_TRANSITION_NW2E;
+    // completion
     case TRANSITION_W2N:     return Dict::EVENT_TRANSITION_W2N;
+    case TRANSITION_E2W:     return Dict::EVENT_TRANSITION_E2W;
     case TRANSITION_E2N:     return Dict::EVENT_TRANSITION_E2N;
     case TRANSITION_EW2N:    return Dict::EVENT_TRANSITION_EW2N;
     case TRANSITION_INVALID: return Dict::INVALID;

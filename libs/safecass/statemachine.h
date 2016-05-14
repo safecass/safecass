@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 23, 2012
-// Last revision: May 8, 2016
+// Last revision: May 12, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // URL          : https://github.com/safecass/safecass
 //
@@ -206,11 +206,13 @@ protected:
     void PushTransitionHistory(const Event & event, State::StateType newState);
 
 public:
-    //! Constructor
+    //! Default constructor
+    StateMachine(void);
+
     /*!
         Note that the ownership of the instance of StateEventHandler (second parameter) is
-        taken by this state machine object.  That is, the instance is deleted by either the
-        destructor of this state machine or a call to SetStateEventHandler().
+        taken by this state machine object.  The eventHandler instance is deleted by either
+        the destructor of this state machine or SetStateEventHandler().
     */
     StateMachine(const std::string & ownerName, StateEventHandler * eventHandler = 0);
 
@@ -219,10 +221,13 @@ public:
 
     //! Process state transition event
     /*!
+        Timestamp of event is updated to the time when the event was actually processed
+        and caused state transition.
+
         \return true if event is successfully handled. false otherwise (e.g., event was
                 ignored due to lower severity, invalid transition returned)
     */
-    virtual bool ProcessEvent(const Event & event);
+    virtual bool ProcessEvent(Event & event);
 
     //! Reset state machine
     /*!
@@ -242,6 +247,8 @@ public:
     State::StateType GetCurrentState(void) const;
     //! Return onwer name
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
+    //! Return state event handler instance
+    inline StateEventHandler * GetStateEventHandler(void) const { return FSM.EventHandlerInstance; }
     //! Return outstanding event
     inline const Event & GetOutstandingEvent(void) const { return OutstandingEvent; }
     //! Return cached last pending event
@@ -257,17 +264,6 @@ public:
 
     //! Print state machine object
     virtual void ToStream(std::ostream & os) const;
-
-#if SAFECASS_ENABLE_UNIT_TEST
-    /*! State machine testing */
-    //void Test(void);
-    // TODO: If multiple event handlers are used, update this method as well.
-    int GetCountEntryExit(const State::StateEntryExitType stateEntryExit) const;
-    int GetCountTransition(const State::TransitionType transition) const;
-
-    void        PrintCounters(void) const;
-    std::string GetCounterStatus(void) const;
-#endif
 };
 
 inline std::ostream & operator << (std::ostream & os, const StateMachine & sm) {

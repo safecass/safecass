@@ -78,24 +78,29 @@ class SCLIB_EXPORT Event
 public:
     //! Typedef of transition types
     /*!
-        Note that the state transition from ERROR to WARNING is not considered in the
-        current design.
+        +--------- N2E ------>+
+        |                     |
+        +-- N2W -->+-- W2E -->+  NW2E = (N2W | W2E)
+        |          |          |
+        NORMAL     WARNING    ERROR
+        |          |          |
+        +<-- W2N --+<-- E2W --+  EW2N = (E2W | W2N)
+        |          |          |
+        +<-------- E2N -------+
 
         \sa state.h
     */
     typedef enum {
         // Onset events
-        TRANSITION_N2W,  /*!< NORMAL to WARNING */
-        TRANSITION_W2E,  /*!< WARNING to ERROR */
-        TRANSITION_NW2E, /*!< NORMAL/WARNING to ERROR */
+        TRANSITION_N2W = 1,  /*!< NORMAL to WARNING */
+        TRANSITION_W2E,      /*!< WARNING to ERROR */
+        TRANSITION_N2E,      /*!< NORMAL to ERROR */
+        TRANSITION_NW2E,     /*!< NORMAL/WARNING to ERROR */
         // Completion events
-        // Note: The current design defines no state transition from ERROR to WARNING
-        // because error recovery into WARNING state doesn't make much sense in practice.
-        // That is, why does someone want to recover from error to be in WARNING state,
-        // rather than NORMAL state?
-        TRANSITION_W2N,  /*!< WARNING to NORMAL */
-        TRANSITION_E2N,  /*!< ERROR to NORMAL */
-        TRANSITION_EW2N, /*!< WARNING/ERROR to NORMAL */
+        TRANSITION_W2N = 11, /*!< WARNING to NORMAL */
+        TRANSITION_E2W,      /*!< ERROR to WARNING */
+        TRANSITION_E2N,      /*!< ERROR to NORMAL */
+        TRANSITION_EW2N,     /*!< WARNING/ERROR to NORMAL */
         // Invalid transition
         TRANSITION_INVALID
     } TransitionType;

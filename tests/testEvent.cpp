@@ -18,37 +18,6 @@
 
 using namespace SC;
 
-#if 0
-// Define mock-up filter class derived from FilterBase
-// (FilterBase defines four pure virtual methods)
-class FilterTest: public FilterBase
-{
-public:
-    FilterTest(const std::string &        filterName,
-               BaseType::FilteringType    filteringType,
-               BaseType::StateMachineInfo stateMachine,
-               EventDetectionModeType     eventDetectionMode)
-        : FilterBase(filterName,
-                     filteringType,
-                     stateMachine.GetStateMachineType(),
-                     stateMachine.GetComponentName(),
-                     stateMachine.GetInterfaceName(),
-                     eventDetectionMode)
-    {}
-
-    FilterTest(const std::string & filterName, const Json::Value & json)
-        : FilterBase(filterName, json)
-    {}
-
-    ~FilterTest(void) {}
-
-    bool ConfigureFilter(const Json::Value & jsonNode) { return true; }
-    bool InitFilter(void) { return true; }
-    void RunFilter(void) {}
-    void CleanupFilter(void) {}
-};
-#endif
-
 TEST(Event, Constructor)
 {
     const std::string name("event_name");
@@ -123,6 +92,14 @@ TEST(Event, GetStateTransition)
         EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::INVALID));
     }
     {
+        Event e("name", 10, Event::TRANSITION_N2E);
+        EXPECT_EQ(State::NORMAL_TO_ERROR, e.GetStateTransition(State::NORMAL));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::WARNING));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::ERROR));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::FAILURE));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::INVALID));
+    }
+    {
         Event e("name", 10, Event::TRANSITION_NW2E);
         EXPECT_EQ(State::NORMAL_TO_ERROR, e.GetStateTransition(State::NORMAL));
         EXPECT_EQ(State::WARNING_TO_ERROR, e.GetStateTransition(State::WARNING));
@@ -136,6 +113,14 @@ TEST(Event, GetStateTransition)
         EXPECT_EQ(State::WARNING_TO_NORMAL, e.GetStateTransition(State::WARNING));
         EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::ERROR));
         EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::FAILURE));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::INVALID));
+    }
+    {
+        Event e("name", 10, Event::TRANSITION_E2W);
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::NORMAL));
+        EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::WARNING));
+        EXPECT_EQ(State::ERROR_TO_WARNING, e.GetStateTransition(State::ERROR));
+        EXPECT_EQ(State::ERROR_TO_WARNING, e.GetStateTransition(State::FAILURE));
         EXPECT_EQ(State::INVALID_TRANSITION, e.GetStateTransition(State::INVALID));
     }
     {
