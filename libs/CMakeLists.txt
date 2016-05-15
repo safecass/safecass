@@ -190,8 +190,11 @@ else()
   # Travis build on Linux with gcc/clang occasionally fail due to limited
   # memory: "g++: internal compiler error: Killed (program cc1plus)"
   # This error appears to be reported many times already.
+  #
+  # Without optimization: fails on Linux/clang
+  # With -O3: fails on Linux/gcc (Linux/clang works)
   if (SAFECASS_ON_LINUX)
-    list (APPEND CMAKE_CXX_FLAGS "-O3")
+    list (APPEND CMAKE_CXX_FLAGS "-O2")
   endif()
 endif()
 
