@@ -137,10 +137,10 @@ public:
     // Add interface
     bool AddInterface(const std::string & componentName, 
                       const std::string & interfaceName,
-                      const GCM::InterfaceTypes type);
+                      const GCM::InterfaceType type);
     bool RemoveInterface(const std::string & componentName, 
                          const std::string & interfaceName,
-                         const GCM::InterfaceTypes type);
+                         const GCM::InterfaceType type);
     // Get state information of the entire system
     const std::string GetStateSnapshot(const std::string & componentName = "*") const;
     // Get state history with events on the component specified
@@ -239,47 +239,47 @@ public:
 
     // Get state
     State::StateType GetComponentState(const std::string & componentName,
-                                       GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;
+                                       GCM::ViewType view = GCM::SYSTEM_VIEW) const;
     State::StateType GetComponentState(const std::string & componentName,
                                        const Event* & e,
-                                       GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;
+                                       GCM::ViewType view = GCM::SYSTEM_VIEW) const;
     State::StateType GetInterfaceState(const std::string & componentName,
                                        const std::string & interfaceName,
-                                       GCM::InterfaceTypes type) const;
+                                       GCM::InterfaceType type) const;
     State::StateType GetInterfaceState(const std::string & componentName,
                                        const std::string & interfaceName,
                                        const Event* & e,
-                                       GCM::InterfaceTypes type) const;
+                                       GCM::InterfaceType type) const;
     // Get oustanding event
     const Event * GetOutstandingEvent(const std::string & componentName,
-                                      GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;
+                                      GCM::ViewType view = GCM::SYSTEM_VIEW) const;
     const Event * GetOutstandingEvent(const std::string & componentName,
                                       const std::string & interfaceName,
-                                      GCM::InterfaceTypes type) const;
+                                      GCM::InterfaceType type) const;
     const std::string GetOutstandingEventName(const std::string & componentName,
-                                              GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;
+                                              GCM::ViewType view = GCM::SYSTEM_VIEW) const;
     const std::string GetOutstandingEventName(const std::string & componentName,
                                               const std::string & interfaceName,
-                                              GCM::InterfaceTypes type) const;
+                                              GCM::InterfaceType type) const;
 
     // Check if event is outstanding
     bool IsOutstandingEvent(const std::string & eventName,
                             const std::string & componentName,
-                            GCM::ComponentStateViews view = GCM::SYSTEM_VIEW) const;
+                            GCM::ViewType view = GCM::SYSTEM_VIEW) const;
     bool IsOutstandingEvent(const std::string & eventName,
                             const std::string & componentName,
                             const std::string & interfaceName,
-                            GCM::InterfaceTypes type) const;
+                            GCM::InterfaceType type) const;
 
     // Install user-defined statemachine event handler for component. view should be
     // either FRAMEWORK_VIEW or APPLICATION_VIEW (SYSTEM_VIEW is not an actual state)
     bool SetEventHandlerForComponent(const std::string & componentName,
-                                     GCM::ComponentStateViews view,
+                                     GCM::ViewType view,
                                      StateEventHandler * handler);
     // Install user-defined statemachine event handler for interface
     bool SetEventHandlerForInterface(const std::string & componentName,
                                      const std::string & interfaceName,
-                                     GCM::InterfaceTypes type,
+                                     GCM::InterfaceType type,
                                      StateEventHandler * handler);
 
     //! Reset all state machines in this coordinator

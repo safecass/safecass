@@ -146,7 +146,7 @@ const std::string Coordinator::GetComponentName(unsigned int componentId) const
 
 bool Coordinator::AddInterface(const std::string & componentName, 
                                const std::string & interfaceName,
-                               const GCM::InterfaceTypes type)
+                               const GCM::InterfaceType type)
 {
     unsigned int cid = GetComponentId(componentName);
     if (cid == 0) {
@@ -170,7 +170,7 @@ bool Coordinator::AddInterface(const std::string & componentName,
 
 bool Coordinator::RemoveInterface(const std::string & componentName, 
                                   const std::string & interfaceName,
-                                  const GCM::InterfaceTypes type)
+                                  const GCM::InterfaceType type)
 {
     unsigned int cid = GetComponentId(componentName);
     if (cid == 0) {
@@ -1276,7 +1276,7 @@ State::StateType Coordinator::GetState(State::StateMachineType type,
 #endif
 
 State::StateType Coordinator::GetComponentState(const std::string & componentName,
-                                                GCM::ComponentStateViews view) const
+                                                GCM::ViewType view) const
 {
     GCM * gcm = GetGCMInstance(componentName);
     if (gcm == 0) {
@@ -1289,7 +1289,7 @@ State::StateType Coordinator::GetComponentState(const std::string & componentNam
 
 State::StateType Coordinator::GetComponentState(const std::string & componentName,
                                                 const Event* & e,
-                                                GCM::ComponentStateViews view) const
+                                                GCM::ViewType view) const
 {
     GCM * gcm = GetGCMInstance(componentName);
     if (gcm == 0) {
@@ -1302,7 +1302,7 @@ State::StateType Coordinator::GetComponentState(const std::string & componentNam
 
 State::StateType Coordinator::GetInterfaceState(const std::string & componentName,
                                                 const std::string & interfaceName,
-                                                GCM::InterfaceTypes type) const
+                                                GCM::InterfaceType type) const
 {
     GCM * gcm = GetGCMInstance(componentName);
     if (gcm == 0) {
@@ -1316,7 +1316,7 @@ State::StateType Coordinator::GetInterfaceState(const std::string & componentNam
 State::StateType Coordinator::GetInterfaceState(const std::string & componentName,
                                                 const std::string & interfaceName,
                                                 const Event* & e,
-                                                GCM::InterfaceTypes type) const
+                                                GCM::InterfaceType type) const
 {
     GCM * gcm = GetGCMInstance(componentName);
     if (gcm == 0) {
@@ -1328,7 +1328,7 @@ State::StateType Coordinator::GetInterfaceState(const std::string & componentNam
 }
 
 bool Coordinator::SetEventHandlerForComponent(const std::string & componentName,
-                                              GCM::ComponentStateViews view,
+                                              GCM::ViewType view,
                                               StateEventHandler * handler)
 {
     if (view == GCM::SYSTEM_VIEW) {
@@ -1351,7 +1351,7 @@ bool Coordinator::SetEventHandlerForComponent(const std::string & componentName,
 
 bool Coordinator::SetEventHandlerForInterface(const std::string & componentName,
                                               const std::string & interfaceName,
-                                              GCM::InterfaceTypes type,
+                                              GCM::InterfaceType type,
                                               StateEventHandler * handler)
 {
     GCM * gcm = GetGCMInstance(componentName);
@@ -1369,7 +1369,7 @@ bool Coordinator::SetEventHandlerForInterface(const std::string & componentName,
 
 
 const Event * Coordinator::GetOutstandingEvent(const std::string & componentName,
-                                               GCM::ComponentStateViews view) const
+                                               GCM::ViewType view) const
 {
     GCM * gcm = GetGCMInstance(componentName);
     if (gcm == 0)
@@ -1382,7 +1382,7 @@ const Event * Coordinator::GetOutstandingEvent(const std::string & componentName
 
 const Event * Coordinator::GetOutstandingEvent(const std::string & componentName,
                                                const std::string & interfaceName,
-                                               GCM::InterfaceTypes type) const
+                                               GCM::InterfaceType type) const
 {
     GCM * gcm = GetGCMInstance(componentName);
     if (gcm == 0)
@@ -1395,7 +1395,7 @@ const Event * Coordinator::GetOutstandingEvent(const std::string & componentName
 
 
 const std::string Coordinator::GetOutstandingEventName(const std::string & componentName,
-                                                       GCM::ComponentStateViews view) const
+                                                       GCM::ViewType view) const
 {
     const Event * e = GetOutstandingEvent(componentName, view);
 
@@ -1404,7 +1404,7 @@ const std::string Coordinator::GetOutstandingEventName(const std::string & compo
 
 const std::string Coordinator::GetOutstandingEventName(const std::string & componentName,
                                                        const std::string & interfaceName,
-                                                       GCM::InterfaceTypes type) const
+                                                       GCM::InterfaceType type) const
 {
     const Event * e = GetOutstandingEvent(componentName, interfaceName, type);
 
@@ -1413,7 +1413,7 @@ const std::string Coordinator::GetOutstandingEventName(const std::string & compo
 
 bool Coordinator::IsOutstandingEvent(const std::string & eventName,
                                      const std::string & componentName,
-                                     GCM::ComponentStateViews view) const
+                                     GCM::ViewType view) const
 {
     const Event * e = GetOutstandingEvent(componentName, view);
     if (e == 0)
@@ -1424,7 +1424,7 @@ bool Coordinator::IsOutstandingEvent(const std::string & eventName,
 bool Coordinator::IsOutstandingEvent(const std::string & eventName,
                                      const std::string & componentName,
                                      const std::string & interfaceName,
-                                     GCM::InterfaceTypes type) const
+                                     GCM::InterfaceType type) const
 {
     const Event * e = GetOutstandingEvent(componentName, interfaceName, type);
     if (e == 0)

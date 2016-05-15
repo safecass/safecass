@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 23, 2012
-// Last revision: May 12, 2016
+// Last revision: May 13, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // URL          : https://github.com/safecass/safecass
 //
@@ -245,7 +245,7 @@ public:
     */
     //! Return current state
     State::StateType GetCurrentState(void) const;
-    //! Return onwer name
+    //! Return owner name
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
     //! Return state event handler instance
     inline StateEventHandler * GetStateEventHandler(void) const { return FSM.EventHandlerInstance; }

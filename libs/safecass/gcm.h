@@ -7,50 +7,143 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: May 4, 2015
-// Author       : Min Yang Jung (myj@jhu.edu)
+// Last revision: May 13, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
+// URL          : https://github.com/safecass/safecass
 //
 // This class implements the Generic Component Model (GCM).
+//
+// Chapter 4.
+// Figures 4.5, 4.6
 //
 #ifndef _gcm_h
 #define _gcm_h
 
 #include "common/common.h"
-#include "common/jsonwrapper.h"
-#include "safecass/statemachine.h"
-#include "safecass/state.h"
-#include "safecass/event.h"
+//#include "safecass/statemachine.h"
 
-#include <map>
+#include <boost/graph/properties.hpp>
+#include <boost/graph/adjacency_list.hpp>
 
 namespace SC {
+
+// Forward declaration
+class StateMachine;
 
 class SCLIB_EXPORT GCM
 {
     friend class Coordinator;
 
 public:
-    /*! Typedef for component state views */
-    typedef enum { SYSTEM_VIEW, FRAMEWORK_VIEW, APPLICATION_VIEW } ComponentStateViews;
-    /*! Typedef for interface types */
-    typedef enum { PROVIDED_INTERFACE, REQUIRED_INTERFACE } InterfaceTypes;
+    //! Typedef of component state views
+    /*!
+        Two layers are defined within the GCM: component framework layer and application
+        logic layer.  The component framework layer provides application-independent but
+        framework-specific services, and the application logic layer uses these services
+        to implement application-specific logic or algorithms.
+    */
+    typedef enum {
+        FRAMEWORK_VIEW,   /*!< View on the component framework layer */
+        APPLICATION_VIEW, /*!< View on the application logic layer */
+        SYSTEM_VIEW       /*!< Combined view representing overall status of the system */
+    } ViewType;
 
-    /*! Typedef for map of interfaces (key: interface name, value: statemachine 
-        instance */
-    typedef std::map<std::string, StateMachine *> InterfaceStateMachinesType;
+    //! Typedef of interface types
+    typedef enum {
+        PROVIDED_INTERFACE,
+        REQUIRED_INTERFACE
+    } InterfaceType;
 
-    /*! Typedef for a set of state machines */
-    typedef struct _StateMachines {
-        StateMachine * ComponentFramework;   /*!< s_F: Component State, Framework View */
-        StateMachine * ComponentApplication; /*!< s_A: Component State, Application View */
-        InterfaceStateMachinesType RequiredInterfaces; /*!< s_R: map of required interface states */
-        InterfaceStateMachinesType ProvidedInterfaces; /*!< s_P: map of provided interface states */
-        //InterfaceStateMachinesType Services; /*!< s_S: map of service states (projected states) */
+    //! Typedef of container for state machines representing interface states
+    /*!
+        Key: interface name, value: statemachine instance
+    */
+    //typedef std::map<std::string, StateMachine *> InterfaceStateMachinesType;
+
+    //! Typedef of complete set of state machines representing GCM component status
+    // => Replaced by graph
+#if 0
+    /*!
+        State machines for component states (Framework and Application states) always
+        exist, whereas state machines for interface states are dynamically created only
+        when interfaces are registered to SAFECASS.
+    */
+    typedef struct {
+        StateMachine Framework;                      /*!< Component state in system view */
+        StateMachine Application;                    /*!< Component state in application View */
+        InterfaceStateMachinesType RequiredInterfaces; /*!< Collection of required interface states */
+        InterfaceStateMachinesType ProvidedInterfaces; /*!< Collection of provided interface states */
     } StateMachinesType;
+#endif
 
-    /*! Typedef for specification of service state dependency information */
-    typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType;
+protected:
+    //! Typedef of service state dependency specification
+    /*!
+        1) Front-end: JSON
 
+        "service" : [
+            {   // name of provided interface
+                "name" : "Robot",
+                // service state dependency information
+                "dependency" : {
+                    "s_R" : [ "ForceSensor", "AMCInterface", "PendantRequired" ],
+                    "s_A" : true,
+                    "s_F" : true
+                }
+            },
+            {   "name" : "prmRobot",
+                "dependency" : {
+                    "s_R" : [ "ForceSensor", "AMCInterface", "PendantRequired" ],
+                    "s_A" : true,
+                    "s_F" : true
+                }
+            }
+        ]
+
+        2) Back-end: boost::adjacency_list of boost.graph
+
+            http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
+    */
+    //typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType;
+
+    typedef enum {
+        COLOR_FRAMEWORK,   // Framework state
+        COLOR_APPLICATION, // Application state
+        COLOR_REQUIRED,    // Required interface state
+        COLOR_PROVIDED     // Provided interface state
+    } VertexColorType;
+
+    // - BGL:
+    //      http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/table_of_contents.html
+    // - Boost Property:
+    //      http://www.boost.org/doc/libs/1_54_0/libs/graph/doc/property.html
+    // - Bundled Properties:
+    //      http://www.boost.org/doc/libs/1_40_0/libs/graph/doc/bundles.html
+    // - Custom edge/vertex property:
+    //      http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html#sec:adjacency-list-properties
+
+    struct StateMachineProperty_t {
+        typedef boost::vertex_property_tag kind;
+    };
+
+    typedef boost::property<boost::vertex_color_t, int,
+            boost::property<boost::vertex_name_t, std::string,
+            boost::property<StateMachineProperty_t, StateMachine* > > > VertexProperty;
+    typedef boost::property<boost::edge_weight_t, int> EdgeProperty;
+
+    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+                                  VertexProperty, EdgeProperty> GraphType;
+
+    typedef boost::graph_traits<GraphType>::vertex_descriptor Vertex;
+
+    //! Graph containing a set of GCM state machine objects, i.e., instances of StateMachine
+    /*!
+        Directed
+    */
+    GraphType Graph;
+
+    // This may not be required either (replaced by graph)
+#if 0
     // typedef for connection information (to identify required interface)
     typedef struct {
         std::string SafetyCoordinatorName;
@@ -59,13 +152,41 @@ public:
     } RequiredInterfaceInfoType;
     typedef std::vector<RequiredInterfaceInfoType> ConnectionListType;
     typedef std::map<std::string, ConnectionListType *> ConnectionsType;
+#endif
 
-protected:
-    // Name of coordinator instance that this GCM is associated with */
+    //! Name of Coordinator instance that this GCM belongs to
+    /*!
+        Every GCM belongs to a Coordinator.  Because a Coordinator is typically defined
+        for each process in the system, a process name can be used as a Coordinator name.
+    */
     const std::string CoordinatorName;
-    /*! Name of component that this GCM is associated with */
+
+    //! Name of component that this GCM represents
     const std::string ComponentName;
 
+    //! Default constructor should not be used
+    GCM(void);
+
+public:
+    //! Constructor
+    GCM(const std::string & coordinatorName, const std::string & componentName);
+
+    //! Destructor
+    ~GCM();
+
+    //! GCM accessors
+    /*!
+        \addtogroup Generic Component Model (GCM) accessors
+        @{
+    */
+    //! Returns name of Coordinator that this GCM belongs to
+    inline const std::string & GetCoordinatorName(void) const { return CoordinatorName; }
+    //! Returns name of component that this GCM represents
+    inline const std::string & GetComponentName(void) const { return ComponentName; }
+    /*! @} */
+
+#if 0
+protected:
     /*! State machines */
     StateMachinesType States;
 
@@ -86,8 +207,8 @@ protected:
     // Get json representation of service state change
     void GetJSONForServiceStateChange(const std::string & providedInterfaceName, Json::Value & json);
     // Get statemachine instance
-    const StateMachine * GetStateMachineComponent(ComponentStateViews view) const;
-    const StateMachine * GetStateMachineInterface(const std::string & name, InterfaceTypes type) const;
+    const StateMachine * GetStateMachineComponent(ViewType view) const;
+    const StateMachine * GetStateMachineInterface(const std::string & name, InterfaceType type) const;
 
     void PopulateStateUpdateJSON(const std::string & providedInterfaceName, Json::Value & json) const;
 
@@ -104,11 +225,11 @@ public:
     virtual ~GCM(void);
 
     /*! Add interface */
-    bool AddInterface(const std::string & name, InterfaceTypes type);
+    bool AddInterface(const std::string & name, InterfaceType type);
     /*! Find interface */
-    bool FindInterface(const std::string & name, InterfaceTypes type) const;
+    bool FindInterface(const std::string & name, InterfaceType type) const;
     /*! Remove interface */
-    bool RemoveInterface(const std::string & name, InterfaceTypes type);
+    bool RemoveInterface(const std::string & name, InterfaceType type);
     // Add service state dependency information
     void AddServiceStateDependency(const Json::Value & services);
     bool AddServiceStateDependencyEntry(const std::string & providedInterfaceName,
@@ -141,22 +262,20 @@ public:
     //
     // Getters
     //
-    //! Returns name of component that this GCM is associated with
-    const std::string & GetComponentName(void) const { return ComponentName; }
     //! Returns names of interfaces
-    StrVecType GetNamesOfInterfaces(InterfaceTypes type) const;
-    void       GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const;
+    StrVecType GetNamesOfInterfaces(InterfaceType type) const;
+    void       GetNamesOfInterfaces(InterfaceType type, StrVecType & names) const;
     //! Returns component state
-    State::StateType GetComponentState(ComponentStateViews view = SYSTEM_VIEW) const;
+    State::StateType GetComponentState(ViewType view = SYSTEM_VIEW) const;
     //! Returns component state with outstanding event.  
-    State::StateType GetComponentState(ComponentStateViews view, const Event* & e) const;
+    State::StateType GetComponentState(ViewType view, const Event* & e) const;
     //! Returns interface state
-    State::StateType GetInterfaceState(const std::string & name, InterfaceTypes type) const;
+    State::StateType GetInterfaceState(const std::string & name, InterfaceType type) const;
     //! Returns interface state with outstanding event
-    State::StateType GetInterfaceState(const std::string & name, InterfaceTypes type, const Event* & e) const;
+    State::StateType GetInterfaceState(const std::string & name, InterfaceType type, const Event* & e) const;
     //! Returns consolidated interface state
-    State::StateType GetInterfaceState(InterfaceTypes type) const;
-    State::StateType GetInterfaceState(InterfaceTypes type, const Event* & e) const;
+    State::StateType GetInterfaceState(InterfaceType type) const;
+    State::StateType GetInterfaceState(InterfaceType type, const Event* & e) const;
     //! Returns service state of provided interface and event information that caused service state transition
     State::StateType GetServiceState(const std::string & providedInterfaceName, const Event * & event,
                                      bool forErrorPropagation) const;
@@ -164,8 +283,8 @@ public:
     // Setters
     //
     // Install user-defined statemachine event handler
-    bool SetEventHandlerForComponent(GCM::ComponentStateViews view, StateEventHandler * handler);
-    bool SetEventHandlerForInterface(GCM::InterfaceTypes type, const std::string & interfaceName,
+    bool SetEventHandlerForComponent(GCM::ViewType view, StateEventHandler * handler);
+    bool SetEventHandlerForInterface(GCM::InterfaceType type, const std::string & interfaceName,
                                      StateEventHandler * handler);
 
     //
@@ -180,11 +299,15 @@ public:
                           const std::string & prefix = "");
     // Print connection information for all provided interfaces
     void PrintConnections(std::ostream & out, const std::string & prefix = "");
+#endif
+
+    //! Human readable output of this class
+    void ToStream(std::ostream & outputStream) const;
 };
- 
-inline std::ostream & operator << (std::ostream & outputStream, const GCM & gcm) {
-    gcm.ToStream(outputStream);
-    return outputStream;
+
+inline std::ostream & operator << (std::ostream & os, const GCM & gcm) {
+    gcm.ToStream(os);
+    return os;
 }
 
 };

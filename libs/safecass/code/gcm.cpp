@@ -7,35 +7,33 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: Apr 24, 2016
+// Last revision: May 15, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
-#include "config.h"
-#include "common/utils.h"
+//#include "config.h"
+//#include "common/utils.h"
 #include "safecass/gcm.h"
 
 using namespace SC;
 
 GCM::GCM(void) : CoordinatorName(NONAME), ComponentName(NONAME)
-{
-    // Default constructor should not be used
-    SCASSERT(false);
-}
+{}
 
 GCM::GCM(const std::string & coordinatorName, const std::string & componentName)
     : CoordinatorName(coordinatorName), ComponentName(componentName)
 {
-    States.ComponentFramework   = new StateMachine(componentName);
-    States.ComponentApplication = new StateMachine(componentName);
-
-    // Hopefully, nobody uses s_F or s_A as the name of required interface...
-    ServiceStateDependencyInfo["s_F"] = new StrVecType;
-    ServiceStateDependencyInfo["s_A"] = new StrVecType;
+    // Add state machines for component state and application state to graph
+    //boost::add_vertex(Graph);
+    //
+    // CONTINUE HERE.. => HOW TO IMPLEMENT DERIVED STATES??
+    //
 }
 
 GCM::~GCM(void)
-{
+{}
+
+#if 0
     if (States.ComponentFramework)
         delete States.ComponentFramework;
     if (States.ComponentApplication)
@@ -89,7 +87,7 @@ void GCM::ToStream(std::ostream & out) const
     out << std::endl;
 }
 
-bool GCM::AddInterface(const std::string & name, GCM::InterfaceTypes type)
+bool GCM::AddInterface(const std::string & name, GCM::InterfaceType type)
 {
     if (type == PROVIDED_INTERFACE) {
         if (States.ProvidedInterfaces.find(name) != States.ProvidedInterfaces.end()) {
@@ -126,7 +124,7 @@ bool GCM::AddInterface(const std::string & name, GCM::InterfaceTypes type)
     return true;
 }
 
-bool GCM::FindInterface(const std::string & name, GCM::InterfaceTypes type) const
+bool GCM::FindInterface(const std::string & name, GCM::InterfaceType type) const
 {
     if (type == PROVIDED_INTERFACE)
         return (States.ProvidedInterfaces.find(name) != States.ProvidedInterfaces.end());
@@ -134,7 +132,7 @@ bool GCM::FindInterface(const std::string & name, GCM::InterfaceTypes type) cons
         return (States.RequiredInterfaces.find(name) != States.RequiredInterfaces.end());
 }
 
-bool GCM::RemoveInterface(const std::string & name, GCM::InterfaceTypes type)
+bool GCM::RemoveInterface(const std::string & name, GCM::InterfaceType type)
 {
     InterfaceStateMachinesType::iterator it;
     if (type == PROVIDED_INTERFACE) {
@@ -156,7 +154,7 @@ bool GCM::RemoveInterface(const std::string & name, GCM::InterfaceTypes type)
     return true;
 }
 
-StrVecType GCM::GetNamesOfInterfaces(GCM::InterfaceTypes type) const
+StrVecType GCM::GetNamesOfInterfaces(GCM::InterfaceType type) const
 {
     const InterfaceStateMachinesType & interfaces = 
         (type == PROVIDED_INTERFACE ? States.ProvidedInterfaces : States.RequiredInterfaces);
@@ -171,7 +169,7 @@ StrVecType GCM::GetNamesOfInterfaces(GCM::InterfaceTypes type) const
     return names;
 }
 
-void GCM::GetNamesOfInterfaces(InterfaceTypes type, StrVecType & names) const
+void GCM::GetNamesOfInterfaces(InterfaceType type, StrVecType & names) const
 {
     names = GetNamesOfInterfaces(type);
 }
@@ -342,7 +340,7 @@ void GCM::PopulateStateUpdateJSON(const std::string & providedInterfaceName, Jso
     SCLOG_DEBUG << "PopulateStateUpdateJSON: " << providedInterfaceName << ", JSON:\n" << JsonWrapper::GetJsonString(json) << std::endl;
 }
 
-State::StateType GCM::GetComponentState(ComponentStateViews view) const
+State::StateType GCM::GetComponentState(ViewType view) const
 {
     SCASSERT(States.ComponentFramework);
     SCASSERT(States.ComponentApplication);
@@ -364,7 +362,7 @@ State::StateType GCM::GetComponentState(ComponentStateViews view) const
     }
 }
 
-State::StateType GCM::GetComponentState(ComponentStateViews view, const Event* & e) const
+State::StateType GCM::GetComponentState(ViewType view, const Event* & e) const
 {
     SCASSERT(States.ComponentFramework);
     SCASSERT(States.ComponentApplication);
@@ -463,7 +461,7 @@ State::StateType GCM::GetComponentState(ComponentStateViews view, const Event* &
     }
 }
 
-State::StateType GCM::GetInterfaceState(const std::string & name, GCM::InterfaceTypes type) const
+State::StateType GCM::GetInterfaceState(const std::string & name, GCM::InterfaceType type) const
 {
     InterfaceStateMachinesType::const_iterator it;
     if (type == GCM::PROVIDED_INTERFACE) {
@@ -479,7 +477,7 @@ State::StateType GCM::GetInterfaceState(const std::string & name, GCM::Interface
     }
 }
 
-State::StateType GCM::GetInterfaceState(const std::string & name, GCM::InterfaceTypes type, const Event* & e) const
+State::StateType GCM::GetInterfaceState(const std::string & name, GCM::InterfaceType type, const Event* & e) const
 {
     GCM::InterfaceStateMachinesType::const_iterator it;
     if (type == GCM::PROVIDED_INTERFACE) {
@@ -501,7 +499,7 @@ State::StateType GCM::GetInterfaceState(const std::string & name, GCM::Interface
     return it->second->GetCurrentState();
 }
 
-State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type, const Event* & e) const
+State::StateType GCM::GetInterfaceState(GCM::InterfaceType type, const Event* & e) const
 {
     const InterfaceStateMachinesType & interfaces = 
         (type == GCM::PROVIDED_INTERFACE ? States.ProvidedInterfaces : States.RequiredInterfaces);
@@ -568,7 +566,7 @@ State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type, const Event* &
 #endif
 }
 
-State::StateType GCM::GetInterfaceState(GCM::InterfaceTypes type) const
+State::StateType GCM::GetInterfaceState(GCM::InterfaceType type) const
 {
     const Event * e = 0;
 
@@ -907,7 +905,7 @@ State::StateType GCM::GetServiceState(const std::string & providedInterfaceName,
     return (serviceState < State(State::ERROR) ? State::NORMAL : State::FAILURE);
 }
 
-const StateMachine * GCM::GetStateMachineComponent(GCM::ComponentStateViews view) const
+const StateMachine * GCM::GetStateMachineComponent(GCM::ViewType view) const
 {
     switch (view) {
     case GCM::FRAMEWORK_VIEW:   return States.ComponentFramework;
@@ -918,7 +916,7 @@ const StateMachine * GCM::GetStateMachineComponent(GCM::ComponentStateViews view
     }
 }
 
-const StateMachine * GCM::GetStateMachineInterface(const std::string & name, GCM::InterfaceTypes type) const
+const StateMachine * GCM::GetStateMachineInterface(const std::string & name, GCM::InterfaceType type) const
 {
     InterfaceStateMachinesType::const_iterator it;
     if (type == GCM::PROVIDED_INTERFACE) {
@@ -991,7 +989,7 @@ void GCM::PrintConnections(std::ostream & out, const std::string & prefix)
         PrintConnections(it->first, out, prefix);
 }
 
-bool GCM::SetEventHandlerForComponent(GCM::ComponentStateViews view, StateEventHandler * handler)
+bool GCM::SetEventHandlerForComponent(GCM::ViewType view, StateEventHandler * handler)
 {
     SCASSERT(view != GCM::SYSTEM_VIEW);
     SCASSERT(handler);
@@ -1004,7 +1002,7 @@ bool GCM::SetEventHandlerForComponent(GCM::ComponentStateViews view, StateEventH
     return true;
 }
 
-bool GCM::SetEventHandlerForInterface(GCM::InterfaceTypes type, const std::string & interfaceName,
+bool GCM::SetEventHandlerForInterface(GCM::InterfaceType type, const std::string & interfaceName,
                                       StateEventHandler * handler)
 {
     SCASSERT(handler);
@@ -1156,3 +1154,4 @@ unsigned int GCM::GetStateHistory(Json::Value & json, unsigned int baseId)
 
     return count;
 }
+#endif
