@@ -140,7 +140,7 @@ protected:
     /*!
         Directed
     */
-    GraphType Graph;
+    GraphType * Graph;
 
     // This may not be required either (replaced by graph)
 #if 0

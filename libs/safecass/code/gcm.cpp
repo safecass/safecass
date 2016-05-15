@@ -17,21 +17,26 @@
 
 using namespace SC;
 
-GCM::GCM(void) : CoordinatorName(NONAME), ComponentName(NONAME)
+GCM::GCM(void): Graph(0), CoordinatorName(NONAME), ComponentName(NONAME)
 {}
 
 GCM::GCM(const std::string & coordinatorName, const std::string & componentName)
     : CoordinatorName(coordinatorName), ComponentName(componentName)
 {
     // Add state machines for component state and application state to graph
-    //boost::add_vertex(Graph);
+    //Graph = new GraphType(
+
+
     //
     // CONTINUE HERE.. => HOW TO IMPLEMENT DERIVED STATES??
     //
 }
 
 GCM::~GCM(void)
-{}
+{
+    // FIXME Should visit each vertex to delete StateMachine instances
+    //delete Graph;
+}
 
 #if 0
     if (States.ComponentFramework)

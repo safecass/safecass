@@ -185,6 +185,14 @@ else()
   set (Boost_FOUND        ${Boost_FOUND}        PARENT_SCOPE)
   set (Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
   set (Boost_LIBRARIES    ${Boost_LIBRARIES}    PARENT_SCOPE)
+
+  # Compile with optimization for BGL (recommended by BGL)
+  # Travis build on Linux with gcc/clang occasionally fail due to limited
+  # memory: "g++: internal compiler error: Killed (program cc1plus)"
+  # This error appears to be reported many times already.
+  if (SAFECASS_ON_LINUX)
+    list (APPEND CMAKE_CXX_FLAGS "-O3")
+  endif()
 endif()
 
 #
