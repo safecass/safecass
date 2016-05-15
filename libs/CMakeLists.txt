@@ -13,11 +13,16 @@
 #
 
 # TODO:
-# - shared lib support
+#
+# 1. shared lib support
 #   => option (SAFECASS_BUILD_SHARED_LIBS "Build shared libraries" OFF)
-# - Boost: Use official release archive from https://github.com/boostorg/boost/tags
-#          For some reason, this lightweight downloaded package doesn't work
-#          with the current build setup.
+#
+# 2. Boost: Use official release archive from https://github.com/boostorg/boost/tags
+#           For some reason, this lightweight downloaded package doesn't work
+#           with the current build setup.
+#
+# 3. Boost.Graph: Selectively enable/disable GraphViz reader/exporter feature
+#                 If not enabled, two boost libs are not required (regex, graph)
 
 # NOTE:
 # - MD5 HASH generator: http://onlinemd5.com
@@ -124,7 +129,9 @@ else()
                               #--with-thread
                               --with-system
                               --with-chrono
+                              # graph and regex is only required for graph with GraphViz
                               --with-graph
+                              --with-regex
                               -j${N})
 
   set (Boost_INCLUDE_DIRS ${SAFECASS_BUILD_ROOT}/external_packages/boost/build/include)

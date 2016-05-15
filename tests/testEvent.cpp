@@ -30,8 +30,8 @@ TEST(Event, Constructor)
     EXPECT_TRUE(transition == e.GetTransition());
     EXPECT_EQ(0, e.GetTimestamp());
     EXPECT_TRUE(e.GetWhat().empty());
-    EXPECT_EQ(false, e.IsActive());
-    EXPECT_EQ(false, e.IsIgnored());
+    EXPECT_FALSE(e.IsActive());
+    EXPECT_FALSE(e.IsIgnored());
 
     EXPECT_TRUE(true);
 }
@@ -51,18 +51,18 @@ TEST(Event, Accessors)
     EXPECT_TRUE(e.GetWhat().compare("what") == 0);
 
     // Active
-    EXPECT_EQ(false, e.IsActive());
+    EXPECT_FALSE(e.IsActive());
     e.SetActive(true);
-    EXPECT_EQ(true, e.IsActive());
+    EXPECT_TRUE(e.IsActive());
     e.SetActive(false);
-    EXPECT_EQ(false, e.IsActive());
+    EXPECT_FALSE(e.IsActive());
 
     // Ignored
-    EXPECT_EQ(false, e.IsIgnored());
+    EXPECT_FALSE(e.IsIgnored());
     e.SetIgnored(true);
-    EXPECT_EQ(true, e.IsIgnored());
+    EXPECT_TRUE(e.IsIgnored());
     e.SetIgnored(false);
-    EXPECT_EQ(false, e.IsIgnored());
+    EXPECT_FALSE(e.IsIgnored());
 }
 
 TEST(Event, GetStateTransition)

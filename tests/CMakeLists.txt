@@ -56,9 +56,6 @@ foreach (TEST ${TEST_SUITES})
   get_filename_component (TEST_FILE_NAME ${TEST} NAME)
   get_filename_component (TEST_UNIT ${TEST} NAME_WE)
 
-  # Define test unit
-  add_executable (${TEST_UNIT} main.cpp ${TEST_FILE_NAME})
-
   # Set compiler flags on Linux to resolve linker errors
   # http://stackoverflow.com/questions/17150075/undefined-reference-to-clock-gettime-although-lrt-is-given
   if (SAFECASS_ON_LINUX)
