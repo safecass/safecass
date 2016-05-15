@@ -111,6 +111,28 @@ else()
     set(BOOST_B2_CMD        "b2.exe")
   endif()
 
+  # Travis build on Linux with gcc/clang occasionally fail due to limited
+  # memory: "g++: internal compiler error: Killed (program cc1plus)"
+  # This error appears to be reported many times already.
+  #
+  # Without optimization: fails on Linux/clang
+  # With -O3: fails on Linux/gcc
+  # With -O2: fails on Linux/clang
+  #
+  # Linux container-based: 4 GB / 2 Cores
+  # OS X: 3 GB / 1 Core
+  #
+  # In Travis, the number of cores reported by CMake on Linux is 32, whereas
+  # the number is 2 on OS X.  Compiler crash may have something to do with
+  # -j32 flag during Boost build process.
+  if (TRAVIS_CI)
+    # Compile with optimization for BGL (recommended by BGL)
+    #if (SAFECASS_ON_LINUX)
+    #  list (APPEND CMAKE_CXX_FLAGS "-O2")
+    #endif()
+    set (N 2)
+  endif()
+
   # Download and configure at build-time
   add_external_project(NAME          boost
                        URL           http://cs.jhu.edu/~minyang/boost_1_60_0.tar.bz2
@@ -185,17 +207,6 @@ else()
   set (Boost_FOUND        ${Boost_FOUND}        PARENT_SCOPE)
   set (Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
   set (Boost_LIBRARIES    ${Boost_LIBRARIES}    PARENT_SCOPE)
-
-  # Compile with optimization for BGL (recommended by BGL)
-  # Travis build on Linux with gcc/clang occasionally fail due to limited
-  # memory: "g++: internal compiler error: Killed (program cc1plus)"
-  # This error appears to be reported many times already.
-  #
-  # Without optimization: fails on Linux/clang
-  # With -O3: fails on Linux/gcc (Linux/clang works)
-  if (SAFECASS_ON_LINUX)
-    list (APPEND CMAKE_CXX_FLAGS "-O2")
-  endif()
 endif()
 
 #

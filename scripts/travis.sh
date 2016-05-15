@@ -18,8 +18,10 @@ fi
 
 ${CMAKE_BIN} \
       -DSAFECASS_ENABLE_UNIT_TEST=ON \
+      -DTRAVIS_CI=ON \ # To inform cmake of Travis build environment (limited cores and memory)
       ..
       #../$SAFECASS_TARGET
 
-make VERBOSE=1
+#make VERBOSE=1 # for debugging purpose
+make
 make test
