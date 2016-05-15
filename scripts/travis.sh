@@ -20,5 +20,6 @@ ${CMAKE_BIN} \
       -DSAFECASS_ENABLE_UNIT_TEST=ON \
       ..
       #../$SAFECASS_TARGET
-make
+
+make VERBOSE=1
 make test

@@ -45,7 +45,12 @@ env:
 #    - SAFECASS_TARGET=googletest SHARED_LIB=ON  STATIC_LIB=ON CMAKE_PKG=ON  BUILD_TYPE=release VERBOSE_MAKE=false
 #    - SAFECASS_TARGET=googlemock SHARED_LIB=ON  STATIC_LIB=ON CMAKE_PKG=ON  BUILD_TYPE=release VERBOSE_MAKE=false
 notifications:
-  email: false
+  #email: false
+  email:
+    recipients:
+    - myj@jhu.edu
+    on_success: change
+    on_failure: always
 sudo: false
 before_install:
   - ./scripts/install-cmake.sh
