@@ -14,17 +14,12 @@
 #include "gtest/gtest.h"
 #include "config.h"
 #include <boost/graph/graphviz.hpp>
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/iteration_macros.hpp>
 
 //using namespace SC;
 
-//--------------------------------------------------
 // Examples from Boost.Graph
 //
-// More GraphViz examples are available:
-//   http://www.graphviz.org/Gallery.php
-//--------------------------------------------------
+// More GraphViz examples are available: http://www.graphviz.org/Gallery.php
 TEST(BoostGraphDemo, GraphVizWrite)
 {
     enum files_e { dax_h, yow_h, boz_h, zow_h, foo_cpp,
