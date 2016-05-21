@@ -133,6 +133,14 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
         }
     }
     else if (format == EXPORT_GRAPHVIZ) {
+        /*
+template < typename VertexAndEdgeListGraph, typename VertexPropertyWriter,
+           typename EdgePropertyWriter, typename GraphPropertyWriter >
+void
+write_graphviz(std::ostream& out, const VertexAndEdgeListGraph& g,
+               VertexPropertyWriter vpw, EdgePropertyWriter epw,
+               GraphPropertyWriter gpw);
+        */
         boost::write_graphviz(os, Graph);//, make_label_writer(name));
     }
 }
@@ -156,7 +164,7 @@ bool GCM::ExportToGraphViz(const std::string & fileName) const
     fullFileName += ".dot";
 
     std::ofstream dotFile;
-    dotFile.open(fullFileName);
+    dotFile.open(fullFileName.c_str());
     if (!dotFile.is_open()) {
         SCLOG_ERROR << "Unable to open file for graph export: " << fullFileName << std::endl;
         return false;
