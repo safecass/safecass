@@ -29,4 +29,6 @@ TEST(GCM, Accessors)
 
 TEST(GCM, ToStream)
 {
+    GCM gcm("coordinator_name", "component_name");
+    std::cout << gcm << std::endl;
 }
