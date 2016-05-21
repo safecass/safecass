@@ -53,6 +53,12 @@ public:
         REQUIRED_INTERFACE
     } InterfaceType;
 
+    //! Typedef of graph export format
+    typedef enum {
+        EXPORT_HUMAN_READABLE,
+        EXPORT_GRAPHVIZ
+    } ExportFormatType;
+
     //! Typedef of container for state machines representing interface states
     /*!
         Key: interface name, value: statemachine instance
@@ -332,7 +338,15 @@ public:
 #endif
 
     //! Human readable output of this class
-    void ToStream(std::ostream & os = std::cout) const;
+    void ToStream(std::ostream & os = std::cout, ExportFormatType format = EXPORT_HUMAN_READABLE) const;
+
+    //! Export graph to GraphViz format file (.dot)
+    /*!
+        \param fileName Output file name without extension.  Extension (.dot) is added to file name.
+               If file already exists, it is overwritten.
+        \return true if success; false otherwise
+    */
+    bool ExportToGraphViz(const std::string & fileName) const;
 
     static std::string GetStateTypeString(StateTypes type);
 
