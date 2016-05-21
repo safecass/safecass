@@ -7,7 +7,7 @@
 #-----------------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
-# Last revision: May 14, 2016
+# Last revision: May 15, 2016
 # Author       : Min Yang Jung <myj@jhu.edu>
 # URL          : https://github.com/safecass/safecass
 #
@@ -93,7 +93,7 @@ endif()
 #
 # 2) Boost
 #
-set (BOOST_COMPONENTS_REQUIRED program_options system chrono)
+set (BOOST_COMPONENTS_REQUIRED chrono graph system regex program_options)
 
 # TEMP to test boost external project
 #find_package(Boost 1.60.0 COMPONENTS ${BOOST_COMPONENTS_REQUIRED})

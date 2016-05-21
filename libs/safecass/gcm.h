@@ -20,7 +20,6 @@
 #define _gcm_h
 
 #include "common/common.h"
-//#include "safecass/statemachine.h"
 
 #include <boost/graph/properties.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -107,11 +106,19 @@ protected:
     //typedef std::map<std::string, StrVecType *> ServiceStateDependencyInfoType;
 
     typedef enum {
-        COLOR_FRAMEWORK,   // Framework state
-        COLOR_APPLICATION, // Application state
-        COLOR_REQUIRED,    // Required interface state
-        COLOR_PROVIDED     // Provided interface state
-    } VertexColorType;
+        STATE_INVALID,
+        STATE_EXTENDED,    // Extended state
+        STATE_FRAMEWORK,   // Framework state
+        STATE_APPLICATION, // Application state
+        STATE_REQUIRED,    // Required interface state
+        STATE_PROVIDED,    // Provided interface state
+        STATE_SERVICE,     // Service state for provided interface
+    } StateTypes;
+
+    typedef enum {
+        EDGE_DEPENDENCY, // Edge representing service state dependency
+        EDGE_ERROR_PROP  // Edge representing error propagation
+    } EdgeTypes;
 
     // - BGL:
     //      http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/table_of_contents.html
@@ -121,26 +128,39 @@ protected:
     //      http://www.boost.org/doc/libs/1_40_0/libs/graph/doc/bundles.html
     // - Custom edge/vertex property:
     //      http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html#sec:adjacency-list-properties
+    // - Property example:
+    //      build/external_packages/boost/src/libs/graph/example/edge_property.cpp
 
-    struct StateMachineProperty_t {
-        typedef boost::vertex_property_tag kind;
+    struct VertexProperty {
+        std::string  Name;
+        StateTypes   StateType;
+        StateMachine * SM;
+        VertexProperty(void) : Name(NONAME), StateType(STATE_INVALID), SM(0) {}
     };
 
-    typedef boost::property<boost::vertex_color_t, int,
-            boost::property<boost::vertex_name_t, std::string,
-            boost::property<StateMachineProperty_t, StateMachine* > > > VertexProperty;
-    typedef boost::property<boost::edge_weight_t, int> EdgeProperty;
+    struct EdgeProperty {
+        EdgeTypes EdgeType;
+        EdgeProperty(EdgeTypes type): EdgeType(type) {}
+        // TODO boolean flag can be added to seletively enable and disable state dependency
+    };
 
-    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+    //typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
                                   VertexProperty, EdgeProperty> GraphType;
 
-    typedef boost::graph_traits<GraphType>::vertex_descriptor Vertex;
+    //! Typedefs for convenience
+    typedef boost::graph_traits<GraphType>::vertex_descriptor VertexDescriptor;
+    typedef boost::graph_traits<GraphType>::edge_descriptor   EdgeDescriptor;
+
+    typedef boost::graph_traits<GraphType>::vertex_iterator   VertexIter;
+    typedef boost::graph_traits<GraphType>::out_edge_iterator OutEdgeIter;
+    typedef boost::graph_traits<GraphType>::in_edge_iterator  InEdgeIter;
 
     //! Graph containing a set of GCM state machine objects, i.e., instances of StateMachine
     /*!
         Directed
     */
-    GraphType * Graph;
+    GraphType Graph;
 
     // This may not be required either (replaced by graph)
 #if 0
@@ -163,6 +183,16 @@ protected:
 
     //! Name of component that this GCM represents
     const std::string ComponentName;
+
+    //! Initialize graph
+    /*!
+        Graph maintains three vertices by default:
+
+        - s_ext: Extended component state (derived state)
+        - s_F  : Framework state (state)
+        - s_A  : Application state (state)
+    */
+    void InitGraph(void);
 
     //! Default constructor should not be used
     GCM(void);
@@ -302,7 +332,10 @@ public:
 #endif
 
     //! Human readable output of this class
-    void ToStream(std::ostream & outputStream) const;
+    void ToStream(std::ostream & os = std::cout) const;
+
+    static std::string GetStateTypeString(StateTypes type);
+
 };
 
 inline std::ostream & operator << (std::ostream & os, const GCM & gcm) {

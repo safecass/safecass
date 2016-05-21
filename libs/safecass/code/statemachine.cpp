@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: May 12, 2016
+// Last revision: May 21, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -351,7 +351,7 @@ void StateMachine::ToStream(std::ostream & os) const
     os << "Owner: " << OwnerName << std::endl
        << "Current state: " << State::GetStringState(GetCurrentState()) << std::endl
        << "Event handler: " << GetStateEventHandler() << std::endl
-       << "Oustanding event: " << OutstandingEvent << std::endl
+       << "Outstanding event: " << OutstandingEvent << std::endl
        << "Last outstanding event: " << LastOutstandingEvent << std::endl;
 
     os << "Transition history: ";
