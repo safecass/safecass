@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: May 21, 2016
+// Last revision: May 25, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -59,11 +59,11 @@ void GCM::InitGraph(void)
     GCM::VertexDescriptor s_A   = boost::add_vertex(Graph);
     GCM::VertexDescriptor s_F   = boost::add_vertex(Graph);
 
-    Graph[s_A].Name = "s_A";
+    Graph[s_A].Name = "Application";
     Graph[s_A].StateType = GCM::STATE_APPLICATION;
     Graph[s_A].SM = new StateMachine(ComponentName);
 
-    Graph[s_F].Name = "s_F";
+    Graph[s_F].Name = "Framework";
     Graph[s_F].StateType = GCM::STATE_FRAMEWORK;
     Graph[s_F].SM = new StateMachine(ComponentName);
 
@@ -117,6 +117,14 @@ void GCM::InitGraph(void)
     boost::add_edge(s_R1, s_P2, EdgeProperty(EDGE_ERROR_PROP), Graph);
     boost::add_edge(s_R2, s_P3, EdgeProperty(EDGE_ERROR_PROP), Graph);
     boost::add_edge(s_R4, s_P2, EdgeProperty(EDGE_ERROR_PROP), Graph);
+
+    // Change state
+    Event eN2W("evt_NORMAL_TO_WARNING", 10, Event::TRANSITION_N2W);
+    Event eN2E("evt_NORMAL_TO_ERROR", 10, Event::TRANSITION_N2E);
+
+    Graph[s_R2].SM->ProcessEvent(eN2W);
+    Graph[s_P3].SM->ProcessEvent(eN2E);
+    Graph[s_P3_derived].SM->ProcessEvent(eN2E);
 }
 
 void GCM::ToStream(std::ostream & os, ExportFormatType format) const
@@ -180,47 +188,52 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
 #endif
         // Graph
         os << "digraph " << ComponentName << " {" << std::endl
-           << "node [shape=record];" << std::endl
+           << "node [shape=plaintext];" << std::endl
            << "edge [style=solid splines=curved];" << std::endl
-           << "rankdir=LR;" << std::endl;
+           << "graph [rankdir=LR];" << std::endl;
 
         std::stringstream ss_required, ss_provided, ss_provided_service, ss_others;
         size_t n_required = 0, n_provided = 0, n_provided_service = 0;
 
         std::vector<size_t> vecRequired, vecProvided, vecProvidedService;
 
-        ss_required << "required [label=\"";
-        ss_provided << "provided [label=\"";
-        ss_provided_service << "provided_service [label=\"";
+        ss_required << "required [label=<"
+                    << "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">";
+        ss_provided << "provided [label=<"
+                    << "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">";
+        ss_provided_service << "provided_service [label=<"
+                    << "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">";
 
         VertexIter itVertex, itVertexEnd;
         boost::tie(itVertex, itVertexEnd) = vertices(Graph);
         for (; itVertex != itVertexEnd; ++itVertex) {
             switch (Graph[*itVertex].StateType) {
             case STATE_REQUIRED:
-                if (n_required > 0)
-                    ss_required << "|";
-                ss_required << "<s" << n_required++ << "> " << Graph[*itVertex].Name;
+                ss_required << "<tr><td port=\"s" << n_required++ << "\" bgcolor=\""
+                            << GetColorCode(Graph[*itVertex].SM->GetCurrentState())
+                            << "\">" << Graph[*itVertex].Name << "</td></tr>";
                 vecRequired.push_back(*itVertex);
                 break;
 
             case STATE_PROVIDED:
-                if (n_provided > 0)
-                    ss_provided << "|";
-                ss_provided << "<s" << n_provided++ << "> " << Graph[*itVertex].Name;
+                ss_provided << "<tr><td port=\"s" << n_provided++ << "\" bgcolor=\""
+                            << GetColorCode(Graph[*itVertex].SM->GetCurrentState())
+                            << "\">" << Graph[*itVertex].Name << "</td></tr>";
                 vecProvided.push_back(*itVertex);
                 break;
 
             case STATE_SERVICE:
-                if (n_provided_service > 0)
-                    ss_provided_service << "|";
-                ss_provided_service << "<s" << n_provided_service++ << "> " << Graph[*itVertex].Name;
+                ss_provided_service << "<tr><td port=\"s" << n_provided_service++ << "\" bgcolor=\""
+                                    << GetColorCode(Graph[*itVertex].SM->GetCurrentState())
+                                    << "\">" << Graph[*itVertex].Name << "</td></tr>";
                 vecProvidedService.push_back(*itVertex);
                 break;
 
             case STATE_FRAMEWORK:
             case STATE_APPLICATION:
-                ss_others << Graph[*itVertex].Name << " [label=<s<font point-size=10>F</font>>, fillcolor=yellow, style=\"rounded,filled\", shape=rounded];" << std::endl;
+                ss_others << Graph[*itVertex].Name << " [fillcolor=\""
+                          << GetColorCode(Graph[*itVertex].SM->GetCurrentState())
+                          << "\", style=\"rounded,filled\", shape=rounded];" << std::endl;
                 break;
 
             default:
@@ -231,10 +244,10 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
             // os << *itVertex << ": " << Graph[*itVertex].Name << " (" << GetStateTypeString(Graph[*itVertex].StateType)
                 // << "), State: " << State::GetStringState(Graph[*itVertex].SM->GetCurrentState()) << std::endl;
         }
-        ss_required << "\"];";
-        ss_provided << "\"];";
+        ss_required << "</table>>];";
+        ss_provided << "</table>>];";
         //ss_provided_service << "\", style=filled, fillcolor=gray];";
-        ss_provided_service << "\", style=dashed];";
+        ss_provided_service << "</table>>];";
 
         // FIXME check if n_required > 0 (??)
         os << ss_required.str() << std::endl;
@@ -256,12 +269,12 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
             boost::tie(itEdgeOut, itEdgeOutEnd) = boost::out_edges(vecRequired[i], Graph);
             for (; itEdgeOut != itEdgeOutEnd; ++itEdgeOut) {
                 // Target
-                edges << "required:s" << i << " -> ";
+                edges << "required:s" << i << ":e -> ";
                 // Look for target vertex in provided interface state vertices using its index
                 const size_t idx = boost::target(*itEdgeOut, Graph);
                 for (size_t j = 0; j < vecProvided.size(); ++j) {
                     if (vecProvided[j] == idx) {
-                        edges << "provided:s" << j << " " << arrowStyle << ";" << std::endl;
+                        edges << "provided:s" << j << ":w " << arrowStyle << ";" << std::endl;
                         break;
                     }
                 }
@@ -281,14 +294,14 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
                 if (Graph[idx].StateType == STATE_PROVIDED) {
                     for (size_t j = 0; j < vecProvided.size(); ++j) {
                         if (vecProvided[j] == idx) {
-                            edges << "provided:s" << j;
+                            edges << "provided:s" << j << ":e";
                             break;
                         }
                     }
                 } else {
-                    edges << Graph[idx].Name;
+                    edges << Graph[idx].Name << ":e";
                 }
-                edges << " -> " << "provided_service:s" << i << " " << arrowStyle << ";" << std::endl;
+                edges << " -> " << "provided_service:s" << i << ":w " << arrowStyle << ";" << std::endl;
             }
         }
 
@@ -311,6 +324,8 @@ std::string GCM::GetStateTypeString(StateTypes type)
     }
 }
 
+// NOTE: command line export and layout
+// $ ccomps -x graphviz-test.dot | dot | gvpack -array | neato -Tpng -n2 -o graph.png
 bool GCM::ExportToGraphViz(const std::string & fileName) const
 {
     std::string fullFileName(fileName);
@@ -327,4 +342,16 @@ bool GCM::ExportToGraphViz(const std::string & fileName) const
     dotFile.close();
 
     return true;
+}
+
+
+std::string GCM::GetColorCode(State::StateType state)
+{
+    switch (state) {
+    case State::NORMAL:  return "#ffffff"; // white
+    case State::WARNING: return "#ffcc00"; // tangerine
+    case State::ERROR:   return "#ff0000"; // red
+    case State::FAILURE: return "#aa0000"; // dark red
+    case State::INVALID: return "#000000"; // black
+    }
 }

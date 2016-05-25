@@ -20,6 +20,7 @@
 #define _gcm_h
 
 #include "common/common.h"
+#include "safecass/state.h"
 
 #include <boost/graph/properties.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -230,11 +231,15 @@ public:
         \param fileName Output file name without extension.  Extension (.dot) is added to file name.
                If file already exists, it is overwritten.
         \return true if success; false otherwise
+        \sa http://www.graphviz.org/doc/info/attrs.html
+        \sa http://www.graphviz.org/doc/info/shapes.html#html
     */
     bool ExportToGraphViz(const std::string & fileName) const;
 
     static std::string GetStateTypeString(StateTypes type);
 
+    //! Returns node color code for different state in RRGGBB hex format
+    static std::string GetColorCode(State::StateType state);
 };
 
 inline std::ostream & operator << (std::ostream & os, const GCM & gcm) {
