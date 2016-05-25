@@ -158,14 +158,13 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
                 else {
                     os << "\t---propagates--> ";
                 }
-                os << boost::target(*itEdgeOut, Graph) << std::endl;
+                os << Graph[boost::target(*itEdgeOut, Graph)].Name << std::endl;
             }
 
             // Incoming edges
             InEdgeIter itEdgeIn, itEdgeInEnd;
             boost::tie(itEdgeIn, itEdgeInEnd) = boost::in_edges(*itVertex, Graph);
             for (; itEdgeIn != itEdgeInEnd; ++itEdgeIn) {
-                //os << " <--( FIXME )-- " << boost::source(*itEdgeIn, Graph) << "\t";
                 // Dependency
                 if (Graph[*itEdgeIn].EdgeType == EDGE_DEPENDENCY) {
                     os << "\t<...depends on... ";
@@ -174,7 +173,7 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
                 else {
                     os << "\t<--propagated from--- ";
                 }
-                os << boost::source(*itEdgeIn, Graph) << std::endl;
+                os << Graph[boost::source(*itEdgeIn, Graph)].Name << std::endl;
             }
         }
     }
@@ -198,11 +197,11 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
         std::vector<size_t> vecRequired, vecProvided, vecProvidedService;
 
         ss_required << "required [label=<"
-                    << "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">";
+                    << "<table border=\"0\" cellborder=\"1\" cellpadding=\"3\" cellspacing=\"2\">";
         ss_provided << "provided [label=<"
-                    << "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">";
+                    << "<table border=\"0\" cellborder=\"1\" cellpadding=\"3\" cellspacing=\"2\">";
         ss_provided_service << "provided_service [label=<"
-                    << "<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">";
+                    << "<table border=\"1\" bgcolor="\"cecece"\" cellborder=\"1\" cellpadding=\"3\" cellspacing=\"2\">";
 
         VertexIter itVertex, itVertexEnd;
         boost::tie(itVertex, itVertexEnd) = vertices(Graph);
