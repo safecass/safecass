@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: Mar 13, 2016
+// Last revision: May 28, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -21,20 +21,20 @@ StateEventHandler::StateEventHandler(void) : OwnerName("NONAME")
 StateEventHandler::StateEventHandler(const std::string & owner) : OwnerName(owner)
 {}
 
-void StateEventHandler::OnEntry(const State::StateEntryExitType entryType)
+void StateEventHandler::OnEntry(State::StateEntryExitType entryType)
 {
     SCLOG_DEBUG << "StateEventHandler (owner: \"" << OwnerName << "\") OnEntry: "
-                << State::GetStringEntryExit(entryType) << std::endl;
+                << State::GetString(entryType) << std::endl;
 }
 
-void StateEventHandler::OnExit(const State::StateEntryExitType exitType)
+void StateEventHandler::OnExit(State::StateEntryExitType exitType)
 {
     SCLOG_DEBUG << "StateEventHandler (owner: \"" << OwnerName << "\") OnExit: "
-                << State::GetStringEntryExit(exitType) << std::endl;
+                << State::GetString(exitType) << std::endl;
 }
 
-void StateEventHandler::OnTransition(const State::TransitionType transition)
+void StateEventHandler::OnTransition(State::TransitionType transition)
 {
     SCLOG_DEBUG << "StateEventHandler (owner: \"" << OwnerName << "\") OnTransition: "
-                << State::GetStringTransition(transition) << std::endl;
+                << State::GetString(transition) << std::endl;
 }

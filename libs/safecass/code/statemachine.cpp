@@ -130,7 +130,7 @@ bool StateMachine::ProcessEvent(Event & event)
     case State::ERROR_TO_NORMAL:   FSM.process_event(evt_E2N()); break;
     default:
         SCLOG_ERROR << "ProcessEvent: Invalid transition, current state: " << currentState
-                    << ", transition: " << State::GetStringTransition(transition) << std::endl;
+                    << ", transition: " << State::GetString(transition) << std::endl;
         return false;
     }
 
@@ -312,7 +312,7 @@ void StateMachine::GetStateTransitionHistory(Json::Value & json, unsigned int st
                     // Add previous event to timeline
                     entry["name"] = prevEvt->GetName();
                     entry["desc"] = prevEvt->GetWhat();
-                    entry["class"] = State::GetStringState(currState);
+                    entry["class"] = State::GetString(currState);
                     entry["start"] = GetUTCTimeString(prevEvt->GetTimestamp());
                     entry["end"] = GetUTCTimeString(currEvt->GetTimestamp());
 
@@ -349,7 +349,7 @@ void StateMachine::GetStateTransitionHistory(Json::Value & json, unsigned int st
 void StateMachine::ToStream(std::ostream & os) const
 {
     os << "Owner: " << OwnerName << std::endl
-       << "Current state: " << State::GetStringState(GetCurrentState()) << std::endl
+       << "Current state: " << State::GetString(GetCurrentState()) << std::endl
        << "Event handler: " << GetStateEventHandler() << std::endl
        << "Outstanding event: " << OutstandingEvent << std::endl
        << "Last outstanding event: " << LastOutstandingEvent << std::endl;
@@ -364,7 +364,7 @@ void StateMachine::ToStream(std::ostream & os) const
         TransitionHistoryType::const_iterator it = TransitionHistory.begin();
         TransitionHistoryType::const_iterator itEnd = TransitionHistory.end();
         for (; it != itEnd; ++it)
-            os << State::GetStringState(it->state) << " : " << it->e << std::endl;
+            os << State::GetString(it->state) << " : " << it->e << std::endl;
     }
 }
 

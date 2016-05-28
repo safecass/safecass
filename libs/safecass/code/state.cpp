@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: May 12, 2016
+// Last revision: May 28, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -22,7 +22,7 @@ State::State(State::StateType state) : CurrentState(state)
 {}
 
 #define STRINGFY(_state) case _state: return #_state;
-const std::string State::GetStringState(const StateType state)
+const std::string State::GetString(StateType state)
 {
     switch (state) {
         STRINGFY(NORMAL);
@@ -33,7 +33,7 @@ const std::string State::GetStringState(const StateType state)
     }
 }
 
-const std::string State::GetStringEntryExit(const StateEntryExitType entryExit)
+const std::string State::GetString(StateEntryExitType entryExit)
 {
     switch (entryExit) {
         STRINGFY(NORMAL_ON_ENTRY);
@@ -46,7 +46,7 @@ const std::string State::GetStringEntryExit(const StateEntryExitType entryExit)
     }
 }
 
-const std::string State::GetStringTransition(const TransitionType transition)
+const std::string State::GetString(TransitionType transition)
 {
     switch (transition) {
         STRINGFY(NORMAL_TO_ERROR);
@@ -58,26 +58,19 @@ const std::string State::GetStringTransition(const TransitionType transition)
         default: return "INVALID";
     }
 }
-#undef STRINGFY
 
-#if 0
-State::StateType State::GetNextState(TransitionType transition)
+const std::string State::GetString(StateMachineType type)
 {
-    switch (transition) {
-    case State::WARNING_TO_NORMAL:
-    case State::ERROR_TO_NORMAL:
-        return State::NORMAL;
-    case State::NORMAL_TO_WARNING:
-    case State::ERROR_TO_WARNING:
-        return State::WARNING;
-    case State::NORMAL_TO_ERROR:
-    case State::WARNING_TO_ERROR:
-        return State::ERROR;
-    default:
-        return State::INVALID;
+    switch (type) {
+        STRINGFY(STATEMACHINE_FRAMEWORK);
+        STRINGFY(STATEMACHINE_APP);
+        STRINGFY(STATEMACHINE_PROVIDED);
+        STRINGFY(STATEMACHINE_REQUIRED);
+        STRINGFY(STATEMACHINE_SERVICE);
+        default: return "INVALID";
     }
 }
-#endif
+#undef STRINGFY
 
 bool State::operator> (const State & rhs) const
 {
@@ -111,5 +104,5 @@ State & State::operator= (const State & rhs)
 
 void State::ToStream(std::ostream & os) const
 {
-    os << GetStringState(CurrentState);
+    os << GetString(CurrentState);
 }

@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: May 13, 2016
+// Last revision: May 28, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // URL          : https://github.com/safecass/safecass
 //
@@ -24,6 +24,7 @@
 
 #include <boost/graph/properties.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/labeled_graph.hpp>
 
 namespace SC {
 
@@ -68,15 +69,6 @@ public:
 
 protected:
     typedef enum {
-        STATE_INVALID,
-        STATE_FRAMEWORK,   // Framework state
-        STATE_APPLICATION, // Application state
-        STATE_REQUIRED,    // Required interface state
-        STATE_PROVIDED,    // Provided interface state
-        STATE_SERVICE,     // Service state for provided interface
-    } StateTypes;
-
-    typedef enum {
         EDGE_DEPENDENCY, // Edge representing service state dependency
         EDGE_ERROR_PROP  // Edge representing error propagation
     } EdgeTypes;
@@ -99,10 +91,16 @@ protected:
     //      build/external_packages/boost/src/libs/graph/example/edge_property.cpp
     //
     struct VertexProperty {
-        std::string  Name;
-        StateTypes   StateType;
+        //! Name of vertex
+        std::string Name;
+        //! Type of state machine
+        State::StateMachineType StateType;
+        //! Instance of state machine
         StateMachine * SM;
-        VertexProperty(void) : Name(NONAME), StateType(STATE_INVALID), SM(0) {}
+        //! Constructor
+        VertexProperty(void): Name(NONAME),
+                              StateType(State::STATEMACHINE_INVALID),
+                              SM(0) {}
     };
 
     struct EdgeProperty {
@@ -111,9 +109,21 @@ protected:
         // TODO boolean flag can be added to seletively enable and disable state dependency
     };
 
-    //typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+    // Choosing EdgeList and VertexList:
+    // - http://www.boost.org/doc/libs/1_61_0/libs/graph/doc/using_adjacency_list.html#sec:choosing-graph-type
+    /*!
+        Although setS would have been a primary choice for vertex and edge containers in
+        favor of the iterator and descriptor stability/invalidation, vecS has chosen
+        because the same interface name can be used as the name of a required and provided
+        interface.
+    */
     typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
-                                  VertexProperty, EdgeProperty> GraphType;
+                                  VertexProperty, EdgeProperty > GraphType;
+
+    // BGL labeled_graph:
+    // - http://stackoverflow.com/questions/2244580/find-boost-bgl-vertex-by-a-key
+    // - http://www.boost.org/doc/libs/1_47_0/libs/graph/example/labeled_graph.cpp
+    //typedef boost::labeled_graph<InternalGraphType, std::string> GraphType;
 
     //! Typedefs for convenience
     typedef boost::graph_traits<GraphType>::vertex_descriptor VertexDescriptor;
@@ -196,7 +206,6 @@ protected:
     /*!
         Graph maintains three vertices by default:
 
-        - s_ext: Extended component state (derived state)
         - s_F  : Framework state (state)
         - s_A  : Application state (state)
     */
@@ -211,6 +220,15 @@ public:
 
     //! Destructor
     ~GCM();
+
+    //! Add interface
+    bool AddInterface(const std::string & name, InterfaceType type);
+
+    //! Find interface
+    bool FindInterface(const std::string & name, InterfaceType type) const;
+
+    //! Remove interface
+    bool RemoveInterface(const std::string & name, InterfaceType type);
 
     //! GCM accessors
     /*!
@@ -235,8 +253,6 @@ public:
         \sa http://www.graphviz.org/doc/info/shapes.html#html
     */
     bool ExportToGraphViz(const std::string & fileName) const;
-
-    static std::string GetStateTypeString(StateTypes type);
 
     //! Returns node color code for different state in RRGGBB hex format
     static std::string GetColorCode(State::StateType state);

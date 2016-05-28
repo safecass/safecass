@@ -502,6 +502,7 @@ void FilterBase::ToStream(std::ostream & out, bool verbose) const
         case State::STATEMACHINE_APP:       out << "s_A"; break;
         case State::STATEMACHINE_PROVIDED:  out << "s_P"; break;
         case State::STATEMACHINE_REQUIRED:  out << "s_R"; break;
+        case State::STATEMACHINE_SERVICE:   out << "INVALID (service)"; break;
         case State::STATEMACHINE_INVALID:   out << "INVALID"; break;
         }
         out << "\", component: \"" << StateMachineRegistered.GetComponentName()
@@ -538,6 +539,7 @@ void FilterBase::ToStream(std::ostream & out, bool verbose) const
         case State::STATEMACHINE_APP:       out << "s_A "; break;
         case State::STATEMACHINE_PROVIDED:  out << "s_P "; break;
         case State::STATEMACHINE_REQUIRED:  out << "s_R "; break;
+        case State::STATEMACHINE_SERVICE:   out << "N/A (service) "; break;
         case State::STATEMACHINE_INVALID:   out << "N/A "; break;
         }
         out << "\"" << StateMachineRegistered.GetComponentName() << "\"";

@@ -60,11 +60,11 @@ void GCM::InitGraph(void)
     GCM::VertexDescriptor s_F   = boost::add_vertex(Graph);
 
     Graph[s_A].Name = "Application";
-    Graph[s_A].StateType = GCM::STATE_APPLICATION;
+    Graph[s_A].StateType = State::STATEMACHINE_APP;
     Graph[s_A].SM = new StateMachine(ComponentName);
 
     Graph[s_F].Name = "Framework";
-    Graph[s_F].StateType = GCM::STATE_FRAMEWORK;
+    Graph[s_F].StateType = State::STATEMACHINE_FRAMEWORK;
     Graph[s_F].SM = new StateMachine(ComponentName);
 
     // Add edges between vertices
@@ -74,6 +74,7 @@ void GCM::InitGraph(void)
     // SCASSERT(added);
 
     // TEMP Following nodes and edges are added only for testing purpose
+#if 0
     GCM::VertexDescriptor s_R1 = boost::add_vertex(Graph);
     GCM::VertexDescriptor s_R2 = boost::add_vertex(Graph);
     GCM::VertexDescriptor s_R3 = boost::add_vertex(Graph);
@@ -92,18 +93,18 @@ void GCM::InitGraph(void)
     Graph[_v].StateType = _type;\
     Graph[_v].SM = new StateMachine(ComponentName);
 
-    ADD_VERTEX(s_R1, "required1", GCM::STATE_REQUIRED);
-    ADD_VERTEX(s_R2, "required2", GCM::STATE_REQUIRED);
-    ADD_VERTEX(s_R3, "required3", GCM::STATE_REQUIRED);
-    ADD_VERTEX(s_R4, "required4", GCM::STATE_REQUIRED);
+    ADD_VERTEX(s_R1, "required1", State::STATEMACHINE_REQUIRED);
+    ADD_VERTEX(s_R2, "required2", State::STATEMACHINE_REQUIRED);
+    ADD_VERTEX(s_R3, "required3", State::STATEMACHINE_REQUIRED);
+    ADD_VERTEX(s_R4, "required4", State::STATEMACHINE_REQUIRED);
 
-    ADD_VERTEX(s_P1, "provided1", GCM::STATE_PROVIDED);
-    ADD_VERTEX(s_P2, "provided2", GCM::STATE_PROVIDED);
-    ADD_VERTEX(s_P3, "provided3", GCM::STATE_PROVIDED);
+    ADD_VERTEX(s_P1, "provided1", State::STATEMACHINE_PROVIDED);
+    ADD_VERTEX(s_P2, "provided2", State::STATEMACHINE_PROVIDED);
+    ADD_VERTEX(s_P3, "provided3", State::STATEMACHINE_PROVIDED);
 
-    ADD_VERTEX(s_P1_derived, "~provided1", GCM::STATE_SERVICE);
-    ADD_VERTEX(s_P2_derived, "~provided2", GCM::STATE_SERVICE);
-    ADD_VERTEX(s_P3_derived, "~provided3", GCM::STATE_SERVICE);
+    ADD_VERTEX(s_P1_derived, "~provided1", State::STATEMACHINE_SERVICE);
+    ADD_VERTEX(s_P2_derived, "~provided2", State::STATEMACHINE_SERVICE);
+    ADD_VERTEX(s_P3_derived, "~provided3", State::STATEMACHINE_SERVICE);
 
     boost::add_edge(s_P1, s_P1_derived, EdgeProperty(EDGE_DEPENDENCY), Graph);
     boost::add_edge(s_P2, s_P2_derived, EdgeProperty(EDGE_DEPENDENCY), Graph);
@@ -125,6 +126,7 @@ void GCM::InitGraph(void)
     Graph[s_R2].SM->ProcessEvent(eN2W);
     Graph[s_P3].SM->ProcessEvent(eN2E);
     Graph[s_P3_derived].SM->ProcessEvent(eN2E);
+#endif
 }
 
 void GCM::ToStream(std::ostream & os, ExportFormatType format) const
@@ -135,8 +137,10 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
         // Print list of vertices
         boost::tie(itVertex, itVertexEnd) = vertices(Graph);
         for (; itVertex != itVertexEnd; ++itVertex) {
-            os << *itVertex << ": " << Graph[*itVertex].Name << " (" << GetStateTypeString(Graph[*itVertex].StateType)
-                << "), State: " << State::GetStringState(Graph[*itVertex].SM->GetCurrentState()) << std::endl;
+            os << *itVertex << ": " << Graph[*itVertex].Name
+               << " (" << State::GetString(Graph[*itVertex].StateType)
+               << "), State: " << State::GetString(Graph[*itVertex].SM->GetCurrentState())
+               << std::endl;
         }
 
         os << std::endl;
@@ -201,35 +205,35 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
         ss_provided << "provided [label=<"
                     << "<table border=\"0\" cellborder=\"1\" cellpadding=\"3\" cellspacing=\"2\">";
         ss_provided_service << "provided_service [label=<"
-                    << "<table border=\"1\" bgcolor="\"cecece"\" cellborder=\"1\" cellpadding=\"3\" cellspacing=\"2\">";
+                    << "<table border=\"1\" bgcolor=\"#cecece\" cellborder=\"1\" cellpadding=\"3\" cellspacing=\"2\">";
 
         VertexIter itVertex, itVertexEnd;
         boost::tie(itVertex, itVertexEnd) = vertices(Graph);
         for (; itVertex != itVertexEnd; ++itVertex) {
             switch (Graph[*itVertex].StateType) {
-            case STATE_REQUIRED:
+            case State::STATEMACHINE_REQUIRED:
                 ss_required << "<tr><td port=\"s" << n_required++ << "\" bgcolor=\""
                             << GetColorCode(Graph[*itVertex].SM->GetCurrentState())
                             << "\">" << Graph[*itVertex].Name << "</td></tr>";
                 vecRequired.push_back(*itVertex);
                 break;
 
-            case STATE_PROVIDED:
+            case State::STATEMACHINE_PROVIDED:
                 ss_provided << "<tr><td port=\"s" << n_provided++ << "\" bgcolor=\""
                             << GetColorCode(Graph[*itVertex].SM->GetCurrentState())
                             << "\">" << Graph[*itVertex].Name << "</td></tr>";
                 vecProvided.push_back(*itVertex);
                 break;
 
-            case STATE_SERVICE:
+            case State::STATEMACHINE_SERVICE:
                 ss_provided_service << "<tr><td port=\"s" << n_provided_service++ << "\" bgcolor=\""
                                     << GetColorCode(Graph[*itVertex].SM->GetCurrentState())
                                     << "\">" << Graph[*itVertex].Name << "</td></tr>";
                 vecProvidedService.push_back(*itVertex);
                 break;
 
-            case STATE_FRAMEWORK:
-            case STATE_APPLICATION:
+            case State::STATEMACHINE_FRAMEWORK:
+            case State::STATEMACHINE_APP:
                 ss_others << Graph[*itVertex].Name << " [fillcolor=\""
                           << GetColorCode(Graph[*itVertex].SM->GetCurrentState())
                           << "\", style=\"rounded,filled\", shape=rounded];" << std::endl;
@@ -248,10 +252,12 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
         //ss_provided_service << "\", style=filled, fillcolor=gray];";
         ss_provided_service << "</table>>];";
 
-        // FIXME check if n_required > 0 (??)
-        os << ss_required.str() << std::endl;
-        os << ss_provided.str() << std::endl;
-        os << ss_provided_service.str() << std::endl;
+        if (!vecRequired.empty())
+            os << ss_required.str() << std::endl;
+        if (!vecProvided.empty())
+            os << ss_provided.str() << std::endl;
+        if (!vecProvidedService.empty())
+            os << ss_provided_service.str() << std::endl;
         os << ss_others.str() << std::endl;
         // for testing
         //os << "title [label=<Birth of George Washington<BR /> <FONT POINT-SIZE=\"10\">See also: American Revolution</FONT>>];" << std::endl;
@@ -290,7 +296,7 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
                 // Check if source is provided interface. If yes, search for vecProvided
                 // for its index.  If source is either s_A or s_F, edge needs to be defined
                 // differently.
-                if (Graph[idx].StateType == STATE_PROVIDED) {
+                if (Graph[idx].StateType == State::STATEMACHINE_PROVIDED) {
                     for (size_t j = 0; j < vecProvided.size(); ++j) {
                         if (vecProvided[j] == idx) {
                             edges << "provided:s" << j << ":e";
@@ -308,18 +314,6 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
         os << edges.str() << std::endl;
 
         os << "}" << std::endl;
-    }
-}
-
-std::string GCM::GetStateTypeString(StateTypes type)
-{
-    switch (type) {
-    case STATE_INVALID:     return "INVALID_STATE";
-    case STATE_FRAMEWORK:   return "FRAMEWORK_STATE";
-    case STATE_APPLICATION: return "APPLICATION_STATE";
-    case STATE_REQUIRED:    return "REQUIRED_STATE";
-    case STATE_PROVIDED:    return "PROVIDED_STATE";
-    case STATE_SERVICE:     return "SERVICE_STATE";
     }
 }
 
@@ -343,7 +337,6 @@ bool GCM::ExportToGraphViz(const std::string & fileName) const
     return true;
 }
 
-
 std::string GCM::GetColorCode(State::StateType state)
 {
     switch (state) {
@@ -353,4 +346,69 @@ std::string GCM::GetColorCode(State::StateType state)
     case State::FAILURE: return "#aa0000"; // dark red
     case State::INVALID: return "#000000"; // black
     }
+}
+
+#define PRINT_INTERFACE(_name, _type)\
+    (_type == GCM::PROVIDED_INTERFACE ? "provided" : "required") << " interface \"" << _name << "\""
+
+bool GCM::AddInterface(const std::string & name, InterfaceType type)
+{
+    if (FindInterface(name, type)) {
+        SCLOG_ERROR << "Failed to add " << PRINT_INTERFACE(name, type)
+                    << ": already exists" << std::endl;
+        return false;
+    }
+
+    GCM::VertexDescriptor v = boost::add_vertex(Graph);
+
+    Graph[v].Name = name;
+    Graph[v].StateType =
+        (type == GCM::PROVIDED_INTERFACE ? State::STATEMACHINE_PROVIDED : State::STATEMACHINE_REQUIRED);
+    Graph[v].SM = new StateMachine(ComponentName);
+
+    SCLOG_INFO << "Add " << PRINT_INTERFACE(name, type) << std::endl;
+
+    return true;
+}
+
+bool GCM::FindInterface(const std::string & name, InterfaceType type) const
+{
+    VertexIter it, itEnd;
+    boost::tie(it, itEnd) = vertices(Graph);
+    for (; it != itEnd; ++it) {
+        if (Graph[*it].StateType != type)
+            continue;
+        if (name.compare(Graph[*it].Name) == 0)
+            return true;
+    }
+
+    return false;
+}
+
+bool GCM::RemoveInterface(const std::string & name, InterfaceType type)
+{
+    VertexIter it, itEnd;
+    boost::tie(it, itEnd) = vertices(Graph);
+    for (; it != itEnd; ++it) {
+        if (Graph[*it].StateType != type)
+            continue;
+        if (name.compare(Graph[*it].Name) == 0) {
+            VertexDescriptor v = *it;
+            // Remove all edges to and from the vertex before removing the vertex.
+            // This invalidates descriptor and iterator.
+            boost::clear_vertex(v, Graph);
+            // Remove vertex from the vertex set of the graph with assumption that there
+            // are no edges to or from this vertex.
+            boost::remove_vertex(v, Graph);
+
+            SCLOG_INFO << "Removed " << PRINT_INTERFACE(name, type) << std::endl;
+
+            return true;
+        }
+    }
+
+    SCLOG_WARNING << "Failed to remove " << PRINT_INTERFACE(name, type)
+                  << ": no such interface is found" << std::endl;
+
+    return false;
 }

@@ -1,14 +1,14 @@
-//------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 //
 // SAFECASS: Safety Architecture For Engineering Computer-Assisted Surgical Systems
 //
 // Copyright (C) 2012-2016 Min Yang Jung and Peter Kazanzides
 //
-//------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 //
 // Created on   : Oct 26, 2012
-// Last revision: May 13, 2016
-// Author       : Min Yang Jung (myj@jhu.edu)
+// Last revision: May 28, 2016
+// Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
 #ifndef _stateEventHandler_h
@@ -35,9 +35,9 @@ public:
     virtual ~StateEventHandler(void) {}
 
     //! Event handlers
-    virtual void OnEntry(const State::StateEntryExitType entryType);
-    virtual void OnExit(const State::StateEntryExitType exitType);
-    virtual void OnTransition(const State::TransitionType transition);
+    virtual void OnEntry(State::StateEntryExitType entryType);
+    virtual void OnExit(State::StateEntryExitType exitType);
+    virtual void OnTransition(State::TransitionType transition);
 
     //! Getter
     inline const std::string & GetOwnerName(void) const { return OwnerName; }

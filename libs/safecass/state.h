@@ -14,12 +14,6 @@
 // This file defines the state-based semantics for SAFECASS, which consists of states, state
 // entry and exist, and state transitions.
 //
-// References:
-//
-// A. Avizienis, J.-C. Laprie, B. Randell, and C. Landwehr. Basic concepts and taxonomy of 
-// dependable and secure computing. IEEE Trans. on Dependable and Secure Computing, 1:11–33, 
-// Jan. 2004.
-//
 #ifndef _state_h
 #define _state_h
 
@@ -57,8 +51,6 @@ public:
         Note that the state transition from ERROR to WARNING is not considered in the
         current design.
 
-        FIXME Does ERROR_TO_WARNING make sense in practice???
-
         \sa event.h
     */
     typedef enum {
@@ -84,13 +76,14 @@ public:
         INVALID_TRANSITION
     } TransitionType;
 
-    // State machine types
+    // Typedef of state machine types
     typedef enum {
-        STATEMACHINE_FRAMEWORK,
-        STATEMACHINE_APP,
-        STATEMACHINE_PROVIDED,
-        STATEMACHINE_REQUIRED,
-        STATEMACHINE_INVALID
+        STATEMACHINE_INVALID,   /*!< Invalid type */
+        STATEMACHINE_FRAMEWORK, /*!< for Framework state */
+        STATEMACHINE_APP,       /*!< for Application state */
+        STATEMACHINE_PROVIDED,  /*!< for provided interface state */
+        STATEMACHINE_REQUIRED,  /*!< for required interface state */
+        STATEMACHINE_SERVICE,   /*!< for service state of provided interface */
     } StateMachineType;
 
 protected:
@@ -106,7 +99,7 @@ public:
     inline StateType GetState(void) const    { return CurrentState; }
     inline void SetState(StateType newState) { CurrentState = newState; }
 
-    /*! Operator overloading */
+    //! Operator overloading
     inline bool operator==(const State & rhs) const {
         return (this->CurrentState == rhs.CurrentState);
     }
@@ -114,7 +107,7 @@ public:
         return !(this->CurrentState == rhs.CurrentState);
     }
 
-    /*! State inequality: NORMAL < WARNING < ERROR */
+    //! State inequality: NORMAL < WARNING < ERROR
     bool operator> (const State & rhs) const;
     bool operator< (const State & rhs) const;
 
@@ -125,19 +118,18 @@ public:
           N   | N  W  E
           W   | W  W  E
           E   | E  E  E
-     */
+    */
     State operator* (const State & rhs) const;
     State operator*= (const State & rhs) const;
     State & operator= (const State & rhs);
 
-    //! String representation of states, entry/exit events, and transitions
-    static const std::string GetStringState(StateType state);
-    static const std::string GetStringEntryExit(StateEntryExitType entryExit);
-    static const std::string GetStringTransition(TransitionType transition);
-
-    //! Given transition, return new state
-    // FIXME This should be removed -- statemachine does this
-    //static StateType GetNextState(TransitionType transition);
+    //! Returns string representation of enums
+    /*! @{ */
+    static const std::string GetString(StateType state);
+    static const std::string GetString(StateMachineType type);
+    static const std::string GetString(StateEntryExitType entryExit);
+    static const std::string GetString(TransitionType transition);
+    /*! @} */
 
     // Returns human readable outputs
     virtual void ToStream(std::ostream & os) const;
