@@ -245,6 +245,8 @@ public:
     */
     //! Return current state
     State::StateType GetCurrentState(void) const;
+    //! Return state object with current state
+    inline State GetState(void) const { return State(GetCurrentState()); }
     //! Return owner name
     inline const std::string & GetOwnerName(void) const { return OwnerName; }
     //! Return state event handler instance

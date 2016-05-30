@@ -108,8 +108,10 @@ public:
     }
 
     //! State inequality: NORMAL < WARNING < ERROR
-    bool operator> (const State & rhs) const;
     bool operator< (const State & rhs) const;
+    inline bool operator> (const State & rhs) const { return (rhs < *this); }
+    inline bool operator<=(const State & rhs) const { return !(*this > rhs); }
+    inline bool operator>=(const State & rhs) const { return !(*this < rhs); }
 
     /*! State Product Operation (N: Normal, W: Warning, E: Error)
 
@@ -120,7 +122,7 @@ public:
           E   | E  E  E
     */
     State operator* (const State & rhs) const;
-    State operator*= (const State & rhs) const;
+    State & operator*= (const State & rhs);
     State & operator= (const State & rhs);
 
     //! Returns string representation of enums

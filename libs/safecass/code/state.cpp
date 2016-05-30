@@ -72,21 +72,19 @@ const std::string State::GetString(StateMachineType type)
 }
 #undef STRINGFY
 
-bool State::operator> (const State & rhs) const
-{
-    if (this->CurrentState == rhs.CurrentState) return false;
-    if ((this->CurrentState == State::WARNING && rhs.CurrentState == NORMAL) ||
-        (this->CurrentState == State::ERROR   && rhs.CurrentState == NORMAL) ||
-        (this->CurrentState == State::ERROR   && rhs.CurrentState == WARNING))
-        return true;
-    return false;
-}
-
 bool State::operator< (const State & rhs) const
 {
-    if (this->CurrentState == rhs.CurrentState) return false;
+    if (this->CurrentState == rhs.CurrentState)
+        return false;
 
-    return !(*this > rhs);
+    if ((this->CurrentState == State::NORMAL && rhs.CurrentState == WARNING) ||
+        (this->CurrentState == State::NORMAL && rhs.CurrentState == ERROR) ||
+        (this->CurrentState == State::WARNING && rhs.CurrentState == ERROR))
+    {
+        return true;
+    }
+
+    return false;
 }
 
 State State::operator* (const State & rhs) const
@@ -94,6 +92,13 @@ State State::operator* (const State & rhs) const
     return ((*this > rhs) ? *this : rhs);
 }
 
+State & State::operator*= (const State & rhs)
+{
+    if (*this < rhs)
+        this->CurrentState = rhs.GetState();
+
+    return *this;
+}
 
 State & State::operator= (const State & rhs)
 {

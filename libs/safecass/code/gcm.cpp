@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: May 25, 2016
+// Last revision: May 30, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -22,6 +22,15 @@
 
 using namespace SC;
 
+//! Reserved name of state machine for component state
+std::string GCM::NameOfFrameworkStateMachine = "scFramework";
+
+//! Reserved name of state machine for application state
+std::string GCM::NameOfApplicationStateMachine = "scApplication";
+
+//! Prefix of name of state machine for service state
+std::string GCM::PrefixOfServiceStateMachine = "@";
+
 GCM::GCM(void): CoordinatorName(NONAME), ComponentName(NONAME)
 {}
 
@@ -34,47 +43,42 @@ GCM::GCM(const std::string & coordinatorName, const std::string & componentName)
 
 GCM::~GCM(void)
 {
-    VertexIter itVertex, itVertexEnd;
-    boost::tie(itVertex, itVertexEnd) = vertices(Graph);
-    for (; itVertex != itVertexEnd; ++itVertex)
-        delete Graph[*itVertex].SM;
+    VertexIter it, itEnd;
+    boost::tie(it, itEnd) = boost::vertices(Graph);
+    for (; it != itEnd; ++it)
+        delete Graph[*it].SM;
 }
 
 void GCM::InitGraph(void)
 {
-    static const size_t NumOfInitialVertices = 3;
-
     // If graph object already exists, clean up
-    if (boost::num_vertices(Graph) > NumOfInitialVertices) {
-        SCLOG_WARNING << "Existing GCM graph being reset (Coordinator: \"" << CoordinatorName << "\", "
-                      << "Component: \"" << ComponentName << "\")" << std::endl;
-        // FIXME Graceful deletion of state machine objects? May need to stop all
-        // state machines first to avoid event-handling-while-statemachines-are-
-        // destroyed cases.  Potentially, following line may cause crashes
-
-        // FIXME Reset graph (empty out)
-    }
+    SCLOG_WARNING << "Removing all existing state machines, "
+                    << "Coordinator: \"" << CoordinatorName << "\", "
+                    << "Component: \"" << ComponentName << "\"" << std::endl;
+    // Remove all vertices
+    Graph.clear();
+    SCASSERT(boost::num_vertices(Graph) == 0);
+    SCASSERT(boost::num_edges(Graph) == 0);
 
     // Add vertices
-    GCM::VertexDescriptor s_A   = boost::add_vertex(Graph);
-    GCM::VertexDescriptor s_F   = boost::add_vertex(Graph);
+    VertexFramework = boost::add_vertex(Graph);
+    VertexApplication = boost::add_vertex(Graph);
 
-    Graph[s_A].Name = "Application";
-    Graph[s_A].StateType = State::STATEMACHINE_APP;
-    Graph[s_A].SM = new StateMachine(ComponentName);
+    Graph[VertexFramework].Name = GCM::NameOfFrameworkStateMachine;
+    Graph[VertexFramework].StateType = State::STATEMACHINE_FRAMEWORK;
+    Graph[VertexFramework].SM = new StateMachine(ComponentName);
 
-    Graph[s_F].Name = "Framework";
-    Graph[s_F].StateType = State::STATEMACHINE_FRAMEWORK;
-    Graph[s_F].SM = new StateMachine(ComponentName);
+    Graph[VertexApplication].Name = GCM::NameOfApplicationStateMachine;
+    Graph[VertexApplication].StateType = State::STATEMACHINE_APP;
+    Graph[VertexApplication].SM = new StateMachine(ComponentName);
 
-    // Add edges between vertices
-    EdgeDescriptor e;
-    bool added;
-    // boost::tie(e, added) = boost::add_edge(s_A, s_ext, EdgeProperty(EDGE_DEPENDENCY), Graph);
-    // SCASSERT(added);
+    SCASSERT(boost::num_vertices(Graph) == 2);
+    SCASSERT(boost::num_edges(Graph) == 0);
 
     // TEMP Following nodes and edges are added only for testing purpose
 #if 0
+    EdgeDescriptor e;
+    bool added;
     GCM::VertexDescriptor s_R1 = boost::add_vertex(Graph);
     GCM::VertexDescriptor s_R2 = boost::add_vertex(Graph);
     GCM::VertexDescriptor s_R3 = boost::add_vertex(Graph);
@@ -106,18 +110,18 @@ void GCM::InitGraph(void)
     ADD_VERTEX(s_P2_derived, "~provided2", State::STATEMACHINE_SERVICE);
     ADD_VERTEX(s_P3_derived, "~provided3", State::STATEMACHINE_SERVICE);
 
-    boost::add_edge(s_P1, s_P1_derived, EdgeProperty(EDGE_DEPENDENCY), Graph);
-    boost::add_edge(s_P2, s_P2_derived, EdgeProperty(EDGE_DEPENDENCY), Graph);
-    boost::add_edge(s_P3, s_P3_derived, EdgeProperty(EDGE_DEPENDENCY), Graph);
-    boost::add_edge(s_F, s_P1_derived, EdgeProperty(EDGE_DEPENDENCY), Graph);
-    boost::add_edge(s_F, s_P2_derived, EdgeProperty(EDGE_DEPENDENCY), Graph);
-    boost::add_edge(s_A, s_P2_derived, EdgeProperty(EDGE_DEPENDENCY), Graph);
-    boost::add_edge(s_A, s_P3_derived, EdgeProperty(EDGE_DEPENDENCY), Graph);
+    boost::add_edge(s_P1, s_P1_derived, EdgeProperty(), Graph);
+    boost::add_edge(s_P2, s_P2_derived, EdgeProperty(), Graph);
+    boost::add_edge(s_P3, s_P3_derived, EdgeProperty(), Graph);
+    boost::add_edge(VertexFramework, s_P1_derived, EdgeProperty(), Graph);
+    boost::add_edge(VertexFramework, s_P2_derived, EdgeProperty(), Graph);
+    boost::add_edge(VertexApplication, s_P2_derived, EdgeProperty(), Graph);
+    boost::add_edge(VertexApplication, s_P3_derived, EdgeProperty(), Graph);
 
-    boost::add_edge(s_R1, s_P1, EdgeProperty(EDGE_ERROR_PROP), Graph);
-    boost::add_edge(s_R1, s_P2, EdgeProperty(EDGE_ERROR_PROP), Graph);
-    boost::add_edge(s_R2, s_P3, EdgeProperty(EDGE_ERROR_PROP), Graph);
-    boost::add_edge(s_R4, s_P2, EdgeProperty(EDGE_ERROR_PROP), Graph);
+    boost::add_edge(s_R1, s_P1, EdgeProperty(), Graph);
+    boost::add_edge(s_R1, s_P2, EdgeProperty(), Graph);
+    boost::add_edge(s_R2, s_P3, EdgeProperty(), Graph);
+    boost::add_edge(s_R4, s_P2, EdgeProperty(), Graph);
 
     // Change state
     Event eN2W("evt_NORMAL_TO_WARNING", 10, Event::TRANSITION_N2W);
@@ -154,14 +158,7 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
             OutEdgeIter itEdgeOut, itEdgeOutEnd;
             boost::tie(itEdgeOut, itEdgeOutEnd) = boost::out_edges(*itVertex, Graph);
             for (; itEdgeOut != itEdgeOutEnd; ++itEdgeOut) {
-                // Dependency
-                if (Graph[*itEdgeOut].EdgeType == EDGE_DEPENDENCY) {
-                    os << "\t...affects...> ";
-                }
-                // Error propagation
-                else {
-                    os << "\t---propagates--> ";
-                }
+                os << "\t--- affects --> ";
                 os << Graph[boost::target(*itEdgeOut, Graph)].Name << std::endl;
             }
 
@@ -170,13 +167,7 @@ void GCM::ToStream(std::ostream & os, ExportFormatType format) const
             boost::tie(itEdgeIn, itEdgeInEnd) = boost::in_edges(*itVertex, Graph);
             for (; itEdgeIn != itEdgeInEnd; ++itEdgeIn) {
                 // Dependency
-                if (Graph[*itEdgeIn].EdgeType == EDGE_DEPENDENCY) {
-                    os << "\t<...depends on... ";
-                }
-                // Error propagation
-                else {
-                    os << "\t<--propagated from--- ";
-                }
+                os << "\t--- depends on ---> ";
                 os << Graph[boost::source(*itEdgeIn, Graph)].Name << std::endl;
             }
         }
@@ -359,19 +350,50 @@ bool GCM::AddInterface(const std::string & name, InterfaceType type)
         return false;
     }
 
+    // Create vertex for new interface
     GCM::VertexDescriptor v = boost::add_vertex(Graph);
-
     Graph[v].Name = name;
     Graph[v].StateType =
         (type == GCM::PROVIDED_INTERFACE ? State::STATEMACHINE_PROVIDED : State::STATEMACHINE_REQUIRED);
     Graph[v].SM = new StateMachine(ComponentName);
 
-    SCLOG_INFO << "Add " << PRINT_INTERFACE(name, type) << std::endl;
+    SCLOG_INFO << "Added " << PRINT_INTERFACE(name, type) << std::endl;
+
+    // In case of provided interface
+    if (type == GCM::PROVIDED_INTERFACE) {
+        // Create another vertex for service state in case of provided interface
+        GCM::VertexDescriptor v_service = boost::add_vertex(Graph);
+        Graph[v_service].Name = NameOfServiceStateMachine(name);
+        Graph[v_service].StateType = State::STATEMACHINE_SERVICE;
+        Graph[v_service].SM = new StateMachine(ComponentName);
+
+        // Add edge from provided interface state to service state vertex associated with
+        // the provided interface
+        GCM::EdgeDescriptor e;
+        bool success = false;
+        boost:tie(e, success) = boost::add_edge(v, v_service, EdgeProperty(), Graph);
+        if (!success) {
+            SCLOG_ERROR << "Failed to add edge from " << PRINT_INTERFACE(name, type)
+                        << " to its service state vertex" << std::endl;
+            return false;
+        }
+
+        SCLOG_INFO << "Added service state for " << PRINT_INTERFACE(name, type) << std::endl;
+    }
 
     return true;
 }
 
 bool GCM::FindInterface(const std::string & name, InterfaceType type) const
+{
+    State::StateMachineType smType =
+        (type == GCM::PROVIDED_INTERFACE ? State::STATEMACHINE_PROVIDED :
+                                           State::STATEMACHINE_REQUIRED);
+
+    return FindVertex(name, smType);
+}
+
+bool GCM::FindVertex(const std::string & name, State::StateMachineType type) const
 {
     VertexIter it, itEnd;
     boost::tie(it, itEnd) = vertices(Graph);
@@ -387,28 +409,166 @@ bool GCM::FindInterface(const std::string & name, InterfaceType type) const
 
 bool GCM::RemoveInterface(const std::string & name, InterfaceType type)
 {
+    const State::StateMachineType smType =
+        (type == GCM::PROVIDED_INTERFACE ? State::STATEMACHINE_PROVIDED :
+                                           State::STATEMACHINE_REQUIRED);
+
+    bool found = false;
     VertexIter it, itEnd;
+
     boost::tie(it, itEnd) = vertices(Graph);
     for (; it != itEnd; ++it) {
-        if (Graph[*it].StateType != type)
+        if (Graph[*it].StateType != smType)
             continue;
         if (name.compare(Graph[*it].Name) == 0) {
+            // Found interface
+            found = true;
+
             VertexDescriptor v = *it;
             // Remove all edges to and from the vertex before removing the vertex.
             // This invalidates descriptor and iterator.
             boost::clear_vertex(v, Graph);
+            // Delete state machine object before removal
+            delete Graph[v].SM;
             // Remove vertex from the vertex set of the graph with assumption that there
             // are no edges to or from this vertex.
             boost::remove_vertex(v, Graph);
 
             SCLOG_INFO << "Removed " << PRINT_INTERFACE(name, type) << std::endl;
 
-            return true;
+            break;
         }
     }
 
-    SCLOG_WARNING << "Failed to remove " << PRINT_INTERFACE(name, type)
-                  << ": no such interface is found" << std::endl;
+    // In case of provided interface, remove service state as well
+    if (type == PROVIDED_INTERFACE && found) {
+        bool removedServiceState = false;
+        boost::tie(it, itEnd) = vertices(Graph);
+        for (; it != itEnd; ++it) {
+            // Look for state machine for service state
+            if (Graph[*it].StateType != State::STATEMACHINE_SERVICE)
+                continue;
+            if (Graph[*it].Name.compare(NameOfServiceStateMachine(name)) == 0) {
+                delete Graph[*it].SM;
+                boost::remove_vertex(*it, Graph);
+                removedServiceState = true;
 
+                SCLOG_INFO << "Removed service state for " << PRINT_INTERFACE(name, type) << std::endl;
+                break;
+            }
+        }
+        SCASSERT(removedServiceState);
+    }
+
+    if (!found) {
+        SCLOG_WARNING << "Failed to remove " << PRINT_INTERFACE(name, type)
+                      << ": no such interface is found" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool GCM::FindEdge(const std::string & vertexNameFrom, State::StateMachineType vertexTypeFrom,
+                   const std::string & vertexNameTo, State::StateMachineType vertexTypeTo) const
+{
+    VertexIter it, itEnd;
+    boost::tie(it, itEnd) = boost::vertices(Graph);
+
+    GCM::VertexDescriptor v;
+    for (; it != itEnd; ++it) {
+        v = *it;
+        // Look for vertex where edge is coming out of
+        if ((Graph[v].Name.compare(vertexNameFrom) == 0) && (Graph[v].StateType == vertexTypeFrom)) {
+            // Check outgoing edges
+            OutEdgeIter itEdgeOut, itEdgeOutEnd;
+            boost::tie(itEdgeOut, itEdgeOutEnd) = boost::out_edges(v, Graph);
+            for (; itEdgeOut != itEdgeOutEnd; ++itEdgeOut) {
+                if (vertexNameTo.compare(Graph[boost::target(*itEdgeOut, Graph)].Name) == 0) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
     return false;
+}
+
+std::string GCM::NameOfServiceStateMachine(const std::string & nameOfProvidedInterface)
+{
+    std::string name = GCM::PrefixOfServiceStateMachine;
+    name += nameOfProvidedInterface;
+
+    return name;
+}
+
+
+State::StateType GCM::GetComponentState(ViewType view) const
+{
+    State::StateType stateFramework = Graph[VertexFramework].SM->GetCurrentState();
+
+    if (view == GCM::FRAMEWORK_VIEW)
+        return stateFramework;
+
+    State stateApplication;
+    GCM::VertexDescriptor v;
+
+    BGL_FORALL_VERTICES(v, Graph, GCM::GraphType) {
+        if (v == VertexFramework)
+            continue;
+        stateApplication *= Graph[v].SM->GetState();
+    }
+
+    if (view == GCM::APPLICATION_VIEW)
+        return stateApplication.GetState();
+
+    return (stateApplication * stateFramework).GetState();
+}
+
+//
+// FIXME
+//
+// In case of Provided interface, service state should be also processed
+//
+// Also, after dependency info is introduced, error propagation should be
+// handleded property.
+bool GCM::DispatchEvent(Event & event, State::StateMachineType type, const std::string & target)
+{
+    switch (type) {
+    default:
+        SCLOG_WARNING << "Invalid state machine type: Event \"" << event.GetName() << "\" was not processed" << std::endl;
+        return false;
+    case State::STATEMACHINE_FRAMEWORK:
+        // ProcessEvent() returns false if invalid transition was detected or event was ignored
+        Graph[VertexFramework].SM->ProcessEvent(event);
+        break;
+    case State::STATEMACHINE_APP:
+        Graph[VertexApplication].SM->ProcessEvent(event);
+        break;
+    case State::STATEMACHINE_PROVIDED:
+    case State::STATEMACHINE_REQUIRED:
+        {
+            bool found = false;
+            VertexIter it, itEnd;
+            boost::tie(it, itEnd) = boost::vertices(Graph);
+            for (; it != itEnd; ++it) {
+                VertexDescriptor v = *it;
+                if (Graph[v].StateType != type)
+                    continue;
+                if (Graph[v].Name.compare(target) == 0) {
+                    found = true;
+                    Graph[v].SM->ProcessEvent(event);
+                    break;
+                }
+            }
+            if (!found) {
+                SCLOG_ERROR << "No state machine found to process event \"" << event.GetName() << "\": "
+                            << "interface name \"" << target << "\" (" << State::GetString(type) << ")" << std::endl;
+                return false;
+            }
+        }
+        break;
+    }
+
+    return true;
 }

@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Apr 22, 2014
-// Last revision: May 28, 2016
+// Last revision: May 30, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // URL          : https://github.com/safecass/safecass
 //
@@ -16,11 +16,15 @@
 // Chapter 4.
 // Figures 4.5, 4.6
 //
+// TODO
+// - Getter for every type of state machine
+//
 #ifndef _gcm_h
 #define _gcm_h
 
 #include "common/common.h"
 #include "safecass/state.h"
+#include "safecass/event.h"
 
 #include <boost/graph/properties.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -61,18 +65,7 @@ public:
         EXPORT_GRAPHVIZ
     } ExportFormatType;
 
-    //! Typedef of container for state machines representing interface states
-    /*!
-        Key: interface name, value: statemachine instance
-    */
-    //typedef std::map<std::string, StateMachine *> InterfaceStateMachinesType;
-
 protected:
-    typedef enum {
-        EDGE_DEPENDENCY, // Edge representing service state dependency
-        EDGE_ERROR_PROP  // Edge representing error propagation
-    } EdgeTypes;
-
     //
     // Graph containing information about state dependency and error propagation based on
     // Boost Graph Library (BGL).
@@ -90,7 +83,8 @@ protected:
     // - Property example:
     //      build/external_packages/boost/src/libs/graph/example/edge_property.cpp
     //
-    struct VertexProperty {
+    class VertexProperty {
+    public:
         //! Name of vertex
         std::string Name;
         //! Type of state machine
@@ -103,9 +97,12 @@ protected:
                               SM(0) {}
     };
 
-    struct EdgeProperty {
-        EdgeTypes EdgeType;
-        EdgeProperty(EdgeTypes type): EdgeType(type) {}
+    class EdgeProperty {
+    public:
+        //! How many times error was propagated through this edge
+        int Count;
+        //! Constructor
+        EdgeProperty(void): Count(0) {}
         // TODO boolean flag can be added to seletively enable and disable state dependency
     };
 
@@ -186,6 +183,7 @@ protected:
     };
 #endif
 
+protected:
     //! Graph containing a set of GCM state machine objects, i.e., instances of StateMachine
     /*!
         Directed
@@ -202,14 +200,31 @@ protected:
     //! Name of component that this GCM represents
     const std::string ComponentName;
 
-    //! Initialize graph
-    /*!
-        Graph maintains three vertices by default:
+    //! Vertex descriptor of state machine for framework state
+    VertexDescriptor VertexFramework;
 
-        - s_F  : Framework state (state)
-        - s_A  : Application state (state)
+    //! Vertex descriptor of state machine for application state
+    VertexDescriptor VertexApplication;
+
+    //! Initialize graph of state machines
+    /*!
+        The graph maintains two vertices by default: framework state and application state.
+        This method removes all the existing vertices but those two.
     */
     void InitGraph(void);
+
+    //! Dispatch event to specified state machine to process the event
+    /*!
+        \return true if specified state machine was found and thus event was dispatched to
+        the state machine; false otherwise.
+
+        Note that returning true does not necessarily indicate the event was processed
+        successfully (e.g., event was ignored due to lower severity, no transition
+        occurred due to invalid state transitions, etc).
+    */
+    bool DispatchEvent(Event & event,
+                       State::StateMachineType type,
+                       const std::string & target = "");
 
     //! Default constructor should not be used
     GCM(void);
@@ -221,6 +236,9 @@ public:
     //! Destructor
     ~GCM();
 
+    //
+    // Interface Management
+    //
     //! Add interface
     bool AddInterface(const std::string & name, InterfaceType type);
 
@@ -229,6 +247,31 @@ public:
 
     //! Remove interface
     bool RemoveInterface(const std::string & name, InterfaceType type);
+
+    //
+    // Graph Accessors
+    //
+    //! Find vertex
+    bool FindVertex(const std::string & name, State::StateMachineType type) const;
+
+    //! Find edge
+    bool FindEdge(const std::string & vertexNameFrom, State::StateMachineType vertexTypeFrom,
+                  const std::string & vertexNameTo, State::StateMachineType vertexTypeTo) const;
+
+    //
+    // Event Processing Modules
+    //
+    // FIXME
+    //! Enqueue request to process event
+    // 1. introduce MPSC queue
+    // 2. determine threading model (GCM on its own? or rely on framework's model)
+    // 3. process event
+
+    //! Returns component state with given view
+    /*!
+        \param view argument specifying view (of type ViewType)
+    */
+    State::StateType GetComponentState(ViewType view) const;
 
     //! GCM accessors
     /*!
@@ -256,6 +299,21 @@ public:
 
     //! Returns node color code for different state in RRGGBB hex format
     static std::string GetColorCode(State::StateType state);
+
+    /*!
+        \addtogroup Reserved names used by the GCM
+        @{
+    */
+    //! Reserved name of state machine for framework state
+    static std::string NameOfFrameworkStateMachine;
+    //! Reserved name of state machine for application state
+    static std::string NameOfApplicationStateMachine;
+    //! Prefix of name of state machine for service state
+    static std::string PrefixOfServiceStateMachine;
+    /*! @} */
+
+    //! Given provided interface name, returns name of state machine for service states
+    static std::string NameOfServiceStateMachine(const std::string & nameOfProvidedInterface);
 };
 
 inline std::ostream & operator << (std::ostream & os, const GCM & gcm) {

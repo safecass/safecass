@@ -86,6 +86,11 @@ bool StateMachine::ProcessEvent(Event & event)
         ignore = false;
         SCLOG_DEBUG << "ProcessEvent: No outstanding event, process event" << std::endl;
     } else {
+        //
+        // FIXME: In this case, history of ignored event should be archived
+        // To enable this feature, new type of event should be defined
+        // (compound event that contains history of other events ignored)
+        //
         // Handle event if severity of the latest event is equal to or greater than that
         // of current outstanding event.
         if (event.GetSeverity() >= OutstandingEvent.GetSeverity()) {
@@ -143,6 +148,8 @@ bool StateMachine::ProcessEvent(Event & event)
     }
 
     PushTransitionHistory(OutstandingEvent, GetCurrentState());
+
+    SCLOG_DEBUG << "Processed event \"" << event.GetName() << "\"" << std::endl;
 
     return true;
 }
