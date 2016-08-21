@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: May 13, 2016
+// Last revision: Jun 5, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -80,11 +80,11 @@ public:
     /*!
         +--------- N2E ------>+
         |                     |
-        +-- N2W -->+-- W2E -->+  NW2E = (N2W | W2E)
+        +-- N2W -->+-- W2E -->+  NW2E
         |          |          |
         NORMAL     WARNING    ERROR
         |          |          |
-        +<-- W2N --+<-- E2W --+  EW2N = (E2W | W2N)
+        +<-- W2N --+<-- E2W --+  EW2N
         |          |          |
         +<-------- E2N -------+
 
@@ -156,9 +156,6 @@ protected:
     //! Private constructor: Prevent use of default constructor
     Event(void);
 
-    //! Get string representation of transition type
-    const std::string GetTransitionTypeString(TransitionType transition) const;
-
 public:
     //! Default constructor with design-time attributes
     Event(const std::string & name, unsigned int severity, TransitionType transition);
@@ -193,12 +190,17 @@ public:
     inline TimestampType        GetTimestamp(void) const  { return Timestamp; }
     inline const std::string &  GetWhat(void) const       { return What; }
 
-    void SetTimestamp(TimestampType timestamp) { Timestamp = timestamp; }
+    //! Set timestamp of event.  If argument is not specified, timestamp is set to the
+    // current time
+    void SetTimestamp(TimestampType timestamp = 0);
     void SetWhat(const std::string & what)     { What = what; }
     /*! @} */
 
     //! Returns transition from given state
     State::TransitionType GetStateTransition(State::StateType currentState) const;
+
+    //! Get string representation of transition type
+    std::string GetTransitionTypeString(void) const;
 
     //! Accessors
     inline bool IsActive(void) const  { return Active; }

@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------
 //
 // Created on   : Jul 7, 2012
-// Last revision: May 13, 2016
+// Last revision: Jun 5, 2016
 // Author       : Min Yang Jung <myj@jhu.edu>
 // Github       : https://github.com/safecass/safecass
 //
@@ -107,7 +107,7 @@ void Event::ToStream(std::ostream & os) const
 {
     os << Name << ", severity: " << Severity << ", ";
 
-    os << "transition: " << GetTransitionTypeString(Transition) << ", ";
+    os << "transition: " << GetTransitionTypeString() << ", ";
 
     os << "time: ";
     if (Timestamp == 0)
@@ -130,7 +130,7 @@ const Json::Value Event::SerializeJSON(void) const
 
     json[Dict::EVENT_ATTR_NAME]       = Name;
     json[Dict::EVENT_ATTR_SEVERITY]   = Severity;
-    json[Dict::EVENT_ATTR_TRANSITION] = GetTransitionTypeString(Transition);
+    json[Dict::EVENT_ATTR_TRANSITION] = GetTransitionTypeString();
     json[Dict::EVENT_ATTR_TIMESTAMP]  = Timestamp;
     json[Dict::EVENT_ATTR_WHAT]       = What;
     json[Dict::EVENT_ATTR_ACTIVE]     = Active;
@@ -144,9 +144,9 @@ const std::string Event::SerializeJSONString(void) const
     return JsonWrapper::GetJsonString(SerializeJSON());
 }
 
-const std::string Event::GetTransitionTypeString(TransitionType transition) const
+std::string Event::GetTransitionTypeString(void) const
 {
-    switch (transition) {
+    switch (Transition) {
     // onset
     case TRANSITION_N2W:     return Dict::EVENT_TRANSITION_N2W;
     case TRANSITION_W2E:     return Dict::EVENT_TRANSITION_W2E;
@@ -159,4 +159,9 @@ const std::string Event::GetTransitionTypeString(TransitionType transition) cons
     case TRANSITION_EW2N:    return Dict::EVENT_TRANSITION_EW2N;
     case TRANSITION_INVALID: return Dict::INVALID;
     }
+}
+
+void Event::SetTimestamp(TimestampType timestamp)
+{
+    Timestamp = ((timestamp == 0) ? GetCurrentTimestamp() : timestamp);
 }
