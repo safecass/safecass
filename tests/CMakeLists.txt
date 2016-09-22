@@ -7,7 +7,7 @@
 #---------------------------------------------------------------------------------
 #
 # Created on   : Jul 6, 2012
-# Last revision: Apr 24, 2016
+# Last revision: Sep 21, 2016
 # Author       : Min Yang Jung <myj@jhu.edu>
 # Github       : https://github.com/safecass/safecass
 #
@@ -22,8 +22,8 @@ include (add_ctest)
 
 # Unit testing requires gtest; download, build, and import gtest in the build tree
 add_dl_project(PROJ     gtest
-               URL      https://googletest.googlecode.com/files/gtest-1.7.0.zip
-               URL_HASH SHA1=f85f6d2481e2c6c4a18539e391aa4ea8ab0394af
+               URL      https://github.com/google/googletest/archive/release-1.7.0.zip
+               URL_HASH SHA1=F89BC9F55477DF2FDE082481E2D709BFAFDB057B
                EXCLUDE_FROM_ALL)
 target_include_directories(gtest INTERFACE
                            ${SAFECASS_BUILD_ROOT}/external_packages/gtest/src/include)
