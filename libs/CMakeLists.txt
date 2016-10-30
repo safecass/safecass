@@ -7,7 +7,7 @@
 #-----------------------------------------------------------------------------------
 #
 # Created on   : Jul 2, 2012
-# Last revision: May 15, 2016
+# Last revision: Oct 30, 2016
 # Author       : Min Yang Jung <myj@jhu.edu>
 # URL          : https://github.com/safecass/safecass
 #
@@ -137,7 +137,7 @@ else()
   add_external_project(NAME          boost
                        URL           http://cs.jhu.edu/~minyang/boost_1_60_0.tar.bz2
                        #URL           /Users/MJ/project/tools/boost_1_60_0.tar.bz2 # Local folder
-                       URL_HASH      65A840E1A0B13A558FF19EEB2C4F0CBE # 1.60.0
+                       URL_HASH      65a840e1a0b13a558ff19eeb2c4f0cbe # 1.60.0
                        BUILD_IN_SRC  TRUE
                        CONFIG_CMD    ${BOOST_BOOTSTRAP_CMD}
                        BUILD_CMD     ${BOOST_B2_CMD} install
@@ -221,7 +221,7 @@ if (NOT GLOG_FOUND)
 
   add_external_project(NAME          glog
                        URL           https://github.com/google/glog/archive/v0.3.4.tar.gz
-                       URL_HASH      DF92E05C9D02504FB96674BC776A41CB
+                       URL_HASH      df92e05c9d02504fb96674bc776a41cb
                        BUILD_IN_SRC  TRUE
                        CONFIG_CMD    "./configure"
                        BUILD_CMD     "make" -j${N})
@@ -253,7 +253,7 @@ if (NOT EIGEN3_FOUND)
   # Download and configure Eigen3 at configure-time
   add_dl_project(PROJ     eigen3
                  URL      http://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2
-                 URL_HASH MD5=9E3BFAAAB3DB18253CFD87EA697B3AB1
+                 URL_HASH MD5=9e3bfaaab3db18253cfd87ea697b3ab1
                  EXCLUDE_FROM_ALL)
 
   # Set JSON-related variables
